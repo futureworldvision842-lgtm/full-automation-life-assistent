@@ -22,8 +22,16 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PY = sys.executable  # the (venv) python that launched us
 NEW_CONSOLE = 0x00000010  # CREATE_NEW_CONSOLE — detached window that persists
 
-# Keep Ollama models next to the repo unless the user already set a location.
-os.environ.setdefault("OLLAMA_MODELS", os.path.join(ROOT, "scratch", "ollama", "models"))
+# Manual-stop flag: when present, the user deliberately stopped Jarvis, so the
+# Voice GUI must NOT be auto-relaunched until they open it again (Start clears it).
+STOP_FLAG = os.path.join(ROOT, "scratch", "jarvis.stop")
+
+# Keep the existing model library when present and give agentic sessions enough
+# server-side context. These values affect only the supervised Ollama process.
+shared_ollama_models = os.path.join(os.path.dirname(ROOT), "ollama", "models")
+os.environ.setdefault("OLLAMA_MODELS", shared_ollama_models if os.path.isdir(shared_ollama_models) else os.path.join(ROOT, "scratch", "ollama", "models"))
+os.environ.setdefault("OLLAMA_CONTEXT_LENGTH", "65536")
+os.environ.setdefault("OLLAMA_KEEP_ALIVE", "24h")
 
 try:
     import psutil
@@ -45,8 +53,13 @@ def port_up(port):
 def proc_running(needle):
     if psutil is None:
         return True  # can't check — assume up rather than spawn duplicates
-    for p in psutil.process_iter(["cmdline"]):
+    # Only count python/node executables — otherwise any shell command that
+    # merely mentions the needle (e.g. a grep for 'main.py') looks like the GUI.
+    for p in psutil.process_iter(["name", "cmdline"]):
         try:
+            nm = (p.info.get("name") or "").lower()
+            if not (nm.startswith("python") or nm.startswith("node")):
+                continue
             if needle in " ".join(p.info.get("cmdline") or []):
                 return True
         except Exception:
@@ -79,6 +92,16 @@ def build_services():
     if os.path.exists(_p("mobile_control.py")):
         svcs.append(("Mobile", "port", 8765, [PY, "mobile_control.py"], ROOT))
 
+    # Status-only local bridge and cloud heartbeat used by the GAIGS app.
+    if os.path.exists(_p("web", "server.py")):
+        svcs.append(("GAIGS Bridge", "port", 8090, [PY, "server.py"], _p("web")))
+    if os.path.exists(_p("web", "heartbeat_reporter.py")):
+        svcs.append(("GAIGS Heartbeat", "proc", "heartbeat_reporter.py", [PY, "heartbeat_reporter.py"], _p("web")))
+
+    # Read-only daily mission health, memory and owner WhatsApp briefing.
+    if os.path.exists(_p("agent", "mission_daemon.py")):
+        svcs.append(("Mission Control", "proc", "mission_daemon.py", [PY, "mission_daemon.py"], _p("agent")))
+
     # WhatsApp bridge (Baileys) — port 3200. Needs node + npm install done.
     if node and os.path.exists(_p("wa", "jarvis_baileys.js")) and os.path.isdir(_p("wa", "node_modules")):
         svcs.append(("WhatsApp", "port", 3200, [node, "jarvis_baileys.js"], _p("wa")))
@@ -95,7 +118,7 @@ def build_services():
 
     # Moltbot / clawdbot gateway — installed globally via npm.
     if have("clawdbot"):
-        svcs.append(("Moltbot", "port", 18789, ["cmd", "/c", "clawdbot gateway"], ROOT))
+        svcs.append(("Moltbot", "port", 18789, ["cmd", "/c", "clawdbot gateway run --port 18789 --bind loopback --allow-unconfigured"], ROOT))
 
     # Odysseus AI server — cloned into bots/odysseus (FastAPI on 7000).
     ody = _p("bots", "odysseus", "app.py")
@@ -120,11 +143,18 @@ def alive(kind, key):
 
 
 def main():
+    if os.path.exists(STOP_FLAG):
+        print("[Supervisor] Manual stop is active. Open JARVIS normally to clear it.")
+        return
     services = build_services()
     print(f"[Supervisor] JARVIS supervisor online. Root: {ROOT}")
     print("[Supervisor] Managing: " + ", ".join(s[0] for s in services))
     first = True
     while True:
+        manual_stop = os.path.exists(STOP_FLAG)
+        if manual_stop:
+            print("[Supervisor] Owner stop detected. Supervisor is exiting and will not relaunch services.")
+            return
         for name, kind, key, cmd, cwd in services:
             try:
                 if not alive(kind, key):

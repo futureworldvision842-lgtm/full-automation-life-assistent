@@ -93,7 +93,7 @@ def _analyze(data, news):
             "'⚠ Informational only, not financial advice.'\n\n"
             f"DATA: {facts}\n\nHEADLINES:\n{hl}"
         )
-        r = c.models.generate_content(model="gemini-2.5-flash", contents=prompt)
+        r = c.models.generate_content(model="gemini-flash-latest", contents=prompt)
         return (r.text or "").strip()
     except Exception as e:
         return (f"GOLD ~${data.get('price','?')}/oz | 7d {data.get('chg_7d',0):+.1f}% | "
@@ -144,11 +144,27 @@ def run(parameters=None, player=None, speak=None):
     if parameters.get("send_whatsapp"):
         to = (parameters.get("whatsapp_to") or "").strip()
         if not to:
+            # Default to the Boss's configured daily-brief contact.
+            try:
+                cfg = json.loads((_base() / "config" / "gold_config.json").read_text(encoding="utf-8"))
+                contacts = cfg.get("whatsapp_contacts") or []
+                if contacts:
+                    to = str(contacts[0].get("number") or contacts[0].get("name") or "").strip()
+            except Exception:
+                pass
+        if not to:
             return msg + "\n\n(Tell me which WhatsApp contact to send it to, Sir.)"
         try:
             from actions.send_message import send_message
-            send_message(parameters={"platform": "whatsapp", "receiver": to, "message": msg}, player=player)
-            return msg + f"\n\n✅ Sent to {to} on WhatsApp."
+            # send_message expects 'message_text' (NOT 'message') — an empty message
+            # is rejected, so pass the right key and verify the outcome honestly.
+            result = send_message(
+                parameters={"platform": "whatsapp", "receiver": to, "message_text": msg},
+                player=player,
+            )
+            if isinstance(result, str) and result.lower().startswith("message sent"):
+                return msg + f"\n\n✅ Sent to {to} on WhatsApp."
+            return msg + f"\n\n(WhatsApp delivery NOT confirmed: {str(result)[:100]})"
         except Exception as e:
             return msg + f"\n\n(WhatsApp send failed: {str(e)[:60]})"
     return msg

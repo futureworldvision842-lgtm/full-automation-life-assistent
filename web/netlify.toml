@@ -1,0 +1,8 @@
+[build]
+  publish = "."
+  command = "echo 'J.A.R.V.I.S. 3D Web HUD Built Ready'"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

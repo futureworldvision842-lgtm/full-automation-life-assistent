@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "owner": {
+    "name": "Muhammad Qureshi",
+    "role": "Founder and final human authority",
+    "home_base": "Jamia Masjid-e-Nabawi Qureshi Hashmi, G-11/4, Islamabad, Pakistan"
+  },
+  "mission": {
+    "statement": "Help people improve their communities through transparent, bottom-up governance, accountable public action, useful education and human-controlled AI.",
+    "principles": [
+      "AI informs and assists; humans decide.",
+      "Every consequential action must be attributable, reviewable and reversible where possible.",
+      "Public funds, votes and project results must be transparent without exposing private identity data.",
+      "Accuracy and source verification are more important than virality.",
+      "The platform is an evolving MVP and must never be represented as a finished global system."
+    ],
+    "pillars": [
+      "bottom-up community governance",
+      "transparent ledgers and accountable funding",
+      "AI as a public utility under human authority",
+      "science-game problem solving",
+      "education and skills that increase human agency"
+    ]
+  },
+  "authority": {
+    "default": "read, research, draft, plan and report",
+    "requires_owner_approval": [
+      "publish or deploy",
+      "send a message to another person",
+      "spend, transfer or trade money or crypto",
+      "vote or act in governance",
+      "change credentials, permissions or security settings",
+      "install software or apply generated code",
+      "delete or overwrite user data"
+    ],
+    "never": [
+      "spread to a device or server without its owner's informed permission",
+      "bypass security controls or obtain credentials without authorization",
+      "hide persistence, surveillance or resource consumption",
+      "remove the owner's ability to stop, inspect or revoke JARVIS",
+      "let an AI make a binding public decision for people"
+    ]
+  },
+  "properties": [
+    {
+      "id": "gaigs_jarvis_v2",
+      "name": "GAIGS JARVIS v2",
+      "url": "https://gaigs-jarvis-v2.qw01.chatgpt.site/",
+      "type": "public app",
+      "control": "owner-authorized Sites deployment"
+    },
+    {
+      "id": "gaigs_legacy",
+      "name": "GAIGS legacy GitHub Pages",
+      "url": "https://futureworldvision842-lgtm.github.io/gaigs/gaigs/index.html",
+      "type": "legacy public app",
+      "control": "do not modify unless the owner explicitly selects it"
+    },
+    {
+      "id": "humanity_os",
+      "name": "Humanity OS",
+      "url": "https://gaigs-humanity-platform.qw01.chatgpt.site/humanity-os/",
+      "type": "public concept app",
+      "control": "separate from GAIGS legacy"
+    },
+    {
+      "id": "humanity_platform",
+      "name": "GAIGS Humanity Platform",
+      "url": "https://gaigs-humanity-platform.qw01.chatgpt.site/gaigs/",
+      "type": "public app",
+      "control": "owner-authorized deployment"
+    },
+    {
+      "id": "future_world",
+      "name": "Future World Vision",
+      "url": "https://futureoworldvision.netlify.app/",
+      "type": "mission site",
+      "control": "health checks are automatic; changes require approval"
+    },
+    {
+      "id": "masjid_model",
+      "name": "Masjid-e-Nabawi Model",
+      "url": "https://masjidenabvimodel.netlify.app/",
+      "type": "community site",
+      "control": "health checks are automatic; changes require approval"
+    },
+    {
+      "id": "one_piece_journey",
+      "name": "One Piece Journey Crew",
+      "url": "https://onepiecejourney-crew.netlify.app/",
+      "type": "community and content site",
+      "control": "health checks are automatic; changes require approval"
+    }
+  ],
+  "repositories": [
+    "https://github.com/futureworldvision842-lgtm/gaigs",
+    "https://github.com/futureworldvision842-lgtm/Muhammad-s-Jarvis"
+  ]
+}

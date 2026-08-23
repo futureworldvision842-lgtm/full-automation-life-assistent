@@ -1,0 +1,6 @@
+# Local Netlify folder
+.netlify
+config.js
+
+cloud-jarvis/auth
+cloud-jarvis/node_modules

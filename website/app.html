@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>NewDawn — One App for Everything, Owned by Everyone</title>
+<meta name="description" content="Demo of the people-owned super-app: social + governance + crypto wallet + services + science game. Your phone is the database.">
+<meta name="theme-color" content="#04070d">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NewDawn">
+<style>
+:root{
+  --bg:#04070d; --bg2:#070d18; --panel:#0a1322; --panel2:#081020; --line:#12304a;
+  --cyan:#19e0ff; --green:#39ff9c; --gold:#ffd166; --red:#ff5d5d; --purple:#c792ff;
+  --text:#e8f7ff; --muted:#7d9cb1; --mono:Consolas,monospace; --font:'Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:var(--font);max-width:520px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:76px;
+  background-image:radial-gradient(700px 340px at 85% -60px,rgba(25,224,255,.09),transparent),
+                   radial-gradient(600px 400px at -10% 30%,rgba(199,146,255,.07),transparent),
+                   radial-gradient(500px 300px at 100% 90%,rgba(57,255,156,.05),transparent)}
+a{color:var(--cyan);text-decoration:none}
+button{cursor:pointer;border:none;border-radius:10px;padding:12px 18px;font-weight:bold;font-size:14px;font-family:var(--font);transition:.15s}
+button:active{transform:scale(.97)}
+.b-green{background:linear-gradient(135deg,var(--green),#12d9b0);color:#04170d;box-shadow:0 4px 18px rgba(57,255,156,.28)}
+.b-cyan{background:transparent;border:1px solid var(--cyan);color:var(--cyan)}
+.b-gold{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+.b-red{background:transparent;border:1px solid var(--red);color:var(--red)}
+.b-purple{background:var(--purple);color:#1a0533}
+input,textarea,select{width:100%;background:#061020;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:13px 14px;font-size:15px;margin:6px 0;font-family:var(--font)}
+input:focus,textarea:focus{outline:none;border-color:var(--cyan)}
+.card{background:linear-gradient(160deg,rgba(12,22,38,.75),rgba(7,14,26,.85));backdrop-filter:blur(8px);
+  border:1px solid var(--line);border-radius:18px;padding:18px;margin:12px 0;
+  box-shadow:0 8px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(120,200,255,.06)}
+.card h3{color:var(--cyan);font-size:15.5px;margin-bottom:8px}
+.muted{color:var(--muted);font-size:13px;line-height:1.6}
+.mono{font-family:var(--mono)}
+.pill{display:inline-block;font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:20px;letter-spacing:1px}
+.pill.g{background:rgba(57,255,156,.12);color:var(--green)}
+.pill.c{background:rgba(25,224,255,.12);color:var(--cyan)}
+.pill.o{background:rgba(255,209,102,.12);color:var(--gold)}
+.pill.r{background:rgba(255,93,93,.12);color:var(--red)}
+.pill.p{background:rgba(199,146,255,.12);color:var(--purple)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+/* top bar */
+.top{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:13px 16px;
+  background:rgba(4,7,13,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .logo{font-family:var(--mono);font-weight:bold;letter-spacing:2px;font-size:15px;
+  background:linear-gradient(90deg,var(--cyan),var(--green));-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 10px rgba(25,224,255,.4))}
+/* ===== CREW (One Piece style) ===== */
+.crew-banner{background:linear-gradient(120deg,#170b2b,#0b1530 60%,#07231c);border:1px solid #3a2a5c;border-radius:18px;
+  padding:18px;margin:12px 0;position:relative;overflow:hidden;cursor:pointer}
+.crew-banner::after{content:'🏴‍☠️';position:absolute;right:6px;top:-8px;font-size:74px;opacity:.13;transform:rotate(12deg)}
+.crew-banner h3{color:var(--gold);font-size:17px}
+.crew-banner .muted{font-size:12.5px}
+.role{border:1px solid #33235c;background:linear-gradient(150deg,#120a24,#0a0f22);border-radius:16px;padding:15px;margin:10px 0;position:relative}
+.role h4{color:var(--purple);font-size:15px}
+.role .bounty{font-family:var(--mono);color:var(--gold);font-size:11px;letter-spacing:1px}
+.role .desc{color:var(--muted);font-size:12.5px;margin:6px 0 10px;line-height:1.55}
+.crew-member{display:flex;gap:11px;align-items:center;padding:9px 4px;border-bottom:1px solid #1a1330}
+.crew-member .cav{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;
+  background:linear-gradient(135deg,#2b1a4d,#0c2f3f);border:2px solid var(--gold);box-shadow:0 0 12px rgba(255,209,102,.25)}
+.crew-member .who b{font-size:13.5px;display:block}
+.crew-member .who span{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.crew-member .sh{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--gold);text-align:right}
+.own-card{background:linear-gradient(135deg,#241536,#0d1f33);border:1px solid #4a3070;border-radius:18px;padding:20px;margin:12px 0;position:relative;overflow:hidden}
+.own-card::after{content:'⬡';position:absolute;right:-10px;bottom:-26px;font-size:110px;opacity:.07}
+.own-card .big{font-size:30px;font-family:var(--mono);color:var(--gold);margin:4px 0}
+.shbar{height:10px;border-radius:8px;background:#0c1a2c;overflow:hidden;display:flex;margin:10px 0 4px}
+.shbar div{height:100%}
+.top .demo{font-family:var(--mono);font-size:9px;color:var(--gold);border:1px dashed rgba(255,209,102,.5);padding:2px 7px;border-radius:6px}
+.top .ai-btn{margin-left:auto;background:rgba(199,146,255,.15);color:var(--purple);border:1px solid rgba(199,146,255,.4);padding:7px 13px;border-radius:20px;font-size:12px}
+/* ticker */
+.ticker{overflow:hidden;background:#060d18;border-bottom:1px solid var(--line);white-space:nowrap;font-family:var(--mono);font-size:11.5px;padding:7px 0}
+.ticker span{display:inline-block;padding-left:100%;animation:tick 38s linear infinite}
+@keyframes tick{to{transform:translateX(-100%)}}
+.up{color:var(--green)}.dn{color:var(--red)}
+/* bottom nav */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;z-index:40;
+  display:flex;background:rgba(5,9,16,.97);border-top:1px solid var(--line);backdrop-filter:blur(10px)}
+.bnav button{flex:1;background:none;color:var(--muted);font-size:10px;padding:9px 2px 10px;border-radius:0;display:flex;flex-direction:column;gap:3px;align-items:center;font-weight:normal;position:relative}
+.bnav button .i{font-size:20px;transition:.2s}
+.bnav button.on{color:var(--cyan)}
+.bnav button.on .i{filter:drop-shadow(0 0 10px var(--cyan));transform:translateY(-2px) scale(1.12)}
+.bnav button.on::before{content:'';position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 4px 4px;
+  background:linear-gradient(90deg,var(--cyan),var(--green))}
+/* screens */
+.screen{display:none;padding:14px 16px 30px;animation:fade .3s}
+.screen.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+h2.sc{font-size:19px;margin:8px 0 2px}
+.sub{color:var(--muted);font-size:12.5px;margin-bottom:12px}
+/* onboarding */
+#onboard{position:fixed;inset:0;z-index:100;background:var(--bg);max-width:520px;margin:0 auto;overflow-y:auto;padding:34px 26px}
+#onboard .step{display:none;animation:fade .4s}
+#onboard .step.on{display:block}
+#onboard h1{font-size:26px;margin:16px 0 6px}
+#onboard h1 em{font-style:normal;background:linear-gradient(90deg,var(--green),var(--cyan),var(--purple));
+  background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:sheen 3.2s linear infinite}
+@keyframes sheen{to{background-position:200% center}}
+.otp-box{display:flex;gap:10px;justify-content:center;margin:18px 0}
+.otp-box input{width:56px;text-align:center;font-size:24px;font-family:var(--mono)}
+.sms{background:rgba(25,224,255,.08);border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-size:13px;margin:14px 0;font-family:var(--mono)}
+.seed{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.seed span{background:#061626;border:1px solid var(--line);padding:6px 12px;border-radius:8px;font-family:var(--mono);font-size:12.5px;color:var(--gold)}
+.progress{display:flex;gap:6px;margin-bottom:22px}
+.progress i{flex:1;height:4px;border-radius:4px;background:#0d2236}
+.progress i.done{background:var(--green)}
+/* wallet */
+.wallet-hero{background:linear-gradient(135deg,#0a2a35,#071626);border:1px solid #14506b;border-radius:18px;padding:22px;position:relative;overflow:hidden}
+.wallet-hero::after{content:'⬡';position:absolute;right:-14px;top:-24px;font-size:120px;opacity:.06}
+.bal{font-size:34px;font-family:var(--mono);color:var(--green);margin:4px 0}
+.addr{font-family:var(--mono);font-size:11px;color:var(--muted);word-break:break-all}
+.mkt{display:flex;justify-content:space-between;padding:11px 4px;border-bottom:1px solid #0c1e30;font-size:14px}
+.mkt .sym{font-family:var(--mono);color:var(--text)}
+.mkt .pr{font-family:var(--mono)}
+/* feed */
+.post{border:1px solid var(--line);border-radius:14px;padding:14px;margin:11px 0;background:#071120}
+.post .ph{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.post .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:bold;color:#04070d;font-size:15px}
+.post .nm{font-size:14px;font-weight:600}
+.post .mt{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.post .tx{font-size:14.5px;line-height:1.6;margin:8px 0;white-space:pre-wrap}
+.post .acts{display:flex;gap:18px;margin-top:10px;color:var(--muted);font-size:13px}
+.post .acts span{cursor:pointer}
+.post .acts span.liked{color:var(--red)}
+/* map */
+#mapCv{width:100%;border-radius:16px;border:1px solid var(--line);background:#050b14}
+.legend{display:flex;gap:14px;font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:8px;flex-wrap:wrap}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
+/* society */
+.member{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid #0c1e30;font-size:13.5px}
+.votebar{height:8px;border-radius:6px;background:#0c1a2c;overflow:hidden;display:flex;margin:8px 0}
+.votebar .y{background:var(--green)}.votebar .n{background:var(--red)}.votebar .v{background:var(--gold)}
+.ledger .e{display:flex;gap:9px;padding:8px 3px;border-bottom:1px solid #0c1e30;font-family:var(--mono);font-size:11.3px;flex-wrap:wrap}
+.ledger .t{color:#4d7186}
+.ledger .a{color:var(--cyan)}
+.ledger .amt{margin-left:auto;font-weight:bold}
+.amt.pl{color:var(--green)}.amt.mi{color:var(--red)}
+/* services */
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin:14px 0}
+.svc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 8px;text-align:center;cursor:pointer}
+.svc:active{border-color:var(--cyan)}
+.svc .i{font-size:26px}
+.svc .l{font-size:11px;color:var(--muted);margin-top:6px}
+/* game */
+.prob{border:1px solid #23153a;background:#0c0918;border-radius:14px;padding:15px;margin:11px 0}
+.prob h4{color:var(--purple);font-size:14.5px;margin-bottom:5px}
+.rank{display:flex;justify-content:space-between;padding:8px 4px;border-bottom:1px solid #0c1e30;font-size:13px;font-family:var(--mono)}
+/* alert */
+.alert{background:linear-gradient(90deg,rgba(255,93,93,.16),rgba(255,93,93,.05));border:1px solid rgba(255,93,93,.5);
+  border-radius:12px;padding:12px 14px;margin:12px 0;font-size:13px;display:flex;gap:10px;align-items:center;cursor:pointer}
+.alert .i{font-size:22px;animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+/* modal / sheet */
+.sheet{position:fixed;inset:0;z-index:90;background:rgba(2,5,10,.7);display:none;align-items:flex-end;justify-content:center}
+.sheet.on{display:flex}
+.sheet .box{width:100%;max-width:520px;background:var(--bg2);border-radius:22px 22px 0 0;border:1px solid var(--line);border-bottom:none;
+  padding:20px 18px 30px;max-height:82vh;overflow-y:auto;animation:slideUp .3s}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:none;opacity:1}}
+.sheet .grab{width:44px;height:5px;background:#1a3a55;border-radius:5px;margin:0 auto 14px}
+/* AI chat */
+.chat{display:flex;flex-direction:column;gap:9px;max-height:46vh;overflow-y:auto;padding:6px 2px;margin-bottom:10px}
+.msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:13.8px;line-height:1.55}
+.msg.me{align-self:flex-end;background:#0c3247;border:1px solid #14506b}
+.msg.ai{align-self:flex-start;background:#160f26;border:1px solid #2a1a4a}
+.msg.ai b{color:var(--purple)}
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:#0a2230;border:1px solid var(--cyan);
+  color:var(--cyan);padding:11px 20px;border-radius:12px;font-size:13px;z-index:120;opacity:0;transition:.3s;pointer-events:none;max-width:88%;text-align:center}
+.toast.show{opacity:1}
+.hier{font-family:var(--mono);font-size:12.5px;line-height:2.1}
+.hier b{color:var(--cyan)}
+.branch{border:1px solid var(--line);border-radius:12px;padding:13px;margin:9px 0;background:#071120}
+.branch .row{justify-content:space-between}
+.badge-n{background:var(--red);color:#fff;border-radius:10px;font-size:10px;padding:1px 7px;font-family:var(--mono)}
+/* ===== FACEBOOK-STYLE DESKTOP LAYOUT (3 columns) ===== */
+#rightRail{display:none}
+@media(min-width:1024px){
+  body{max-width:none}
+  .screen{max-width:560px;margin:0 auto;padding-top:20px}
+  .bnav{top:118px;bottom:auto;left:max(14px,calc(50% - 640px));transform:none;width:210px;
+    flex-direction:column;border:1px solid var(--line);border-radius:18px;padding:10px 8px;gap:2px;
+    background:linear-gradient(160deg,rgba(12,22,38,.85),rgba(7,14,26,.95))}
+  .bnav button{flex-direction:row;justify-content:flex-start;gap:12px;font-size:14px;padding:12px 14px;border-radius:12px}
+  .bnav button .i{font-size:21px}
+  .bnav button.on{background:rgba(25,224,255,.1)}
+  .bnav button.on::before{display:none}
+  #rightRail{display:block;position:fixed;top:118px;right:max(14px,calc(50% - 640px));width:300px;
+    max-height:calc(100vh - 140px);overflow-y:auto}
+}
+/* ============ FACEBOOK-STYLE LIGHT THEME (overrides) ============ */
+:root{--bg:#f0f2f5;--bg2:#ffffff;--panel:#ffffff;--panel2:#ffffff;--line:#dddfe2;
+  --cyan:#1877f2;--green:#42b72a;--gold:#e8a017;--red:#f02849;--purple:#7b3ff2;
+  --text:#050505;--muted:#65676b}
+body{background:var(--bg);background-image:none;color:var(--text)}
+.top{background:#fff;border-bottom:1px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.top .logo{background:linear-gradient(90deg,#1877f2,#0a5dc2);-webkit-background-clip:text;background-clip:text;filter:none}
+.top .demo{color:#e8a017;border-color:#e8a017}
+.top .ai-btn{background:#f0f2f5;color:#7b3ff2;border-color:#e4d9ff}
+.ticker{background:#fff;border-bottom:1px solid var(--line);color:#65676b}
+.card,.post,.branch,.prob,.role{background:#fff;border-color:var(--line);box-shadow:0 1px 2px rgba(0,0,0,.08);backdrop-filter:none}
+input,textarea,select{background:#f0f2f5;border-color:var(--line);color:var(--text)}
+input::placeholder,textarea::placeholder{color:#8a8d91}
+.b-green{background:#1877f2;color:#fff;box-shadow:0 2px 8px rgba(24,119,242,.3)}
+.b-cyan{border-color:#1877f2;color:#1877f2;background:#fff}
+.b-gold{border-color:#e8a017;color:#b57c0a;background:#fff}
+.b-red{border-color:#f02849;color:#f02849;background:#fff}
+.b-purple{background:#7b3ff2;color:#fff}
+.bnav{background:#fff;border-color:var(--line);box-shadow:0 -1px 6px rgba(0,0,0,.08)}
+.bnav button{color:#65676b}.bnav button.on{color:#1877f2;background:#e7f0fe}
+.sheet{background:rgba(0,0,0,.45)}.sheet .box{background:#fff;border-color:var(--line)}
+.sheet .grab{background:#ced0d4}
+.msg.me{background:#1877f2;border:none;color:#fff}
+.msg.ai{background:#f0f2f5;border:1px solid var(--line);color:#050505}
+.msg.ai b{color:#7b3ff2}
+.toast{background:#050505;border:none;color:#fff}
+.wallet-hero{background:linear-gradient(135deg,#1877f2,#0a4bab);border:none;color:#fff}
+.wallet-hero .muted,.wallet-hero .addr{color:#cfe2ff}
+.wallet-hero .bal{color:#fff}
+.own-card{background:linear-gradient(135deg,#7b3ff2,#4a1fb8);border:none;color:#fff}
+.own-card .big{color:#ffd166}.own-card .mono,.own-card .muted{color:#e2d6ff}
+.crew-banner{background:linear-gradient(120deg,#fff7e8,#fef3ff);border-color:#f0dcc0}
+.crew-banner h3{color:#b57c0a}
+.crew-member .cav{background:#fff7e8;border-color:#e8a017;box-shadow:none}
+.alert{background:#fff0f0;border-color:#f5b3bd}
+.mkt{border-bottom:1px solid #f0f2f5}
+.ledger .e{border-bottom:1px solid #f0f2f5}.ledger .t{color:#8a8d91}.ledger .a{color:#1877f2}
+.hier b{color:#1877f2}
+.svc{background:#fff;border-color:var(--line)}
+.chat{background:transparent}
+#mapCv{background:#0b1524;border-color:var(--line)}  /* map stays dark = looks premium */
+.pill.c{background:#e7f0fe;color:#1877f2}.pill.g{background:#e8f5e3;color:#2b8a1d}
+.pill.o{background:#fdf3dc;color:#b57c0a}.pill.r{background:#fde8ec;color:#d92846}.pill.p{background:#f0e7fe;color:#6d2ee6}
+.post .av{background:linear-gradient(135deg,#1877f2,#7b3ff2);color:#fff}
+.votebar{background:#e4e6eb}
+/* Facebook-style signup */
+#onboard{background:var(--bg);max-width:none;padding:20px}
+#onboard .progress i{background:#dbe2ec}#onboard .progress i.done{background:#1877f2}
+#onboard h1 em{background:none;color:#1877f2;-webkit-text-fill-color:#1877f2;animation:none}
+.fb-wrap{display:flex;flex-direction:column;gap:26px;max-width:980px;margin:4vh auto 0}
+.fb-logo{font-size:38px;font-weight:bold;color:#1877f2;letter-spacing:-1px}
+.fb-brand h1{color:#1c1e21}
+.fb-feat{font-size:13.5px;color:#3a3b3c;padding:7px 0;border-bottom:1px solid #e8eaee}
+.fb-card{background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.15);padding:22px 20px}
+.fb-card input{background:#fff;border:1px solid #ccd0d5;font-size:15px;padding:13px}
+.fb-card input:focus{border-color:#1877f2;box-shadow:0 0 0 2px #e7f0fe}
+.fb-card .b-green{background:#42b72a;box-shadow:0 2px 8px rgba(66,183,42,.3)}
+.otp-box input{background:#fff;border:1px solid #ccd0d5}
+.sms{background:#e7f0fe;border-color:#bcd6f8;color:#1c1e21}
+.sms b{color:#1877f2!important}
+.seed span{background:#f0f2f5;border-color:#ccd0d5;color:#b57c0a}
+@media(min-width:900px){
+  .fb-wrap{flex-direction:row;align-items:center;gap:60px;min-height:78vh;margin-top:0}
+  .fb-brand{flex:1.2}.fb-card{flex:1;max-width:400px}
+  .fb-logo{font-size:48px}
+  .fb-brand h1{font-size:27px!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ ONBOARDING ============ -->
+<div id="onboard">
+  <div class="progress"><i id="pg1" class="done"></i><i id="pg2"></i><i id="pg3"></i><i id="pg4"></i></div>
+
+  <div class="step on" id="st1">
+    <div class="fb-wrap">
+      <div class="fb-brand">
+        <div class="fb-logo">⬡ newdawn</div>
+        <h1 style="font-size:24px;font-weight:normal;line-height:1.35;margin:10px 0 18px">
+          One app — social, governance, wallet, business, science.<br>
+          <em style="font-weight:bold">Owned by the people. Run by your votes.</em></h1>
+        <div class="fb-feat">🗳️ <b>Your society, your decisions</b> — vote, veto, majority rules</div>
+        <div class="fb-feat">👛 <b>Your own crypto wallet</b> — keys on your phone, nobody can freeze it</div>
+        <div class="fb-feat">📖 <b>Every coin transparent</b> — open ledger, receipts, live audit</div>
+        <div class="fb-feat">🛍️ <b>Run your own business</b> — 0% platform tax, paid straight to your wallet</div>
+        <div class="fb-feat">🎮 <b>Play the Science Game</b> — solve real problems, earn real rewards</div>
+        <div class="fb-feat">🔒 <b>Your phone IS the database</b> — no datacenter reads your life</div>
+      </div>
+      <div class="fb-card">
+        <h3 style="font-size:17px;margin-bottom:2px">Create a new account</h3>
+        <p class="muted" style="font-size:12.5px;margin-bottom:12px">It's quick, free — and it's YOURS.</p>
+        <input id="obName" placeholder="Full name — پورا نام" maxlength="30">
+        <input id="obPhone" placeholder="Mobile number" maxlength="16">
+        <input id="obEmail" placeholder="Email address" maxlength="50">
+        <button class="b-green" style="width:100%;margin-top:12px;font-size:16px;padding:13px" onclick="obSendCode()">Sign Up</button>
+        <div style="text-align:center;margin-top:14px;border-top:1px solid var(--line);padding-top:14px">
+          <span class="muted" style="font-size:12px">Already made an account on this device? It auto-opens.</span><br>
+          <a href="index.html" style="font-size:13px;font-weight:bold">Learn about the mission →</a>
+        </div>
+        <p class="muted" style="margin-top:12px;font-size:10.5px;text-align:center">🔒 DEMO — data stays in your browser only, exactly how the real platform keeps keys on your device.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="step" id="st2">
+    <h1>Verify your <em>number</em></h1>
+    <div class="sms">📱 [DEMO SMS] Your NewDawn code is: <b id="otpShow" style="color:var(--green);font-size:17px"></b></div>
+    <div class="otp-box">
+      <input maxlength="1" id="o1" inputmode="numeric"><input maxlength="1" id="o2" inputmode="numeric">
+      <input maxlength="1" id="o3" inputmode="numeric"><input maxlength="1" id="o4" inputmode="numeric">
+    </div>
+    <button class="b-green" style="width:100%" onclick="obVerify()">Verify ✓</button>
+  </div>
+
+  <div class="step" id="st3">
+    <h1>Your <em>wallet</em> is born</h1>
+    <p class="muted">A self-custody demo wallet — keys generated ON your device. In the real platform
+    this is your identity, your money, and your vote. Nobody can freeze it.</p>
+    <div class="card">
+      <div class="muted mono" style="font-size:10.5px">ADDRESS</div>
+      <div class="addr" id="obAddr"></div>
+      <div class="muted mono" style="font-size:10.5px;margin-top:12px">RECOVERY PHRASE (demo)</div>
+      <div class="seed" id="obSeed"></div>
+      <div class="pill g">+100 NDC welcome grant</div>
+    </div>
+    <button class="b-green" style="width:100%" onclick="obStep(4)">I've saved it — continue →</button>
+  </div>
+
+  <div class="step" id="st4">
+    <h1>Find your <em>community</em></h1>
+    <p class="muted">Every society decides its own affairs at its own center — masjid, church, town
+    hall. Pick your city, choose a community near you, and send a join request. (Or register a NEW
+    center — like opening a branch.)</p>
+    <select id="obCity"></select>
+    <div id="obComs"></div>
+    <button class="b-cyan" style="width:100%;margin-top:8px" onclick="registerCenter()">＋ Register YOUR society center (masjid / church / hall)</button>
+  </div>
+</div>
+
+<!-- ============ APP CHROME ============ -->
+<div class="top">
+  <span class="logo">⬡ NEWDAWN</span><span class="demo">LIVE DEMO</span>
+  <button class="ai-btn" onclick="openSheet('ai')">✦ JARVIS</button>
+</div>
+<div class="ticker"><span id="tickerTx">Loading live markets…</span></div>
+<div id="alertBar"></div>
+
+<!-- ============ SCREENS ============ -->
+<div class="screen on" id="sc-home">
+  <div class="row" id="profileHead" style="margin:6px 0 2px"></div>
+  <div id="storyRail" style="display:flex;gap:14px;overflow-x:auto;padding:10px 2px;scrollbar-width:none"></div>
+  <div class="sub">Post updates, raise problems, offer solutions, run your business. No shadow-bans — the feed belongs to the people.</div>
+  <div class="row" id="statStrip" style="gap:8px;margin:10px 0;font-family:var(--mono)"></div>
+  <div class="card" style="background:linear-gradient(135deg,#0a2a35,#0d1f33);border-color:#14506b">
+    <h3 style="color:var(--gold)">🏛️ GAIGS — the full civic app</h3>
+    <p class="muted" style="font-size:12.5px">Profiles, nearby communities, transparent treasuries, voting, services & a personalized JARVIS — Connect · Decide · Build · Verify.</p>
+    <div class="row" style="gap:8px;margin-top:10px">
+      <a href="gaigs/index.html" style="flex:1"><button class="b-green" style="width:100%">▶ Open GAIGS App</button></a>
+      <button class="b-cyan" style="flex:1" onclick="installApp()">📲 Install to phone</button>
+    </div>
+    <a href="/GAIGS.apk" download style="display:block;margin-top:8px;text-align:center;font-size:12.5px;color:var(--gold);font-weight:bold">⬇ Download Android APK (2.3 MB) →</a>
+  </div>
+  <div id="briefBox"></div>
+  <div class="crew-banner" onclick="openSheet('crew')">
+    <h3>⚓ Join the Crew — نئی دنیا کا عملہ</h3>
+    <div class="muted">One Piece crew ki tarah: researcher, creator, developer, blockchain builder — har nakama
+    platform ka <b style="color:var(--gold)">OWNER</b> banta hai (NDS shares). Captain course set kar chuka hai — seat khaali hai. Tap to see roles →</div>
+    <div class="row" style="margin-top:10px"><span class="pill o">CREW OWN 50%</span><span class="pill c">USERS 25%</span><span class="pill p">CONTRIBUTORS 25%</span></div>
+  </div>
+  <div class="card">
+    <textarea id="postTx" rows="2" placeholder="Share an update… ya masla uthao… (kya challenge hai aapki society mein?)"></textarea>
+    <div class="row">
+      <select id="postType" style="max-width:170px">
+        <option value="update">📢 Update</option>
+        <option value="problem">⚠️ Problem</option>
+        <option value="solution">💡 Solution</option>
+        <option value="business">🛍️ My Business</option>
+      </select>
+      <div class="spacer"></div>
+      <button class="b-green" onclick="addPost()">Post</button>
+    </div>
+  </div>
+  <div id="feed"></div>
+</div>
+
+<div class="screen" id="sc-map">
+  <h2 class="sc">The Living Map</h2>
+  <div class="sub">Every glowing node is a community running its own affairs. Red pulses are active disaster zones — tap the alert to help transparently.</div>
+  <canvas id="mapCv" width="480" height="300"></canvas>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--green)"></span>your society</span>
+    <span><span class="dot" style="background:var(--cyan)"></span>communities</span>
+    <span><span class="dot" style="background:var(--purple)"></span>creators</span>
+    <span><span class="dot" style="background:var(--red)"></span>disaster zone</span>
+  </div>
+  <div id="mapList"></div>
+</div>
+
+<div class="screen" id="sc-wallet">
+  <h2 class="sc">Wallet</h2>
+  <div class="sub">Self-custody. Your keys, your money, your vote — on YOUR device.</div>
+  <div class="wallet-hero">
+    <div class="muted mono" style="font-size:10.5px">TOTAL BALANCE</div>
+    <div class="bal" id="wBal">0 NDC</div>
+    <div class="addr" id="wAddr"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="b-green" onclick="openSheet('send')">↑ Send</button>
+      <button class="b-cyan" onclick="toast('Demo: receive at the address above — scan-to-pay in the real build.')">↓ Receive</button>
+      <button class="b-gold" onclick="openSheet('dao')">🏛️ DAO stake</button>
+    </div>
+  </div>
+  <div class="own-card">
+    <div class="muted mono" style="font-size:10.5px">YOUR OWNERSHIP — you don't just USE this platform, you OWN it</div>
+    <div class="big" id="ownSh">0 NDS</div>
+    <div class="mono" style="font-size:11.5px;color:var(--muted)" id="ownPct"></div>
+    <div class="shbar">
+      <div style="background:var(--gold);width:50%"></div>
+      <div style="background:var(--cyan);width:25%"></div>
+      <div style="background:var(--purple);width:25%"></div>
+    </div>
+    <div class="mono muted" style="font-size:10px">FOUNDER+CREW 50% · USERS 25% · CONTRIBUTORS 25% (demo cap: 1,000,000 NDS)</div>
+    <div class="row" style="margin-top:12px">
+      <button class="b-gold" onclick="openSheet('crew')">⚓ Earn more — join the crew</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>📈 Live global markets <span class="pill c">REAL LIVE DATA</span></h3>
+    <div id="mktList" class="mono muted">Fetching from public market APIs…</div>
+    <div class="muted" style="font-size:11px;margin-top:8px">Live prices via CoinGecko public API — proof that demo UI + real data = real product feel.</div>
+  </div>
+  <div class="card">
+    <h3>🧾 My transactions</h3>
+    <div class="ledger" id="myTx"></div>
+  </div>
+</div>
+
+<div class="screen" id="sc-society">
+  <h2 class="sc" id="socTitle">Society</h2>
+  <div class="sub" id="socSub"></div>
+  <div id="socBody"></div>
+</div>
+
+<div class="screen" id="sc-more">
+  <h2 class="sc">Everything else</h2>
+  <div class="sub">Services keep 100% of value with people — 0% platform tax. Plus the game that turns players into scientists.</div>
+  <div class="svc-grid">
+    <div class="svc" onclick="openSheet('ride')"><div class="i">🚗</div><div class="l">Ride<br>(inDrive-style)</div></div>
+    <div class="svc" onclick="openSheet('food')"><div class="i">🍱</div><div class="l">Food<br>delivery</div></div>
+    <div class="svc" onclick="openSheet('market')"><div class="i">🛍️</div><div class="l">Market<br>place</div></div>
+    <div class="svc" onclick="openSheet('game')"><div class="i">🎮</div><div class="l">Science<br>Game</div></div>
+    <div class="svc" onclick="openSheet('relief')"><div class="i">🆘</div><div class="l">Disaster<br>Relief</div></div>
+    <div class="svc" onclick="openSheet('panels')"><div class="i">🏛️</div><div class="l">Branch<br>Panels</div></div>
+    <div class="svc" onclick="openSheet('crew')" style="border-color:#4a3070"><div class="i">🏴‍☠️</div><div class="l">Join the<br>Crew</div></div>
+    <div class="svc" onclick="openSheet('chat')"><div class="i">💬</div><div class="l">Society<br>Chat</div></div>
+    <div class="svc" onclick="openSheet('news')"><div class="i">📰</div><div class="l">World News<br>uncensored</div></div>
+  </div>
+  <div class="card">
+    <h3>🧬 Why this beats the old platforms</h3>
+    <p class="muted">Facebook owns your feed. Banks own your money. Uber taxes your driver. Here the
+    community owns the network: identity + wallet on your phone, decisions by vote, funds on an open
+    ledger, services peer-to-peer. <b style="color:var(--text)">Your phone IS the database</b> — no
+    datacenter to hack, censor, or sell you.</p>
+  </div>
+  <div class="card">
+    <h3>⬇ Install this app on your phone</h3>
+    <p class="muted">Home-screen icon, full-screen, works offline — no app store needed.</p>
+    <button class="b-green" style="width:100%;margin-top:8px" onclick="installApp()">📲 Install NewDawn</button>
+  </div>
+  <div class="card">
+    <h3>🧭 The whole platform</h3>
+    <div class="row">
+      <a class="chan" href="index.html" style="flex:1;text-align:center;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--text)">🌐 Mission Site<br><span class="muted" style="font-size:10px">the story & the why</span></a>
+      <a class="chan" href="mvp.html" style="flex:1;text-align:center;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--text)">🗳️ Governance MVP<br><span class="muted" style="font-size:10px">desktop deep-dive</span></a>
+      <a class="chan" href="jarvis.html" style="flex:1;text-align:center;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--text)">✦ Live JARVIS AI<br><span class="muted" style="font-size:10px">ask the founder's AI</span></a>
+    </div>
+  </div>
+  <div class="card">
+    <h3>ℹ️ Honest scope</h3>
+    <p class="muted">This is a working DEMO of the full experience — flows are real, data is on-device,
+    market prices are live; blockchain settlement, SMS, and payments are simulated. The funded build
+    replaces the simulations 1:1. <a href="index.html">Read the mission →</a></p>
+  </div>
+</div>
+
+<!-- ============ BOTTOM NAV ============ -->
+<div class="bnav">
+  <button class="on" data-s="home" onclick="nav(this)"><span class="i">🏠</span>Home</button>
+  <button data-s="map" onclick="nav(this)"><span class="i">🌍</span>Map</button>
+  <button data-s="wallet" onclick="nav(this)"><span class="i">👛</span>Wallet</button>
+  <button data-s="society" onclick="nav(this)"><span class="i">🏛️</span>Society</button>
+  <button data-s="more" onclick="nav(this)"><span class="i">⚡</span>More</button>
+</div>
+
+<!-- Right rail (desktop, Facebook/Binance style) -->
+<aside id="rightRail"></aside>
+
+<!-- ============ SHEETS ============ -->
+<div class="sheet" id="sheet" onclick="if(event.target===this)closeSheet()">
+  <div class="box"><div class="grab"></div><div id="sheetBody"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= STATE ================= */
+const LS='newdawn_app_v1';
+const CITIES={
+  'Islamabad':{lat:33.7,lon:73.0,country:'Pakistan'},
+  'Lahore':{lat:31.5,lon:74.3,country:'Pakistan'},
+  'Karachi':{lat:24.9,lon:67.0,country:'Pakistan'},
+  'Istanbul':{lat:41.0,lon:28.9,country:'Türkiye'},
+  'Jakarta':{lat:-6.2,lon:106.8,country:'Indonesia'},
+  'Cairo':{lat:30.0,lon:31.2,country:'Egypt'},
+  'London':{lat:51.5,lon:-0.1,country:'UK'},
+  'New York':{lat:40.7,lon:-74.0,country:'USA'},
+};
+const SEED_COMS=[
+  {id:'g11',name:'Masjid-e-Nabawi Qureshi Hashmi (G-11/4)',city:'Islamabad',type:'masjid',members:214,treasury:50000},
+  {id:'f10',name:'F-10 Community Hall',city:'Islamabad',type:'hall',members:96,treasury:18000},
+  {id:'joh',name:'Johar Town Center',city:'Lahore',type:'hall',members:150,treasury:23000},
+  {id:'stpe',name:"St. Peter's Community Church",city:'London',type:'church',members:82,treasury:31000},
+  {id:'fatih',name:'Fatih Mosque Community',city:'Istanbul',type:'masjid',members:301,treasury:64000},
+  {id:'cai',name:'Al-Azhar Neighborhood Circle',city:'Cairo',type:'masjid',members:189,treasury:27000},
+];
+const CREATORS=[
+  {name:'Muhammad Qureshi',city:'Islamabad',role:'Founder · Afkaar Urdu (9M+ views)'},
+  {name:'Aisha K.',city:'Istanbul',role:'History decoder'},
+  {name:'Daniel O.',city:'London',role:'Transparency researcher'},
+  {name:'Rizky P.',city:'Jakarta',role:'Science-game designer'},
+];
+const DISASTER={id:'sindh',title:'🌊 DEMO ALERT — Flood warning: Coastal Sindh',city:'Karachi',
+  desc:'Rising water levels reported. Global relief account is OPEN — every rupee traceable with receipts & live footage.',fund:184500};
+
+function freshState(){
+  return {
+    user:null, // {name,phone,email,addr,seed,city}
+    ndc:0, myTx:[], socId:null, joinStatus:null, // null|pending|member
+    coms:JSON.parse(JSON.stringify(SEED_COMS)),
+    posts:[
+      {by:'Muhammad Qureshi',type:'update',tx:'Day 186 of building a new system. The governance MVP is live — your society, your votes, your open ledger. Try the Society tab. 🚀',likes:47,comments:[{by:'Aisha K.',tx:'From Istanbul — our community center wants in.'}],t:Date.now()-36e5*5},
+      {by:'Daniel O.',type:'problem',tx:'PROBLEM: Our council spent £2M on a "consultation" nobody saw. No itemized record exists. This is exactly why open ledgers must be default.',likes:31,comments:[],t:Date.now()-36e5*9},
+      {by:'Rizky P.',type:'solution',tx:'SOLUTION for water testing: a Rs 300 phone-camera colorimeter kit — science-game players calibrated it across 40 samples. Docs open-source.',likes:58,comments:[],t:Date.now()-36e5*14},
+      {by:'Ahmed Tailor',type:'business',tx:'🛍️ Ahmed Stitching Works (G-11) — kurta stitching Rs 800, 3-day delivery, paid straight to my wallet. 0% platform cut.',likes:12,comments:[],t:Date.now()-36e5*20},
+    ],
+    props:[{id:1,title:'Water filtration plant at the masjid gate',cost:35000,author:'Community',
+      desc:'Clean water point maintained by volunteers.',votes:{yes:['Ali','Fatima','Usman'],no:['Bilal'],veto:[]},status:'open'}],
+    ledger:[{t:Date.now()-864e5*2,a:'system',w:'Society treasury opened',amt:50000}],
+    seq:2, reliefLedger:[
+      {t:Date.now()-36e5*3,a:'Fatih Community',w:'relief contribution',amt:25000},
+      {t:Date.now()-36e5*2,a:'volunteer team',w:'water + rations for 60 families · receipt #R-1042 · 📷 footage attached',amt:-18000},
+    ],
+    game:{points:0,solved:[],board:[{n:'Rizky P.',p:820},{n:'Aisha K.',p:640},{n:'Daniel O.',p:410}]},
+    pending:[{n:'Zara S.',from:'F-10'},{n:'Hamza I.',from:'G-11/4'}],
+    myShares:0, myRole:null,
+    crew:[
+      {n:'Muhammad Qureshi',role:'CAPTAIN · Founder',emoji:'👑',sh:200000,note:'Set the course — the mission, the model, JARVIS'},
+      {n:'Aisha K.',role:'SCHOLAR · Researcher',emoji:'📜',sh:22000,note:'History & governance research'},
+      {n:'Rizky P.',role:'GAMEWRIGHT · Game designer',emoji:'🎮',sh:25000,note:'Science-game world design'},
+      {n:'Daniel O.',role:'NAVIGATOR · Strategist',emoji:'🧭',sh:18000,note:'Transparency systems'},
+    ],
+  }
+}
+let S=(()=>{try{const d=JSON.parse(localStorage.getItem(LS));if(d&&d.coms)return d}catch(e){} return freshState()})();
+/* migrate older saved states to the crew/shares model */
+(function migrate(){const f=freshState();
+  if(S.myShares===undefined)S.myShares=S.user?250:0;   // every user owns a piece
+  if(!S.crew)S.crew=f.crew;
+  if(S.myRole===undefined)S.myRole=null;
+  // Future-World (Android app) feature parity
+  if(!S.businesses)S.businesses=[{n:'Ahmed Stitching Works',type:'Tailoring',by:'Ahmed Tailor',contact:'wallet:0xND..ahm',loc:'G-11, Islamabad',details:'Kurta stitching Rs 800 · 3-day delivery'}];
+  if(!S.creators)S.creators=null; // uses CREATORS + registered ones below
+  if(!S.myCreator)S.myCreator=null;
+  S.posts.forEach(p=>{if(p.score===undefined)p.score=p.likes||0});
+  S.props.forEach(p=>{if(!p.tier)p.tier='Society'});
+  if(!S.chat)S.chat=[
+    {by:'Ali',tx:'Salam sab — water plant pass ho gaya! Volunteers chahiye Saturday ko.',t:Date.now()-36e5*3},
+    {by:'Fatima',tx:'Main aa rahi hoon inshaAllah. Ledger pe funds release dekh liye — transparent system ka maza hi aur hai 🙌',t:Date.now()-36e5*2},
+  ];
+  if(!S.members)S.members=[
+    {n:'Muhammad Qureshi',role:'Naib Imam · Admin',skill:'Founder'},
+    {n:'Ali Raza',role:'Member',skill:'Plumber'},
+    {n:'Fatima Noor',role:'Member',skill:'Teacher'},
+    {n:'Usman Tariq',role:'Member · Treasurer',skill:'Accountant'},
+    {n:'Bilal Ahmed',role:'Member',skill:'Electrician'},
+    {n:'Ayesha Khan',role:'Member',skill:'Doctor'},
+  ];
+  if(!S.discuss)S.discuss=[
+    {by:'Ali Raza',tx:'Street lights G-11/4 mein band hain — proposal banayein?',up:8,t:Date.now()-36e5*20},
+    {by:'Ayesha Khan',tx:'Free medical camp masjid mein — main volunteer karungi. Kaun saath hai?',up:14,t:Date.now()-36e5*6},
+    {by:'Usman Tariq',tx:'Treasury ledger sab dekh lein — is mahine 35k water plant pe gaye, sab receipts attached.',up:11,t:Date.now()-36e5*2},
+  ];
+  save();
+})();
+const TOTAL_SHARES=1000000; // demo cap: Founder+Crew 50% · Users 25% · Contributors 25%
+function save(){localStorage.setItem(LS,JSON.stringify(S))}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function myCom(){return S.coms.find(c=>c.id===S.socId)}
+
+/* ================= ONBOARDING ================= */
+let OTP='';
+function obStep(n){
+  document.querySelectorAll('#onboard .step').forEach(s=>s.classList.remove('on'));
+  document.getElementById('st'+n).classList.add('on');
+  for(let i=1;i<=4;i++)document.getElementById('pg'+i).classList.toggle('done',i<=n);
+}
+function obSendCode(){
+  const n=document.getElementById('obName').value.trim(),
+        p=document.getElementById('obPhone').value.trim(),
+        e=document.getElementById('obEmail').value.trim();
+  if(!n||!p||!e)return toast('Name, phone aur email — teeno chahiye.');
+  S.user={name:n,phone:p,email:e};
+  OTP=(''+Math.floor(1000+Math.random()*9000));
+  document.getElementById('otpShow').textContent=OTP;
+  obStep(2);
+  const os=[...document.querySelectorAll('.otp-box input')];
+  os.forEach((el,i)=>el.oninput=()=>{if(el.value&&i<3)os[i+1].focus()});
+  os[0].focus();
+}
+function obVerify(){
+  const code=['o1','o2','o3','o4'].map(id=>document.getElementById(id).value).join('');
+  if(code!==OTP)return toast('Code ghalat hai — demo SMS box mein dekhein.');
+  // mint wallet
+  const hex='0123456789abcdef';let addr='0xND';for(let i=0;i<36;i++)addr+=hex[Math.floor(Math.random()*16)];
+  const words=['dawn','ummah','ledger','trust','iqbal','orbit','root','amanah','signal','vault','sabr','nexus'];
+  const seed=Array.from({length:8},()=>words[Math.floor(Math.random()*words.length)]);
+  S.user.addr=addr;S.user.seed=seed;S.ndc=100;
+  S.myShares=250; // every user OWNS a piece of the platform from day one
+  S.myTx=[{t:Date.now(),a:'network',w:'welcome grant',amt:100},
+          {t:Date.now(),a:'ownership pool',w:'user ownership: +250 NDS shares',amt:0}];
+  document.getElementById('obAddr').textContent=addr;
+  document.getElementById('obSeed').innerHTML=seed.map((w,i)=>`<span>${i+1}. ${w}</span>`).join('');
+  save();obStep(3);
+}
+function renderObCity(){
+  const sel=document.getElementById('obCity');sel.innerHTML='';
+  for(const c in CITIES){const o=document.createElement('option');o.value=c;o.textContent=c+' · '+CITIES[c].country;sel.appendChild(o)}
+  sel.onchange=renderObComs;renderObComs();
+}
+function renderObComs(){
+  const city=document.getElementById('obCity').value;
+  const box=document.getElementById('obComs');box.innerHTML='';
+  const list=S.coms.filter(c=>c.city===city);
+  if(!list.length){box.innerHTML='<div class="muted" style="padding:12px 4px">No centers here yet — register the first one below (like opening the first branch in a city).</div>';return}
+  for(const c of list){
+    const d=document.createElement('div');d.className='card';
+    d.innerHTML=`<div class="row"><div><b>${esc(c.name)}</b><div class="muted mono" style="font-size:11px">${c.type.toUpperCase()} · ${c.members} members · treasury ${c.treasury.toLocaleString()} NDC</div></div>
+      <div class="spacer"></div><button class="b-green" onclick="requestJoin('${c.id}')">Request →</button></div>`;
+    box.appendChild(d);
+  }
+}
+function requestJoin(id){
+  S.socId=id;S.joinStatus='pending';S.user.city=document.getElementById('obCity').value;save();
+  finishOnboard();
+  toast('Join request bheja gaya — admin approval ka intezar…');
+  setTimeout(()=>{ // demo admin approves
+    S.joinStatus='member';const c=myCom();c.members++;save();
+    log(S.user.name+' joined the society (admin approved)');
+    toast('✅ Approved! Aap ab '+c.name.split('(')[0].trim()+' ke member hain.');
+    renderAll();
+  },4000);
+}
+function registerCenter(){
+  const city=document.getElementById('obCity').value;
+  const name=prompt('Center ka naam (masjid / church / community hall):','');
+  if(!name)return;
+  const id='c'+Math.random().toString(36).slice(2,7);
+  S.coms.push({id,name,city,type:'hall',members:1,treasury:0});
+  S.socId=id;S.joinStatus='member';S.user.city=city;save();
+  finishOnboard();
+  toast('🏛️ Center registered — aap iske pehle admin hain (branch open!).');
+  renderAll();
+}
+function finishOnboard(){document.getElementById('onboard').style.display='none';renderAll()}
+
+/* ================= NAV / SHEETS ================= */
+function nav(btn){
+  document.querySelectorAll('.bnav button').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  btn.classList.add('on');document.getElementById('sc-'+btn.dataset.s).classList.add('on');
+  renderAll();
+}
+function openSheet(kind){
+  const b=document.getElementById('sheetBody');
+  b.innerHTML=SHEETS[kind]();
+  document.getElementById('sheet').classList.add('on');
+  if(kind==='ai')aiGreet();
+}
+function closeSheet(){document.getElementById('sheet').classList.remove('on')}
+
+/* ================= FEED ================= */
+function addPost(){
+  const tx=document.getElementById('postTx').value.trim();if(!tx)return toast('Kuch likhein pehle.');
+  const type=document.getElementById('postType').value;
+  S.posts.unshift({by:S.user.name,type,tx,likes:0,comments:[],t:Date.now()});
+  document.getElementById('postTx').value='';save();renderFeed();
+  toast(type==='problem'?'⚠️ Problem raised — ab society solution pe vote kar sakti hai.':'Posted!');
+}
+function likePost(i){S.posts[i].likes++;save();renderFeed()}
+function askJarvisPost(i){openSheet('ai');setTimeout(()=>{const inp=document.getElementById('aiIn');if(inp){inp.value='Explain this issue and suggest a solution: '+S.posts[i].tx.slice(0,120);aiAsk();}},300);}
+function proposeFromPost(i){
+  S.props.unshift({id:S.seq++,title:S.posts[i].tx.slice(0,70),desc:'Raised from a community problem post by '+S.posts[i].by,
+    cost:0,author:S.user.name,tier:'Society',votes:{yes:[],no:[],veto:[]},status:'open'});
+  log('turned a problem into a proposal');save();
+  nav(document.querySelector('[data-s=society]'));toast('🏛️ Proposal created — society can now vote on it.');
+}
+function votePost(i,v){S.posts[i].score=(S.posts[i].score||0)+v;save();renderFeed()}
+function renderStats(){
+  const ph=document.getElementById('profileHead');
+  if(ph&&S.user){const myPosts=S.posts.filter(p=>p.by===S.user.name).length;
+    ph.innerHTML=`<div class="av" style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:bold;color:#04070d;font-size:22px;border:2px solid var(--green)">${esc(S.user.name[0])}</div>
+    <div><h2 class="sc" style="margin:0">Welcome, ${esc(S.user.name.split(' ')[0])} 👋</h2>
+    <div class="mono muted" style="font-size:11px">${S.myRole?'⚓ '+esc(S.myRole.split('—')[0]):(S.myCreator?'🎬 Creator':'⬡ Citizen')} · ${S.myShares.toLocaleString()} NDS · ${myPosts} posts · ${S.user.city||''}</div></div>`;}
+  const sr=document.getElementById('storyRail');
+  if(sr&&!sr.children.length){
+    const items=[['🗳️','Vote','openSheet("newprop")'],['💬','Chat','openSheet("chat")'],['📰','News','openSheet("news")'],
+      ['🎮','Game','openSheet("game")'],['🆘','Relief','openSheet("relief")'],['🏴‍☠️','Crew','openSheet("crew")'],
+      ['🛍️','Market','openSheet("market")'],['🚗','Ride','openSheet("ride")'],['🏛️','Panels','openSheet("panels")']];
+    sr.innerHTML=items.map(([i,l,fn])=>`<div onclick='${fn}' style="text-align:center;cursor:pointer;flex-shrink:0">
+      <div style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;
+      background:linear-gradient(135deg,#0a1322,#081020);border:2px solid transparent;
+      background-clip:padding-box;box-shadow:0 0 0 2px rgba(25,224,255,.5),0 0 14px rgba(25,224,255,.25)">${i}</div>
+      <div style="font-size:9.5px;color:var(--muted);margin-top:4px;letter-spacing:.5px">${l}</div></div>`).join('');
+  }
+  const el=document.getElementById('statStrip');if(!el)return;
+  const c=myCom();
+  const st=[['👥',c?c.members:'—','members'],['🗳️',S.props.filter(p=>p.status==='open').length,'open votes'],
+            ['⬡',c?c.treasury.toLocaleString():'—','treasury'],['🆘',DISASTER.fund.toLocaleString(),'relief']];
+  el.innerHTML=st.map(([i,v,l])=>`<div style="flex:1;min-width:70px;background:rgba(10,19,34,.7);border:1px solid var(--line);border-radius:12px;padding:9px 6px;text-align:center">
+    <div style="font-size:15px">${i}</div><div style="color:var(--cyan);font-size:14px;font-weight:bold">${v}</div>
+    <div style="color:var(--muted);font-size:9px;letter-spacing:1px">${l.toUpperCase()}</div></div>`).join('');
+}
+function commentPost(i){
+  const el=document.getElementById('cmt'+i);if(!el.value.trim())return;
+  S.posts[i].comments.push({by:S.user.name,tx:el.value.trim()});save();renderFeed();
+}
+const TYPETAG={update:'<span class="pill c">UPDATE</span>',problem:'<span class="pill r">PROBLEM</span>',
+  solution:'<span class="pill g">SOLUTION</span>',business:'<span class="pill o">BUSINESS</span>'};
+function renderFeed(){
+  const f=document.getElementById('feed');f.innerHTML='';
+  S.posts.forEach((p,i)=>{
+    const d=document.createElement('div');d.className='post';
+    const ago=Math.max(1,Math.round((Date.now()-p.t)/36e5));
+    d.innerHTML=`<div class="ph"><div class="av">${esc(p.by[0])}</div>
+      <div><div class="nm">${esc(p.by)} ${TYPETAG[p.type]||''}</div><div class="mt">${ago}h ago · uncensored</div></div></div>
+      <div class="tx">${esc(p.tx)}</div>
+      <div class="acts"><span onclick="votePost(${i},1)">▲</span><b style="color:${(p.score||0)>=0?'var(--green)':'var(--red)'}">${p.score||0}</b><span onclick="votePost(${i},-1)">▼</span><span onclick="likePost(${i})">❤️ ${p.likes}</span><span>💬 ${p.comments.length}</span>
+      ${p.type==='business'?'<span onclick="toast(\'Demo: order placed — payment goes wallet-to-wallet, 0% cut.\')">🛒 Order</span>':''}</div>
+      ${p.type==='problem'?`<div class="row" style="gap:7px;margin-top:9px;flex-wrap:wrap">
+        <button class="b-cyan" style="flex:1;min-width:90px;padding:8px;font-size:11.5px" onclick="document.getElementById('cmt${i}').focus()">💬 Discuss</button>
+        <button class="b-purple" style="flex:1;min-width:90px;padding:8px;font-size:11.5px" onclick="askJarvisPost(${i})">✦ Ask JARVIS</button>
+        <button class="b-green" style="flex:1;min-width:90px;padding:8px;font-size:11.5px" onclick="proposeFromPost(${i})">🏛️ Create Proposal</button>
+        <button class="b-gold" style="flex:1;min-width:80px;padding:8px;font-size:11.5px" onclick="votePost(${i},1);toast('Supported — added your weight to this issue.')">🤝 Support</button>
+      </div>`:''}
+      ${p.comments.map(c=>`<div class="muted" style="font-size:12.5px;margin-top:7px;border-left:2px solid var(--line);padding-left:9px"><b style="color:var(--text)">${esc(c.by)}:</b> ${esc(c.tx)}</div>`).join('')}
+      <div class="row" style="margin-top:9px"><input id="cmt${i}" placeholder="Comment…" style="flex:1" maxlength="140"><button class="b-cyan" onclick="commentPost(${i})">↩</button></div>`;
+    f.appendChild(d);
+  })
+}
+
+/* ================= MAP ================= */
+function drawMap(){
+  const cv=document.getElementById('mapCv');if(!cv)return;const cx=cv.getContext('2d');
+  const W=cv.width,H=cv.height;cx.clearRect(0,0,W,H);
+  // grid
+  cx.strokeStyle='rgba(25,224,255,.07)';cx.lineWidth=1;
+  for(let x=0;x<W;x+=30){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,H);cx.stroke()}
+  for(let y=0;y<H;y+=30){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke()}
+  const XY=(lat,lon)=>[(lon+180)/360*W,(90-lat)/180*H];
+  // arcs between communities
+  const pts=Object.entries(CITIES).map(([n,c])=>({n,...c,xy:XY(c.lat,c.lon)}));
+  cx.strokeStyle='rgba(25,224,255,.18)';
+  for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+    cx.beginPath();cx.moveTo(...pts[i].xy);
+    cx.quadraticCurveTo((pts[i].xy[0]+pts[j].xy[0])/2,(Math.min(pts[i].xy[1],pts[j].xy[1])-26),...pts[j].xy);cx.stroke();
+  }
+  const tNow=Date.now()/600;
+  for(const p of pts){
+    const isMine=S.user&&S.user.city===p.n;
+    const hasCom=S.coms.some(c=>c.city===p.n);
+    const isDis=DISASTER.city===p.n;
+    let color=isMine?'#39ff9c':(hasCom?'#19e0ff':'#4d7186');
+    if(isDis)color='#ff5d5d';
+    const r=isDis?(5+Math.sin(tNow)*2.4):(isMine?6:4);
+    cx.fillStyle=color;cx.shadowColor=color;cx.shadowBlur=12;
+    cx.beginPath();cx.arc(p.xy[0],p.xy[1],Math.max(2.5,r),0,7);cx.fill();cx.shadowBlur=0;
+    cx.fillStyle='rgba(207,238,251,.75)';cx.font='9.5px Consolas';
+    cx.fillText(p.n,p.xy[0]+8,p.xy[1]+3);
+  }
+  // creators (purple, offset)
+  cx.fillStyle='#c792ff';
+  for(const cr of CREATORS){const c=CITIES[cr.city];if(!c)continue;const [x,y]=XY(c.lat,c.lon);
+    cx.beginPath();cx.arc(x-7,y-7,2.6,0,7);cx.fill()}
+  requestAnimationFrame(drawMap);
+}
+function renderMapList(){
+  const box=document.getElementById('mapList');box.innerHTML='';
+  const all=[...CREATORS, ...(S.myCreator?[S.myCreator]:[])];
+  const d=document.createElement('div');d.className='card';
+  d.innerHTML='<h3>🎥 Creators on the network — tip them directly, 0% cut</h3>'+all.map((c,i)=>
+    `<div class="member"><div class="av" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:13px;color:#04070d;font-weight:bold">${esc(c.name[0])}</div>
+     <div><b style="font-size:13.5px">${esc(c.name)}${S.myCreator===c?' (you)':''}</b><div class="muted" style="font-size:11px">${esc(c.role)} · ${esc(c.city)}</div></div>
+     <div class="spacer"></div>${S.myCreator===c?'':`<button class="b-purple" style="padding:7px 13px;font-size:12px" onclick="tipCreator('${esc(c.name)}')">💜 Tip</button>`}</div>`).join('')+
+    (S.myCreator?'':`<button class="b-cyan" style="width:100%;margin-top:12px" onclick="registerCreator()">🎬 Register as a CREATOR (earn tips + crew track)</button>`);
+  box.appendChild(d);
+}
+function tipCreator(name){
+  const a=parseInt(prompt('Kitne NDC tip karne hain '+name+' ko?','5'));
+  if(!a||a<1)return;if(a>S.ndc)return toast('Balance kam hai.');
+  S.ndc-=a;S.myTx.unshift({t:Date.now(),a:name,w:'creator tip 💜 (100% to creator)',amt:-a});
+  save();renderWallet();toast('💜 '+a+' NDC tip — seedha '+name+' ke wallet mein, 0% cut.');
+}
+function registerCreator(){
+  const sp=prompt('Aapki specialty? (e.g. history shorts, calisthenics, science explainers)','');
+  if(!sp)return;
+  S.myCreator={name:S.user.name,role:sp,city:S.user.city||'—'};
+  S.myShares=(S.myShares||0)+500;
+  S.myTx.unshift({t:Date.now(),a:'creator pool',w:'creator registration (+500 NDS)',amt:0});
+  save();renderMapList();renderWallet();
+  toast('🎬 Registered! Aap ab network creator hain — +500 NDS. Map par purple dot tumhara hai.');
+}
+
+/* ================= WALLET / MARKETS ================= */
+function renderWallet(){
+  if(!S.user)return;
+  document.getElementById('wBal').textContent=S.ndc.toLocaleString()+' NDC';
+  document.getElementById('wAddr').textContent=S.user.addr||'';
+  document.getElementById('ownSh').textContent=(S.myShares||0).toLocaleString()+' NDS';
+  document.getElementById('ownPct').textContent=
+    ((S.myShares||0)/TOTAL_SHARES*100).toFixed(4)+'% of the platform'+(S.myRole?' · CREW: '+S.myRole:' · user pool');
+  const tx=document.getElementById('myTx');tx.innerHTML='';
+  for(const e of S.myTx.slice(0,30)){
+    const d=new Date(e.t);
+    tx.innerHTML+=`<div class="e"><span class="t">${d.toLocaleDateString()} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
+      <span class="a">${esc(e.a)}</span><span>${esc(e.w)}</span>
+      <span class="amt ${e.amt>0?'pl':'mi'}">${e.amt>0?'+':''}${e.amt.toLocaleString()} NDC</span></div>`;
+  }
+}
+let MKT=[];
+async function fetchMarkets(){
+  try{
+    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,solana,tether-gold&vs_currencies=usd&include_24hr_change=true');
+    const d=await r.json();
+    MKT=[['BTC',d.bitcoin],['ETH',d.ethereum],['BNB',d.binancecoin],['SOL',d.solana],['GOLD (XAUT)',d['tether-gold']]]
+      .filter(x=>x[1]).map(([s,v])=>({s,p:v.usd,c:v.usd_24h_change||0}));
+  }catch(e){ MKT=[['BTC',61200,4.4],['ETH',1650,4.7],['BNB',556,3.1],['SOL',142,2.2],['GOLD',4065,0.4]].map(([s,p,c])=>({s,p,c}));
+    MKT.offline=true }
+  const list=document.getElementById('mktList');
+  list.innerHTML=MKT.map(m=>`<div class="mkt"><span class="sym">${m.s}</span>
+    <span class="pr">$${m.p.toLocaleString(undefined,{maximumFractionDigits:2})}
+    <span class="${m.c>=0?'up':'dn'}">${m.c>=0?'▲':'▼'}${Math.abs(m.c).toFixed(1)}%</span></span></div>`).join('')+
+    (MKT.offline?'<div class="muted" style="font-size:10.5px;margin-top:6px">(offline snapshot)</div>':'');
+  document.getElementById('tickerTx').innerHTML=
+    MKT.map(m=>`${m.s} $${m.p.toLocaleString(undefined,{maximumFractionDigits:0})} <span class="${m.c>=0?'up':'dn'}">${m.c>=0?'+':''}${m.c.toFixed(1)}%</span>`).join(' &nbsp;·&nbsp; ')
+    +' &nbsp;·&nbsp; ⬡ NDC (demo token) 1.00 &nbsp;·&nbsp; 🌍 8 cities · '+S.coms.length+' communities live';
+  try{renderRail()}catch(e){}
+  setTimeout(fetchMarkets,60000);
+}
+
+/* ================= SOCIETY (DAO) ================= */
+function log(w,amt){S.ledger.unshift({t:Date.now(),a:S.user?S.user.name:'system',w,amt:amt||0});save()}
+function renderSociety(){
+  const el=document.getElementById('socBody');
+  if(!S.socId){el.innerHTML='<div class="card"><p class="muted">Pehle onboarding mein community join karein.</p></div>';return}
+  const c=myCom();
+  document.getElementById('socTitle').textContent=c.name.split('(')[0].trim();
+  document.getElementById('socSub').textContent=c.city+' · '+c.members+' members · every decision by vote · every rupee on the ledger';
+  if(S.joinStatus==='pending'){
+    el.innerHTML='<div class="card"><h3>⏳ Join request pending</h3><p class="muted">Society admin approval ka intezar (demo mein ~4 sec).</p></div>';return
+  }
+  let h=`
+  <div class="wallet-hero" style="margin:10px 0">
+    <div class="muted mono" style="font-size:10.5px">SOCIETY TREASURY (DAO WALLET — moves ONLY by member vote)</div>
+    <div class="bal">${c.treasury.toLocaleString()} NDC</div>
+    <div class="row" style="margin-top:10px">
+      <button class="b-green" onclick="donateSoc()">🤲 Contribute</button>
+      <button class="b-cyan" onclick="openSheet('newprop')">＋ Proposal</button>
+    </div>
+  </div>
+  <div class="card"><h3>🗳️ Proposals — majority passes · ≥33% VETO blocks · passed funds auto-release</h3>`;
+  if(!S.props.length)h+='<p class="muted">Koi proposal nahi — pehla aap uthayein.</p>';
+  for(const p of S.props){
+    const y=p.votes.yes.length,n=p.votes.no.length,v=p.votes.veto.length,tot=Math.max(1,y+n+v);
+    const mine=['yes','no','veto'].find(k=>p.votes[k].includes(S.user.name));
+    h+=`<div class="post" style="margin:10px 0">
+      <span class="pill ${p.status==='open'?'c':p.status==='passed'?'g':p.status==='vetoed'?'o':'r'}">${p.status.toUpperCase()}</span>
+      <span class="pill p">${esc(p.tier||'Society').toUpperCase()} TIER</span>
+      <div class="nm" style="margin-top:6px">${esc(p.title)} ${p.cost?`<span class="mono" style="color:var(--gold);font-size:12px">· ${p.cost.toLocaleString()} NDC</span>`:''}</div>
+      <div class="mt">by ${esc(p.author)} · ${tot} votes${mine?' · you: '+mine.toUpperCase():''}</div>
+      <div class="tx" style="font-size:13px;color:var(--muted)">${esc(p.desc||'')}</div>
+      <div class="votebar"><div class="y" style="width:${y/tot*100}%"></div><div class="n" style="width:${n/tot*100}%"></div><div class="v" style="width:${v/tot*100}%"></div></div>
+      <div class="mono muted" style="font-size:11px">YES ${y} · NO ${n} · VETO ${v}</div>
+      ${p.status==='open'?`<div class="row" style="margin-top:9px">
+        <button class="b-green" onclick="voteP(${p.id},'yes')">👍 YES</button>
+        <button class="b-red" onclick="voteP(${p.id},'no')">👎 NO</button>
+        <button class="b-gold" onclick="voteP(${p.id},'veto')">✋ VETO</button></div>`:''}
+    </div>`;
+  }
+  h+=`</div>
+  <div class="card"><h3>📖 Open ledger — nothing happens off the record</h3><div class="ledger">`;
+  for(const e of S.ledger.slice(0,25)){
+    const d=new Date(e.t);
+    h+=`<div class="e"><span class="t">${d.toLocaleDateString()} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
+      <span class="a">${esc(e.a)}</span><span>${esc(e.w)}</span>
+      ${e.amt?`<span class="amt ${e.amt>0?'pl':'mi'}">${e.amt>0?'+':''}${e.amt.toLocaleString()} NDC</span>`:''}</div>`;
+  }
+  h+=`</div></div>
+  <div class="card"><h3>👥 Members (${c.members}) — everyone is an owner</h3>
+  ${S.members.map(m=>`<div class="member"><div class="av" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:14px;color:#04070d;font-weight:bold">${esc(m.n[0])}</div>
+    <div><b style="font-size:13.5px">${esc(m.n)}</b><div class="muted" style="font-size:11px">${esc(m.role)} · 🛠️ ${esc(m.skill)}</div></div></div>`).join('')}
+  <div class="muted" style="font-size:11px;margin-top:6px">+ ${Math.max(0,c.members-S.members.length)} more members</div></div>
+  <div class="card"><h3>💬 Society discussions — talk, then vote</h3>
+    <div class="row" style="margin-bottom:8px"><input id="discIn" placeholder="Start a discussion…" style="flex:1" maxlength="160"><button class="b-green" onclick="addDiscuss()">Post</button></div>
+    ${S.discuss.map((d,i)=>`<div class="post" style="margin:8px 0"><div class="row"><b style="font-size:13px">${esc(d.by)}</b></div>
+      <div style="font-size:13.5px;margin:5px 0">${esc(d.tx)}</div>
+      <div class="acts"><span onclick="S.discuss[${i}].up++;save();renderSociety()">👍 ${d.up}</span>
+      <span onclick="discToProposal(${i})">🏛️ To proposal</span></div></div>`).join('')}</div>
+  <div class="card"><h3>🏛️ The branch system — like a global bank, owned by people</h3>
+  <div class="hier">GLOBAL FEDERATION<br>└─ <b>Pakistan</b> (country panel)<br>&nbsp;&nbsp;&nbsp;└─ <b>${esc(c.city)}</b> (city panel)<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <b style="color:var(--green)">${esc(c.name.split('(')[0].trim())} ← you</b></div>
+  <button class="b-cyan" style="margin-top:10px" onclick="openSheet('panels')">Open branch panels →</button></div>`;
+  el.innerHTML=h;
+}
+function addDiscuss(){const el=document.getElementById('discIn');const t=el.value.trim();if(!t)return toast('Kuch likhein.');S.discuss.unshift({by:S.user.name,tx:t,up:0,t:Date.now()});save();renderSociety();toast('Discussion posted!');}
+function discToProposal(i){const d=S.discuss[i];S.props.unshift({id:S.seq++,title:d.tx.slice(0,70),desc:'From society discussion by '+d.by,cost:0,author:S.user.name,tier:'Society',votes:{yes:[],no:[],veto:[]},status:'open'});log('discussion → proposal');save();renderSociety();toast('🏛️ Proposal banaya — ab society vote karegi.');}
+function donateSoc(){
+  const a=parseInt(prompt('Kitne NDC contribute karne hain? (aapke paas '+S.ndc+')','25'));
+  if(!a||a<1)return;if(a>S.ndc)return toast('Balance kam hai.');
+  S.ndc-=a;myCom().treasury+=a;
+  S.myTx.unshift({t:Date.now(),a:'society',w:'treasury contribution',amt:-a});
+  log('contributed to treasury',a);save();renderAll();toast('Shukriya — ledger par live.');
+}
+function voteP(id,kind){
+  const p=S.props.find(x=>x.id===id);if(!p||p.status!=='open')return;
+  for(const k of ['yes','no','veto'])p.votes[k]=p.votes[k].filter(v=>v!==S.user.name);
+  p.votes[kind].push(S.user.name);
+  log((kind==='veto'?'VETOED':'voted '+kind.toUpperCase()+' on')+' "'+p.title+'"');
+  const y=p.votes.yes.length,n=p.votes.no.length,v=p.votes.veto.length,tot=y+n+v;
+  if(tot>=4){
+    if(v/tot>=0.33){p.status='vetoed';log('"'+p.title+'" BLOCKED by citizen veto ('+v+'/'+tot+')')}
+    else if(y>n){p.status='passed';if(p.cost){myCom().treasury-=p.cost;log('funds released for "'+p.title+'"',-p.cost)}else log('"'+p.title+'" PASSED')}
+    else{p.status='rejected';log('"'+p.title+'" rejected by majority')}
+  }
+  save();renderSociety();
+}
+
+/* ================= SHEETS CONTENT ================= */
+const SHEETS={
+send:()=>`<h3 style="color:var(--cyan)">↑ Send NDC (wallet-to-wallet)</h3>
+  <input id="sTo" placeholder="Recipient address or name">
+  <input id="sAmt" type="number" placeholder="Amount NDC">
+  <button class="b-green" style="width:100%" onclick="doSend()">Send — 0 fees, instant</button>
+  <p class="muted" style="margin-top:10px">Demo transfer; in the funded build this settles on-chain with your on-device keys signing.</p>`,
+dao:()=>`<h3 style="color:var(--gold)">🏛️ DAO staking (Ethereum-DAO style)</h3>
+  <p class="muted">Stake NDC to weight long-term governance (quadratic capped so whales can't buy control). Demo: stake grants +1 badge.</p>
+  <button class="b-gold" style="width:100%;margin-top:10px" onclick="S.myTx.unshift({t:Date.now(),a:'DAO',w:'staked 10 NDC (governance)',amt:-10});S.ndc-=10;save();renderWallet();closeSheet();toast('Staked — governance weight +1 (demo).')">Stake 10 NDC</button>`,
+newprop:()=>`<h3 style="color:var(--cyan)">＋ New proposal</h3>
+  <input id="npT" placeholder="Title — e.g. 'Solar panels for the center'" maxlength="90">
+  <textarea id="npD" rows="2" placeholder="What & why…" maxlength="300"></textarea>
+  <input id="npC" type="number" placeholder="Requested NDC (optional)">
+  <select id="npTier"><option>Society</option><option>City</option><option>Country</option><option>Global</option></select>
+  <div class="muted" style="font-size:11px;margin:4px 0 8px">Tier = decision level (bank-branch style): Society decides local; City/Country/Global proposals escalate to delegate votes.</div>
+  <button class="b-green" style="width:100%" onclick="newProp()">Submit to vote</button>`,
+ride:()=>`<h3 style="color:var(--cyan)">🚗 Community Ride — inDrive style, 0% tax</h3>
+  <input id="rFrom" placeholder="Pickup — e.g. G-11 Markaz" value="G-11 Markaz">
+  <input id="rTo" placeholder="Drop — e.g. F-10">
+  <input id="rBid" type="number" placeholder="YOUR fare offer (Rs) — you set the price" value="300">
+  <button class="b-green" style="width:100%" onclick="bookRide()">Find drivers</button>
+  <div id="rideRes"></div>
+  <p class="muted" style="margin-top:10px">Driver keeps 100%. Fare goes wallet-to-wallet. Community rating replaces corporate bans.</p>`,
+food:()=>`<h3 style="color:var(--gold)">🍱 Community Kitchen — food, 0% commission</h3>
+  ${[['Bismillah Biryani (G-11)','Chicken Biryani','Rs 280'],['Ahmed Karahi Point','Half Karahi + Naan','Rs 850'],['HomeBaked by Sana','Brownie box (6)','Rs 500']].map(([r,i,p])=>
+  `<div class="post" style="margin:8px 0"><div class="row"><div><b style="font-size:13.5px">${r}</b><div class="muted" style="font-size:12px">${i} · ${p}</div></div>
+   <div class="spacer"></div><button class="b-green" onclick="foodOrder('${r}')">Order</button></div></div>`).join('')}
+  <p class="muted">Restaurants pay 0% (vs ~30% on Foodpanda/Uber) — the society runs delivery as a service.</p>`,
+market:()=>`<h3 style="color:var(--green)">🛍️ P2P Business Directory — 0% platform tax</h3>
+  <p class="muted">Register a structured business — customers pay your wallet directly. Like Foodpanda/Fiverr/OLX in one, minus the 30% cut.</p>
+  ${S.businesses.map(b=>`<div class="post" style="margin:8px 0"><div class="row"><div>
+    <b style="font-size:13.5px">${esc(b.n)}</b> <span class="pill g">${esc(b.type)}</span>
+    <div class="muted" style="font-size:12px">${esc(b.details)} · ${esc(b.loc)}</div>
+    <div class="mono muted" style="font-size:10.5px">by ${esc(b.by)} · ${esc(b.contact)}</div></div>
+    <div class="spacer"></div><button class="b-green" onclick="closeSheet();toast('🛒 Order sent to ${esc(b.n)} — wallet-to-wallet (demo).')">Order</button></div></div>`).join('')}
+  <div class="card"><h3>＋ Register YOUR business</h3>
+    <input id="bzN" placeholder="Business name" maxlength="40">
+    <input id="bzT" placeholder="Type — Tailoring / Food / Rides / Design / Tuition…" maxlength="30">
+    <input id="bzD" placeholder="Details + price" maxlength="80">
+    <button class="b-green" style="width:100%" onclick="regBiz()">Launch my business (free)</button></div>`,
+game:()=>`<h3 style="color:var(--purple)">🎮 The Science Game — play, solve, get rewarded</h3>
+  <div class="row" style="margin:8px 0"><span class="pill p">YOUR POINTS: ${S.game.points}</span><span class="pill c">RANK: ${S.game.points>=300?'SCIENTIST':S.game.points>=100?'RESEARCHER':'CADET'}</span></div>
+  <p class="muted">Minecraft-scale world with REAL physics laws (demo list below). Real global problems become quests — verified solutions earn points, badges & NDC bounties.</p>
+  ${[['heat','🌡️ Urban heat islands (43°C Islamabad!)','Design a low-cost street cooling layout',120],
+     ['water','💧 Arsenic in groundwater','Propose a Rs<500 home filtration method',150],
+     ['plastic','♻️ Plastic waste rivers','Route + incentive plan for collection',100],
+     ['orbit','🛰️ Physics quest: orbital slingshot','Compute a 2-body gravity-assist path',200]].map(([id,t,d,pts])=>
+  `<div class="prob"><h4>${t} <span class="pill p">+${pts}</span></h4><div class="muted" style="font-size:12.5px">${d}</div>
+   ${S.game.solved.includes(id)?'<span class="pill g" style="margin-top:8px">SOLVED ✓</span>':
+   `<div class="row" style="margin-top:9px"><input id="sol_${id}" placeholder="Your solution idea…" style="flex:1"><button class="b-purple" onclick="solve('${id}',${pts})">Submit</button></div>`}</div>`).join('')}
+  <div class="card"><h3>🏆 Leaderboard</h3>${[...S.game.board,{n:S.user?S.user.name+' (you)':'you',p:S.game.points}].sort((a,b)=>b.p-a.p).map((r,i)=>`<div class="rank"><span>#${i+1} ${esc(r.n)}</span><b style="color:var(--purple)">${r.p}</b></div>`).join('')}</div>`,
+relief:()=>`<h3 style="color:var(--red)">🆘 Global Disaster Relief — radical transparency</h3>
+  <div class="alert"><span class="i">🌊</span><div><b>${DISASTER.title}</b><div class="muted" style="font-size:12px">${DISASTER.desc}</div></div></div>
+  <div class="wallet-hero"><div class="muted mono" style="font-size:10.5px">RELIEF ACCOUNT (opened automatically on alert)</div>
+  <div class="bal" style="color:var(--red)">${DISASTER.fund.toLocaleString()} NDC</div>
+  <button class="b-green" style="margin-top:8px" onclick="reliefDonate()">🤲 Donate to relief</button></div>
+  <div class="card"><h3>📖 Relief ledger — receipts + live footage, visible to the WORLD</h3><div class="ledger">
+  ${S.reliefLedger.map(e=>{const d=new Date(e.t);return `<div class="e"><span class="t">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span><span class="a">${esc(e.a)}</span><span>${esc(e.w)}</span><span class="amt ${e.amt>0?'pl':'mi'}">${e.amt>0?'+':''}${e.amt.toLocaleString()}</span></div>`}).join('')}
+  </div><button class="b-cyan" style="width:100%;margin-top:10px" onclick="addGroundReport()">📋 Add ground report (volunteers on-site)</button>
+  <p class="muted" style="margin-top:8px">Every spend must attach receipt # + footage before release — the world audits relief in real time. No more "where did the donations go?"</p></div>`,
+panels:()=>{
+  const pend=S.pending.length;
+  return `<h3 style="color:var(--cyan)">🏛️ Branch panels — like an international bank, owned by members</h3>
+  <div class="branch"><div class="row"><b>🌍 GLOBAL FEDERATION</b><span class="pill c">SUPER ADMIN VIEW</span></div>
+    <div class="muted" style="font-size:12px;margin-top:5px">${S.coms.length} communities · 8 cities · relief fund ${DISASTER.fund.toLocaleString()} NDC · all sub-ledgers auditable by ANY member</div></div>
+  <div class="branch"><div class="row"><b>🇵🇰 Pakistan — country panel</b><span class="pill g">3 cities</span></div>
+    <div class="muted" style="font-size:12px;margin-top:5px">Country-level projects visible to every Pakistani member; decided by city delegates' votes.</div></div>
+  <div class="branch"><div class="row"><b>🏙️ Islamabad — city panel</b><span class="pill g">${S.coms.filter(c=>c.city==='Islamabad').length} societies</span></div>
+    <div class="muted" style="font-size:12px;margin-top:5px">City projects (roads, water, parks) — funded by society treasuries, every rupee on the ledger.</div></div>
+  <div class="branch"><div class="row"><b>🕌 ${esc(myCom()?myCom().name.split('(')[0].trim():'Your society')} — society panel</b>
+    ${pend?`<span class="badge-n">${pend} pending</span>`:'<span class="pill g">no requests</span>'}</div>
+    <div class="muted" style="font-size:12px;margin:6px 0">Join requests (admins approve — that's YOU in this demo):</div>
+    ${S.pending.map((p,i)=>`<div class="row" style="margin:6px 0"><span style="font-size:13px">👤 ${esc(p.n)} <span class="muted">(${p.from})</span></span><div class="spacer"></div>
+      <button class="b-green" onclick="approve(${i},true)">✓</button><button class="b-red" onclick="approve(${i},false)">✕</button></div>`).join('')||'<p class="muted">Sab clear.</p>'}
+  </div>`},
+crew:()=>{
+  const ROLES=[
+    ['scholar','📜','SCHOLAR — Researcher','History, governance, economics research — the crew\'s truth engine. Never hand a critic a wrong number.',15000],
+    ['bard','🎤','BARD — Creator / Content','Scripts, shorts, decoded history — you carry the story to millions (Afkaar style).',15000],
+    ['shipwright','🛠️','SHIPWRIGHT — Platform Dev','Build the app, the panels, the services — the ship itself.',20000],
+    ['treasurer','⛓️','TREASURER — Blockchain Dev','Wallets, DAO, open ledgers — the trust layer.',20000],
+    ['navigator','🧭','NAVIGATOR — Strategist','Growth, partnerships, pilots — chart the course.',12000],
+    ['quartermaster','🤝','QUARTERMASTER — Community','Run societies, onboard centers, keep the crew tight.',10000],
+  ];
+  return `<h3 style="color:var(--gold)">🏴‍☠️ The Crew Manifest — jahaz tayyar hai</h3>
+  <p class="muted">One Piece mein crew ke bina Grand Line paar nahi hoti. Yahan har nakama sirf member nahi —
+  <b style="color:var(--gold)">shareholder</b> hai: early crew platform ke NDS shares own karti hai, users bhi.
+  Jitna build karo, utna own karo.</p>
+  <div class="card" style="margin-top:12px"><h3>👥 Current crew</h3>
+  ${S.crew.map(c=>`<div class="crew-member"><div class="cav">${c.emoji}</div>
+    <div class="who"><b>${esc(c.n)}</b><span>${esc(c.role)} — ${esc(c.note)}</span></div>
+    <div class="sh">${c.sh.toLocaleString()}<br>NDS</div></div>`).join('')}
+  ${S.myRole?`<div class="crew-member"><div class="cav">⭐</div><div class="who"><b>${esc(S.user.name)} (you)</b><span>${esc(S.myRole)}</span></div><div class="sh">${S.myShares.toLocaleString()}<br>NDS</div></div>`:''}
+  </div>
+  ${S.myRole?'<div class="pill g" style="margin:8px 0">YOU ARE CREW ✓ — welcome aboard, nakama!</div>':
+  `<h3 style="color:var(--purple);margin-top:14px">Open seats — pick your role:</h3>
+  ${ROLES.map(([id,em,t,d,sh])=>`<div class="role"><h4>${em} ${t}</h4>
+    <div class="bounty">SIGN-ON GRANT: ${sh.toLocaleString()} NDS (vests as you contribute)</div>
+    <div class="desc">${d}</div>
+    <button class="b-purple" onclick="joinCrew('${id}','${t.replace(/'/g,'')}',${sh})">⚓ Apply & board</button></div>`).join('')}`}
+  <p class="muted" style="margin-top:10px;font-size:11px">Demo: acceptance instant hai. Real build: crew votes on applications
+  (the crew picks its nakama), shares vest over contribution milestones — sab on-chain.</p>`},
+chat:()=>`<h3 style="color:var(--green)">💬 Society Chat — end-to-end, aapke device par</h3>
+  <div class="chat" id="socChat">${S.chat.map(m=>{const me=S.user&&m.by===S.user.name;return `<div class="msg ${me?'me':'ai'}">
+    ${me?'':'<b style="color:var(--cyan)">'+esc(m.by)+':</b> '}${esc(m.tx)}</div>`}).join('')}</div>
+  <div class="row"><input id="chIn" placeholder="Message your society…" style="flex:1" maxlength="200"
+    onkeydown="if(event.key==='Enter')sendChat()"><button class="b-green" onclick="sendChat()">➤</button></div>
+  <p class="muted" style="margin-top:8px;font-size:11px">WhatsApp/Telegram-style — real build: E2E encrypted, keys on YOUR phone, no company reading your messages.</p>`,
+news:()=>`<h3 style="color:var(--gold)">📰 World News — no censorship, no algorithm burying</h3>
+  <p class="muted">Community-curated global feed: sources cited, every story open to discussion & fact-flags — the feed serves readers, not advertisers. (Demo headlines:)</p>
+  ${[['🌊','Coastal Sindh flood warning — relief account opened, live-audited',DISASTER.fund.toLocaleString()+' NDC raised','crisis'],
+     ['🏛️','Istanbul community passes open-ledger budget — 301 members voted','Fatih Mosque Community','governance'],
+     ['🔬','Science-game players calibrate Rs 300 water-test kit across 40 samples','open-source docs','science'],
+     ['📉','Global debt-to-GDP hits record — who holds the veto on YOUR economy?','discussion: 214 comments','economy'],
+     ['🤖','AI concentration debate: who audits the algorithms that judge you?','join the vote','ai-fork']].map(([i,t,s,c])=>
+  `<div class="post" style="margin:8px 0"><div class="row"><span style="font-size:20px">${i}</span>
+   <div><b style="font-size:13.5px">${t}</b><div class="muted mono" style="font-size:10.5px">${s} · #${c}</div></div></div>
+   <div class="acts" style="margin-top:8px"><span onclick="toast('Demo: opened for community discussion + votes.')">💬 Discuss</span>
+   <span onclick="toast('Demo: fact-flag raised — sources review queue.')">🚩 Fact-check</span></div></div>`).join('')}
+  <p class="muted" style="font-size:11px">Real build: RSS + citizen-journalist reports with the same receipt/footage rules as relief.</p>`,
+ai:()=>`<h3 style="color:var(--purple)">✦ JARVIS — your platform guide</h3>
+  <div class="chat" id="aiChat"></div>
+  <div class="row"><input id="aiIn" placeholder="Pucho kuch bhi — how do votes work? wallet? game?" style="flex:1" onkeydown="if(event.key==='Enter')aiAsk()"><button class="b-purple" onclick="aiAsk()">➤</button></div>
+  <p class="muted" style="margin-top:8px;font-size:11px">Demo assistant with built-in knowledge. Paste a Gemini API key in Settings for live AI (optional).</p>`,
+};
+function joinCrew(id,title,sh){
+  const skill=prompt('Apni skill / portfolio / link batao (demo application):','');
+  if(skill===null)return;
+  S.myRole=title;S.myShares=(S.myShares||0)+sh;
+  S.myTx.unshift({t:Date.now(),a:'crew pool',w:'crew sign-on: '+title+' (+'+sh.toLocaleString()+' NDS)',amt:0});
+  save();openSheet('crew');renderWallet();
+  toast('⚓ Welcome aboard, nakama! +'+sh.toLocaleString()+' NDS — ab tum is platform ke OWNER ho.');
+}
+function sendChat(){
+  if(!S.user)return toast('Pehle account banayein.');
+  const el=document.getElementById('chIn');const tx=el.value.trim();if(!tx)return;
+  S.chat.push({by:S.user.name,tx,t:Date.now()});save();openSheet('chat');
+  const c=document.getElementById('socChat');c.scrollTop=c.scrollHeight;
+}
+function regBiz(){
+  const n=document.getElementById('bzN').value.trim(),t=document.getElementById('bzT').value.trim(),d=document.getElementById('bzD').value.trim();
+  if(!n||!t)return toast('Business ka naam aur type likhein.');
+  S.businesses.unshift({n,type:t,details:d||'—',by:S.user.name,contact:'wallet:'+S.user.addr.slice(0,10)+'…',loc:S.user.city||'—'});
+  S.myShares=(S.myShares||0)+100;
+  save();openSheet('market');renderWallet();
+  toast('🛍️ "'+n+'" live hai! +100 NDS entrepreneur grant. Payments seedha aapke wallet mein.');
+}
+function addGroundReport(){
+  const d=prompt('Ground report — kya dekha/kiya? (e.g. "50 families ko rations diye")','');
+  if(!d)return;
+  const amt=parseInt(prompt('Kharcha kitna hua (NDC)? 0 agar sirf report hai','0'))||0;
+  S.reliefLedger.unshift({t:Date.now(),a:S.user.name,
+    w:d+' · receipt #R-'+Math.floor(1000+Math.random()*9000)+' · 📷 footage attached',amt:amt?-amt:0});
+  save();openSheet('relief');
+  toast('📋 Ground report ledger par live — duniya dekh sakti hai.');
+}
+function doSend(){
+  const to=document.getElementById('sTo').value.trim(),a=parseInt(document.getElementById('sAmt').value);
+  if(!to||!a||a<1)return toast('Address/name aur amount chahiye.');
+  if(a>S.ndc)return toast('Balance kam hai.');
+  S.ndc-=a;S.myTx.unshift({t:Date.now(),a:to,w:'transfer',amt:-a});save();closeSheet();renderWallet();
+  toast('Sent — instant, 0 fees, signed on your device (demo).');
+}
+function newProp(){
+  const t=document.getElementById('npT').value.trim();if(!t)return toast('Title likhein.');
+  S.props.unshift({id:S.seq++,title:t,desc:document.getElementById('npD').value.trim(),
+    cost:parseInt(document.getElementById('npC').value)||0,author:S.user.name,
+    tier:(document.getElementById('npTier')||{}).value||'Society',votes:{yes:[],no:[],veto:[]},status:'open'});
+  log('raised proposal: "'+t+'"');save();closeSheet();renderSociety();toast('Proposal live — society ab vote karegi.');
+}
+function bookRide(){
+  const res=document.getElementById('rideRes');
+  res.innerHTML='<p class="muted" style="margin-top:10px">📡 Broadcasting your offer to nearby drivers…</p>';
+  setTimeout(()=>{res.innerHTML=`<div class="post" style="margin-top:10px"><b>🚗 Ahmed R. accepted — 3 min away</b>
+    <div class="muted" style="font-size:12.5px">Suzuki Alto · ⭐ 4.9 (community-rated) · fare Rs ${document.getElementById('rBid').value||300} — driver keeps 100%</div>
+    <button class="b-green" style="margin-top:8px" onclick="closeSheet();toast('Ride booked — fare wallet-to-wallet on completion (demo).')">Confirm ride</button></div>`},1600);
+}
+function foodOrder(r){closeSheet();toast('🍱 Order placed at '+r+' — 0% commission, wallet-to-wallet (demo).')}
+function solve(id,pts){
+  const el=document.getElementById('sol_'+id);if(!el.value.trim())return toast('Solution ka idea likhein.');
+  S.game.points+=pts;S.game.solved.push(id);
+  const sh=pts*2; // contributors OWN more: every verified solution earns NDS shares
+  S.myShares=(S.myShares||0)+sh;
+  S.ndc+=Math.round(pts/10);S.myTx.unshift({t:Date.now(),a:'science-game',w:'solution bounty (+'+sh+' NDS shares)',amt:Math.round(pts/10)});
+  save();openSheet('game');renderWallet();
+  toast('🎉 +'+pts+' points · +'+Math.round(pts/10)+' NDC · +'+sh+' NDS ownership! Contributor pool se shares miley.');
+}
+function reliefDonate(){
+  const a=parseInt(prompt('Relief mein kitne NDC?','20'));if(!a||a<1)return;
+  if(a>S.ndc)return toast('Balance kam hai.');
+  S.ndc-=a;DISASTER.fund+=a;
+  S.reliefLedger.unshift({t:Date.now(),a:S.user.name,w:'relief contribution',amt:a});
+  S.myTx.unshift({t:Date.now(),a:'relief',w:'disaster relief donation',amt:-a});
+  save();openSheet('relief');toast('🤲 JazakAllah — donation ledger par live, receipts ke sath use hoga.');
+}
+function approve(i,ok){
+  const p=S.pending.splice(i,1)[0];
+  if(ok){myCom().members++;log('admin approved new member: '+p.n)}
+  save();openSheet('panels');toast(ok?'✅ '+p.n+' approved — society mein add.':'Request declined.');
+}
+
+/* ================= AI ASSISTANT ================= */
+const AI_KB=[
+  [/vote|veto|proposal|faisl/i,'Har society apne faisley khud karti hai: koi bhi member proposal uthata hai → sab vote karte hain → majority YES pass, lekin agar 33%+ VETO karein to proposal BLOCK — chahe kitni bhi powerful lobby ho. Passed proposals ka fund society ke DAO wallet se AUTO-release hota hai. Society tab mein try karein!'],
+  [/wallet|ndc|paisa|money|crypto/i,'Aapka wallet self-custody hai — keys AAPKE device par banti hain, koi bank/company freeze nahi kar sakti. NDC demo token hai; real build mein on-chain settlement hoga. Send/receive/stake sab Wallet tab mein. Society ka apna alag DAO wallet hai jo sirf votes se chalta hai.'],
+  [/game|science|khel|minecraft/i,'Science Game asli duniya ke laws par chalta hai — quests asli global problems hain (heat, water, plastic, orbital physics). Solution do → points + NDC bounty + rank (Cadet→Researcher→Scientist). Vision: 2 billion gamers ko problem-solvers banana. More tab → Science Game.'],
+  [/relief|disaster|tsunami|flood|imdad/i,'Disaster alert aate hi ek RELIEF ACCOUNT khud khul jata hai. Sab donate karte hain, aur HAR kharcha receipt# + live footage ke sath ledger par aata hai — poori duniya audit karti hai. "Donations kahan gaye?" wala sawal hamesha ke liye khatam.'],
+  [/ride|uber|indrive|food|panda|business|shop/i,'Services 0% platform tax par chalti hain: Ride mein AAP fare offer karte ho (inDrive style), driver 100% rakhta hai. Food mein restaurant se 0% commission. Marketplace mein apna business chalao — payment seedha aapke wallet mein. More tab se try karein.'],
+  [/join|community|society|masjid|church|center|branch/i,'Communities bank-branches ki tarah hain: Global → Country → City → Society. Apne markaz (masjid/church/hall) ko register karo ya nearby join request bhejo — admin approve karega. Har level ka apna panel, treasury aur open ledger hai. More → Branch Panels dekho.'],
+  [/data|database|privacy|phone/i,'Sab se bara farq: aapka data AAPKE phone par rehta hai — yehi is demo mein ho raha hai (localStorage). Users ke devices milke network banate hain; koi central datacenter nahi jo hack ho, bech de, ya censor kare. Your phone IS the database.'],
+  [/crew|nakama|join.*(team|mission)|shares|nds|owner|equity|hissa/i,'One Piece crew ki tarah: Captain (Muhammad) ne course set kiya, ab open seats hain — Scholar (researcher), Bard (creator), Shipwright (platform dev), Treasurer (blockchain), Navigator (strategist), Quartermaster (community). Har crew member ko NDS OWNERSHIP shares milte hain (sign-on + contribution vesting), users ko bhi 250 NDS joining par, aur science-game solutions par contributor shares. Split: Crew 50% · Users 25% · Contributors 25%. Home ke crew banner ya More → Join the Crew se board karo! ⚓'],
+  [/mission|vision|muhammad|founder|kyun|why/i,'Mission: har system power concentrate karke rot ho jata hai — hum power wapas logon ko de rahe hain. Madina model se inspired: community apne center par apne faisley kare. 5 pillars: bottom-up governance, radical transparency, AI jo inform kare (decide nahi), science game, aur azaad karne wali education. Founder: Muhammad Qureshi, Islamabad. Full story: mission site (More tab).'],
+];
+function aiGreet(){
+  const c=document.getElementById('aiChat');
+  c.innerHTML='<div class="msg ai"><b>JARVIS:</b> Salam '+(S.user?esc(S.user.name.split(' ')[0]):'')+'! Main is platform ka guide hoon. Pucho: votes kaise chalte hain? wallet kya hai? science game? relief? — kuch bhi.</div>';
+}
+function aiAsk(){
+  const inp=document.getElementById('aiIn');const q=inp.value.trim();if(!q)return;
+  const c=document.getElementById('aiChat');
+  c.innerHTML+='<div class="msg me">'+esc(q)+'</div>';inp.value='';
+  const hit=AI_KB.find(([re])=>re.test(q));
+  const ans=hit?hit[1]:'Acha sawal! Short answer: ye app social + governance + wallet + services + science game ko EK people-owned platform mein jodta hai — har feature ka demo tabs mein live hai. Specific pucho: "votes", "wallet", "game", "relief", "ride", ya "mission".';
+  setTimeout(()=>{c.innerHTML+='<div class="msg ai"><b>JARVIS:</b> '+ans+'</div>';c.scrollTop=c.scrollHeight},450);
+  c.scrollTop=c.scrollHeight;
+}
+
+/* ================= ALERT BAR ================= */
+function renderAlert(){
+  document.getElementById('alertBar').innerHTML=
+  `<div class="alert" style="margin:10px 16px 0" onclick="openSheet('relief')"><span class="i">🌊</span>
+   <div style="font-size:12.5px"><b>${DISASTER.title}</b><div class="muted" style="font-size:11px">Tap to see the transparent relief account →</div></div></div>`;
+}
+
+/* ================= BOOT ================= */
+function renderRail(){
+  const r=document.getElementById('rightRail');if(!r)return;
+  const c=myCom&&S.socId?myCom():null;
+  const mkts=(typeof MKT!=='undefined'&&MKT.length?MKT:[]).slice(0,5).map(m=>
+    `<div class="mkt"><span class="sym">${m.s}</span><span class="pr">$${m.p.toLocaleString(undefined,{maximumFractionDigits:2})}
+     <span class="${m.c>=0?'up':'dn'}">${m.c>=0?'▲':'▼'}${Math.abs(m.c).toFixed(1)}%</span></span></div>`).join('')
+    ||'<div class="muted" style="font-size:12px">loading…</div>';
+  r.innerHTML=`
+  <div class="card" style="margin-top:0"><h3>📈 Live Markets</h3>${mkts}</div>
+  <div class="alert" style="margin:12px 0" onclick="openSheet('relief')"><span class="i">🌊</span>
+    <div style="font-size:12px"><b>${DISASTER.title}</b><div class="muted" style="font-size:10.5px">${DISASTER.fund.toLocaleString()} NDC raised — tap to audit</div></div></div>
+  ${c?`<div class="card"><h3>🏛️ ${esc(c.name.split('(')[0].trim())}</h3>
+    <div class="mono muted" style="font-size:11px">${c.members} members · treasury ${c.treasury.toLocaleString()} NDC</div>
+    <button class="b-cyan" style="width:100%;margin-top:10px" onclick="openSheet('newprop')">＋ New proposal</button></div>`:''}
+  <div class="card"><h3>⚡ Quick actions</h3>
+    <div class="row" style="gap:8px">
+      <button class="b-green" style="flex:1" onclick="openSheet('chat')">💬 Chat</button>
+      <button class="b-gold" style="flex:1" onclick="openSheet('game')">🎮 Game</button>
+      <button class="b-purple" style="flex:1" onclick="openSheet('ai')">✦ AI</button></div></div>
+  <div class="muted" style="font-size:10.5px;padding:4px 6px;font-family:var(--mono)">⬡ NewDawn · your device is the database · <a href="index.html">mission</a></div>`;
+}
+function renderBrief(){
+  const el=document.getElementById('briefBox');if(!el||!S.user)return;
+  const h=new Date().getHours();
+  const greet=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  const c=S.socId?myCom():null;
+  const openVotes=S.props.filter(p=>p.status==='open').length;
+  const cards=[
+    ['🗳️',(openVotes||1)+' vote'+((openVotes||1)>1?'s':'')+' need you',c?c.name.split('(')[0].trim():'your society','openSheet(\'newprop\')'],
+    ['⚠️','2 nearby issues','need evidence & support','nav(document.querySelector(\'[data-s=home]\'))'],
+    ['🏗️','Community project 62%','on track — see the ledger','nav(document.querySelector(\'[data-s=society]\'))'],
+    ['🆘','1 global emergency',DISASTER.title.replace(/[🌊 ]/g,'').slice(0,22),'openSheet(\'relief\')'],
+  ];
+  el.innerHTML=`
+  <div class="card" style="background:linear-gradient(135deg,#0a2a35,#0d1f33);border-color:#14506b">
+    <h3 style="color:var(--gold);font-size:16px">${greet}, ${esc(S.user.name.split(' ')[0])}. Here's what needs your attention.</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-top:10px">
+      ${cards.map(([i,t,s,fn])=>`<div onclick='${fn}' style="cursor:pointer;background:rgba(6,16,32,.6);border:1px solid var(--line);border-radius:12px;padding:11px">
+        <div style="font-size:18px">${i}</div><div style="font-size:12.5px;font-weight:600;margin-top:3px">${t}</div>
+        <div class="muted" style="font-size:10.5px">${esc(s)}</div></div>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:11px;padding:9px 11px;background:rgba(199,146,255,.1);border:1px solid rgba(199,146,255,.3);border-radius:12px">
+      <span style="font-size:16px">✦</span>
+      <span style="font-size:12px;color:var(--muted)">JARVIS: I found a proposal in your community — want a 30-sec explanation?</span>
+      <button class="b-purple" style="margin-left:auto;padding:6px 11px;font-size:11px" onclick="openSheet('ai')">Ask</button>
+    </div>
+  </div>`;
+}
+function renderAll(){renderStats();renderBrief();renderFeed();renderWallet();renderSociety();renderMapList();renderAlert();renderRail()}
+renderObCity();
+if(S.user&&S.user.addr&&S.socId){document.getElementById('onboard').style.display='none'}
+renderAll();drawMap();fetchMarkets();
+/* PWA: installable app + offline (works on every user's own mobile) */
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+let _bip=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();_bip=e;});
+function installApp(){
+  if(_bip){_bip.prompt();_bip=null;return}
+  toast('📲 Browser menu se: "Add to Home Screen" (Android: ⋮ · iPhone: Share ⬆) — app install ho jayegi!');
+}
+</script>
+</body>
+</html>

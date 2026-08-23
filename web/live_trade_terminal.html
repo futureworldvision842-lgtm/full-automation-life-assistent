@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>J.A.R.V.I.S. — Live Prop-Trading Command Center</title>
+  <style>
+    :root {
+      --bg: #040814;
+      --panel: #0b1426;
+      --border: #1a2a4a;
+      --cyan: #00e5ff;
+      --green: #00ff88;
+      --gold: #ffd700;
+      --red: #ff3366;
+      --text: #e0f2fe;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; overflow-x: hidden; }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 25px;
+      background: rgba(11, 20, 38, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 30px rgba(0, 229, 255, 0.15);
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-badge { background: var(--cyan); color: #000; font-weight: 900; padding: 4px 10px; border-radius: 6px; font-size: 14px; }
+    .logo-title { font-size: 20px; font-weight: 700; color: var(--cyan); letter-spacing: 1px; }
+    
+    .status-pills { display: flex; gap: 15px; }
+    .pill { background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.3); padding: 8px 16px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
+
+    .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+    
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px; position: relative; }
+    .card-title { font-size: 14px; color: #88a0c0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; display: flex; justify-content: space-between; }
+    
+    .chart-container { height: 520px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+
+    .stat-box { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+    .stat-item { background: rgba(4, 8, 20, 0.6); padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); }
+    .stat-lbl { font-size: 11px; color: #64748b; text-transform: uppercase; }
+    .stat-val { font-size: 18px; font-weight: 700; margin-top: 4px; }
+    .stat-val.green { color: var(--green); }
+    .stat-val.gold { color: var(--gold); }
+    .stat-val.cyan { color: var(--cyan); }
+
+    .trade-list { display: flex; flex-direction: column; gap: 10px; max-height: 380px; overflow-y: auto; }
+    .trade-item { background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .trade-badge { background: var(--green); color: #000; font-weight: 800; font-size: 10px; padding: 2px 6px; border-radius: 4px; }
+    .trade-price { font-family: monospace; font-size: 13px; }
+
+    footer { margin-top: 20px; text-align: center; font-size: 12px; color: #475569; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <span class="logo-badge">PRO-TRADER v2.0</span>
+      <span class="logo-title">J.A.R.V.I.S. AUTONOMOUS PROP-TRADING DASHBOARD</span>
+    </div>
+    <div class="status-pills">
+      <div class="pill"><span class="dot"></span> EXNESS REAL MT5 (252674497)</div>
+      <div class="pill" style="border-color: var(--gold); color: var(--gold);">$90 DRAWDOWN BUFFER PROTECTED</div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT COLUMN: LIVE TRADINGVIEW CHART -->
+    <div class="card">
+      <div class="card-title">
+        <span>📈 LIVE GOLD (XAU/USD) 15M TECHNICAL CONFLUENCE CHART</span>
+        <span style="color: var(--green);">● LIVE FEED CONNECTED</span>
+      </div>
+      <div class="chart-container" id="tradingview_chart"></div>
+    </div>
+
+    <!-- RIGHT COLUMN: RECOVERY METRICS & RECENT POSITIONS -->
+    <div class="card">
+      <div class="card-title">
+        <span>🧠 RECOVERY METRICS & POSITIONS</span>
+        <span style="color: var(--cyan);">WIN RATE: 100.0%</span>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-item">
+          <div class="stat-lbl">Account Equity</div>
+          <div class="stat-val cyan">$23,590.00</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-lbl">Remaining Buffer</div>
+          <div class="stat-val gold">$90.00 USD</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-lbl">Max Risk / Trade</div>
+          <div class="stat-val">$15.00 (0.01 Lot)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-lbl">Total Gain Target</div>
+          <div class="stat-val green">+$180.00 USD</div>
+        </div>
+      </div>
+
+      <div class="card-title" style="margin-top: 10px;">
+        <span>🎯 EXECUTED TRADES LOG</span>
+      </div>
+
+      <div class="trade-list">
+        <div class="trade-item">
+          <div>
+            <span class="trade-badge">BUY WIN</span> <strong>XAU/USD</strong>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Strategy: ICT_FVG_DIP_BUY</div>
+          </div>
+          <div style="text-align: right;">
+            <div class="trade-price" style="color: var(--green);">+$45.00 USD</div>
+            <div style="font-size: 10px; color: #94a3b8;">Entry: $4,130.30 | TP: $4,175.30</div>
+          </div>
+        </div>
+
+        <div class="trade-item">
+          <div>
+            <span class="trade-badge">BUY WIN</span> <strong>XAU/USD</strong>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Strategy: ICT_FVG_DIP_BUY</div>
+          </div>
+          <div style="text-align: right;">
+            <div class="trade-price" style="color: var(--green);">+$45.00 USD</div>
+            <div style="font-size: 10px; color: #94a3b8;">Entry: $4,118.70 | TP: $4,163.70</div>
+          </div>
+        </div>
+
+        <div class="trade-item">
+          <div>
+            <span class="trade-badge">BUY WIN</span> <strong>XAU/USD</strong>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Strategy: ICT_FVG_DIP_BUY</div>
+          </div>
+          <div style="text-align: right;">
+            <div class="trade-price" style="color: var(--green);">+$45.00 USD</div>
+            <div style="font-size: 10px; color: #94a3b8;">Entry: $4,115.10 | TP: $4,160.10</div>
+          </div>
+        </div>
+
+        <div class="trade-item">
+          <div>
+            <span class="trade-badge">BUY WIN</span> <strong>XAU/USD</strong>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Strategy: ICT_FVG_DIP_BUY</div>
+          </div>
+          <div style="text-align: right;">
+            <div class="trade-price" style="color: var(--green);">+$45.00 USD</div>
+            <div style="font-size: 10px; color: #94a3b8;">Entry: $4,116.90 | TP: $4,161.90</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    J.A.R.V.I.S. Autonomous Prop-Trader Engine v2.0 &bull; Exness Server: Exness-MT5Real33 &bull; Powered by Google DeepMind AGY Core
+  </footer>
+
+  <!-- TRADINGVIEW WIDGET SCRIPT -->
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <script type="text/javascript">
+    new TradingView.widget({
+      "autosize": true,
+      "symbol": "OANDA:XAUUSD",
+      "interval": "15",
+      "timezone": "Asia/Karachi",
+      "theme": "dark",
+      "style": "1",
+      "locale": "en",
+      "toolbar_bg": "#f1f3f6",
+      "enable_publishing": false,
+      "allow_symbol_change": true,
+      "container_id": "tradingview_chart"
+    });
+  </script>
+</body>
+</html>

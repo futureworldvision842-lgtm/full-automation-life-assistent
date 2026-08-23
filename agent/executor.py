@@ -128,14 +128,14 @@ def _inject_context(params: dict, tool: str, step_results: dict, goal: str = "")
 
     return params
 def _detect_language(text: str) -> str:
-    import google.generativeai as genai
-    genai.configure(api_key=_get_api_key())
-    model = genai.GenerativeModel("gemini-2.5-flash-lite")
+    from google import genai
+    client = genai.Client(api_key=_get_api_key())
     try:
-        response = model.generate_content(
-            f"What language is this text written in? "
-            f"Reply with ONLY the language name in English (e.g. Turkish, English, French).\n\n"
-            f"Text: {text[:200]}"
+        response = client.models.generate_content(
+            model="gemini-2.5-flash-lite",
+            contents=f"What language is this text written in? "
+                     f"Reply with ONLY the language name in English (e.g. Turkish, English, French).\n\n"
+                     f"Text: {text[:200]}"
         )
         return response.text.strip()
     except Exception:
@@ -146,9 +146,8 @@ def _translate_to_goal_language(content: str, goal: str) -> str:
     if not goal:
         return content
     try:
-        import google.generativeai as genai
-        genai.configure(api_key=_get_api_key())
-        model = genai.GenerativeModel("gemini-2.5-flash")
+        from google import genai
+        client = genai.Client(api_key=_get_api_key())
 
         target_lang = _detect_language(goal)
         print(f"[Executor] 🌐 Translating to: {target_lang}")
@@ -290,6 +289,7 @@ class AgentExecutor:
         goal:        str,
         speak:       Callable | None        = None,
         cancel_flag: threading.Event | None = None,
+        player:      Any | None             = None,
     ) -> str:
         print(f"\n[Executor] 🎯 Goal: {goal}")
 
@@ -300,6 +300,7 @@ class AgentExecutor:
 
         while True:
             steps = plan.get("steps", [])
+            total_steps = len(steps)
 
             if not steps:
                 msg = "I couldn't create a valid plan for this task, sir."
@@ -310,19 +311,39 @@ class AgentExecutor:
             failed_step  = None
             failed_error = ""
 
-            for step in steps:
+            for idx, step in enumerate(steps, 1):
                 if cancel_flag and cancel_flag.is_set():
                     if speak: speak("Task cancelled, sir.")
                     return "Task cancelled."
 
-                step_num = step.get("step", "?")
+                step_num = step.get("step", idx)
                 tool     = step.get("tool", "generated_code")
                 desc     = step.get("description", "")
                 params   = step.get("parameters", {})
 
+                progress_pct = int((idx / max(1, total_steps)) * 100)
+
+                # Send real-time step progress to player (UI Timeline, Intent, Tool State)
+                if player:
+                    try:
+                        player.write_timeline(f"Task Progress [{progress_pct}%] Step {idx}/{total_steps}: [{tool}] {desc[:40]}")
+                        player.update_intent(f"Task ({progress_pct}%): {goal[:30]}", f"Step {idx}/{total_steps} ({tool})")
+                        player.set_tool_state(tool, "active")
+                    except Exception:
+                        pass
+
+                # Also update TaskQueue if running as background task
+                try:
+                    from agent.task_queue import get_queue
+                    active_t = get_queue().get_active_task()
+                    if active_t:
+                        get_queue().update_progress(active_t.task_id, progress_pct, f"Step {idx}/{total_steps}: [{tool}] {desc[:40]}")
+                except Exception:
+                    pass
+
                 params = _inject_context(params, tool, step_results, goal=goal)
 
-                print(f"\n[Executor] ▶️ Step {step_num}: [{tool}] {desc}")
+                print(f"\n[Executor] ▶️ Step {step_num} ({progress_pct}%): [{tool}] {desc}")
 
                 attempt = 1
                 step_ok = False
@@ -412,9 +433,8 @@ class AgentExecutor:
     def _summarize(self, goal: str, completed_steps: list, speak: Callable | None) -> str:
         fallback = f"All done, sir. Completed {len(completed_steps)} steps for: {goal[:60]}."
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=_get_api_key())
-            model     = genai.GenerativeModel(model_name="gemini-2.5-flash-lite")
+            from google import genai
+            client    = genai.Client(api_key=_get_api_key())
             steps_str = "\n".join(f"- {s.get('description', '')}" for s in completed_steps)
             prompt    = (
                 f'User goal: "{goal}"\n'
@@ -422,7 +442,7 @@ class AgentExecutor:
                 "Write a single natural sentence summarizing what was accomplished. "
                 "Address the user as 'sir'. Be direct and positive."
             )
-            response = model.generate_content(prompt)
+            response = client.models.generate_content(model="gemini-2.5-flash-lite", contents=prompt)
             summary  = response.text.strip()
             if speak: speak(summary)
             return summary

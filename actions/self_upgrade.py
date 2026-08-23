@@ -1,19 +1,22 @@
 """
-self_upgrade — J.A.R.V.I.S. writes new skills for himself.
+self_upgrade — J.A.R.V.I.S. prepares quarantined skill proposals.
 
 Given a capability description (and optionally a GitHub repo for reference),
-Gemini generates a new skill file that conforms to the skills/ plugin interface,
-the code is COMPILE-CHECKED (guardrail) before install, and on the next session
-the dynamic loader picks it up as a callable tool.
+an online model generates a candidate skill that conforms to the plugin
+interface. The code is compile-checked and stored in review_queue/upgrades.
+It is never installed or activated automatically.
 
 run_self_upgrade(capability=..., repo_url=..., name=...) -> str
 """
 import ast
+import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 
@@ -24,6 +27,7 @@ def _base_dir() -> Path:
 
 
 SKILLS_DIR = _base_dir() / "skills"
+REVIEW_DIR = _base_dir() / "review_queue" / "upgrades"
 
 SKILL_TEMPLATE = '''"""
 Auto-generated J.A.R.V.I.S. skill: {name}
@@ -96,11 +100,34 @@ def _validate(code: str):
     return True, ""
 
 
-def _gen(prompt: str, key: str) -> str:
-    from google import genai
-    client = genai.Client(api_key=key)
-    r = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
-    return _strip_fences(r.text or "")
+def _gen_with_hermes(prompt: str) -> str:
+    from skills.hermes import HERMES_EXE, HERMES_MODEL, HERMES_PROVIDER
+    if not os.path.exists(HERMES_EXE):
+        raise RuntimeError("Hermes is not installed")
+    command = [
+        HERMES_EXE, "-z", prompt,
+        "--provider", HERMES_PROVIDER,
+        "--model", HERMES_MODEL,
+        "--toolsets", "clarify,memory,skills,todo",
+        "--cli",
+    ]
+    result = subprocess.run(command, capture_output=True, text=True, timeout=300, cwd=os.path.dirname(HERMES_EXE))
+    if result.returncode != 0:
+        raise RuntimeError((result.stderr or "Hermes generation failed")[:300])
+    return _strip_fences(result.stdout or "")
+
+
+def _gen(prompt: str, key: str = "") -> str:
+    if key:
+        try:
+            from google import genai
+            client = genai.Client(api_key=key)
+            response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
+            if response.text:
+                return _strip_fences(response.text)
+        except Exception:
+            pass
+    return _gen_with_hermes(prompt)
 
 
 def run_self_upgrade(capability: str = "", repo_url: str = "", name: str = "", **kwargs) -> str:
@@ -111,13 +138,13 @@ def run_self_upgrade(capability: str = "", repo_url: str = "", name: str = "", *
 
     skill_name = _slug(name) if name else _slug(capability or repo_url.split("/")[-1])
 
-    try:
-        cfg = _base_dir() / "config" / "api_keys.json"
-        key = json.loads(cfg.read_text(encoding="utf-8")).get("gemini_api_key")
-        if not key:
-            return "Self-upgrade failed: no Gemini API key."
-    except Exception as e:
-        return f"Self-upgrade failed reading key: {e}"
+    key = os.getenv("GEMINI_API_KEY", "").strip()
+    if not key:
+        try:
+            cfg = _base_dir() / "config" / "api_keys.json"
+            key = json.loads(cfg.read_text(encoding="utf-8")).get("gemini_api_key", "")
+        except Exception:
+            key = ""
 
     repo_ctx = _repo_context(repo_url) if repo_url else ""
 
@@ -155,9 +182,8 @@ def run_self_upgrade(capability: str = "", repo_url: str = "", name: str = "", *
     else:
         return f"Self-upgrade aborted — generated skill failed safety/validation: {last_err}"
 
-    # Final compile-check on disk (guardrail) before installing.
-    SKILLS_DIR.mkdir(exist_ok=True)
-    dest = SKILLS_DIR / f"{skill_name}.py"
+    # Final compile-check, then quarantine as a review proposal. Generated code
+    # is never written into the live skills directory automatically.
     tmp = Path(tempfile.gettempdir()) / f"_jarvis_skill_{skill_name}.py"
     tmp.write_text(code, encoding="utf-8")
     chk = subprocess.run([sys.executable, "-m", "py_compile", str(tmp)],
@@ -165,10 +191,25 @@ def run_self_upgrade(capability: str = "", repo_url: str = "", name: str = "", *
     if chk.returncode != 0:
         return f"Self-upgrade aborted — compile check failed:\n{chk.stderr.strip()[:300]}"
 
+    proposal_id = time.strftime("%Y%m%d-%H%M%S") + "-" + hashlib.sha256(code.encode("utf-8")).hexdigest()[:8]
+    proposal_dir = REVIEW_DIR / proposal_id
+    proposal_dir.mkdir(parents=True, exist_ok=False)
+    dest = proposal_dir / f"{skill_name}.py"
     dest.write_text(code, encoding="utf-8")
+    (proposal_dir / "proposal.json").write_text(json.dumps({
+        "id": proposal_id,
+        "name": skill_name,
+        "capability": capability,
+        "repo_url": repo_url,
+        "status": "awaiting_human_review",
+        "candidate": dest.name,
+        "created_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "checks": ["python syntax", "MANIFEST and run interface", "basic destructive-pattern scan"],
+        "instruction": "Review the candidate and tests. Installation requires an explicit owner-approved code review and a separate signed change."
+    }, indent=2), encoding="utf-8")
     return (
-        f"New skill '{skill_name}' generated, validated, and installed at skills/{skill_name}.py. "
-        f"It will be live as a tool on my next session restart, Sir."
+        f"Upgrade proposal {proposal_id} for '{skill_name}' was generated and compile-checked. "
+        "It is quarantined in the review queue and is NOT installed. Review and explicitly approve a signed change before activation."
     )
 
 

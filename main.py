@@ -20,6 +20,12 @@ from memory.memory_manager import (
     load_memory, update_memory, format_memory_for_prompt,
     should_extract_memory, extract_memory, save_chat_history
 )
+from memory.short_term import (
+    add_turn as stm_add_turn,
+    format_short_term_for_prompt,
+)
+from actions.boot_briefing import build_briefing_instruction
+from agent.evolution_daemon import start_evolution_daemon
 
 from actions.file_processor import file_processor
 from actions.flight_finder     import flight_finder
@@ -80,6 +86,7 @@ _prefer_wasapi()
 
 force_offline = False
 last_offline_time = 0.0
+offline_reason = ""   # spoken once by the offline core (e.g. spending-cap notice)
 # How long to stay on the local (Ollama) core after an online failure before
 # retrying Gemini. Short for transient drops (return online fast once net is back);
 # long for a hard policy/billing denial so Jarvis stays STABLY offline and
@@ -109,6 +116,19 @@ def _load_system_prompt() -> str:
         mission = (BASE_DIR / "core" / "founder_mission.md").read_text(encoding="utf-8")
         if mission.strip():
             base = base + "\n\n" + mission
+    except Exception:
+        pass
+    # Boss Brain v2 — deep training distilled from the Boss's books, chats and
+    # content system, so JARVIS thinks and writes AS Muhammad when representing him.
+    try:
+        brain = (BASE_DIR / "core" / "boss_brain.md").read_text(encoding="utf-8")
+        if brain.strip():
+            base = base + "\n\n" + brain
+    except Exception:
+        pass
+    try:
+        from memory.mission_memory import build_prompt_context
+        base = base + "\n\n" + build_prompt_context()
     except Exception:
         pass
     return base
@@ -626,10 +646,9 @@ TOOL_DECLARATIONS = [
     {
         "name": "self_upgrade",
         "description": (
-            "Build a NEW skill/capability for yourself. Given a capability description "
-            "(and optionally a GitHub repo URL for reference), you generate a new Python "
-            "skill, it is compile-checked and installed, and becomes a usable tool after a "
-            "restart. Use when the user asks you to learn/add a new ability or integrate a repo."
+            "Prepare a reviewed NEW skill/capability proposal. Given a capability description "
+            "(and optionally a GitHub repo URL), generate and compile-check candidate Python "
+            "inside the local review queue. Never install or activate generated code automatically."
         ),
         "parameters": {
             "type": "OBJECT",
@@ -667,10 +686,16 @@ class JarvisLive:
         self._speaking_lock = threading.Lock()
         self.ui.on_text_command = self._on_text_command
         self._turn_complete_received = False
+        self._tool_executing = False
         self._session_handle = None   # for seamless session resumption across reconnects
+        self._boot_briefing_done = False  # start-up briefing fires once per cold launch
+        self._wa_reply_to = None      # WhatsApp number awaiting Jarvis's next reply
+        global ACTIVE_ASSISTANT
+        ACTIVE_ASSISTANT = self       # command bridge routes WhatsApp commands here
         self._last_speak_end = 0.0    # timestamp speech last ended (mic echo cooldown)
-        self.ECHO_COOLDOWN = 1.0      # keep mic gated after Jarvis stops (covers the high-latency
-                                      # speaker buffer tail so echo can't cause a false interrupt)
+        self.ECHO_COOLDOWN = 0.35     # keep mic gated briefly after Jarvis stops (covers the
+                                      # speaker buffer tail so echo can't cause a false interrupt,
+                                      # but short enough that the Boss is heard right away)
 
     def _on_text_command(self, text: str):
         if not self._loop or not self.session:
@@ -712,13 +737,47 @@ class JarvisLive:
         self.ui.write_log(f"ERR: {tool_name} — {short}")
         self.speak(f"Sir, {tool_name} encountered an error. {short}")
 
+    async def _send_boot_briefing(self):
+        """On the first cold connect, gather live data and have Jarvis speak the
+        wake-up briefing (greeting, Islamabad weather, PC health, own status,
+        markets, geopolitics). Fires once — skipped on session-resume reconnects."""
+        # Only on a genuine cold launch: not already done, and not resuming a
+        # prior server-side session (a resume means we're mid-conversation).
+        if self._boot_briefing_done or self._session_handle:
+            self._boot_briefing_done = True
+            return
+        self._boot_briefing_done = True
+
+        try:
+            # Let the audio pipeline settle before speaking.
+            await asyncio.sleep(1.5)
+            self.ui.write_log("SYS: Compiling boot briefing (weather • host • markets • world)...")
+            self.ui.write_timeline("Compiling start-up briefing...")
+
+            # Network + psutil work off the event loop.
+            instruction = await asyncio.to_thread(build_briefing_instruction, "Islamabad")
+
+            if not self.session:
+                return
+            await self.session.send_client_content(
+                turns={"parts": [{"text": instruction}]},
+                turn_complete=True,
+            )
+            self.ui.write_log("SYS: Boot briefing delivered.")
+        except Exception as e:
+            print(f"[JARVIS] [BootBriefing] {e}")
+            self.ui.write_log(f"SYS: Boot briefing skipped ({str(e)[:60]}).")
+
     def _build_config(self) -> types.LiveConnectConfig:
         from datetime import datetime
 
         memory     = load_memory()
         mem_str    = format_memory_for_prompt(memory)
+        stm_str    = format_short_term_for_prompt()   # temporary / working memory
         num_notes = len(memory.get('notes', {}))
         self.ui.write_log(f"MEMORY: Loaded context ({num_notes} facts loaded from local DB).")
+        if stm_str:
+            self.ui.write_log("MEMORY: Recent conversation restored (working memory).")
         sys_prompt = _load_system_prompt()
 
         now      = datetime.now()
@@ -732,6 +791,8 @@ class JarvisLive:
         parts = [time_ctx]
         if mem_str:
             parts.append(mem_str)
+        if stm_str:
+            parts.append(stm_str)
         parts.append(sys_prompt)
 
         return types.LiveConnectConfig(
@@ -755,9 +816,21 @@ class JarvisLive:
             # Let us resume the SAME session after a server-side drop so the voice
             # continues seamlessly instead of cold-restarting (the "awaz atakti hai" bug).
             session_resumption=types.SessionResumptionConfig(handle=self._session_handle),
-            # Reasoning: let the model think before answering and stream its thoughts
-            # to the HUD (BRAIN CORE / thought display already render them).
-            thinking_config=types.ThinkingConfig(include_thoughts=True),
+            # Noise-proof voice detection: LOW start sensitivity so background
+            # noise (TV, fan, street) doesn't falsely interrupt Jarvis mid-reply —
+            # the root cause of "awaz nahi aati / bar bar thinking". A longer
+            # silence window also stops him cutting the Boss off mid-sentence.
+            realtime_input_config=types.RealtimeInputConfig(
+                automatic_activity_detection=types.AutomaticActivityDetection(
+                    start_of_speech_sensitivity=types.StartSensitivity.START_SENSITIVITY_LOW,
+                    prefix_padding_ms=100,
+                    silence_duration_ms=800,
+                )
+            ),
+            # NOTE: no thinking_config at all — the native-audio model treats a
+            # thinking_budget override as an unstable config (sessions were closing
+            # every 8-80s, causing the "THINKING after every reply / not listening"
+            # complaint). Model default = answer directly, which is what Boss wants.
         )
 
     async def _execute_tool(self, fc) -> types.FunctionResponse:
@@ -868,8 +941,10 @@ class JarvisLive:
                     from agent.task_queue import get_queue, TaskPriority
                     priority_map = {"low": TaskPriority.LOW, "normal": TaskPriority.NORMAL, "high": TaskPriority.HIGH}
                     priority = priority_map.get(args.get("priority", "normal").lower(), TaskPriority.NORMAL)
-                    task_id  = get_queue().submit(goal=goal, priority=priority, speak=self.speak)
-                    result   = f"Task started (ID: {task_id})."
+                    task_id  = get_queue().submit(goal=goal, priority=priority, speak=self.speak, player=self.ui)
+                    self.ui.write_timeline(f"Task Queued [{task_id}]: {goal[:50]}")
+                    self.ui.update_intent(f"Background Task [{task_id}]", goal[:40])
+                    result   = f"Task started in background (Task ID: {task_id})."
 
             elif name == "web_search":
                 r = await loop.run_in_executor(None, lambda: web_search_action(parameters=args, player=self.ui))
@@ -926,7 +1001,17 @@ class JarvisLive:
                 self.speak("Goodbye, sir.")
 
                 def _shutdown():
-                    import time, sys, os
+                    import time, sys, os, subprocess
+                    from pathlib import Path
+                    time.sleep(1)
+                    root = Path(__file__).resolve().parent
+                    stop_script = root / "bootstrap" / "stop_all.py"
+                    flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                    subprocess.Popen(
+                        [sys.executable, str(stop_script), "--reason", "voice-command"],
+                        cwd=str(root),
+                        creationflags=flags,
+                    )
                     time.sleep(1)
                     os._exit(0)
 
@@ -948,9 +1033,6 @@ class JarvisLive:
             self.ui.write_timeline(f"Tool success: {name}")
             self.ui.update_intent("", f"Finished Tool: {name}")
 
-        if not self.ui.muted:
-            self.ui.set_state("LISTENING")
-
         print(f"[JARVIS] [Tool Output] {name} -> {str(result)[:80]}")
 
         return types.FunctionResponse(
@@ -961,7 +1043,11 @@ class JarvisLive:
     async def _send_realtime(self):
         while True:
             msg = await self.out_queue.get()
-            await self.session.send_realtime_input(media=msg)
+            if not self._tool_executing and self.session:
+                try:
+                    await self.session.send_realtime_input(media=msg)
+                except Exception:
+                    pass
 
     async def _listen_audio(self):
         print("[JARVIS] [Mic] Mic started")
@@ -970,10 +1056,10 @@ class JarvisLive:
         def callback(indata, frames, time_info, status):
             with self._speaking_lock:
                 jarvis_speaking = self._is_speaking
-            # Stay gated during speech AND for a short cooldown after, so the
-            # speaker's audio tail / room echo can't trigger a false interruption.
+            # Stay gated during speech, echo cooldown, AND tool execution so audio
+            # chunks don't conflict with function response turns on Gemini Live.
             in_cooldown = (time.time() - self._last_speak_end) < self.ECHO_COOLDOWN
-            if not jarvis_speaking and not in_cooldown and not self.ui.muted:
+            if not jarvis_speaking and not in_cooldown and not self._tool_executing and not self.ui.muted:
                 data = indata.tobytes()
                 loop.call_soon_threadsafe(
                     self.out_queue.put_nowait,
@@ -1016,6 +1102,7 @@ class JarvisLive:
                         print(f"[JARVIS] [Connection] Server go_away (time_left={response.go_away.time_left}); will resume session.")
 
                     if response.server_content and response.server_content.model_turn:
+                        self.set_speaking(True)
                         for part in response.server_content.model_turn.parts:
                             if part.inline_data and part.inline_data.data:
                                 self.audio_in_queue.put_nowait(part.inline_data.data)
@@ -1051,7 +1138,9 @@ class JarvisLive:
                             txt = sc.input_transcription.text.strip()
                             if txt:
                                 in_buf.append(txt)
-                                self.ui.update_intent(txt, "Transcribing...")
+                                self.ui.update_intent(txt, "Listening...")
+                                if not self._is_speaking and not self.ui.muted:
+                                    self.ui.set_state("LISTENING")
 
                         if sc.turn_complete:
                             self._turn_complete_received = True
@@ -1072,11 +1161,26 @@ class JarvisLive:
                             if full_out:
                                 self.ui.write_log(f"Jarvis: {full_out}")
                                 self.ui.write_timeline(f"Jarvis: {full_out}")
+                                # If this turn was a WhatsApp command, send the
+                                # reply back to the Boss on WhatsApp too.
+                                if self._wa_reply_to:
+                                    to, self._wa_reply_to = self._wa_reply_to, None
+                                    threading.Thread(
+                                        target=_wa_send, args=(to, full_out),
+                                        daemon=True
+                                    ).start()
                             out_buf = []
 
                             if full_in or full_out:
                                 threading.Thread(
                                     target=save_chat_history,
+                                    args=(full_in, full_out),
+                                    daemon=True
+                                ).start()
+                                # Also drop into short-term / working memory so the
+                                # last orders + chat survive a restart or reconnect.
+                                threading.Thread(
+                                    target=stm_add_turn,
                                     args=(full_in, full_out),
                                     daemon=True
                                 ).start()
@@ -1089,14 +1193,18 @@ class JarvisLive:
                                 ).start()
 
                     if response.tool_call:
-                        fn_responses = []
-                        for fc in response.tool_call.function_calls:
-                            print(f"[JARVIS] [Tool Request] {fc.name}")
-                            fr = await self._execute_tool(fc)
-                            fn_responses.append(fr)
-                        await self.session.send_tool_response(
-                            function_responses=fn_responses
-                        )
+                        self._tool_executing = True
+                        try:
+                            fn_responses = []
+                            for fc in response.tool_call.function_calls:
+                                print(f"[JARVIS] [Tool Request] {fc.name}")
+                                fr = await self._execute_tool(fc)
+                                fn_responses.append(fr)
+                            await self.session.send_tool_response(
+                                function_responses=fn_responses
+                            )
+                        finally:
+                            self._tool_executing = False
             
             # If receive completes without error, it means the connection closed
             raise ConnectionError("Live connection closed by server")
@@ -1109,19 +1217,44 @@ class JarvisLive:
     async def _play_audio(self):
         print("[JARVIS] [Speaker] Speaker playback started")
 
-        def _make_stream():
+        def _try_open(extra):
             s = sd.RawOutputStream(
                 samplerate=RECEIVE_SAMPLE_RATE,
                 channels=CHANNELS,
                 dtype="int16",
                 blocksize=0,        # let PortAudio choose — avoids tiny-block underruns
                 latency="high",     # larger output buffer absorbs network jitter
-                extra_settings=_WASAPI_SETTINGS,
+                extra_settings=extra,
             )
             s.start()
             return s
 
-        stream = _make_stream()
+        def _make_stream():
+            # WASAPI first (stable), then the system default host API. A failure
+            # here (e.g. PaErrorCode -9992 'Insufficient memory' when the audio
+            # engine is wedged) must NEVER kill the Live connection.
+            last = None
+            for extra in (_WASAPI_SETTINGS, None):
+                try:
+                    return _try_open(extra)
+                except Exception as e:
+                    last = e
+            raise last
+
+        async def _make_stream_retry():
+            # Keep the neural link alive even with no speaker: retry with backoff
+            # until the audio engine recovers (device wedge, driver hiccup, etc.).
+            delay = 0.5
+            while True:
+                try:
+                    return await asyncio.to_thread(_make_stream)
+                except Exception as e:
+                    print(f"[JARVIS] [Warn] Speaker open failed ({str(e)[:70]}); retrying in {delay:.1f}s")
+                    self.ui.write_log("SYS: Audio device busy — retrying speaker (link stays online)...")
+                    await asyncio.sleep(delay)
+                    delay = min(delay * 2, 10.0)
+
+        stream = await _make_stream_retry()
         try:
             while True:
                 chunk = await self.audio_in_queue.get()
@@ -1146,16 +1279,14 @@ class JarvisLive:
                     except Exception:
                         pass
                     await asyncio.sleep(0.3)
-                    try:
-                        stream = _make_stream()
-                    except Exception as e2:
-                        print(f"[JARVIS] [Warn] Could not reopen audio device: {str(e2)[:60]}")
-                        await asyncio.sleep(1.0)
+                    stream = await _make_stream_retry()
                     continue
-                # Only stop speaking once the turn is done AND the buffer is drained.
+                # Only stop speaking once the turn is done AND the buffer is drained cleanly.
                 if self._turn_complete_received and self.audio_in_queue.empty():
-                    self.set_speaking(False)
-                    self._turn_complete_received = False
+                    await asyncio.sleep(0.15)
+                    if self.audio_in_queue.empty():
+                        self.set_speaking(False)
+                        self._turn_complete_received = False
         except Exception as e:
             # Never let an audio error kill the Live connection; just log it.
             if "cannot schedule new futures" not in str(e):
@@ -1169,6 +1300,7 @@ class JarvisLive:
                 pass
 
     async def run(self):
+        start_evolution_daemon()
         client = genai.Client(
             api_key=_get_api_key(),
             http_options={"api_version": "v1beta"}
@@ -1203,6 +1335,7 @@ class JarvisLive:
                     tg.create_task(self._listen_audio())
                     tg.create_task(self._receive_audio())
                     tg.create_task(self._play_audio())
+                    tg.create_task(self._send_boot_briefing())
                     
             except BaseException as e:
                 if isinstance(e, (KeyboardInterrupt, SystemExit)):
@@ -1215,7 +1348,15 @@ class JarvisLive:
                 #  - transient: Google server hiccup (1011 / service unavailable / internal
                 #    error / deadline / going away) -> KEEP retrying online; these recover.
                 emsg = str(e).lower()
-                is_policy_error = ("denied access" in emsg or "policy violation" in emsg
+                # Billing/spending-cap exhaustion: hammering won't help — go to
+                # offline core immediately with a clear explanation for the Boss.
+                is_billing_error = ("spending cap" in emsg or "quota" in emsg
+                                    or "billing" in emsg or "exceeded" in emsg)
+                if is_billing_error:
+                    self.ui.write_log("SYS: ⚠ GEMINI SPENDING CAP HIT — raise it at ai.studio/spend, Boss.")
+                    self.ui.write_timeline("Gemini monthly spending cap exceeded — running on local core until the cap is raised.")
+                is_policy_error = (is_billing_error
+                                   or "denied access" in emsg or "policy violation" in emsg
                                    or "not implemented" in emsg
                                    or ("1008" in str(e) and "unavailable" not in emsg))
                 is_transient = ("1011" in str(e) or "unavailable" in emsg or "internal error" in emsg
@@ -1243,7 +1384,11 @@ class JarvisLive:
                 # Fall back to offline only on: no internet, policy/auth denial, or persistent failures.
                 if not check_internet() or is_policy_error or consecutive_failures >= threshold:
                     print("[JARVIS] Falling back to offline core.")
-                    global force_offline, last_offline_time, offline_retry_secs
+                    global force_offline, last_offline_time, offline_retry_secs, offline_reason
+                    offline_reason = ("Gemini ka monthly spending cap khatam ho gaya hai — "
+                                      "ai dot studio slash spend par ja kar cap barhaayen, "
+                                      "tab tak main local core par chal raha hoon."
+                                      if is_billing_error else "")
                     force_offline = True
                     last_offline_time = time.time()
                     # Policy/billing denial → long cooldown (stay stably offline);
@@ -1266,6 +1411,166 @@ def check_internet() -> bool:
         return False
 
 
+# ---------------- WhatsApp / remote command bridge ----------------
+# A tiny localhost endpoint INSIDE the GUI process so external channels
+# (the Baileys WhatsApp bridge, scripts, n8n, etc.) can hand the Boss's
+# command straight into the live session — where ALL tools execute — and
+# get the spoken reply delivered back to WhatsApp.
+ACTIVE_ASSISTANT = None          # set by JarvisLive / JarvisOffline on init
+COMMAND_BRIDGE_PORT = 8760
+
+
+def _wa_send(number: str, text: str) -> None:
+    """Send a WhatsApp message via the Baileys bridge (localhost:3200)."""
+    try:
+        import urllib.request
+        # 🤖 prefix marks this as Jarvis's own reply so the Baileys inbound
+        # handler can never mistake it for a new "jarvis ..." command (no loops).
+        data = json.dumps({"number": number, "message": "🤖 " + text}).encode()
+        req = urllib.request.Request(
+            "http://localhost:3200/send", data=data,
+            headers={"Content-Type": "application/json"})
+        urllib.request.urlopen(req, timeout=30)
+        print(f"[WA-Bridge] Replied to {number} on WhatsApp.")
+    except Exception as e:
+        print(f"[WA-Bridge] reply send failed: {e}")
+
+
+def _transcribe_voice(path: str) -> str:
+    """Transcribe an owner WhatsApp voice note; prefer cloud, fall back locally."""
+    try:
+        from google.genai import types as _t
+        client = genai.Client(api_key=_get_api_key())
+        audio = Path(path).read_bytes()
+        resp = client.models.generate_content(
+            model="gemini-flash-latest",
+            contents=[
+                _t.Part.from_bytes(data=audio, mime_type="audio/ogg"),
+                "Transcribe this voice message EXACTLY as spoken (Urdu/English mix "
+                "as-is, in Roman script). Return ONLY the transcript text.",
+            ],
+        )
+        return (resp.text or "").strip()
+    except Exception as e:
+        print(f"[WA-Bridge] transcription failed: {e}")
+    try:
+        model = getattr(ACTIVE_ASSISTANT, "whisper", None)
+        if model is None:
+            from faster_whisper import WhisperModel
+            model = WhisperModel("base", device="cpu", compute_type="int8")
+        segments, _ = model.transcribe(path, beam_size=3, vad_filter=True)
+        return " ".join(segment.text.strip() for segment in segments if segment.text.strip()).strip()
+    except Exception as error:
+        print(f"[WA-Bridge] local transcription failed: {error}")
+        return ""
+
+
+def start_command_server():
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def _json(self, code, obj):
+            body = json.dumps(obj).encode()
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def do_GET(self):
+            if self.path == "/health":
+                a = ACTIVE_ASSISTANT
+                mode = a.__class__.__name__ if a else None
+                if mode == "JarvisOffline" and check_internet():
+                    mode = "JarvisHybrid"
+                self._json(200, {"ok": True, "mode": mode})
+            else:
+                self._json(404, {"ok": False})
+
+        def do_POST(self):
+            if self.path not in ("/command", "/voice", "/chat"):
+                return self._json(404, {"ok": False})
+            try:
+                n = int(self.headers.get("Content-Length") or 0)
+                if n > 65536:
+                    return self._json(413, {"ok": False, "error": "request too large"})
+                raw = self.rfile.read(n) or b"{}"
+                # Tolerate non-UTF8 bytes (e.g. cp1252 smart dashes from Windows
+                # clients) instead of 500ing the whole command.
+                data = json.loads(raw.decode("utf-8", "replace"))
+                reply_to = (data.get("reply_to") or "").strip() or None
+                owner_id = (data.get("owner_id") or reply_to or "owner").strip()[:80]
+                source = (data.get("source") or "local-bridge").strip()[:40]
+                a = ACTIVE_ASSISTANT
+                if a is None:
+                    return self._json(503, {"ok": False, "error": "assistant not ready"})
+
+                if self.path == "/chat":
+                    text = (data.get("text") or "").strip()
+                    if not text:
+                        return self._json(400, {"ok": False, "error": "empty chat"})
+                    from memory.mission_memory import build_prompt_context
+                    from skills.hermes import run as run_hermes
+                    answer = run_hermes(parameters={"task": (
+                        "You are Muhammad Qureshi's mission-aware JARVIS. Answer accurately and concisely. "
+                        "This is chat and research only: do not change files, execute commands, publish, spend, vote, "
+                        "send messages, or claim an external action happened. State uncertainty clearly.\n\n"
+                        + build_prompt_context(text) + "\n\nMESSAGE: " + text
+                    )})
+                    if reply_to:
+                        threading.Thread(target=_wa_send, args=(reply_to, answer), daemon=True).start()
+                    return self._json(200, {"ok": True, "text": answer[:4000]})
+
+                if self.path == "/voice":
+                    # WhatsApp voice note → transcribe with Gemini → execute.
+                    path = (data.get("path") or "").strip()
+                    if not path or not Path(path).exists():
+                        return self._json(400, {"ok": False, "error": "audio file missing"})
+                    try:
+                        text = _transcribe_voice(path)
+                    finally:
+                        try:
+                            Path(path).unlink(missing_ok=True)
+                        except Exception:
+                            pass
+                    if not text:
+                        return self._json(422, {"ok": False, "error": "could not transcribe"})
+                    print(f"[WA-Bridge] Voice command transcribed: {text[:80]}")
+                else:
+                    text = (data.get("text") or "").strip()
+
+                if not text:
+                    return self._json(503, {"ok": False, "error": "empty command"})
+                from security.owner_control import decision_json, evaluate_command
+                decision = evaluate_command(text, source=source, owner_id=owner_id)
+                if decision.action != "execute":
+                    status = 202 if decision.action == "approval_required" else 403 if decision.action == "denied" else 409
+                    return self._json(status, {"ok": False, "error": decision.message, **decision_json(decision)})
+                text = decision.command
+                try:
+                    a._wa_reply_to = reply_to
+                except Exception:
+                    pass
+                a._on_text_command(
+                    f"[Command from the Boss via WhatsApp — execute it and answer briefly] {text}"
+                )
+                self._json(200, {"ok": True, "action": "execute", "transcript": text[:200]})
+            except Exception as e:
+                self._json(500, {"ok": False, "error": str(e)[:100]})
+
+    def serve():
+        try:
+            ThreadingHTTPServer(("127.0.0.1", COMMAND_BRIDGE_PORT), Handler).serve_forever()
+        except Exception as e:
+            print(f"[WA-Bridge] command server failed: {e}")
+
+    threading.Thread(target=serve, daemon=True).start()
+    print(f"[WA-Bridge] Command endpoint on http://127.0.0.1:{COMMAND_BRIDGE_PORT} (WhatsApp -> Jarvis).")
+
+
 class JarvisOffline:
     def __init__(self, ui: JarvisUI):
         self.ui = ui
@@ -1275,14 +1580,21 @@ class JarvisOffline:
         self.speaker = None
         self.is_speaking = False
         self.last_speak_end_time = 0.0
+        self._wa_reply_to = None
+        global ACTIVE_ASSISTANT
+        ACTIVE_ASSISTANT = self
         
-        # Load local memory context
+        # Load local memory context (permanent + working/short-term)
         try:
             memory = load_memory()
             mem_str = format_memory_for_prompt(memory)
         except Exception as e:
             print(f"[Offline Memory Error] {e}")
             mem_str = ""
+        try:
+            stm_str = format_short_term_for_prompt()
+        except Exception:
+            stm_str = ""
 
         # Initialize history
         sys_prompt = (
@@ -1293,6 +1605,13 @@ class JarvisOffline:
         )
         if mem_str:
             sys_prompt += mem_str
+        if stm_str:
+            sys_prompt += "\n" + stm_str
+        try:
+            from memory.mission_memory import build_prompt_context
+            sys_prompt += "\n\n" + build_prompt_context()
+        except Exception:
+            pass
 
         self.history = [{"role": "system", "content": sys_prompt}]
 
@@ -1320,8 +1639,29 @@ class JarvisOffline:
 
     def query_local_llm(self, text: str) -> str:
         import requests
-        
-        # 1. Try Ollama (OpenAI compatible chat completions endpoint)
+
+        # 1. When the Gemini Live voice session is unavailable but the internet
+        # still works, use the authenticated Hermes/Codex brain in research-only
+        # mode. System-changing tools remain outside this conversational path.
+        if check_internet():
+            try:
+                from skills.hermes import run as run_hermes
+                recent = self.history[-6:]
+                context = "\n".join(f"{item.get('role', 'user')}: {item.get('content', '')}" for item in recent)
+                prompt = (
+                    "You are the conversational intelligence behind Muhammad's JARVIS voice assistant. "
+                    "Answer the user's latest request concisely in their language (including Roman Urdu). "
+                    "Do not change files, execute commands, send messages, spend money, vote, or publish.\n\n"
+                    f"RECENT CONTEXT:\n{context[-5000:]}\n\nLATEST USER:\n{text}"
+                )
+                answer = run_hermes({"task": prompt})
+                if answer and not answer.lower().startswith(("hermes error", "failed to run hermes")):
+                    self.ui.write_timeline("Hermes online intelligence responded.")
+                    return answer
+            except Exception as error:
+                print(f"[Hermes Hybrid] {type(error).__name__}")
+
+        # 2. Private Ollama fallback (OpenAI-compatible chat endpoint).
         try:
             url = "http://localhost:11434/v1/chat/completions"
             payload = {
@@ -1335,7 +1675,7 @@ class JarvisOffline:
         except Exception:
             pass
 
-        # 2. Try Odysseus chat endpoint
+        # 3. Try Odysseus chat endpoint.
         try:
             url = "http://localhost:7000/api/chat"
             payload = {
@@ -1355,8 +1695,9 @@ class JarvisOffline:
     def process_query(self, text: str):
         self.ui.write_log(f"You: {text}")
         self.ui.write_timeline(f"You: {text}")
-        self.ui.update_intent(text, "Local Reasoning...")
-        self.ui.set_state("OFFLINE_THINKING")
+        hybrid = check_internet()
+        self.ui.update_intent(text, "Hermes + local reasoning..." if hybrid else "Local reasoning...")
+        self.ui.set_state("HYBRID_THINKING" if hybrid else "OFFLINE_THINKING")
 
         # Basic offline matched actions
         lower_text = text.lower()
@@ -1380,13 +1721,24 @@ class JarvisOffline:
             reply = self.query_local_llm(text)
 
         self.ui.clear_thoughts()
-        self.ui.write_timeline("Local thought finished.")
+        self.ui.write_timeline("Hybrid thought finished." if hybrid else "Local thought finished.")
 
         # Update history
         self.history.append({"role": "user", "content": text})
         self.history.append({"role": "assistant", "content": reply})
         if len(self.history) > 15:
             self.history = [self.history[0]] + self.history[-12:]
+
+        # Persist to short-term / working memory so offline chat also survives restarts.
+        try:
+            threading.Thread(target=stm_add_turn, args=(text, reply), daemon=True).start()
+        except Exception:
+            pass
+
+        # WhatsApp command? Send the reply back on WhatsApp as well.
+        if self._wa_reply_to:
+            to, self._wa_reply_to = self._wa_reply_to, None
+            threading.Thread(target=_wa_send, args=(to, reply), daemon=True).start()
 
         self.speak(reply)
 
@@ -1406,6 +1758,15 @@ class JarvisOffline:
             self.ui.write_log("SYS: local SAPI5 Text-to-Speech initialized.")
         except Exception as e:
             self.ui.write_log(f"ERR: SAPI5 TTS failed: {e}")
+
+        # Tell the Boss WHY we're offline (e.g. Gemini spending cap) — once, out loud.
+        global offline_reason
+        if offline_reason:
+            try:
+                self.speak(f"Boss, ek zaroori baat: {offline_reason}")
+            except Exception:
+                pass
+            offline_reason = ""
 
         # Initialize faster-whisper
         try:
@@ -1431,9 +1792,10 @@ class JarvisOffline:
         except Exception as e:
             self.ui.write_log(f"ERR: Mic calibration failed: {e}")
 
-        self.ui.set_state("OFFLINE_LISTENING")
-        self.ui.write_log("SYS: JARVIS offline core ready.")
-        self.ui.write_timeline("Offline mode active. Standing by.")
+        hybrid = check_internet()
+        self.ui.set_state("HYBRID_LISTENING" if hybrid else "OFFLINE_LISTENING")
+        self.ui.write_log("SYS: JARVIS hybrid Hermes + local core ready." if hybrid else "SYS: JARVIS offline core ready.")
+        self.ui.write_timeline("Hermes online intelligence with private local fallback is standing by." if hybrid else "Offline mode active. Standing by.")
 
         # Main offline listen loop
         while self.running:
@@ -1458,7 +1820,7 @@ class JarvisOffline:
                 time.sleep(0.2)
 
             try:
-                self.ui.set_state("OFFLINE_LISTENING")
+                self.ui.set_state("HYBRID_LISTENING" if check_internet() else "OFFLINE_LISTENING")
                 with microphone as source:
                     audio = recognizer.listen(source, timeout=3.0, phrase_time_limit=10.0)
 
@@ -1496,6 +1858,7 @@ class JarvisOffline:
 
 def main():
     ui = JarvisUI("face.png")
+    start_command_server()   # WhatsApp / remote → Jarvis command bridge
 
     def runner():
         global force_offline, last_offline_time

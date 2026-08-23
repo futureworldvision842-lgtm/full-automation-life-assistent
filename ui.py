@@ -529,7 +529,7 @@ class HudCanvas(QWidget):
                 Qt.TransformationMode.SmoothTransformation,
             )
             # Set opacity depending on thinking/processing
-            if self.state in ["THINKING", "PROCESSING", "OFFLINE_THINKING"]:
+            if self.state in ["THINKING", "PROCESSING", "OFFLINE_THINKING", "HYBRID_THINKING"]:
                 p.setOpacity(0.35)
             else:
                 p.setOpacity(0.85)
@@ -559,7 +559,7 @@ class HudCanvas(QWidget):
                        Qt.AlignmentFlag.AlignCenter, "J.A.R.V.I.S")
 
         # --- Dynamic State Visualizations ---
-        if self.state in ["THINKING", "PROCESSING", "OFFLINE_THINKING"]:
+        if self.state in ["THINKING", "PROCESSING", "OFFLINE_THINKING", "HYBRID_THINKING"]:
             # Neural Synapse Brain animation (Glowing synapses)
             p.setPen(Qt.PenStyle.NoPen)
             # Center node
@@ -619,7 +619,7 @@ class HudCanvas(QWidget):
             p.drawText(int(cx - ring_r * 1.3), int(cy + ring_r * 0.8), "TELEMETRY: OK")
             p.drawText(int(cx - ring_r * 1.3), int(cy + ring_r * 0.8 + 10), f"SYS_T: {self._tick}")
             
-        elif self.state in ["LISTENING", "OFFLINE_LISTENING"]:
+        elif self.state in ["LISTENING", "OFFLINE_LISTENING", "HYBRID_LISTENING"]:
             # Green/Red radar sweep
             p.setBrush(Qt.BrushStyle.NoBrush)
             sweep_col = C.RED if self.state == "OFFLINE_LISTENING" else C.GREEN
@@ -685,6 +685,12 @@ class HudCanvas(QWidget):
         elif self.state == "OFFLINE_SPEAKING":
             sym = "⚠" if self._blink else "●"
             txt, col = f"{sym}  OFFLINE SPEAKING", qcol(C.RED)
+        elif self.state == "HYBRID_LISTENING":
+            txt, col = "●  ONLINE HYBRID LISTENING", qcol(C.GREEN)
+        elif self.state == "HYBRID_THINKING":
+            txt, col = "◆  HERMES THINKING", qcol(C.ACC2)
+        elif self.state == "HYBRID_SPEAKING":
+            txt, col = "●  HERMES SPEAKING", qcol(C.ACC)
         elif self.speaking:
             txt, col = "●  SPEAKING",  qcol(C.ACC)
         elif self.state == "THINKING":
@@ -2031,6 +2037,7 @@ class MainWindow(QMainWindow):
         btn_onboard = QPushButton("ONBOARD")
         btn_health = QPushButton("HEALTH")
         btn_train = QPushButton("TRAIN")
+        btn_stop = QPushButton("STOP JARVIS")
         
         for btn in [btn_onboard, btn_health, btn_train]:
             btn.setFixedHeight(22)
@@ -2050,6 +2057,16 @@ class MainWindow(QMainWindow):
         btn_onboard.clicked.connect(lambda: self._run_motherbot_cmd("clawdbot onboard"))
         btn_health.clicked.connect(lambda: self._run_motherbot_cmd("clawdbot health"))
         btn_train.clicked.connect(lambda: self._run_motherbot_cmd("self_training"))
+        btn_stop.setFixedHeight(22)
+        btn_stop.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
+        btn_stop.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn_stop.setStyleSheet(f"""
+            QPushButton {{ background: #1a0006; color: {C.RED};
+                border: 1px solid {C.RED}; border-radius: 2px; }}
+            QPushButton:hover {{ background: {C.RED}; color: #ffffff; }}
+        """)
+        btn_stop.clicked.connect(self._stop_jarvis)
+        ctrl_lay.addWidget(btn_stop)
         
         motherbot_lay.addWidget(self.controls_widget, stretch=0)
 
@@ -2357,7 +2374,7 @@ class MainWindow(QMainWindow):
 
     def _apply_state(self, state: str):
         self.hud.state    = state
-        self.hud.speaking = (state == "SPEAKING" or state == "OFFLINE_SPEAKING")
+        self.hud.speaking = state in ("SPEAKING", "OFFLINE_SPEAKING", "HYBRID_SPEAKING")
 
     def _check_config(self) -> bool:
         if not API_FILE.exists(): return False
@@ -2630,6 +2647,21 @@ class MainWindow(QMainWindow):
                 self._motherbot_event_sig.emit(f"Failed to execute command: {e}")
         threading.Thread(target=_run_sys, daemon=True).start()
 
+    def _stop_jarvis(self):
+        """One owner click stops every managed local JARVIS integration."""
+        self._motherbot_event_sig.emit("Owner stop requested. Shutting down local JARVIS services...")
+        try:
+            root = os.path.dirname(os.path.abspath(__file__))
+            script = os.path.join(root, "bootstrap", "stop_all.py")
+            flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+            subprocess.Popen(
+                [sys.executable, script, "--reason", "hud-stop-button"],
+                cwd=root,
+                creationflags=flags,
+            )
+        except Exception as error:
+            self._motherbot_event_sig.emit(f"Stop failed: {error}")
+
     def _add_thought(self, text: str):
         cur = self._thought_text.textCursor()
         cur.movePosition(cur.MoveOperation.End)
@@ -2747,14 +2779,18 @@ class JarvisUI:
             time.sleep(0.1)
 
     def start_speaking(self):
-        if self._win.hud.state.startswith("OFFLINE"):
+        if self._win.hud.state.startswith("HYBRID"):
+            self.set_state("HYBRID_SPEAKING")
+        elif self._win.hud.state.startswith("OFFLINE"):
             self.set_state("OFFLINE_SPEAKING")
         else:
             self.set_state("SPEAKING")
 
     def stop_speaking(self):
         if not self.muted:
-            if self._win.hud.state.startswith("OFFLINE"):
+            if self._win.hud.state.startswith("HYBRID"):
+                self.set_state("HYBRID_LISTENING")
+            elif self._win.hud.state.startswith("OFFLINE"):
                 self.set_state("OFFLINE_LISTENING")
             else:
                 self.set_state("LISTENING")

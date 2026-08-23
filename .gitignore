@@ -3,14 +3,22 @@
 # ============================================================
 config/api_keys.json
 config/gold_config.json
+config/prop_account_credentials.json
+config/wa_contacts.json
+config/last_4am_report.txt
 config/*.local.json
 
 # WhatsApp login session (Baileys / whatsapp-web.js)
 wa/auth/
 wa/session/
 wa/.wwebjs_auth/
+wa/test_auth/
+wa/test_ipv4_auth/
+wa/test_clean_auth/
+wa/test_clean_auth_2/
 **/wa_sender_session/
 **/tokens/
+*.stop
 
 # Personal long-term memory / brain state
 memory/long_term.json

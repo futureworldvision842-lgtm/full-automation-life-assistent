@@ -1,6 +1,4 @@
-# actions/file_controller.py
-# File management — create, delete, move, rename, list, find, organize
-
+import re
 import shutil
 from pathlib import Path
 from datetime import datetime
@@ -18,8 +16,19 @@ def _get_downloads() -> Path:
 def _resolve_path(raw: str) -> Path:
     """
     Resolves a path from user input.
-    Supports shortcuts: 'desktop', 'downloads', 'documents', 'home'
+    Supports drive roots ('C:', 'C:\', 'E:'), shortcuts ('desktop', 'downloads', 'documents', 'home'),
+    and prefix paths. Defaults relative filenames to Desktop.
     """
+    raw = (raw or "").strip().strip('\'"')
+    if not raw:
+        return Path.home() / "Desktop"
+
+    # Handle drive letters e.g. "C:", "C:\", "c:/", "E:", "E:\", "e:/"
+    if re.match(r'^[a-zA-Z]:[/\\]?$', raw):
+        return Path(raw[0].upper() + ":\\")
+    if re.match(r'^[a-zA-Z]:[/\\]', raw):
+        return Path(raw).expanduser()
+
     shortcuts = {
         "desktop":   Path.home() / "Desktop",
         "downloads": Path.home() / "Downloads",
@@ -29,10 +38,18 @@ def _resolve_path(raw: str) -> Path:
         "videos":    Path.home() / "Videos",
         "home":      Path.home(),
     }
-    lower = raw.strip().lower()
+    lower = raw.lower()
     if lower in shortcuts:
         return shortcuts[lower]
-    return Path(raw).expanduser()
+    for key, base in shortcuts.items():
+        if lower.startswith(key + "/") or lower.startswith(key + "\\"):
+            rel = raw[len(key)+1:]
+            return base / rel
+
+    p = Path(raw).expanduser()
+    if p.is_absolute() or (len(raw) >= 2 and raw[1] == ':'):
+        return p
+    return Path.home() / "Desktop" / raw
 
 
 def _format_size(bytes_size: int) -> str:
@@ -66,7 +83,7 @@ def list_files(path: str = "desktop", show_hidden: bool = False) -> str:
         if not items:
             return f"Directory is empty: {target}"
 
-        return f"Contents of {target.name}/ ({len(items)} items):\n" + "\n".join(items)
+        return f"Contents of {target.name or target}/ ({len(items)} items):\n" + "\n".join(items)
 
     except PermissionError:
         return f"Permission denied: {path}"
@@ -77,10 +94,11 @@ def list_files(path: str = "desktop", show_hidden: bool = False) -> str:
 def create_file(path: str, content: str = "") -> str:
     """Creates a new file with optional content."""
     try:
-        target = Path(path).expanduser()
+        target = _resolve_path(path)
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(content, encoding="utf-8")
-        return f"File created: {target.name}"
+        print(f"[FileController] Created file at: {target}")
+        return f"File created successfully at: {target}"
     except Exception as e:
         return f"Could not create file: {e}"
 
@@ -88,7 +106,7 @@ def create_file(path: str, content: str = "") -> str:
 def create_folder(path: str) -> str:
     """Creates a new folder (and parent folders if needed)."""
     try:
-        target = Path(path).expanduser()
+        target = _resolve_path(path)
         target.mkdir(parents=True, exist_ok=True)
         return f"Folder created: {target}"
     except Exception as e:
@@ -101,12 +119,11 @@ def delete_file(path: str, confirm: bool = True) -> str:
     Moves to Recycle Bin on Windows if possible, otherwise permanent delete.
     """
     try:
-        target = Path(path).expanduser()
+        target = _resolve_path(path)
         if not target.exists():
             return f"Not found: {path}"
 
         try:
-
             send2trash.send2trash(str(target))
             return f"Moved to Recycle Bin: {target.name}"
         except ImportError:
@@ -129,7 +146,7 @@ def delete_file(path: str, confirm: bool = True) -> str:
 def move_file(source: str, destination: str) -> str:
     """Moves a file or folder to a new location."""
     try:
-        src  = Path(source).expanduser()
+        src  = _resolve_path(source)
         dst  = _resolve_path(destination)
 
         if not src.exists():
@@ -149,7 +166,7 @@ def move_file(source: str, destination: str) -> str:
 def copy_file(source: str, destination: str) -> str:
     """Copies a file or folder."""
     try:
-        src = Path(source).expanduser()
+        src = _resolve_path(source)
         dst = _resolve_path(destination)
 
         if not src.exists():
@@ -174,7 +191,7 @@ def copy_file(source: str, destination: str) -> str:
 def rename_file(path: str, new_name: str) -> str:
     """Renames a file or folder."""
     try:
-        target   = Path(path).expanduser()
+        target   = _resolve_path(path)
         new_path = target.parent / new_name
 
         if not target.exists():
@@ -192,7 +209,7 @@ def rename_file(path: str, new_name: str) -> str:
 def read_file(path: str, max_chars: int = 3000) -> str:
     """Reads and returns the content of a text file."""
     try:
-        target = Path(path).expanduser()
+        target = _resolve_path(path)
         if not target.exists():
             return f"File not found: {path}"
         if not target.is_file():
@@ -210,7 +227,7 @@ def read_file(path: str, max_chars: int = 3000) -> str:
 def write_file(path: str, content: str, append: bool = False) -> str:
     """Writes or appends content to a file."""
     try:
-        target = Path(path).expanduser()
+        target = _resolve_path(path)
         target.parent.mkdir(parents=True, exist_ok=True)
         mode = "a" if append else "w"
         with open(target, mode, encoding="utf-8") as f:

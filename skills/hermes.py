@@ -17,8 +17,9 @@ HERMES_EXE = os.path.expandvars(r"%LOCALAPPDATA%\hermes\hermes-agent\venv\Script
 if not os.path.exists(HERMES_EXE):
     HERMES_EXE = r"C:\Users\HP\AppData\Local\hermes\hermes-agent\venv\Scripts\hermes.exe"
 
-HERMES_MODEL = "gemini-2.5-flash"
-HERMES_PROVIDER = "gemini"
+HERMES_MODEL = os.getenv("JARVIS_HERMES_MODEL", "gpt-5.6-terra")
+HERMES_PROVIDER = os.getenv("JARVIS_HERMES_PROVIDER", "openai-codex")
+HERMES_LOCAL_URL = os.getenv("JARVIS_HERMES_LOCAL_URL", "http://127.0.0.1:11434/v1")
 
 
 def _gemini_key():
@@ -65,10 +66,26 @@ def run(parameters=None, player=None, speak=None):
     if key:
         env["GEMINI_API_KEY"] = key
         env["GOOGLE_API_KEY"] = key
+    if HERMES_PROVIDER == "custom":
+        env["OPENAI_BASE_URL"] = HERMES_LOCAL_URL
+        env["OPENAI_API_KEY"] = "ollama"
     try:
+        command = [
+            HERMES_EXE, "-z", task,
+            "--provider", HERMES_PROVIDER,
+            "--model", HERMES_MODEL,
+            "--toolsets", os.getenv(
+                "JARVIS_HERMES_TOOLSETS",
+                "browser,clarify,memory,session_search,skills,todo",
+            ),
+            "--cli",
+        ]
+        # Full unattended tool approval is intentionally opt-in.  The mobile app
+        # must never turn a delegated research request into hidden system control.
+        if os.environ.get("JARVIS_HERMES_UNSAFE_AUTONOMY") == "1":
+            command.insert(-1, "--yolo")
         r = subprocess.run(
-            [HERMES_EXE, "-z", task, "--provider", HERMES_PROVIDER,
-             "--model", HERMES_MODEL, "--yolo", "--cli"],
+            command,
             capture_output=True, text=True, timeout=300,
             cwd=os.path.dirname(HERMES_EXE), env=env,
         )

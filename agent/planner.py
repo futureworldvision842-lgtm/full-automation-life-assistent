@@ -178,20 +178,18 @@ def _get_api_key() -> str:
 
 
 def create_plan(goal: str, context: str = "") -> dict:
-    import google.generativeai as genai
+    from google import genai
+    client = genai.Client(api_key=_get_api_key())
 
-    genai.configure(api_key=_get_api_key())
-    model = genai.GenerativeModel(
-        model_name="gemini-2.5-flash-lite",
-        system_instruction=PLANNER_PROMPT
-    )
-
-    user_input = f"Goal: {goal}"
+    user_input = f"System: {PLANNER_PROMPT}\n\nGoal: {goal}"
     if context:
         user_input += f"\n\nContext: {context}"
 
     try:
-        response = model.generate_content(user_input)
+        response = client.models.generate_content(
+            model="gemini-2.5-flash-lite",
+            contents=user_input
+        )
         text     = response.text.strip()
         text     = re.sub(r"```(?:json)?", "", text).strip().rstrip("`").strip()
 
@@ -238,13 +236,9 @@ def _fallback_plan(goal: str) -> dict:
 
 
 def replan(goal: str, completed_steps: list, failed_step: dict, error: str) -> dict:
-    import google.generativeai as genai
+    from google import genai
 
-    genai.configure(api_key=_get_api_key())
-    model = genai.GenerativeModel(
-        model_name="gemini-2.5-flash",
-        system_instruction=PLANNER_PROMPT
-    )
+    client = genai.Client(api_key=_get_api_key())
 
     completed_summary = "\n".join(
         f"  - Step {s['step']} ({s['tool']}): DONE" for s in completed_steps
@@ -261,7 +255,7 @@ Error: {error}
 Create a REVISED plan for the remaining work only. Do not repeat completed steps."""
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
         text     = response.text.strip()
         text     = re.sub(r"```(?:json)?", "", text).strip().rstrip("`").strip()
         plan     = json.loads(text)

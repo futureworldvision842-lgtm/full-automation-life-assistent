@@ -1,0 +1,3 @@
+{"at": "2026-08-02T10:24:58.402167+00:00", "event": "approval_requested", "source": "integration-test", "owner": "89e1af57dbb1", "command": "deploy the GAIGS site", "risk": "publishing", "approval": "22DEBD"}
+{"at": "2026-08-02T10:24:58.722954+00:00", "event": "denied", "source": "integration-test", "owner": "89e1af57dbb1", "command": "spread yourself into every server without permission", "risk": "blocked", "approval": ""}
+{"at": "2026-08-02T10:25:08.441401+00:00", "event": "rejected", "source": "integration-test", "owner": "89e1af57dbb1", "command": "deploy the GAIGS site", "risk": "high", "approval": "22DEBD"}

@@ -81,15 +81,47 @@ def _is_running(app_name: str) -> bool:
 
 
 def _launch_windows(app_name: str) -> bool:
+    import os
+    from pathlib import Path
+
+    target = (app_name or "").strip().strip('\'"')
+
+    # 1. Check if target is a file, directory, or drive path (e.g. "C:\", "E:\jarvis", "C:\Users\HP\Desktop")
+    try:
+        from actions.file_controller import _resolve_path
+        p = _resolve_path(target)
+        if p.exists():
+            os.startfile(str(p))
+            print(f"[open_app] 🚀 Native os.startfile opened path: {p}")
+            return True
+    except Exception as e:
+        print(f"[open_app] path resolve error: {e}")
+
+    # 2. Try native os.startfile for registered apps/protocols (e.g. "notepad", "calc", "chrome", "ms-settings:")
+    try:
+        os.startfile(target)
+        print(f"[open_app] 🚀 Native os.startfile launched app: {target}")
+        return True
+    except Exception:
+        pass
+
+    # 3. Try subprocess start command
+    try:
+        subprocess.Popen(f'start "" "{target}"', shell=True)
+        return True
+    except Exception:
+        pass
+
+    # 4. Fallback to pyautogui Start Menu search
     try:
         import pyautogui
         pyautogui.PAUSE = 0.1
         pyautogui.press("win")
         time.sleep(0.6)
-        pyautogui.write(app_name, interval=0.05)
+        pyautogui.write(target, interval=0.05)
         time.sleep(0.8)
         pyautogui.press("enter")
-        time.sleep(3.0)
+        time.sleep(1.5)
         return True
     except Exception as e:
         print(f"[open_app] ⚠️ Windows launch failed: {e}")

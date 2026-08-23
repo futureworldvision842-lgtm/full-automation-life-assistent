@@ -51,54 +51,132 @@ def _type_and_send(message: str):
     time.sleep(0.3)
 
 
-def _send_whatsapp(receiver: str, message: str) -> str:
-    """
-    Sends a WhatsApp message. Preferred path: the always-on forwarder bot's
-    /jarvis-send endpoint (uses its linked WhatsApp Web session — NO window opens).
-    Falls back to desktop-app UI automation only if the forwarder is unavailable.
-    """
-    # 1) Direct send via the forwarder (no WhatsApp window, works in background)
+def _load_contact_book() -> dict:
+    """config/wa_contacts.json — name (lowercase) → international number."""
     try:
-        import urllib.request, json as _j
-        r = (receiver or "").strip()
-        digits = "".join(ch for ch in r if ch.isdigit())
-        if digits and len(digits) >= 10:
-            payload = {"number": digits, "message": message}
-        else:
-            payload = {"name": r, "message": message}
-        data = _j.dumps(payload).encode()
-        req = urllib.request.Request("http://localhost:3200/send", data=data,
-                                     headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(req, timeout=45) as resp:
-            if _j.loads(resp.read()).get("ok"):
-                return f"Message sent to {receiver} via WhatsApp (forwarder, no window)."
+        import json as _j
+        cfg = Path(__file__).resolve().parent.parent / "config" / "wa_contacts.json"
+        book = _j.loads(cfg.read_text(encoding="utf-8")).get("contacts", {})
+        return {str(k).lower().strip(): str(v).strip() for k, v in book.items()}
     except Exception:
-        pass  # forwarder not ready — fall back to UI automation
+        return {}
 
-    # 2) Fallback: WhatsApp desktop app via UI automation
+
+def save_contact(name: str, number: str) -> str:
+    """Saves or updates a contact in config/wa_contacts.json."""
     try:
-        if not _open_app("WhatsApp"):
-            return "Could not open WhatsApp."
-
-        time.sleep(1.5)
-
-        pyautogui.hotkey("ctrl", "f")
-        time.sleep(0.4)
-        pyautogui.hotkey("ctrl", "a")
-        pyautogui.write(receiver, interval=0.04)
-        time.sleep(1.0)
-
-        pyautogui.press("enter")
-        time.sleep(0.8)
-
-        pyautogui.write(message, interval=0.03)
-        time.sleep(0.2)
-        pyautogui.press("enter")
-
-        return f"Message sent to {receiver} via WhatsApp."
-
+        import json as _j
+        cfg = Path(__file__).resolve().parent.parent / "config" / "wa_contacts.json"
+        data = _j.loads(cfg.read_text(encoding="utf-8")) if cfg.exists() else {"contacts": {}}
+        contacts = data.get("contacts", {})
+        clean_name = (name or "").lower().strip()
+        clean_num = "".join(ch for ch in str(number) if ch.isdigit())
+        if not clean_name or not clean_num:
+            return "Please provide a valid contact name and phone number."
+        contacts[clean_name] = clean_num
+        data["contacts"] = contacts
+        cfg.write_text(_j.dumps(data, indent=2), encoding="utf-8")
+        return f"Contact '{name}' saved with number {clean_num} in wa_contacts.json."
     except Exception as e:
-        return f"WhatsApp error: {e}"
+        return f"Error saving contact: {e}"
+
+
+def _normalize_name(name: str) -> str:
+    """Strips common stop-words in Urdu/English like 'contact', 'number', 'bhai', 'sahab', 'sb', 'ji'."""
+    import re
+    clean = (name or "").lower().strip()
+    for w in ["contact", "number", "bhai", "sahab", "sb", "ji", "ka", "ko", "wala", "wali"]:
+        clean = re.sub(rf'\b{w}\b', '', clean)
+    return re.sub(r'\s+', ' ', clean).strip()
+
+
+def _resolve_contact_number(receiver: str) -> str:
+    """Smartly matches receiver against wa_contacts.json using exact, substring, and word overlap."""
+    r_raw = (receiver or "").strip()
+    digits = "".join(ch for ch in r_raw if ch.isdigit())
+    if digits and len(digits) >= 10:
+        return digits
+
+    r_clean = _normalize_name(r_raw)
+    book = _load_contact_book()
+
+    if not book:
+        return ""
+
+    # 1) Direct exact match on cleaned name
+    if r_clean in book:
+        return "".join(ch for ch in book[r_clean] if ch.isdigit())
+
+    # 2) Direct exact match on raw name
+    if r_raw.lower() in book:
+        return "".join(ch for ch in book[r_raw.lower()] if ch.isdigit())
+
+    # 3) Substring / word overlap match
+    r_words = set(r_clean.split())
+    best_num = ""
+    max_overlap = 0
+
+    for name_key, raw_num in book.items():
+        k_clean = _normalize_name(name_key)
+        # Substring match
+        if r_clean and (r_clean in k_clean or k_clean in r_clean):
+            return "".join(ch for ch in raw_num if ch.isdigit())
+
+        # Word overlap
+        k_words = set(k_clean.split())
+        overlap = len(r_words.intersection(k_words))
+        if overlap > max_overlap:
+            max_overlap = overlap
+            best_num = "".join(ch for ch in raw_num if ch.isdigit())
+
+    return best_num if max_overlap > 0 else ""
+
+
+def _send_whatsapp(receiver: str, message: str, audio_path: str = None) -> str:
+    """
+    Sends a WhatsApp message DIRECTLY (text and/or PTT audio voice note) — no window ever opens:
+      1) Resolve name → number via config/wa_contacts.json (Smart Normalized Match).
+      2) Baileys bridge  :3200/send        (numbers; always-on, works locked).
+    """
+    import urllib.request, json as _j
+
+    r = (receiver or "").strip()
+    digits = _resolve_contact_number(r)
+
+    def _post(url, payload, timeout=45):
+        data = _j.dumps(payload).encode()
+        req = urllib.request.Request(url, data=data,
+                                     headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return _j.loads(resp.read())
+
+    # 2) Baileys bridge (primary headless sender)
+    try:
+        payload = {"number": digits, "name": r, "message": message}
+        if audio_path:
+            payload["audioPath"] = audio_path
+        res = _post("http://localhost:3200/send", payload)
+        if res.get("ok"):
+            audio_str = " (with PTT Voice Note)" if audio_path else ""
+            return f"Message sent to {receiver} via WhatsApp{audio_str} (direct, no window)."
+    except Exception:
+        pass
+
+    # 3) External forwarder — resolves NAMES against real WhatsApp contacts.
+    try:
+        payload = {"number": digits, "message": message} if (digits and len(digits) >= 10) \
+                  else {"name": r, "message": message}
+        if _post("http://localhost:3199/jarvis-send", payload).get("ok"):
+            return f"Message sent to {receiver} via WhatsApp (forwarder, no window)."
+    except Exception:
+        pass
+
+    # Headless Requirement: Never pop open the desktop WhatsApp application GUI window.
+    return (
+        f"Could not send WhatsApp message to '{receiver}' headlessly. "
+        f"Please save '{receiver}' and their phone number in wa_contacts.json "
+        f"so I can send messages directly without opening any app windows."
+    )
 
 
 def _send_instagram(receiver: str, message: str) -> str:
@@ -206,18 +284,23 @@ def send_message(
     receiver     = params.get("receiver", "").strip()
     message_text = params.get("message_text", "").strip()
     platform     = params.get("platform", "whatsapp").strip().lower()
+    audio_path   = params.get("audio_path", None)
 
     if not receiver:
         return "Please specify who to send the message to, sir."
-    if not message_text:
+    if not message_text and not audio_path:
         return "Please specify what message to send, sir."
 
-    print(f"[SendMessage] 📨 {platform} → {receiver}: {message_text[:40]}")
+    try:
+        safe_preview = message_text[:40].encode('ascii', 'ignore').decode('ascii')
+        print(f"[SendMessage] {platform} -> {receiver}: {safe_preview}")
+    except Exception:
+        pass
     if player:
         player.write_log(f"[msg] Sending to {receiver} via {platform}...")
 
     if "whatsapp" in platform or "wp" in platform or "wapp" in platform:
-        result = _send_whatsapp(receiver, message_text)
+        result = _send_whatsapp(receiver, message_text, audio_path=audio_path)
 
     elif "instagram" in platform or "ig" in platform or "insta" in platform:
         result = _send_instagram(receiver, message_text)
@@ -228,7 +311,7 @@ def send_message(
     else:
         result = _send_generic(platform, receiver, message_text)
 
-    print(f"[SendMessage] ✅ {result}")
+    print(f"[SendMessage] Result: {result}")
     if player:
         player.write_log(f"[msg] {result}")
 

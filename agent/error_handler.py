@@ -78,7 +78,7 @@ def analyze_error(
             "user_message": str
         }
     """
-    import google.generativeai as genai
+    from google import genai
 
     if attempt >= max_attempts:
         print(f"[ErrorHandler] ⚠️ Max attempts reached for step {step.get('step')} — forcing replan")
@@ -90,13 +90,11 @@ def analyze_error(
             "user_message":  "Trying a different approach, sir."
         }
 
-    genai.configure(api_key=_get_api_key())
-    model = genai.GenerativeModel(
-        model_name="gemini-2.5-flash-lite",
-        system_instruction=ERROR_ANALYST_PROMPT
-    )
+    client = genai.Client(api_key=_get_api_key())
 
-    prompt = f"""Failed step:
+    prompt = f"""System: {ERROR_ANALYST_PROMPT}
+
+Failed step:
 Tool: {step.get('tool')}
 Description: {step.get('description')}
 Parameters: {json.dumps(step.get('parameters', {}), indent=2)}
@@ -108,7 +106,10 @@ Error:
 Attempt number: {attempt}"""
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.5-flash-lite",
+            contents=prompt
+        )
         text     = response.text.strip()
         text     = re.sub(r"```(?:json)?", "", text).strip().rstrip("`").strip()
 
@@ -121,23 +122,20 @@ Attempt number: {attempt}"""
             "abort":  ErrorDecision.ABORT,
         }
         result["decision"] = decision_map.get(decision_str, ErrorDecision.REPLAN)
-
-
-        if step.get("critical") and result["decision"] == ErrorDecision.SKIP:
-            result["decision"]     = ErrorDecision.REPLAN
-            result["user_message"] = "This step is critical — finding alternative approach, sir."
-
-        print(f"[ErrorHandler] Decision: {result['decision'].value} — {result.get('reason', '')}")
+        result["reason"]   = result.get("reason", "Analyzed error")
+        result["fix_suggestion"] = result.get("fix_suggestion", "")
+        result["max_retries"] = int(result.get("max_retries", 1))
+        result["user_message"] = result.get("user_message", "Adjusting plan...")
         return result
 
-    except Exception as e:
-        print(f"[ErrorHandler] ⚠️ Analysis failed: {e} — defaulting to replan")
+    except Exception as ex:
+        print(f"[ErrorHandler] Analyst failed ({ex}) — defaulting to REPLAN")
         return {
             "decision":       ErrorDecision.REPLAN,
-            "reason":         str(e),
-            "fix_suggestion": "Try alternative approach",
-            "max_retries":    1,
-            "user_message":   "Encountered an issue, adjusting approach, sir."
+            "reason":         f"Analyst error: {ex}",
+            "fix_suggestion": "Retry with modified approach",
+            "max_retries":    0,
+            "user_message":   "Encountered an unexpected error, replanning."
         }
 
 
@@ -148,10 +146,9 @@ def generate_fix(step: dict, error: str, fix_suggestion: str) -> dict:
 
     Returns a modified step dict.
     """
-    import google.generativeai as genai
+    from google import genai
 
-    genai.configure(api_key=_get_api_key())
-    model = genai.GenerativeModel(model_name="gemini-2.0-flash")
+    client = genai.Client(api_key=_get_api_key())
 
     prompt = f"""A task step failed. Generate a replacement step.
 
@@ -167,7 +164,7 @@ Write a Python script that accomplishes the same goal differently.
 Return ONLY the Python code, no explanation."""
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
         code = response.text.strip()
         code = re.sub(r"```(?:python)?", "", code).strip().rstrip("`").strip()
 

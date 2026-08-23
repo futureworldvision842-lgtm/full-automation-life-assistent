@@ -24,10 +24,17 @@ def _get_api_key() -> str:
         return json.load(f)["gemini_api_key"]
 
 
+class _DevModelWrapper:
+    def __init__(self, model_name: str):
+        from google import genai
+        self.client = genai.Client(api_key=_get_api_key())
+        self.model = model_name
+
+    def generate_content(self, contents, **kwargs):
+        return self.client.models.generate_content(model=self.model, contents=contents, **kwargs)
+
 def _get_model(model_name: str):
-    import google.generativeai as genai
-    genai.configure(api_key=_get_api_key())
-    return genai.GenerativeModel(model_name)
+    return _DevModelWrapper(model_name)
 
 
 def _strip_fences(text: str) -> str:

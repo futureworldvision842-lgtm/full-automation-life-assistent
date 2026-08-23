@@ -29,6 +29,9 @@ class Task:
     status:      TaskStatus = field(compare=False, default=TaskStatus.PENDING)
     result:      Any        = field(compare=False, default=None)
     error:       str        = field(compare=False, default="")
+    progress:    int        = field(compare=False, default=0)
+    current_step: str       = field(compare=False, default="")
+    player:      Any        = field(compare=False, default=None)
     speak:       Any        = field(compare=False, default=None)   
     on_complete: Any        = field(compare=False, default=None)  
     cancel_flag: threading.Event = field(compare=False, default_factory=threading.Event)
@@ -76,6 +79,7 @@ class TaskQueue:
         priority:    TaskPriority = TaskPriority.NORMAL,
         speak:       Callable | None = None,
         on_complete: Callable | None = None,
+        player:      Any | None = None,
     ) -> str:
 
         task_id = str(uuid.uuid4())[:8]
@@ -86,6 +90,7 @@ class TaskQueue:
             goal        = goal,
             speak       = speak,
             on_complete = on_complete,
+            player      = player,
         )
 
         with self._condition:
@@ -111,26 +116,46 @@ class TaskQueue:
             print(f"[TaskQueue] 🚫 Task cancelled: [{task_id}]")
             return True
 
+    def update_progress(self, task_id: str, progress: int, current_step: str = "") -> None:
+        with self._lock:
+            task = self._tasks.get(task_id)
+            if task:
+                task.progress = min(100, max(0, progress))
+                if current_step:
+                    task.current_step = current_step
+                print(f"[TaskQueue] 📈 Task [{task_id}] progress: {task.progress}% - {task.current_step}")
+
+    def get_active_task(self) -> Task | None:
+        with self._lock:
+            for task in self._tasks.values():
+                if task.status == TaskStatus.RUNNING:
+                    return task
+        return None
+
     def get_status(self, task_id: str) -> dict | None:
         with self._lock:
             task = self._tasks.get(task_id)
             if not task:
                 return None
             return {
-                "task_id": task.task_id,
-                "goal":    task.goal,
-                "status":  task.status.value,
-                "result":  task.result,
-                "error":   task.error,
+                "task_id":      task.task_id,
+                "goal":         task.goal,
+                "status":       task.status.value,
+                "progress":     task.progress,
+                "current_step": task.current_step,
+                "result":       task.result,
+                "error":        task.error,
             }
 
     def get_all_statuses(self) -> list[dict]:
         with self._lock:
             return [
                 {
-                    "task_id": t.task_id,
-                    "goal":    t.goal[:50],
-                    "status":  t.status.value,
+                    "task_id":      t.task_id,
+                    "goal":         t.goal[:50],
+                    "status":       t.status.value,
+                    "progress":     t.progress,
+                    "current_step": t.current_step,
                 }
                 for t in self._tasks.values()
             ]
@@ -179,6 +204,7 @@ class TaskQueue:
                 goal        = task.goal,
                 speak       = task.speak,
                 cancel_flag = task.cancel_flag,
+                player      = task.player,
             )
 
             with self._lock:

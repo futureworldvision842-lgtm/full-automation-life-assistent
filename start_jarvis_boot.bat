@@ -1,9 +1,7 @@
-﻿@echo off
+@echo off
 :: ============================================================
-::  J.A.R.V.I.S. BOOT LAUNCHER  (auto-start on logon)
-::  Launches the full 8-service ecosystem + the voice GUI in the
-::  interactive desktop session so audio works (no PaErrorCode -9999).
-::  Called by Startup-folder VBS. No 'pause' so boot is unattended.
+::  J.A.R.V.I.S. MASTER BOOT LAUNCHER
+::  Launches all 10 Motherbot companion services + Voice HUD GUI
 :: ============================================================
 title J.A.R.V.I.S. Boot Launcher
 chcp 65001 > nul
@@ -11,70 +9,20 @@ set PYTHONUTF8=1
 set PYTHONIOENCODING=utf-8
 set PYTHONUNBUFFERED=1
 
-set PY="C:\Users\HP\AppData\Local\Programs\Python\Python311\python.exe"
+set PY=C:\Users\HP\AppData\Local\Programs\Python\Python311\python.exe
 set JARVIS=E:\jarvis
 
-echo Cleaning up any stale instances...
-:: Kill ANY previous Jarvis GUI by command line (prevents duplicate instances
-:: fighting over the microphone, regardless of how it was launched).
-powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"Name='python.exe'\" | Where-Object { $_.CommandLine -like '*main.py*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }" 2>nul
-taskkill /f /im ollama.exe 2>nul
-taskkill /f /fi "windowtitle eq J.A.R.V.I.S. Voice Assistant*" 2>nul
-taskkill /f /fi "windowtitle eq Odysseus AI Server*" 2>nul
-taskkill /f /fi "windowtitle eq AI Studio Backend*" 2>nul
-taskkill /f /fi "windowtitle eq AI Studio Frontend*" 2>nul
-taskkill /f /fi "windowtitle eq WhatsApp Forwarder*" 2>nul
-taskkill /f /fi "windowtitle eq TypeScript Jarvis*" 2>nul
-taskkill /f /fi "windowtitle eq Ollama Server*" 2>nul
-call clawdbot gateway stop 2>nul
-ping -n 3 127.0.0.1 > nul
+del /f /q "%JARVIS%\scratch\jarvis.stop" 2>nul
 
-echo [1/8] Ollama Server...
-start "Ollama Server" /min /D "%JARVIS%\scratch\ollama" cmd /k "ollama serve"
-ping -n 3 127.0.0.1 > nul
+echo Launching Motherbot Core Services...
 
-echo [2/8] Odysseus AI Server...
-start "Odysseus AI Server" /min /D "%JARVIS%\scratch\odysseus" cmd /k "%PY% -m uvicorn app:app --host 127.0.0.1 --port 7000"
-ping -n 3 127.0.0.1 > nul
+:: The supervisor owns JARVIS voice, dashboard, mobile bridge, Ollama,
+:: MoltBot, GAIGS status bridge and cloud heartbeat with auto-restart.
+start "JARVIS Supervisor" /min /D "%JARVIS%" %PY% bootstrap\supervisor.py
 
-echo [3/8] Moltbot Gateway...
-start "Moltbot Gateway" /min /D "%JARVIS%" cmd /k "clawdbot gateway"
-ping -n 3 127.0.0.1 > nul
-
-echo [4/8] TypeScript Jarvis Daemon...
-start "TypeScript Jarvis" /min /D "E:\jarvis_ts" cmd /k "set PATH=C:\Users\HP\.bun\bin;%%PATH%% && bun start"
-ping -n 3 127.0.0.1 > nul
-
-echo [5/8] AI Studio Backend...
-start "AI Studio Backend" /min /D "E:\Muhammad's Work VP automation\full bot\vision-point-ai-studio-complete\backend" cmd /k "npm start"
-ping -n 3 127.0.0.1 > nul
-
-echo [6/8] AI Studio Frontend...
-start "AI Studio Frontend" /min /D "E:\Muhammad's Work VP automation\full bot\vision-point-ai-studio-complete\frontend" cmd /k "npm run dev"
-ping -n 3 127.0.0.1 > nul
-
-echo [7/8] WhatsApp Forwarder...
-start "WhatsApp Forwarder" /D "E:\Muhammad's Work VP automation\full bot\voice-automation my upgradation" cmd /k "node app.js"
-ping -n 3 127.0.0.1 > nul
-
-
-echo [+] JARVIS Mobile Remote (phone control on port 8765)...
-start "JARVIS Mobile" /min /D "%JARVIS%" cmd /k "%PY% mobile_control.py"
-ping -n 2 127.0.0.1 > nul
-
-echo [+] JARVIS Ops Dashboard (SITDECK-style, port 8770)...
-start "JARVIS Dashboard" /min /D "%JARVIS%" cmd /k "%PY% dashboard.py"
-ping -n 2 127.0.0.1 > nul
-
-echo [+] JARVIS WhatsApp (Baileys, reliable)...
-start "JARVIS Baileys" /min /D "E:\jarvis\wa" cmd /k "node jarvis_baileys.js"
-ping -n 2 127.0.0.1 > nul
-
-echo [8/8] J.A.R.V.I.S. Voice Assistant GUI...
-start "J.A.R.V.I.S. Voice Assistant" /D "%JARVIS%" cmd /k "scratch\run_jarvis_only.bat"
-ping -n 2 127.0.0.1 > nul
-
-echo [+] JARVIS Watchdog (auto-restart GUI on audio crash)...
-start "JARVIS Watchdog" /min /D "%JARVIS%" cmd /k "%PY% scratch\jarvis_watchdog.py"
-
-echo All services launched.
+start "Odysseus AI Server" /min /D "%JARVIS%\scratch\odysseus" %PY% -m uvicorn app:app --host 127.0.0.1 --port 7000
+start "TypeScript Jarvis" /min /D "C:\Users\HP\jarvis_ts" C:\Users\HP\.bun\bin\bun.exe start
+start "AI Studio Backend" /min /D "E:\Muhammad's Work VP automation\full bot\vision-point-ai-studio-complete\backend" npm start
+start "AI Studio Frontend" /min /D "E:\Muhammad's Work VP automation\full bot\vision-point-ai-studio-complete\frontend" npm run dev
+start "WhatsApp Forwarder" /min /D "E:\Muhammad's Work VP automation\full bot\voice-automation my upgradation" node app.js
+echo All Motherbot services launched successfully.

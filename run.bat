@@ -11,8 +11,10 @@ set PYTHONUTF8=1
 set PYTHONIOENCODING=utf-8
 cd /d "%~dp0"
 
-if not exist ".venv\Scripts\python.exe" (
-  echo [X] Not installed yet. Run install.bat first.
+set "PY=.venv\Scripts\python.exe"
+if not exist "%PY%" set "PY=C:\Users\HP\AppData\Local\Programs\Python\Python311\python.exe"
+if not exist "%PY%" (
+  echo [X] Python 3.11 is required.
   pause & exit /b 1
 )
 
@@ -21,5 +23,8 @@ if not exist "config\api_keys.json" (
   pause & exit /b 1
 )
 
+:: Real user-initiated start — clear any manual-stop flag so auto-heal resumes.
+del /f /q "scratch\jarvis.stop" 2>nul
+
 echo Starting JARVIS ecosystem ...
-".venv\Scripts\python.exe" bootstrap\supervisor.py
+"%PY%" bootstrap\supervisor.py
