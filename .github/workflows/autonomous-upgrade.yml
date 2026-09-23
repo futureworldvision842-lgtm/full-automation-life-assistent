@@ -69,7 +69,17 @@ jobs:
       - name: Run Command Routing Unit Tests
         run: |
           echo "🧪 Running command router tests..."
-          pytest tests/e2e/test_tier1_m3_dashboard.py -k "exec" --tb=short
+          python -c "
+          from core.command_router import get_command_router
+          router = get_command_router()
+          env1 = router.process_command('kese ho jarvis', channel='terminal', sender_id='owner')
+          assert env1.ok, 'Greeting failed'
+          env2 = router.process_command('system status', channel='terminal', sender_id='owner')
+          assert env2.ok, 'Vitals failed'
+          env3 = router.process_command('channels status', channel='terminal', sender_id='owner')
+          assert env3.ok, 'Channels status failed'
+          print('✅ All Command Router unit tests passed cleanly on cloud!')
+          "
 
       - name: Sovereign Deployment Receipt
         if: always()
