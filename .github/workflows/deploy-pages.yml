@@ -1,0 +1,76 @@
+name: Deploy J.A.R.V.I.S. Sovereign Life Assistant Web Cockpit
+
+on:
+  push:
+    branches: ["main"]
+  schedule:
+    - cron: "0 */12 * * *" # Twice daily refresh
+  workflow_dispatch:      # Manual trigger
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build & Package Sovereign Web Cockpit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Assemble Web Distribution
+        run: |
+          mkdir -p dist-web
+          
+          # Copy all web assets
+          if [ -d "web" ]; then
+            cp -r web/* dist-web/
+          fi
+          
+          # Ensure primary entry point is Sovereign Masterpiece Cockpit
+          if [ -f "web/sovereign_masterpiece.html" ]; then
+            cp web/sovereign_masterpiece.html dist-web/index.html
+            echo "Installed sovereign_masterpiece.html as primary index.html"
+          elif [ -f "index.html" ]; then
+            cp index.html dist-web/index.html
+          fi
+          
+          # Secondary tactical view aliases
+          if [ -f "web/index.html" ]; then
+            cp web/index.html dist-web/3d-core.html
+          fi
+          if [ -f "web/cyberpunk_terminal_cockpit.html" ]; then
+            cp web/cyberpunk_terminal_cockpit.html dist-web/terminal.html
+          fi
+          if [ -f "web/live_trade_terminal.html" ]; then
+            cp web/live_trade_terminal.html dist-web/trading.html
+          fi
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-web
+
+  deploy:
+    name: Deploy Live to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
