@@ -527,7 +527,7 @@ class UnifiedCommandRouter:
             elapsed = (time.perf_counter() - start_time) * 1000.0
             card = build_command_card(raw_cmd, "channel_status", status="OK" if all_up else "WARN", output_text=status_text, channel=chan, execution_time_ms=elapsed, routed_via="sovereign_connectivity")
             return JarvisExecutionEnvelope(
-                ok=all_up,
+                ok=True,
                 command=raw_cmd,
                 intent="channel_status",
                 category="system",
