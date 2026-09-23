@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J.A.R.V.I.S. Sovereign Ultrawide Cyberpunk Terminal HUD</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+    :root {
+      --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.45);
+      --gold: #ffd700;
+      --green: #00ff88;
+      --red: #ff3366;
+      --bg: #03060f;
+      --card-bg: rgba(5, 12, 22, 0.95);
+      --border: #10344d;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      background: #01040a;
+      color: #e2f1ff;
+      font-family: 'Share Tech Mono', monospace;
+      margin: 0;
+      padding: 10px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.04) 0%, #01040a 80%);
+    }
+
+    /* CURVED ULTRAWIDE MONITOR FRAME (MATCHING REFERENCE IMAGE 2) */
+    .curved-monitor {
+      border: 3px solid #143e5c;
+      border-radius: 20px;
+      box-shadow: 
+        0 0 35px rgba(0, 240, 255, 0.25),
+        inset 0 0 40px rgba(0, 0, 0, 0.9);
+      background: #020712;
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .curved-monitor::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    }
+
+    .neon-text-cyan { color: var(--cyan); text-shadow: 0 0 10px var(--cyan-glow); }
+    .neon-text-gold { color: var(--gold); text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+    .neon-text-green { color: var(--green); text-shadow: 0 0 10px rgba(0,255,136,0.5); }
+
+    .spin-slow-cw { animation: spin 25s linear infinite; transform-origin: center; }
+    .spin-slow-ccw { animation: spin-rev 18s linear infinite; transform-origin: center; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes spin-rev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+    .live-dot { animation: blink 1.2s infinite; }
+
+    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #16496e; border-radius: 2px; }
+  </style>
+</head>
+<body class="custom-scroll select-none">
+
+  <!-- TOP NAVIGATION STRIP -->
+  <div class="flex justify-between items-center px-3 py-1 mb-2 text-xs">
+    <div class="flex items-center space-x-2">
+      <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 live-dot"></span>
+      <span class="font-bold tracking-widest text-cyan-400">J.A.R.V.I.S. INTERFACE V.3.1 // ULTRAWIDE CYBERNETIC COCKPIT</span>
+    </div>
+    <div class="flex items-center space-x-3">
+      <a href="/masterpiece" class="px-3 py-1 rounded bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400 text-cyan-300 font-bold no-underline transition-all">
+        🛰️ SWITCH TO 3D WORLD MONITOR DASHBOARD
+      </a>
+      <span class="text-neutral-500">|</span>
+      <span class="text-amber-400 font-bold">MASTER MUHAMMAD QURESHI</span>
+    </div>
+  </div>
+
+  <!-- CURVED ULTRAWIDE COCKPIT CONTAINER -->
+  <div class="curved-monitor">
+    
+    <!-- GRID LAYOUT EXACTLY MATCHING REFERENCE IMAGE 2 -->
+    <div class="grid grid-cols-12 gap-3 min-h-[580px]">
+
+      <!-- COLUMN 1: STREAMING MATRIX CODE RAIN (2.5 cols) -->
+      <div class="col-span-12 lg:col-span-2 bg-black/80 rounded-xl border border-[#10344d] p-2 flex flex-col justify-between overflow-hidden relative">
+        <div class="text-[10px] text-cyan-400 border-b border-[#10344d] pb-1 font-bold mb-1 flex justify-between">
+          <span>BINARY STREAM</span>
+          <span class="text-emerald-400">LIVE</span>
+        </div>
+        <canvas id="matrixRainCanvas" class="w-full flex-1 block opacity-85"></canvas>
+        <div class="text-[9px] text-neutral-500 border-t border-[#10344d] pt-1 mt-1 text-center">
+          SHA-256 SYNC: SECURE
+        </div>
+      </div>
+
+      <!-- COLUMN 2: SYSTEM STATUS, NETWORK MONITOR & GEOLOCATION (2.5 cols) -->
+      <div class="col-span-12 lg:col-span-2 space-y-2 flex flex-col justify-between">
+        
+        <!-- System Status Box -->
+        <div class="bg-black/70 rounded-xl border border-[#10344d] p-2.5 space-y-1">
+          <div class="flex justify-between items-center text-[11px] border-b border-[#10344d] pb-1">
+            <span class="text-neutral-400 font-bold">SYSTEM STATUS:</span>
+            <span class="text-emerald-400 font-bold uppercase">SECURE</span>
+          </div>
+          <div class="text-[10px] text-cyan-300 space-y-0.5 pt-1">
+            <div>SYSTEM_OPS: <strong class="text-white">ONLINE</strong></div>
+            <div>NETWORK_MONITOR: <strong class="text-white">ARMED</strong></div>
+            <div>GEOLOCATION: <strong class="text-amber-400">192.168.100.3</strong></div>
+          </div>
+        </div>
+
+        <!-- Network Monitor & Geolocation Map Canvas -->
+        <div class="bg-black/70 rounded-xl border border-[#10344d] p-2.5 space-y-1 flex-1 flex flex-col justify-between">
+          <div class="text-[10px] text-cyan-400 font-bold border-b border-[#10344d] pb-1">
+            GEOLOCATION // GLOBAL FLEET
+          </div>
+          <!-- 2D World Map Wireframe Canvas -->
+          <div class="h-28 bg-black/90 rounded border border-cyan-900/40 relative overflow-hidden flex items-center justify-center">
+            <canvas id="miniWorldMapCanvas" class="w-full h-full block"></canvas>
+            <div class="absolute bottom-1 right-2 text-[8px] text-neutral-400">
+              HONG KONG // GLOBAL
+            </div>
+          </div>
+          <div class="text-[9px] text-neutral-400 space-y-0.5">
+            <div>AIRTIME: <strong class="text-cyan-300">99.98%</strong></div>
+            <div>UPSTREAM: <strong class="text-emerald-400">1.2 GB/s</strong></div>
+            <div>DOWNSTREAM: <strong class="text-emerald-400">2.4 GB/s</strong></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- COLUMN 3: ARC REACTOR CORE (CENTER) (3 cols) -->
+      <div class="col-span-12 lg:col-span-3 bg-black/70 rounded-xl border border-cyan-800/60 p-3 flex flex-col items-center justify-between relative shadow-[0_0_30px_rgba(0,240,255,0.15)]">
+        
+        <div class="w-full text-center border-b border-cyan-900/60 pb-1.5">
+          <div class="text-[10px] text-neutral-400">J.A.R.V.I.S. INTERFACE V.3.1</div>
+          <div class="text-xs font-black text-cyan-400 tracking-widest uppercase">ARC REACTOR // CORE STATUS: ACTIVE</div>
+        </div>
+
+        <!-- Large Glowing Center Arc Reactor -->
+        <div class="relative my-2 w-48 h-48 flex items-center justify-center">
+          <svg width="190" height="190" viewBox="0 0 200 200">
+            <!-- Outer Ring Glow -->
+            <circle cx="100" cy="100" r="92" fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.3" />
+            <circle cx="100" cy="100" r="86" fill="none" stroke="#133a54" stroke-width="8" />
+            
+            <!-- Rotating Segmented Copper Coils -->
+            <g class="spin-slow-cw">
+              <circle cx="100" cy="100" r="74" fill="none" stroke="#ffd700" stroke-width="6" stroke-dasharray="14, 8" opacity="0.9" />
+              <circle cx="100" cy="100" r="62" fill="none" stroke="#00f0ff" stroke-width="3" stroke-dasharray="20, 10" />
+            </g>
+
+            <g class="spin-slow-ccw">
+              <circle cx="100" cy="100" r="50" fill="none" stroke="#00f0ff" stroke-width="4" stroke-dasharray="10, 6" opacity="0.8" />
+            </g>
+
+            <!-- Center Inverted Triangle -->
+            <polygon points="100,45 150,135 50,135" fill="rgba(0, 240, 255, 0.25)" stroke="#00f0ff" stroke-width="4" />
+            <polygon points="100,60 138,128 62,128" fill="rgba(255, 215, 0, 0.2)" stroke="#ffd700" stroke-width="2" />
+            
+            <!-- Center Blinding Light -->
+            <circle cx="100" cy="100" r="18" fill="#ffffff" filter="drop-shadow(0 0 15px #00f0ff)" />
+          </svg>
+        </div>
+
+        <div class="w-full text-center border-t border-cyan-900/60 pt-1.5 text-[10px] space-y-0.5">
+          <div class="text-cyan-300 font-bold">ENERGY: 2.18 GW • EFFICIENCY: 99.7%</div>
+          <div class="text-neutral-400">PALLADIUM &amp; VIBRANIUM CONTAINMENT</div>
+        </div>
+
+      </div>
+
+      <!-- COLUMN 4: IRON MAN HUD & COMMAND LINE (2.5 cols) -->
+      <div class="col-span-12 lg:col-span-2 space-y-2 flex flex-col justify-between">
+        
+        <!-- Iron Man HUD Graphic / Network Map -->
+        <div class="bg-black/70 rounded-xl border border-[#10344d] p-2.5 flex flex-col items-center justify-center relative">
+          <div class="text-[9px] text-cyan-400 font-bold w-full border-b border-[#10344d] pb-1 mb-1">
+            TACTICAL HUD // RETICLE
+          </div>
+          <!-- Stylized Iron Man Face Plate Silhouette -->
+          <svg width="80" height="90" viewBox="0 0 100 120" class="my-1">
+            <polygon points="50,10 85,35 80,95 50,115 20,95 15,35" fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.7"/>
+            <polygon points="50,22 75,40 70,88 50,102 30,88 25,40" fill="none" stroke="#ffd700" stroke-width="1.5" opacity="0.8"/>
+            <!-- Eye slits -->
+            <polygon points="32,55 45,58 43,62 30,59" fill="#00f0ff" filter="drop-shadow(0 0 5px #00f0ff)"/>
+            <polygon points="68,55 55,58 57,62 70,59" fill="#00f0ff" filter="drop-shadow(0 0 5px #00f0ff)"/>
+          </svg>
+          <div class="text-[8px] text-cyan-300">OPTICAL SENSORS ARMED</div>
+        </div>
+
+        <!-- Cyberpunk Command Line Prompt -->
+        <div class="bg-black/80 rounded-xl border border-cyan-800/60 p-2.5 flex-1 flex flex-col justify-between space-y-2">
+          <div class="text-[10px] text-amber-400 font-bold border-b border-[#10344d] pb-1">
+            COMMAND LINE (BILINGUAL REPL)
+          </div>
+          <div class="text-[10px] text-emerald-400 font-mono space-y-1 overflow-y-auto max-h-24 custom-scroll" id="termReplies">
+            <div class="text-neutral-500">root@iron_hacker:~# J.A.R.V.I.S._</div>
+            <div>system:!initialize_hacker_protocol;</div>
+            <div class="text-cyan-300">&gt; Status: Sovereign Protocol active.</div>
+          </div>
+          <div class="flex space-x-1">
+            <input type="text" id="termInput" placeholder="Command (Roman Urdu / Eng)..."
+                   class="flex-1 bg-black border border-[#10344d] focus:border-cyan-400 rounded px-2 py-1 text-[10px] text-white outline-none">
+            <button onclick="runTermCmd()" class="px-2.5 py-1 rounded bg-cyan-500/30 hover:bg-cyan-500/50 border border-cyan-400 text-cyan-300 text-[10px] font-bold">
+              RUN
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- COLUMN 5: LIVE MULTI-ASSET TICKER & HARDWARE VITALS (2 cols) -->
+      <div class="col-span-12 lg:col-span-3 space-y-2 flex flex-col justify-between">
+        
+        <!-- Live Multi-Asset Ticker with Waves -->
+        <div class="bg-black/70 rounded-xl border border-[#10344d] p-2.5 space-y-1.5">
+          <div class="flex justify-between items-center text-[10px] border-b border-[#10344d] pb-1">
+            <span class="text-cyan-400 font-bold uppercase">LIVE MULTI-ASSET TICKER</span>
+            <span class="text-emerald-400 font-bold">+2.4%</span>
+          </div>
+
+          <div class="space-y-1 text-[10px]">
+            <div class="flex justify-between">
+              <span class="text-amber-400 font-bold">BTC/USD:</span>
+              <span class="text-white font-bold">$98,540.00 <span class="text-emerald-400">+2.4%</span></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-yellow-400 font-bold">GOLD (XAU):</span>
+              <span class="text-white font-bold">$4,376.50 <span class="text-emerald-400">+0.8%</span></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-cyan-300 font-bold">EUR/USD:</span>
+              <span class="text-white font-bold">1.1490 <span class="text-emerald-400">+0.17%</span></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-purple-300 font-bold">CRUDE WTI:</span>
+              <span class="text-white font-bold">$71.85 <span class="text-emerald-400">+1.4%</span></span>
+            </div>
+          </div>
+
+          <!-- Mini wave chart -->
+          <canvas id="marketWaveChart" class="w-full h-8 bg-black/60 rounded border border-[#10344d]"></canvas>
+        </div>
+
+        <!-- Hardware Vitals Progress Bars -->
+        <div class="bg-black/70 rounded-xl border border-[#10344d] p-2.5 space-y-2">
+          <div class="text-[10px] text-cyan-400 font-bold border-b border-[#10344d] pb-1">
+            HARDWARE VITALS (WORKSTATION)
+          </div>
+
+          <!-- CPU -->
+          <div>
+            <div class="flex justify-between text-[9px] mb-0.5">
+              <span class="text-neutral-400">CPU: 4.4%</span>
+              <span class="text-cyan-300">[ACTIVE]</span>
+            </div>
+            <div class="w-full bg-black/60 rounded-sm h-2 border border-cyan-900/50 overflow-hidden">
+              <div class="bg-cyan-400 h-full" style="width: 25%"></div>
+            </div>
+          </div>
+
+          <!-- MEM -->
+          <div>
+            <div class="flex justify-between text-[9px] mb-0.5">
+              <span class="text-neutral-400">MEM: 87.6% (13.9/15.9 GB)</span>
+              <span class="text-amber-400">[HEAP OPT]</span>
+            </div>
+            <div class="w-full bg-black/60 rounded-sm h-2 border border-cyan-900/50 overflow-hidden">
+              <div class="bg-amber-400 h-full" style="width: 87.6%"></div>
+            </div>
+          </div>
+
+          <!-- GPU -->
+          <div>
+            <div class="flex justify-between text-[9px] mb-0.5">
+              <span class="text-neutral-400">GPU: QUADRO K2100M (64°C)</span>
+              <span class="text-purple-300">[CUDA]</span>
+            </div>
+            <div class="w-full bg-black/60 rounded-sm h-2 border border-cyan-900/50 overflow-hidden">
+              <div class="bg-purple-400 h-full" style="width: 35%"></div>
+            </div>
+          </div>
+
+          <!-- NETWORK -->
+          <div>
+            <div class="flex justify-between text-[9px] mb-0.5">
+              <span class="text-neutral-400">NETWORK: 8/8 SOCKETS</span>
+              <span class="text-emerald-400">[100% ONLINE]</span>
+            </div>
+            <div class="w-full bg-black/60 rounded-sm h-2 border border-cyan-900/50 overflow-hidden">
+              <div class="bg-emerald-400 h-full" style="width: 100%"></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // 1. Matrix Digital Rain in Column 1
+    const mCanvas = document.getElementById('matrixRainCanvas');
+    const mctx = mCanvas ? mCanvas.getContext('2d') : null;
+    let mDrops = [];
+    if (mCanvas && mctx) {
+      mCanvas.width = mCanvas.offsetWidth || 150;
+      mCanvas.height = mCanvas.offsetHeight || 420;
+      const cols = Math.floor(mCanvas.width / 10);
+      mDrops = Array.from({length: cols}, () => Math.floor(Math.random() * -30));
+      
+      function drawMatrix() {
+        mctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+        mctx.fillRect(0, 0, mCanvas.width, mCanvas.height);
+        mctx.fillStyle = '#00ff88';
+        mctx.font = '9px monospace';
+        const chars = '0123456789ABCDEFJARVISSTARK';
+        for (let i = 0; i < mDrops.length; i++) {
+          const char = chars[Math.floor(Math.random() * chars.length)];
+          const x = i * 10;
+          const y = mDrops[i] * 10;
+          if (Math.random() > 0.8) mctx.fillStyle = '#00f0ff';
+          else mctx.fillStyle = '#00ff88';
+          mctx.fillText(char, x, y);
+          if (y > mCanvas.height && Math.random() > 0.97) mDrops[i] = 0;
+          mDrops[i]++;
+        }
+      }
+      setInterval(drawMatrix, 40);
+    }
+
+    // 2. Mini 2D World Map in Column 2
+    const mapCanvas = document.getElementById('miniWorldMapCanvas');
+    const mapCtx = mapCanvas ? mapCanvas.getContext('2d') : null;
+    if (mapCanvas && mapCtx) {
+      mapCanvas.width = mapCanvas.offsetWidth || 180;
+      mapCanvas.height = mapCanvas.offsetHeight || 110;
+      mapCtx.fillStyle = '#000';
+      mapCtx.fillRect(0, 0, mapCanvas.width, mapCanvas.height);
+
+      // Draw grid
+      mapCtx.strokeStyle = 'rgba(0, 240, 255, 0.15)';
+      mapCtx.lineWidth = 1;
+      for (let x = 0; x < mapCanvas.width; x += 20) {
+        mapCtx.beginPath(); mapCtx.moveTo(x, 0); mapCtx.lineTo(x, mapCanvas.height); mapCtx.stroke();
+      }
+      for (let y = 0; y < mapCanvas.height; y += 20) {
+        mapCtx.beginPath(); mapCtx.moveTo(0, y); mapCtx.lineTo(mapCanvas.width, y); mapCtx.stroke();
+      }
+
+      // Draw stylized world dots
+      mapCtx.fillStyle = '#00f0ff';
+      const points = [
+        [30, 30], [35, 40], [45, 35], [50, 45], // N. America
+        [45, 70], [50, 80], [55, 75],             // S. America
+        [85, 30], [95, 25], [100, 35],           // Europe
+        [90, 50], [95, 65], [100, 75],           // Africa
+        [120, 30], [135, 40], [145, 35], [130, 55], // Asia
+        [145, 80], [150, 85]                      // Australia
+      ];
+      points.forEach(([px, py]) => {
+        mapCtx.beginPath();
+        mapCtx.arc(px, py, 2, 0, Math.PI * 2);
+        mapCtx.fill();
+      });
+    }
+
+    // 3. Market Wave Chart in Column 5
+    const wCanvas = document.getElementById('marketWaveChart');
+    const wctx = wCanvas ? wCanvas.getContext('2d') : null;
+    let waveOffset = 0;
+    if (wCanvas && wctx) {
+      wCanvas.width = wCanvas.offsetWidth || 180;
+      wCanvas.height = wCanvas.offsetHeight || 32;
+      function drawWave() {
+        wctx.clearRect(0, 0, wCanvas.width, wCanvas.height);
+        wctx.beginPath();
+        waveOffset += 0.05;
+        for (let x = 0; x < wCanvas.width; x++) {
+          const y = (wCanvas.height / 2) + Math.sin(x * 0.1 + waveOffset) * 8 * Math.cos(x * 0.03);
+          if (x === 0) wctx.moveTo(x, y);
+          else wctx.lineTo(x, y);
+        }
+        wctx.strokeStyle = '#00f0ff';
+        wctx.lineWidth = 1.5;
+        wctx.stroke();
+        requestAnimationFrame(drawWave);
+      }
+      drawWave();
+    }
+
+    // 4. Command Input Execution
+    async function runTermCmd() {
+      const input = document.getElementById('termInput');
+      const container = document.getElementById('termReplies');
+      if (!input || !container) return;
+      const cmd = (input.value || '').trim();
+      if (!cmd) return;
+      input.value = '';
+
+      const div = document.createElement('div');
+      div.className = 'text-amber-300';
+      div.textContent = '> ' + cmd;
+      container.appendChild(div);
+
+      try {
+        const res = await fetch('/api/terminal/exec', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({cmd: cmd})
+        });
+        const data = await res.json();
+        const reply = document.createElement('div');
+        reply.className = 'text-cyan-300';
+        reply.textContent = data.output || 'Command executed.';
+        container.appendChild(reply);
+        container.scrollTop = container.scrollHeight;
+      } catch (e) {
+        const err = document.createElement('div');
+        err.className = 'text-red-400';
+        err.textContent = 'Error: ' + e.message;
+        container.appendChild(err);
+      }
+    }
+  </script>
+</body>
+</html>

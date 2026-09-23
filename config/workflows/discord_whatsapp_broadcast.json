@@ -1,0 +1,166 @@
+{
+  "name": "High-Conviction Discord & WhatsApp Broadcast",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "signal_broadcast",
+        "httpMethod": "POST"
+      },
+      "name": "Webhook Trigger (signal_broadcast)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.confluence }}",
+              "operation": "largerEqual",
+              "value2": 90
+            }
+          ]
+        }
+      },
+      "name": "Verify Confluence >= 90",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const sig = $items('Verify Confluence >= 90')[0].json;\nconst card = `\ud83c\udfaf [${sig.symbol || 'XAUUSD'}] ${sig.direction || 'BUY'} SIGNAL\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\u2b50 Confluence Score: ${sig.confluence || 92.5} / 100\n\ud83d\udcca Setup: SMC Liquidity Sweep & 50% CE Fair Value Gap\n\ud83d\udc0b Big Sharks Activity: Institutional mitigation confirmed\n\ud83d\udee1\ufe0f Risk: 0.75% ($750 max cap) | Min RR: 1:2.5\n\ud83d\udd12 Dynamic Breakeven: Shifts SL to entry at +1.0R gain\n\ud83d\udc64 Account: FundingPips #40000294403 ($100k)`;\nreturn [{ json: { card_text: card, symbol: sig.symbol, direction: sig.direction, confluence: sig.confluence } }];"
+      },
+      "name": "Format Institutional Card",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "channel": "elite-trade",
+        "text": "={{ $json.card_text }}"
+      },
+      "name": "Broadcast Discord #elite-trade",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 1,
+      "position": [
+        760,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:3200/send",
+        "method": "POST",
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "phone",
+              "value": "923468053268"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.card_text }}"
+            }
+          ]
+        }
+      },
+      "name": "Dispatch Owner WhatsApp (923468053268)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        760,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:8770/api/audit/sign_signal",
+        "method": "POST",
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "symbol",
+              "value": "={{ $json.symbol }}"
+            },
+            {
+              "name": "confluence",
+              "value": "={{ $json.confluence }}"
+            }
+          ]
+        }
+      },
+      "name": "Sign SHA-256 Audit Receipt",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        980,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger (signal_broadcast)": {
+      "main": [
+        [
+          {
+            "node": "Verify Confluence >= 90",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Confluence >= 90": {
+      "main": [
+        [
+          {
+            "node": "Format Institutional Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Institutional Card": {
+      "main": [
+        [
+          {
+            "node": "Broadcast Discord #elite-trade",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dispatch Owner WhatsApp (923468053268)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sign SHA-256 Audit Receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

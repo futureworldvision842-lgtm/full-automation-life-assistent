@@ -1,0 +1,63 @@
+{
+  "status": "PLANNED_NOT_PURCHASED",
+  "firm": "FUNDING_PIPS",
+  "default_model": "FUNDING_PIPS_2_STEP_STANDARD",
+  "default_stage": "EVALUATION_PHASE_1",
+  "rules_verified_on": "2026-08-19",
+  "planned_total_nominal_size": 180000.0,
+  "warning": "Do not activate an account until its exact model, login, server, terminal path, symbol specifications, and readiness evidence are verified.",
+  "accounts": {
+    "planned_5k": {
+      "account_id": null,
+      "server": null,
+      "terminal_path": null,
+      "account_size": 5000.0,
+      "prop_model": "FUNDING_PIPS_2_STEP_STANDARD",
+      "account_stage": "EVALUATION_PHASE_1",
+      "risk_per_trade_pct": 0.25,
+      "internal_daily_stop_pct": 1.5,
+      "internal_overall_stop_pct": 4.0,
+      "execution_mode": "PAPER_UNVERIFIED",
+      "is_active": false
+    },
+    "planned_25k": {
+      "account_id": null,
+      "server": null,
+      "terminal_path": null,
+      "account_size": 25000.0,
+      "prop_model": "FUNDING_PIPS_2_STEP_STANDARD",
+      "account_stage": "EVALUATION_PHASE_1",
+      "risk_per_trade_pct": 0.25,
+      "internal_daily_stop_pct": 1.5,
+      "internal_overall_stop_pct": 4.0,
+      "execution_mode": "PAPER_UNVERIFIED",
+      "is_active": false
+    },
+    "planned_50k": {
+      "account_id": null,
+      "server": null,
+      "terminal_path": null,
+      "account_size": 50000.0,
+      "prop_model": "FUNDING_PIPS_2_STEP_STANDARD",
+      "account_stage": "EVALUATION_PHASE_1",
+      "risk_per_trade_pct": 0.25,
+      "internal_daily_stop_pct": 1.5,
+      "internal_overall_stop_pct": 4.0,
+      "execution_mode": "PAPER_UNVERIFIED",
+      "is_active": false
+    },
+    "planned_100k": {
+      "account_id": null,
+      "server": null,
+      "terminal_path": null,
+      "account_size": 100000.0,
+      "prop_model": "FUNDING_PIPS_2_STEP_STANDARD",
+      "account_stage": "EVALUATION_PHASE_1",
+      "risk_per_trade_pct": 0.25,
+      "internal_daily_stop_pct": 1.5,
+      "internal_overall_stop_pct": 4.0,
+      "execution_mode": "PAPER_UNVERIFIED",
+      "is_active": false
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "jarvis-companion",
+  "version": "2.5.0",
+  "description": "J.A.R.V.I.S. Sovereign Android Mobile Companion",
+  "main": "index.js",
+  "scripts": {
+    "build": "node -e \"console.log('Building web assets')\"",
+    "cap:sync": "cap sync android",
+    "cap:open": "cap open android",
+    "build:apk": "python build_apk.py"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  },
+  "keywords": [
+    "jarvis",
+    "mobile",
+    "companion",
+    "capacitor",
+    "cybernetic-avatar"
+  ],
+  "author": "J.A.R.V.I.S. Autonomous Operations",
+  "license": "UNLICENSED"
+}

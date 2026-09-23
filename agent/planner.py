@@ -11,6 +11,8 @@ def get_base_dir() -> Path:
 
 
 BASE_DIR        = get_base_dir()
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
 API_CONFIG_PATH = BASE_DIR / "config" / "api_keys.json"
 
 
@@ -173,54 +175,68 @@ OUTPUT — return ONLY valid JSON, no markdown, no explanation, no code blocks:
 
 
 def _get_api_key() -> str:
-    with open(API_CONFIG_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)["gemini_api_key"]
+    try:
+        with open(API_CONFIG_PATH, "r", encoding="utf-8") as f:
+            return json.load(f).get("gemini_api_key", "")
+    except Exception:
+        return ""
 
 
 def create_plan(goal: str, context: str = "") -> dict:
-    from google import genai
-    client = genai.Client(api_key=_get_api_key())
-
     user_input = f"System: {PLANNER_PROMPT}\n\nGoal: {goal}"
     if context:
         user_input += f"\n\nContext: {context}"
 
+    # 1. Primary: Use unified multi-provider ai_engine (Groq, Ollama, OpenAI)
     try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash-lite",
-            contents=user_input
-        )
-        text     = response.text.strip()
-        text     = re.sub(r"```(?:json)?", "", text).strip().rstrip("`").strip()
-
-        plan = json.loads(text)
-
-        if "steps" not in plan or not isinstance(plan["steps"], list):
-            raise ValueError("Invalid plan structure")
-
-        for step in plan["steps"]:
-            if step.get("tool") in ("generated_code",):
-                print(f"[Planner] ⚠️ generated_code detected in step {step.get('step')} — replacing with web_search")
-                desc = step.get("description", goal)
-                step["tool"] = "web_search"
-                step["parameters"] = {"query": desc[:200]}
-
-        print(f"[Planner] ✅ Plan: {len(plan['steps'])} steps")
-        for s in plan["steps"]:
-            print(f"  Step {s['step']}: [{s['tool']}] {s['description']}")
-
-        return plan
-
-    except json.JSONDecodeError as e:
-        print(f"[Planner] ⚠️ JSON parse failed: {e}")
-        return _fallback_plan(goal)
+        from ai_engine import query_ai_detailed
+        ai_res = query_ai_detailed(user_input)
+        if ai_res.get("ok") and ai_res.get("text"):
+            raw = ai_res["text"].strip()
+            raw = re.sub(r"```(?:json)?", "", raw).strip().rstrip("`").strip()
+            json_match = re.search(r"\{[\s\S]*\}", raw)
+            if json_match:
+                plan = json.loads(json_match.group(0))
+                if "steps" in plan and isinstance(plan["steps"], list):
+                    for step in plan["steps"]:
+                        if step.get("tool") in ("generated_code",):
+                            step["tool"] = "web_search"
+                            step["parameters"] = {"query": step.get("description", goal)[:200]}
+                    print(f"[Planner] Plan created via {ai_res.get('provider')}: {len(plan['steps'])} steps")
+                    for s in plan["steps"]:
+                        print(f"  Step {s.get('step')}: [{s.get('tool')}] {s.get('description')}")
+                    return plan
     except Exception as e:
-        print(f"[Planner] ⚠️ Planning failed: {e}")
-        return _fallback_plan(goal)
+        print(f"[Planner] ai_engine planning notice: {e}")
+
+    # 2. Secondary: Google GenAI if key available
+    api_key = _get_api_key()
+    if api_key:
+        try:
+            from google import genai
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model="gemini-2.5-flash-lite",
+                contents=user_input
+            )
+            text = response.text.strip()
+            text = re.sub(r"```(?:json)?", "", text).strip().rstrip("`").strip()
+            plan = json.loads(text)
+            if "steps" in plan and isinstance(plan["steps"], list):
+                for step in plan["steps"]:
+                    if step.get("tool") in ("generated_code",):
+                        step["tool"] = "web_search"
+                        step["parameters"] = {"query": step.get("description", goal)[:200]}
+                print(f"[Planner] Plan created via Gemini: {len(plan['steps'])} steps")
+                return plan
+        except Exception as e:
+            print(f"[Planner] Gemini planning notice: {e}")
+
+    return _fallback_plan(goal)
 
 
 def _fallback_plan(goal: str) -> dict:
-    print("[Planner] 🔄 Fallback plan")
+    print("[Planner] Fallback plan activated")
     return {
         "goal": goal,
         "steps": [
@@ -236,15 +252,13 @@ def _fallback_plan(goal: str) -> dict:
 
 
 def replan(goal: str, completed_steps: list, failed_step: dict, error: str) -> dict:
-    from google import genai
-
-    client = genai.Client(api_key=_get_api_key())
-
     completed_summary = "\n".join(
-        f"  - Step {s['step']} ({s['tool']}): DONE" for s in completed_steps
+        f"  - Step {s.get('step')} ({s.get('tool')}): DONE" for s in completed_steps
     )
 
-    prompt = f"""Goal: {goal}
+    prompt = f"""System: {PLANNER_PROMPT}
+
+Goal: {goal}
 
 Already completed:
 {completed_summary if completed_summary else '  (none)'}
@@ -252,21 +266,24 @@ Already completed:
 Failed step: [{failed_step.get('tool')}] {failed_step.get('description')}
 Error: {error}
 
-Create a REVISED plan for the remaining work only. Do not repeat completed steps."""
+Create a REVISED plan for the remaining work only in JSON format. Do not repeat completed steps."""
 
     try:
-        response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
-        text     = response.text.strip()
-        text     = re.sub(r"```(?:json)?", "", text).strip().rstrip("`").strip()
-        plan     = json.loads(text)
-
-        for step in plan.get("steps", []):
-            if step.get("tool") == "generated_code":
-                step["tool"] = "web_search"
-                step["parameters"] = {"query": step.get("description", goal)[:200]}
-
-        print(f"[Planner] 🔄 Revised plan: {len(plan['steps'])} steps")
-        return plan
+        from ai_engine import query_ai_detailed
+        ai_res = query_ai_detailed(prompt)
+        if ai_res.get("ok") and ai_res.get("text"):
+            raw = ai_res["text"].strip()
+            raw = re.sub(r"```(?:json)?", "", raw).strip().rstrip("`").strip()
+            json_match = re.search(r"\{[\s\S]*\}", raw)
+            if json_match:
+                plan = json.loads(json_match.group(0))
+                for step in plan.get("steps", []):
+                    if step.get("tool") == "generated_code":
+                        step["tool"] = "web_search"
+                        step["parameters"] = {"query": step.get("description", goal)[:200]}
+                print(f"[Planner] Revised plan: {len(plan.get('steps', []))} steps")
+                return plan
     except Exception as e:
-        print(f"[Planner] ⚠️ Replan failed: {e}")
-        return _fallback_plan(goal)
+        print(f"[Planner] Replan notice: {e}")
+
+    return _fallback_plan(goal)

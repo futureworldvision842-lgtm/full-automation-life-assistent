@@ -1,0 +1,442 @@
+[
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 250.0,
+    "is_win": true,
+    "pattern": "M15_ORDER_BLOCK_RETEST",
+    "reason": "70.5% OTE Discount sweep",
+    "regime": "BULLISH_EXPANSION",
+    "timestamp": "2026-08-15T01:57:28.989104"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 250.0,
+    "is_win": true,
+    "pattern": "M15_ORDER_BLOCK_RETEST",
+    "reason": "70.5% OTE Discount sweep",
+    "regime": "BULLISH_EXPANSION",
+    "timestamp": "2026-08-15T01:57:36.830245"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:13:50.200753"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:14:22.159037"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:14:45.476618"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:24:07.634229"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:24:19.582347"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:26:47.005733"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:26:53.050148"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:27:07.497085"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:28:25.890522"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:34:34.410704"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:40:17.714698"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:40:43.802031"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:45:05.719064"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:47:24.899259"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:47:25.296353"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:47:44.784145"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:48:14.617131"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T02:58:03.742498"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T03:01:58.434900"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T03:05:40.451766"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T03:07:44.763703"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T03:07:56.976846"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T03:09:45.374246"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T03:12:41.299512"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T03:13:54.629293"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T03:15:20.441106"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T03:18:08.890907"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T03:46:49.519757"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T16:00:38.378982"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 250.0,
+    "is_win": true,
+    "pattern": "M15_ORDER_BLOCK_RETEST",
+    "reason": "70.5% OTE Discount sweep",
+    "regime": "BULLISH_EXPANSION",
+    "timestamp": "2026-08-15T16:41:01.857279"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-15T16:41:05.440480"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-16T00:54:50.076472"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-16T01:03:51.131845"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-16T01:06:39.321160"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-16T01:24:31.980248"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-16T02:01:35.881438"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-18T00:30:55.875622"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-18T00:33:04.936724"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-18T00:36:19.386458"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-18T02:08:24.860450"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-18T02:12:10.696067"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 350.0,
+    "is_win": true,
+    "pattern": "ASIAN_JUDAS_SWEEP",
+    "reason": "Swept low",
+    "regime": "BULLISH",
+    "timestamp": "2026-08-18T02:19:41.531420"
+  }
+]

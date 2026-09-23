@@ -1,0 +1,73 @@
+{
+  "warning": "Copy to an ignored local file only after demo accounts exist. Never store passwords here. Funding Pips currently states VPN/VPS is not permitted, so use locally installed terminals unless written permission says otherwise.",
+  "accounts": [
+    {
+      "enabled": false,
+      "label": "planned_5k",
+      "account_id": null,
+      "connector_config": {
+        "account_validation": {
+          "expected_login": null,
+          "expected_server": null,
+          "terminal_path": null,
+          "password_env": "MQ3_MT5_PASSWORD_5K",
+          "allow_demo_accounts": true,
+          "allow_real_money_accounts": false
+        }
+      },
+      "prop_model": "FUNDING_PIPS_2_STEP_STANDARD",
+      "account_stage": "EVALUATION_PHASE_1"
+    },
+    {
+      "enabled": false,
+      "label": "planned_25k",
+      "account_id": null,
+      "connector_config": {
+        "account_validation": {
+          "expected_login": null,
+          "expected_server": null,
+          "terminal_path": null,
+          "password_env": "MQ3_MT5_PASSWORD_25K",
+          "allow_demo_accounts": true,
+          "allow_real_money_accounts": false
+        }
+      },
+      "prop_model": "FUNDING_PIPS_2_STEP_STANDARD",
+      "account_stage": "EVALUATION_PHASE_1"
+    },
+    {
+      "enabled": false,
+      "label": "planned_50k",
+      "account_id": null,
+      "connector_config": {
+        "account_validation": {
+          "expected_login": null,
+          "expected_server": null,
+          "terminal_path": null,
+          "password_env": "MQ3_MT5_PASSWORD_50K",
+          "allow_demo_accounts": true,
+          "allow_real_money_accounts": false
+        }
+      },
+      "prop_model": "FUNDING_PIPS_2_STEP_STANDARD",
+      "account_stage": "EVALUATION_PHASE_1"
+    },
+    {
+      "enabled": false,
+      "label": "planned_100k",
+      "account_id": null,
+      "connector_config": {
+        "account_validation": {
+          "expected_login": null,
+          "expected_server": null,
+          "terminal_path": null,
+          "password_env": "MQ3_MT5_PASSWORD_100K",
+          "allow_demo_accounts": true,
+          "allow_real_money_accounts": false
+        }
+      },
+      "prop_model": "FUNDING_PIPS_2_STEP_STANDARD",
+      "account_stage": "EVALUATION_PHASE_1"
+    }
+  ]
+}

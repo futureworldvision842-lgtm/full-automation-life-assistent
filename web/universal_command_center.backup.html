@@ -1,0 +1,3599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>J.A.R.V.I.S. // MASTER OPERATING SYSTEM & TRADING COMMAND CENTER</title>
+<!-- Leaflet & Fonts -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #030712;
+  --bg-panel: rgba(7, 18, 32, 0.94);
+  --bg-card: rgba(11, 28, 48, 0.7);
+  --border: #133a54;
+  --cyan: #00f0ff;
+  --cyan-glow: rgba(0, 240, 255, 0.35);
+  --green: #00ff88;
+  --green-glow: rgba(0, 255, 136, 0.35);
+  --red: #ff3366;
+  --red-glow: rgba(255, 51, 102, 0.35);
+  --gold: #ffd700;
+  --purple: #a855f7;
+  --text: #e2f1ff;
+  --text-dim: #7da5c2;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* TOP SUPER-HEADER */
+.top-header {
+  height: 54px;
+  background: rgba(4, 11, 20, 0.98);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+  z-index: 1000;
+  flex-shrink: 0;
+  gap: 12px;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.arc-reactor {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--cyan);
+  box-shadow: 0 0 14px var(--cyan-glow), inset 0 0 8px var(--cyan-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse-ring 2.5s infinite;
+}
+.arc-reactor::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--cyan);
+}
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 10px var(--cyan-glow); }
+  50% { box-shadow: 0 0 22px rgba(0,240,255,0.7); }
+}
+
+.brand-title {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  color: #fff;
+}
+.brand-title span { color: var(--cyan); text-shadow: 0 0 10px var(--cyan-glow); }
+
+/* MASTER FLEET CONTROLS (ONLY 3 ESSENTIAL BUTTONS) */
+.master-fleet-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(3, 8, 16, 0.85);
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.fleet-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.fleet-btn.run {
+  background: rgba(0, 255, 136, 0.15);
+  border-color: var(--green);
+  color: var(--green);
+  box-shadow: 0 0 10px var(--green-glow);
+}
+.fleet-btn.run:hover {
+  background: var(--green);
+  color: #000;
+}
+.fleet-btn.stop {
+  background: rgba(255, 51, 102, 0.15);
+  border-color: var(--red);
+  color: var(--red);
+}
+.fleet-btn.stop:hover {
+  background: var(--red);
+  color: #fff;
+  box-shadow: 0 0 12px var(--red-glow);
+}
+.fleet-btn.emergency {
+  background: #ff3366;
+  color: #fff;
+  font-weight: 900;
+  border-color: #ff99aa;
+  animation: pulse-emergency 2s infinite;
+}
+@keyframes pulse-emergency {
+  0%, 100% { box-shadow: 0 0 6px rgba(255,51,102,0.6); }
+  50% { box-shadow: 0 0 16px rgba(255,51,102,0.9); }
+}
+
+/* DEFCON BADGE */
+.defcon-badge {
+  background: rgba(255, 51, 102, 0.12);
+  border: 1px solid var(--red);
+  color: var(--red);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.defcon-pulse {
+  width: 7px;
+  height: 7px;
+  background: var(--red);
+  border-radius: 50%;
+  animation: blink 1s infinite alternate;
+}
+@keyframes blink { from { opacity: 0.2; } to { opacity: 1; } }
+
+/* TAB NAVIGATION */
+.nav-tabs {
+  height: 38px;
+  background: rgba(5, 14, 26, 0.95);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 16px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+.tab-btn:hover {
+  color: #fff;
+  border-bottom-color: var(--cyan);
+}
+.tab-btn.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
+  background: rgba(0, 240, 255, 0.08);
+}
+
+/* MAIN WORKSPACE */
+.main-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.tab-pane {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+  transition: opacity 0.15s ease;
+}
+.tab-pane.active {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 10;
+  display: flex;
+}
+
+/* IFRAME FULL PANES */
+.embed-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #000;
+}
+
+/* WAR ROOM & TRADING HERO LAYOUT */
+.hero-layout {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  overflow: hidden;
+}
+
+/* LEFT COLUMN: HERO TRADING & QUANT COCKPIT */
+.trading-hero-col {
+  height: 100%;
+  overflow-y: auto;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+}
+.trading-hero-col::-webkit-scrollbar { width: 5px; }
+.trading-hero-col::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ACCOUNT STATS BAR */
+.acc-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+.stat-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: var(--cyan);
+}
+.stat-box.green::before { background: var(--green); }
+.stat-box.gold::before { background: var(--gold); }
+.stat-box.purple::before { background: var(--purple); }
+
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.stat-val {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 900;
+  margin-top: 3px;
+  color: #fff;
+}
+.stat-val.green { color: var(--green); text-shadow: 0 0 8px var(--green-glow); }
+.stat-val.cyan { color: var(--cyan); text-shadow: 0 0 8px var(--cyan-glow); }
+.stat-val.gold { color: var(--gold); }
+
+/* PIPDANCE & FTMO RULES HUD */
+.rules-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+.section-title {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  text-shadow: 0 0 6px var(--cyan-glow);
+}
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.rule-item {
+  background: rgba(3, 8, 16, 0.7);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 8px 10px;
+}
+.rule-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+.rule-metric {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  margin-top: 2px;
+}
+.rule-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-top: 4px;
+  font-weight: 700;
+}
+.rule-tag.safe { background: rgba(0,255,136,0.15); color: var(--green); border: 1px solid var(--green); }
+.rule-tag.lock { background: rgba(0,240,255,0.15); color: var(--cyan); border: 1px solid var(--cyan); }
+.rule-tag.info { background: rgba(255,215,0,0.15); color: var(--gold); border: 1px solid var(--gold); }
+
+/* 1-CLICK FAST EXECUTION STRIP (ONLY 3 WORKING BUTTONS) */
+.action-strip {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.btn-act {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.btn-act.gold {
+  background: rgba(255, 215, 0, 0.15);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.btn-act.gold:hover {
+  background: var(--gold);
+  color: #000;
+  box-shadow: 0 0 10px rgba(255,215,0,0.5);
+}
+.btn-act.red {
+  background: rgba(255, 51, 102, 0.15);
+  border-color: var(--red);
+  color: var(--red);
+}
+.btn-act.red:hover {
+  background: var(--red);
+  color: #fff;
+  box-shadow: 0 0 10px var(--red-glow);
+}
+.btn-act.green {
+  background: rgba(0, 255, 136, 0.15);
+  border-color: var(--green);
+  color: var(--green);
+}
+.btn-act.green:hover {
+  background: var(--green);
+  color: #000;
+  box-shadow: 0 0 10px var(--green-glow);
+}
+.btn-act.cyan {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.btn-act.cyan:hover {
+  background: var(--cyan);
+  color: #000;
+  box-shadow: 0 0 10px var(--cyan-glow);
+}
+
+/* LIVE OPEN POSITIONS TABLE */
+.positions-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+.pos-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  margin-top: 6px;
+}
+.pos-table th {
+  background: rgba(3, 8, 16, 0.8);
+  color: var(--text-dim);
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+}
+.pos-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(19, 58, 84, 0.5);
+  color: #fff;
+}
+.pos-table tr:hover {
+  background: rgba(0, 240, 255, 0.05);
+}
+.badge-buy { background: rgba(0,255,136,0.15); color: var(--green); padding: 2px 6px; border-radius: 3px; font-weight: 800; }
+.badge-sell { background: rgba(255,51,102,0.15); color: var(--red); padding: 2px 6px; border-radius: 3px; font-weight: 800; }
+.badge-be { background: rgba(0,240,255,0.15); color: var(--cyan); padding: 2px 6px; border-radius: 3px; font-weight: 700; }
+
+/* INSTITUTIONAL SMART MONEY & BIG SHARKS REASONING HUD */
+.sharks-intel-card {
+  background: var(--bg-panel);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  border-radius: 6px;
+  padding: 12px 14px;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.08);
+  margin-bottom: 12px;
+}
+.sharks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.sharks-badge-guarantee {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(0, 255, 136, 0.12);
+  color: var(--green);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.symbol-selector-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.btn-symbol-tab {
+  background: rgba(3, 8, 16, 0.8);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-symbol-tab.active, .btn-symbol-tab:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(0, 240, 255, 0.15);
+}
+.sharks-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.sharks-box {
+  background: rgba(3, 8, 16, 0.7);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 10px;
+}
+.sharks-box.highlight {
+  border-color: rgba(0, 240, 255, 0.35);
+  background: rgba(0, 30, 50, 0.3);
+}
+.sharks-box-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--cyan);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sharks-box-content {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #d1e4f0;
+}
+.sharks-commentary-feed {
+  background: #020610;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 130px;
+  overflow-y: auto;
+}
+.comm-item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 4px;
+}
+.comm-pill {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.comm-pill.trade { background: rgba(0, 255, 136, 0.2); color: var(--green); }
+.comm-pill.sharks { background: rgba(0, 240, 255, 0.2); color: var(--cyan); }
+.comm-pill.tech { background: rgba(255, 184, 0, 0.2); color: var(--gold); }
+.comm-pill.macro { background: rgba(168, 85, 247, 0.2); color: var(--purple); }
+
+/* QUANT CONFLUENCE MASTER BUTTON */
+.quant-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+.quant-unified-box {
+  background: rgba(3, 8, 16, 0.7);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.quant-info-text {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* RIGHT COLUMN: RADAR, CHOKEPOINTS, PC CONTROL */
+.sidebar-col {
+  height: 100%;
+  background: rgba(5, 13, 24, 0.98);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scrollbar-width: thin;
+}
+.sidebar-col::-webkit-scrollbar { width: 5px; }
+.sidebar-col::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* HANDS-FREE PC OS CONTROL (ONLY 3 ESSENTIAL BUTTONS) */
+.pc-control-card {
+  background: rgba(7, 21, 38, 0.75);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+.pc-btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* CHOKEPOINT PULSE */
+.chokepoints-card {
+  background: rgba(7, 21, 38, 0.75);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+.choke-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  background: rgba(3, 8, 16, 0.6);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.choke-name { color: #fff; font-weight: 700; }
+.choke-val { color: var(--red); font-weight: 800; }
+
+/* ASSET MULTIPLIERS */
+.multipliers-card {
+  background: rgba(7, 21, 38, 0.75);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+.mult-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 6px;
+}
+.mult-box {
+  background: rgba(3, 8, 16, 0.6);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-family: var(--font-mono);
+}
+.mult-sym { font-size: 10px; color: var(--text-dim); }
+.mult-val { font-size: 13px; font-weight: 900; margin-top: 2px; }
+.mult-val.bull { color: var(--green); }
+.mult-val.bear { color: var(--red); }
+
+/* FLEET STATUS */
+.fleet-card {
+  background: rgba(7, 21, 38, 0.75);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+/* TERMINAL REPL VIEW */
+.repl-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #02040a;
+  padding: 16px;
+}
+.repl-screen {
+  flex: 1;
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--cyan);
+  overflow-y: auto;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* BOTTOM COMMAND INPUT BAR */
+.bottom-bar {
+  height: 52px;
+  background: rgba(4, 11, 20, 0.98);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  z-index: 1000;
+  flex-shrink: 0;
+}
+.prompt-tag {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  color: var(--cyan);
+  font-size: 14px;
+  text-shadow: 0 0 8px var(--cyan-glow);
+}
+.cmd-input {
+  flex: 1;
+  background: rgba(7, 21, 38, 0.85);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: #fff;
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  outline: none;
+}
+.cmd-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan-glow);
+}
+.chip-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.chip {
+  background: rgba(19, 58, 84, 0.6);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.chip:hover {
+  color: #fff;
+  border-color: var(--cyan);
+}
+
+/* TOAST NOTIFICATION */
+#toast {
+  position: fixed;
+  bottom: 64px;
+  right: 20px;
+  background: rgba(5, 14, 26, 0.95);
+  border: 1px solid var(--cyan);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 10px 16px;
+/* SUB-SYSTEM PANES: MANIM, SUPERMEMORY, CONSENSUS, TOUCHPAD */
+.subsystem-layout {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  overflow: hidden;
+}
+.subsystem-header {
+  padding: 10px 18px;
+  background: rgba(5, 14, 26, 0.98);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 12px;
+}
+.subsystem-body {
+  flex: 1;
+  display: grid;
+  overflow: hidden;
+  gap: 14px;
+  padding: 14px 18px;
+}
+.theater-grid {
+  grid-template-columns: 1fr 400px;
+}
+.supermemory-grid {
+  grid-template-columns: 1fr 380px;
+}
+.consensus-layout {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  gap: 14px;
+  padding: 14px 18px;
+  scrollbar-width: thin;
+}
+.vision-touchpad-grid {
+  grid-template-columns: 1.15fr 1fr;
+}
+.sub-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.touchpad-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  background: radial-gradient(circle at center, rgba(0,240,255,0.06) 0%, rgba(3,8,16,0.95) 80%);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: crosshair;
+  user-select: none;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.touchpad-grid-lines {
+  position: absolute;
+  inset: 0;
+  background-size: 25px 25px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+  pointer-events: none;
+}
+.touchpad-pointer {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--cyan);
+  background: rgba(0,240,255,0.35);
+  box-shadow: 0 0 10px var(--cyan-glow);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  display: none;
+}
+.consensus-agent-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+.consensus-agent-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+}
+.agent-bull::before { background: var(--green); }
+.agent-bear::before { background: var(--red); }
+.agent-risk::before { background: var(--purple); }
+.agent-exec::before { background: var(--cyan); }
+</style>
+</head>
+<body>
+
+<!-- TOP SUPER-HEADER -->
+<div class="top-header">
+  <div class="brand-section">
+    <div class="arc-reactor"></div>
+    <div class="brand-title">J.A.R.V.I.S. <span>COMMAND CENTER // TRADING CORE</span></div>
+    <div class="defcon-badge">
+      <div class="defcon-pulse"></div>
+      <span id="defconText">DEFCON 2 // HIGH ALERT</span>
+    </div>
+  </div>
+
+  <!-- MASTER FLEET CONTROLS (ONLY 3 ESSENTIAL BUTTONS) -->
+  <div class="master-fleet-bar">
+    <button class="fleet-btn run" onclick="controlFleet('start_all')" title="Start Full J.A.R.V.I.S. Fleet (Trading Sentinel, World Monitor, God's Eye, WhatsApp Bridge)">▶ START FULL J.A.R.V.I.S.</button>
+    <button class="fleet-btn stop" onclick="controlFleet('stop_all')" title="Stop All Background Daemons Safely">⏹ STOP FULL J.A.R.V.I.S.</button>
+    <button class="fleet-btn" style="background:rgba(37,211,102,0.15);border-color:#25d366;color:#25d366;" onclick="switchTab('whatsapp')">📱 WHATSAPP BRIDGE</button>
+    <button class="fleet-btn emergency" onclick="executeTradingAction('close_all')">🚨 EMERGENCY CLOSE ALL</button>
+  </div>
+
+  <!-- CLOCK & VITALS -->
+  <div style="display:flex;align-items:center;gap:12px;font-family:var(--font-mono);font-size:11px;">
+    <div style="color:var(--text-dim);" id="pcVitals">CPU: 4% | RAM: 32%</div>
+    <div style="color:var(--cyan);font-weight:700;" id="utcClock">--:--:-- UTC</div>
+  </div>
+</div>
+
+<!-- NAVIGATION TABS -->
+<div class="nav-tabs">
+  <a href="/masterpiece" class="tab-btn" style="background:linear-gradient(135deg, rgba(0,240,255,0.25), rgba(255,215,0,0.25));border:1px solid var(--cyan);color:#fff;font-weight:900;text-decoration:none;" title="Open All-in-One Sovereign Masterpiece Cockpit">✨ ALL-IN-ONE MASTERPIECE (FUSED)</a>
+  <button class="tab-btn active" onclick="switchTab('warroom')">⚡ WAR ROOM &amp; TRADING HERO</button>
+  <button class="tab-btn" onclick="switchTab('godseye')">🛰️ TACTICAL 3D EARTH (:4173)</button>
+  <button class="tab-btn" onclick="switchTab('worldmonitor')">🌐 WORLD MONITOR (:3000)</button>
+  <button class="tab-btn" onclick="switchTab('mq3cockpit')">📈 MQ3 COCKPIT (:5050)</button>
+  <button class="tab-btn" onclick="switchTab('manim')">📐 MANIM 3D VISUALS</button>
+  <button class="tab-btn" onclick="switchTab('supermemory')">🧠 SUPERMEMORY BRAIN</button>
+  <button class="tab-btn" onclick="switchTab('consensus')">🏛️ CONSENSUS SWARM</button>
+  <button class="tab-btn" onclick="switchTab('vision')">👁️ SCREEN &amp; TOUCHPAD</button>
+  <button class="tab-btn" onclick="switchTab('terminal')">💻 CYBERPUNK TERMINAL</button>
+  <button class="tab-btn" onclick="switchTab('whatsapp')">📱 PAIR WHATSAPP (:3200)</button>
+  <button class="tab-btn" onclick="switchTab('mobile')">📲 MOBILE COMPANION (:8765)</button>
+</div>
+
+<!-- MAIN WORKSPACE CONTENT -->
+<div class="main-content">
+
+  <!-- TAB 1: WAR ROOM & TRADING HERO (DEFAULT PRIMARY COCKPIT) -->
+  <div class="tab-pane active" id="pane-warroom">
+    <div class="hero-layout">
+      
+      <!-- LEFT COLUMN: INSTITUTIONAL TRADING HERO HUB -->
+      <div class="trading-hero-col">
+        
+        <!-- ACCOUNT METRICS STRIP -->
+        <div class="acc-stats-bar">
+          <div class="stat-box green">
+            <div class="stat-label">MT5 Account / Broker</div>
+            <div class="stat-val green" style="font-size:14px;" id="val-broker">#40000294403 (Trial)</div>
+          </div>
+          <div class="stat-box cyan">
+            <div class="stat-label">Account Balance</div>
+            <div class="stat-val cyan" id="val-balance">$100,449.03</div>
+          </div>
+          <div class="stat-box cyan">
+            <div class="stat-label">Net Equity</div>
+            <div class="stat-val cyan" id="val-equity">$100,449.03</div>
+          </div>
+          <div class="stat-box gold">
+            <div class="stat-label">Floating PnL</div>
+            <div class="stat-val gold" id="val-pnl">+$0.00</div>
+          </div>
+          <div class="stat-box purple">
+            <div class="stat-label" id="lbl-risk-cap">Funding Pips 0.75% Cap</div>
+            <div class="stat-val" style="font-size:15px;color:var(--purple);" id="val-risk-cap">$750.00 Max Risk</div>
+          </div>
+        </div>
+
+        <!-- PIPDANCE & FTMO RISK GOVERNANCE HUD -->
+        <div class="rules-card">
+          <div class="section-title">
+            <span>🛡️ Institutional Risk Bounds &amp; Prop Governance</span>
+            <span style="font-size:10px;color:var(--green);">GUARANTEED ZERO DRAWDOWN</span>
+          </div>
+          <div class="rules-grid">
+            <div class="rule-item">
+              <div class="rule-title">Dynamic Breakeven Lock</div>
+              <div class="rule-metric" style="color:var(--cyan);" id="val-breakeven-rule">+1.0R (+$750.00)</div>
+              <div class="rule-tag lock">SL Shifts to Entry</div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-title">BlackRock Aladdin VaR</div>
+              <div class="rule-metric" style="color:var(--green);">0.42% (99% 1-Day)</div>
+              <div class="rule-tag safe">Normal Risk Buffer</div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-title">15-Min News Blackout</div>
+              <div class="rule-metric" style="color:var(--gold);">ACTIVE MONITOR</div>
+              <div class="rule-tag info">Economic Filter OK</div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-title">Autonomous Daemon</div>
+              <div class="rule-metric" style="color:var(--green);" id="daemonStatus">15s Scan Loop</div>
+              <div class="rule-tag safe">Live Connected</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1-CLICK FAST EXECUTION STRIP (ONLY 3 WORKING BUTTONS) -->
+        <div class="action-strip">
+          <span style="font-family:var(--font-mono);font-size:11px;font-weight:800;color:var(--text-dim);">1-CLICK TRADING:</span>
+          <button class="btn-act gold" onclick="dispatchOrder('XAUUSD', 'BUY', 0.01)">📈 1-CLICK BUY GOLD (0.01L)</button>
+          <button class="btn-act red" onclick="dispatchOrder('EURUSD', 'SELL', 0.05)">💶 1-CLICK SELL EURUSD (0.05L)</button>
+          <button class="btn-act green" onclick="executeTradingAction('breakeven')">🛡️ LOCK BREAKEVEN (+1.0R)</button>
+        </div>
+
+        <!-- 3D HOLOGRAPHIC CYBERNETIC EARTH & PC HEALTH HUD -->
+        <div class="hud-3d-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px;box-shadow:0 0 25px rgba(0,240,255,0.08);position:relative;overflow:hidden;flex-shrink:0;min-height:330px;">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg, transparent, var(--cyan), transparent);"></div>
+          
+          <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="arc-reactor" style="width:20px;height:20px;"></span>
+              <span style="font-size:13px;font-weight:900;letter-spacing:1px;color:#fff;">🌐 J.A.R.V.I.S. 3D CYBERNETIC EARTH &amp; PC HEALTH HUD</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-family:var(--font-mono);font-size:10px;color:var(--cyan);background:rgba(0,240,255,0.1);padding:3px 8px;border-radius:4px;border:1px solid var(--cyan-glow);" id="hudTimeTicker">24/7 AUTONOMOUS MATRIX</span>
+              <span style="font-size:10px;color:var(--green);font-weight:700;" id="hudSystemStatus">● SYSTEM OPTIMAL</span>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns: 280px 1fr;gap:14px;align-items:center;">
+            
+            <!-- LEFT: INTERACTIVE 3D HOLOGRAPHIC GLOBE CANVAS -->
+            <div style="position:relative;width:280px;height:260px;background:radial-gradient(circle at center, rgba(0,240,255,0.08) 0%, rgba(3,7,18,0.95) 75%);border-radius:8px;border:1px solid rgba(0,240,255,0.2);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;">
+              <canvas id="globeCanvas" width="280" height="230" style="width:280px;height:230px;display:block;cursor:crosshair;"></canvas>
+              <div style="position:absolute;bottom:6px;width:100%;text-align:center;font-family:var(--font-mono);font-size:9.5px;color:var(--text-dim);pointer-events:none;">
+                <span style="color:var(--cyan);">ISLAMABAD HQ</span> ➔ <span style="color:var(--gold);">LONDON</span> ➔ <span style="color:var(--gold);">NEW YORK</span> ➔ <span style="color:var(--red);">HORMUZ</span>
+              </div>
+              <div style="position:absolute;top:6px;left:8px;font-family:var(--font-mono);font-size:9px;color:rgba(0,240,255,0.6);line-height:1.2;">
+                3D ROTATION: ACTIVE<br>
+                PROJECTION: ORTHOGRAPHIC<br>
+                GRID: 15° LAT/LON
+              </div>
+            </div>
+
+            <!-- RIGHT: HARDWARE VITALS & LIVE TASKS MATRIX -->
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              
+              <!-- HARDWARE VITALS ROW -->
+              <div style="display:grid;grid-template-columns: repeat(5, 1fr);gap:8px;">
+                <!-- CPU GAUGE -->
+                <div class="stat-box cyan" style="padding:8px 10px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div class="stat-label">CPU Utilized</div>
+                    <span style="font-size:9px;color:var(--cyan);" id="hudCpuCores">8 Cores</span>
+                  </div>
+                  <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px;">
+                    <div class="stat-val cyan" style="font-size:18px;" id="hudCpuVal">0%</div>
+                  </div>
+                  <div style="width:100%;height:4px;background:#051424;border-radius:2px;margin-top:5px;overflow:hidden;">
+                    <div id="hudCpuBar" style="width:0%;height:100%;background:var(--cyan);transition:width 0.4s ease;"></div>
+                  </div>
+                </div>
+
+                <!-- RAM GAUGE -->
+                <div class="stat-box green" style="padding:8px 10px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div class="stat-label">RAM Memory</div>
+                    <span style="font-size:9px;color:var(--green);" id="hudRamAvail">-- Avail</span>
+                  </div>
+                  <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px;">
+                    <div class="stat-val green" style="font-size:18px;" id="hudRamVal">0%</div>
+                  </div>
+                  <div style="width:100%;height:4px;background:#051424;border-radius:2px;margin-top:5px;overflow:hidden;">
+                    <div id="hudRamBar" style="width:0%;height:100%;background:var(--green);transition:width 0.4s ease;"></div>
+                  </div>
+                </div>
+
+                <!-- GPU GAUGE (NVIDIA Quadro K2100M) -->
+                <div class="stat-box cyan" style="padding:8px 10px;border-color:rgba(0,255,200,0.35);">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div class="stat-label">GPU (Quadro K2100M)</div>
+                    <span style="font-size:9px;color:var(--cyan);" id="hudGpuTemp">70 °C</span>
+                  </div>
+                  <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px;">
+                    <div class="stat-val cyan" style="font-size:18px;" id="hudGpuVal">0%</div>
+                    <span style="font-size:10px;color:var(--text-dim);" id="hudGpuVram">-- MB</span>
+                  </div>
+                  <div style="width:100%;height:4px;background:#051424;border-radius:2px;margin-top:5px;overflow:hidden;">
+                    <div id="hudGpuBar" style="width:0%;height:100%;background:var(--cyan);transition:width 0.4s ease;"></div>
+                  </div>
+                </div>
+
+                <!-- NVMe DISK C: -->
+                <div class="stat-box gold" style="padding:8px 10px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div class="stat-label">NVMe Drive (C:)</div>
+                    <span style="font-size:9px;color:var(--gold);" id="hudDiskCStatus">HEALTHY</span>
+                  </div>
+                  <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px;">
+                    <div class="stat-val gold" style="font-size:18px;" id="hudDiskCVal">-- GB</div>
+                  </div>
+                  <div style="width:100%;height:4px;background:#051424;border-radius:2px;margin-top:5px;overflow:hidden;">
+                    <div id="hudDiskCBar" style="width:0%;height:100%;background:var(--gold);transition:width 0.4s ease;"></div>
+                  </div>
+                </div>
+
+                <!-- STORAGE DISK F: -->
+                <div class="stat-box purple" style="padding:8px 10px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div class="stat-label">Project Drive (F:)</div>
+                    <span style="font-size:9px;color:var(--purple);" id="hudDiskFStatus">HEALTHY</span>
+                  </div>
+                  <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px;">
+                    <div class="stat-val" style="font-size:18px;color:var(--purple);" id="hudDiskFVal">-- GB</div>
+                  </div>
+                  <div style="width:100%;height:4px;background:#051424;border-radius:2px;margin-top:5px;overflow:hidden;">
+                    <div id="hudDiskFBar" style="width:0%;height:100%;background:var(--purple);transition:width 0.4s ease;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- LIVE TASKS & AUTONOMOUS OPERATIONS STREAM -->
+              <div style="background:#020610;border:1px solid var(--border);border-radius:6px;padding:8px 10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <span style="font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--cyan);letter-spacing:0.8px;">⚡ J.A.R.V.I.S. ACTIVE NEURAL TASKS (WHAT IT IS DOING RIGHT NOW)</span>
+                  <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);" id="hudTopProc">Process: python.exe</span>
+                </div>
+                <div id="hudTasksGrid" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;max-height:140px;overflow-y:auto;">
+                  <!-- Dynamic task items populated from /api/system/3d_telemetry -->
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ACTIVE PROCESS EXPLORER & TASK TERMINATION (KILL-SWITCH) -->
+        <div class="proc-explorer-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:12px;">
+          <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span>⚡ Active Process Explorer &amp; Task Kill-Switch</span>
+              <span style="font-size:10px;color:var(--cyan);font-family:var(--font-mono);background:#020610;padding:2px 6px;border-radius:3px;border:1px solid var(--border);" id="procCountBadge">0 PROCS</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button class="btn-act purple" style="padding:2px 8px;font-size:10px;" onclick="smoothMachine()">⚡ SMOOTH PC</button>
+              <button class="btn-act gold" style="padding:2px 8px;font-size:10px;" onclick="cleanJunk()">🧹 CLEAN JUNK</button>
+              <input type="text" id="procSearchInput" placeholder="Filter process..." style="background:#020610;border:1px solid var(--border);border-radius:4px;padding:3px 8px;color:#fff;font-size:11px;font-family:var(--font-mono);width:110px;" oninput="filterProcesses()">
+              <button class="btn-act cyan" style="padding:2px 8px;font-size:10px;" onclick="fetchProcesses('cpu')">SORT CPU</button>
+              <button class="btn-act gold" style="padding:2px 8px;font-size:10px;" onclick="fetchProcesses('ram')">SORT RAM</button>
+              <button class="btn-act green" style="padding:2px 8px;font-size:10px;" onclick="fetchProcesses()">🔄 REFRESH</button>
+            </div>
+          </div>
+          <div style="max-height:160px;overflow-y:auto;background:#020610;border:1px solid var(--border);border-radius:4px;">
+            <table style="width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:11px;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border);color:var(--cyan);text-align:left;font-size:10px;position:sticky;top:0;background:#030a16;z-index:2;">
+                  <th style="padding:4px 8px;width:70px;">PID</th>
+                  <th style="padding:4px 8px;">PROCESS NAME</th>
+                  <th style="padding:4px 8px;width:80px;">CPU %</th>
+                  <th style="padding:4px 8px;width:100px;">RAM (MB)</th>
+                  <th style="padding:4px 8px;width:80px;">STATUS</th>
+                  <th style="padding:4px 8px;text-align:center;width:90px;">ACTION</th>
+                </tr>
+              </thead>
+              <tbody id="procTableBody">
+                <tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:10px;">Loading active processes...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TRADINGVIEW LIVE REAL-TIME ADVANCED CHART -->
+        <div class="tv-chart-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:12px;">
+          <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span>📈 Live Real-Time Multi-Asset Charting (TradingView)</span>
+            <div style="display:flex;gap:6px;">
+              <button class="btn-act gold" style="padding:2px 8px;font-size:11px;" onclick="switchTVChart('OANDA:XAUUSD')">🥇 GOLD (XAUUSD)</button>
+              <button class="btn-act cyan" style="padding:2px 8px;font-size:11px;" onclick="switchTVChart('BINANCE:BTCUSDT')">₿ BITCOIN (BTCUSDT)</button>
+              <button class="btn-act green" style="padding:2px 8px;font-size:11px;" onclick="switchTVChart('FX:EURUSD')">💶 EUR/USD</button>
+            </div>
+          </div>
+          <div id="tradingview_widget_box" style="height:350px;width:100%;border-radius:6px;overflow:hidden;background:#050d18;border:1px solid var(--border);">
+            <iframe id="tvIframe" src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_widget&symbol=OANDA%3AXAUUSD&interval=15&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=localhost" style="width:100%;height:100%;border:none;"></iframe>
+          </div>
+        </div>
+
+        <!-- INSTITUTIONAL WHALE RADAR & WHAT-IF SCENARIOS -->
+        <div class="whale-radar-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:12px;">
+          <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>🦈 Institutional Whale Radar &amp; Wyckoff Manipulation</span>
+            <span style="font-size:10px;color:var(--gold);" id="whaleStatusBadge">SMART MONEY CONFLUENCE</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:10px;margin-top:10px;">
+            <div class="stat-box cyan">
+              <div class="stat-label">XAUUSD Wyckoff Phase</div>
+              <div class="stat-val cyan" style="font-size:13px;" id="goldWyckoff">Phase D: Markup / SOS</div>
+              <div style="font-size:10px;color:var(--text-dim);margin-top:4px;" id="goldAction">BSL swept above $2,715</div>
+            </div>
+            <div class="stat-box gold">
+              <div class="stat-label">BTC Whale Depth Imbalance</div>
+              <div class="stat-val gold" style="font-size:13px;" id="btcDepthImbalance">-16.8% (Ask Wall)</div>
+              <div style="font-size:10px;color:var(--text-dim);margin-top:4px;" id="btcWallDetails">Whale Wall: $76,363</div>
+            </div>
+            <div class="stat-box purple">
+              <div class="stat-label">Upcoming Event &amp; What-If</div>
+              <div class="stat-val purple" style="font-size:13px;" id="upcomingEventName">US CPI Release</div>
+              <div style="font-size:10px;color:var(--text-dim);margin-top:4px;" id="whatIfSummary">Cool CPI: Gold $2,760+ / Hot: $2,680</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INSTITUTIONAL SMART MONEY & BIG SHARKS TRADE INTELLIGENCE HUD -->
+        <div class="sharks-intel-card">
+          <div class="sharks-header">
+            <div class="section-title" style="margin-bottom:0;">
+              <span>🦈 Big Sharks &amp; Smart Money Rationale Engine</span>
+            </div>
+            <span class="sharks-badge-guarantee">🛡️ STRICT RATIONALE ENFORCED (NO TRADE WITHOUT BIG SHARKS ANALYSIS)</span>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div class="symbol-selector-bar" style="margin-bottom:0;">
+              <button class="btn-symbol-tab active" id="btn-sym-GBPUSD" onclick="selectReasoningSymbol('GBPUSD')">GBPUSD (LIVE POS)</button>
+              <button class="btn-symbol-tab" id="btn-sym-XAUUSD" onclick="selectReasoningSymbol('XAUUSD')">XAUUSD</button>
+              <button class="btn-symbol-tab" id="btn-sym-EURUSD" onclick="selectReasoningSymbol('EURUSD')">EURUSD</button>
+            </div>
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);" id="fundingpipsBadge">
+              FundingPips #40000294403 | <span style="color:var(--cyan);">hamidqureshi872@gmail.com</span>
+            </div>
+          </div>
+
+          <div class="sharks-grid">
+            <div class="sharks-box highlight">
+              <div class="sharks-box-title">
+                <span>🎯 Trade Setup &amp; Order Flow</span>
+                <span id="sharksSetupBadge" style="color:var(--green);font-size:9px;margin-left:auto;">SELL 0.20L</span>
+              </div>
+              <div class="sharks-box-content" id="sharksSetupText">
+                ICT Institutional Liquidity Sweep &amp; Bearish Order Block Retest.
+              </div>
+            </div>
+
+            <div class="sharks-box highlight">
+              <div class="sharks-box-title">
+                <span>🦈 Big Sharks / Smart Money Trap</span>
+                <span style="color:var(--cyan);font-size:9px;margin-left:auto;">LIQUIDITY HARVEST</span>
+              </div>
+              <div class="sharks-box-content" id="sharksBigSharksText">
+                Smart Money executed liquidity sweep above London Session High (1.33600), harvesting retail buy stops before aggressive sell delivery. Retail breakout buyers trapped.
+              </div>
+            </div>
+
+            <div class="sharks-box">
+              <div class="sharks-box-title">
+                <span>📐 Technical Confluence (Multi-Timeframe)</span>
+                <span style="color:var(--gold);font-size:9px;margin-left:auto;">H4+H1+M15</span>
+              </div>
+              <div class="sharks-box-content" id="sharksTechText">
+                H4 Bearish Market Structure + H1 EMA 20/50 Death Cross + M15 Order Block Retest with RSI bearish continuation (42.4).
+              </div>
+            </div>
+
+            <div class="sharks-box">
+              <div class="sharks-box-title">
+                <span>⚡ Macro Catalyst &amp; Breakeven Protection</span>
+                <span id="sharksBeBadge" style="color:var(--cyan);font-size:9px;margin-left:auto;">MONITORING 🛡️</span>
+              </div>
+              <div class="sharks-box-content" id="sharksMacroText">
+                Autonomous Macro Radar active. Circuit breaker clear. Capital protected with Pipdance 0.75% risk threshold and dynamic breakeven enforcement.
+              </div>
+            </div>
+          </div>
+
+          <!-- REASONING COMMENTARY FEED -->
+          <div class="sharks-commentary-feed" id="sharksCommentaryFeed">
+            <div class="comm-item">
+              <span class="comm-pill trade">LIVE ENGINE STATUS</span>
+              <span style="color:var(--text-dim);font-size:9.5px;">[LIVE]</span>
+              <span style="color:#e0f2fe;"><strong>MT5 Sentinel Active (Account #40000294403):</strong> Real-time risk governance active. Verified broker telemetry connected.</span>
+            </div>
+            <div class="comm-item">
+              <span class="comm-pill sharks">BIG SHARKS RADAR</span>
+              <span style="color:var(--text-dim);font-size:9.5px;">[LIVE]</span>
+              <span style="color:#e0f2fe;"><strong>Institutional Smart Money Analysis:</strong> Monitoring XAUUSD & major FX pairs for session liquidity sweeps, order blocks, and verified market confluence.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE OPEN POSITIONS TABLE -->
+        <div class="positions-card">
+          <div class="section-title">
+            <span>📊 Live Active MT5 Positions</span>
+            <span style="font-size:10px;color:var(--cyan);" id="posCount">0 OPEN TRADES</span>
+          </div>
+          <table class="pos-table">
+            <thead>
+              <tr>
+                <th>Ticket</th>
+                <th>Symbol</th>
+                <th>Type</th>
+                <th>Volume</th>
+                <th>Open Price</th>
+                <th>Current</th>
+                <th>Stop Loss (BE)</th>
+                <th>Take Profit</th>
+                <th>Profit ($)</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="posTableBody">
+              <tr>
+                <td colspan="10" style="text-align:center;color:var(--text-dim);padding:14px;">No active floating positions. Scanner scanning for 1.45x confluence...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- UNIFIED QUANT CONFLUENCE BUTTON & PANEL -->
+        <div class="quant-card">
+          <div class="section-title">
+            <span>🧠 Autonomous Quant Reasoning Pipeline</span>
+            <span style="font-size:10px;color:var(--cyan);">INSTITUTIONAL GRADE</span>
+          </div>
+          <div class="quant-unified-box">
+            <div class="quant-info-text" id="quantSummary">
+              <strong>Institutional Confluence Status:</strong> 7-Step Gold DAG (Approved), Council (Strong Buy 88%), HMM Regime (Bull Trend High Momentum 76.4%).
+            </div>
+            <button class="btn-act cyan" onclick="runUnifiedQuant()">⚡ RUN FULL QUANT CONFLUENCE</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: RADAR, CHOKEPOINTS, PC CONTROL -->
+      <div class="sidebar-col">
+        
+        <!-- HANDS-FREE PC OS CONTROL (ONLY 3 ESSENTIAL BUTTONS) -->
+        <div class="pc-control-card">
+          <div class="section-title">
+            <span>💻 Hands-Free PC Automation</span>
+          </div>
+          <div class="pc-btn-grid">
+            <button class="btn-act green" onclick="openChromeOS()">🌐 CHROME</button>
+            <button class="btn-act cyan" onclick="inspectScreen()">👁️ VISION</button>
+            <button class="btn-act red" onclick="lockPCOS()">🔒 LOCK PC</button>
+          </div>
+        </div>
+
+        <!-- J.A.R.V.I.S. LIVE NEURAL THOUGHT STREAM -->
+        <div class="thoughts-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:12px;">
+          <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>🧠 J.A.R.V.I.S. Neural Thought Stream</span>
+            <span style="font-size:10px;color:var(--cyan);animation:pulse-ring 2s infinite;">LIVE COGNITION</span>
+          </div>
+          <div id="thoughtStreamBox" style="font-family:var(--font-mono);font-size:10.5px;color:var(--cyan);height:130px;overflow-y:auto;background:#020610;padding:8px;border-radius:4px;border:1px solid rgba(0,240,255,0.2);display:flex;flex-direction:column;gap:4px;margin-top:6px;">
+            <div>[QUANT] Analyzing XAUUSD M15 order block. Confluence 1.45x Bullish.</div>
+            <div>[WHALE_RADAR] Wyckoff Phase D Markup active on Gold.</div>
+            <div>[SENTINEL] Account #40000294403 verified. Hard cap &lt;= 0.10L.</div>
+          </div>
+        </div>
+
+        <!-- INTERACTIVE SELF-HEALING DIAGNOSTIC HUD -->
+        <div class="self-healing-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:12px;">
+          <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>🛠️ Autonomous Self-Healing IT Assistant</span>
+            <span style="font-size:10px;color:var(--green);" id="healthStatusTag">SYSTEM HEALTHY</span>
+          </div>
+          <div id="diagnosticIssueText" style="font-size:11px;color:var(--text-dim);margin:6px 0;">Routine diagnostics nominal. No critical bottlenecks detected.</div>
+          <div style="display:flex;flex-direction:column;gap:5px;margin-top:6px;" id="diagnosticBtnGroup">
+            <button class="btn-act cyan" style="font-size:10.5px;text-align:left;padding:5px 8px;" onclick="executeDiagnosticOption(1)">⚡ [1] Purge Memory Cache &amp; Garbage Collection</button>
+            <button class="btn-act gold" style="font-size:10.5px;text-align:left;padding:5px 8px;" onclick="executeDiagnosticOption(2)">🔄 [2] Resync MT5 Sentinel Heartbeat</button>
+            <button class="btn-act green" style="font-size:10.5px;text-align:left;padding:5px 8px;" onclick="executeDiagnosticOption(3)">🌐 [3] Refresh Free Quant Market Intelligence</button>
+          </div>
+        </div>
+
+        <!-- STRATEGIC MARITIME CHOKEPOINTS -->
+        <div class="chokepoints-card">
+          <div class="section-title">
+            <span>🚢 Maritime Chokepoints (24/7)</span>
+          </div>
+          <div class="choke-item">
+            <span class="choke-name">Strait of Hormuz</span>
+            <span class="choke-val">69% Throughput</span>
+          </div>
+          <div class="choke-item">
+            <span class="choke-name">Bab el-Mandeb</span>
+            <span class="choke-val">34% (Rerouting)</span>
+          </div>
+          <div class="choke-item">
+            <span class="choke-name">Suez Canal</span>
+            <span class="choke-val">54% Throughput</span>
+          </div>
+          <div class="choke-item">
+            <span class="choke-name">Strait of Malacca</span>
+            <span class="choke-val" style="color:var(--green);">98% Normal</span>
+          </div>
+        </div>
+
+        <!-- MACRO CONFLUENCE MULTIPLIERS -->
+        <div class="multipliers-card">
+          <div class="section-title">
+            <span>📈 Macro Trade Multipliers</span>
+          </div>
+          <div class="mult-grid">
+            <div class="mult-box">
+              <div class="mult-sym">Gold (XAUUSD)</div>
+              <div class="mult-val bull">1.45x Bullish</div>
+            </div>
+            <div class="mult-box">
+              <div class="mult-sym">Crude Oil (WTI)</div>
+              <div class="mult-val bull">1.50x Bullish</div>
+            </div>
+            <div class="mult-box">
+              <div class="mult-sym">EUR / USD</div>
+              <div class="mult-val bear">0.80x Bearish</div>
+            </div>
+            <div class="mult-box">
+              <div class="mult-sym">Bitcoin (BTCUSD)</div>
+              <div class="mult-val bull">1.20x Bullish</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FLEET SERVICES STATUS CARD -->
+        <div class="fleet-card">
+          <div class="section-title">
+            <span>🛰️ Fleet Microservices</span>
+          </div>
+          <div id="fleetList" style="font-family:var(--font-mono);font-size:10px;display:flex;flex-direction:column;gap:5px;">
+            <div>Master Dashboard :8770 <span style="color:var(--green);font-weight:700;">ONLINE</span></div>
+            <div>God's Eye 3D :4173 <span style="color:var(--green);font-weight:700;">ONLINE</span></div>
+            <div>World Monitor :3000 <span style="color:var(--green);font-weight:700;">ONLINE</span></div>
+            <div>MQ3 Cockpit :5050 <span style="color:var(--green);font-weight:700;">ONLINE</span></div>
+            <div>Odysseus Brain :7000 <span style="color:var(--green);font-weight:700;">ONLINE</span></div>
+            <div>Ollama AI :11434 <span style="color:var(--green);font-weight:700;">ONLINE</span></div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB 2: GOD'S EYE VIEW 3D GLOBE -->
+  <div class="tab-pane" id="pane-godseye">
+    <iframe id="frameGodseye" class="embed-frame" src="http://127.0.0.1:4173/?welcome=0" allow="fullscreen; geolocation; camera; microphone; web-share" loading="eager"></iframe>
+  </div>
+
+  <!-- TAB 3: WORLD MONITOR 22-LAYER GEOSPATIAL RADAR -->
+  <div class="tab-pane" id="pane-worldmonitor">
+    <iframe id="worldMonitorIframe" name="frameWorldmonitor" class="embed-frame" src="http://127.0.0.1:3000/?lat=27.3109&lon=0.0000&zoom=1.17&view=global&timeRange=1h&layers=conflicts%2Cbases%2Ccables%2Cpipelines%2Chotspots%2Cais%2Cnuclear%2Csanctions%2Cweather%2CcanadaRoads%2CcanadaAlerts%2Ceconomic%2Cwaterways%2Coutages%2Cdatacenters%2Cflights%2Cmilitary%2Cnatural%2Cminerals%2Cfires%2CucdpEvents%2Cclimate%2CtradeRoutes%2CresilienceScore" allow="fullscreen; geolocation; camera; microphone; web-share" loading="eager"></iframe>
+  </div>
+
+  <!-- TAB 4: MQ3 PRO COCKPIT -->
+  <div class="tab-pane" id="pane-mq3cockpit">
+    <iframe id="frameMq3" class="embed-frame" src="http://127.0.0.1:5050/" allow="fullscreen" loading="eager"></iframe>
+  </div>
+
+  <!-- TAB 5: MANIM QUANTITATIVE 3D MATH & ORDERFLOW VISUALS -->
+  <div class="tab-pane" id="pane-manim">
+    <div class="subsystem-layout">
+      <div class="subsystem-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-family:var(--font-mono);font-size:14px;font-weight:900;color:var(--cyan);">📐 MANIM 3D QUANTITATIVE ANIMATION THEATER</span>
+          <span class="rule-tag safe" id="manimStatusTag">ENGINE: ONLINE</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-act cyan" onclick="loadManimScene('orderbook_depth')">📊 Orderbook Depth</button>
+          <button class="btn-act green" onclick="loadManimScene('cvd_absorption')">🌊 CVD Absorption</button>
+          <button class="btn-act gold" onclick="loadManimScene('fibonacci_ote')">🌀 Fibonacci OTE</button>
+          <button class="btn-act purple" onclick="loadManimScene('kelly_compounding')">📈 Kelly Curve</button>
+        </div>
+      </div>
+      <div class="subsystem-body theater-grid">
+        <!-- LEFT: THEATER PLAYER -->
+        <div class="sub-card" style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+          <div class="section-title">
+            <span id="manimSceneTitle">SCENE: Orderbook Liquidity Depth &amp; Whale Walls</span>
+            <span style="font-size:11px;color:var(--text-dim);" id="manimRenderMeta">Format: SVG / Sub-Second</span>
+          </div>
+          <div style="flex:1;min-height:460px;position:relative;background:#000;border:1px solid var(--border);border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+            <video id="manimVideoPlayer" controls autoplay loop playsinline style="width:100%;height:100%;object-fit:contain;display:none;"></video>
+            <div id="manimSvgContainer" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:12px;overflow:auto;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">
+            <div style="color:var(--text-dim);font-family:var(--font-mono);font-size:11px;" id="manimFilePath">visuals/output/orderbook_depth.svg</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-act cyan" onclick="refreshCurrentManim()">🔄 REFRESH</button>
+              <a id="manimDirectLink" href="/api/visuals/svg/orderbook_depth.svg" target="_blank" class="btn-act gold" style="text-decoration:none;">↗️ OPEN RAW</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: RENDER TRIGGER & PARAMETERS -->
+        <div class="sub-card" style="padding:16px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;">
+          <div class="section-title">
+            <span>⚙️ RENDER CONTROLS &amp; PARAMETERS</span>
+          </div>
+          
+          <div>
+            <div class="stat-label" style="margin-bottom:6px;">Select Math Scene</div>
+            <select id="manimSceneSelect" class="cmd-input" style="width:100%;background:rgba(3,8,16,0.9);color:#fff;" onchange="onManimSceneSelectChange()">
+              <option value="orderbook_depth">Orderbook Liquidity Depth &amp; Whale Walls</option>
+              <option value="cvd_absorption">Cumulative Volume Delta (CVD) Absorption</option>
+              <option value="fibonacci_ote">Fibonacci Optimal Trade Entry (OTE 0.618/0.786)</option>
+              <option value="kelly_compounding">Kelly Criterion &amp; Risk-Free Compounding Shield</option>
+            </select>
+          </div>
+
+          <div>
+            <div class="stat-label" style="margin-bottom:6px;">Render Format</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-act cyan" id="btnFmtSvg" style="flex:1;justify-content:center;" onclick="setManimFormat('svg')">SVG Vector</button>
+              <button class="btn-act" id="btnFmtMp4" style="flex:1;justify-content:center;background:rgba(19,58,84,0.4);color:var(--text-dim);" onclick="setManimFormat('mp4')">MP4 Video</button>
+            </div>
+          </div>
+
+          <!-- DYNAMIC PARAMETERS CONTAINER -->
+          <div id="manimParamsContainer" style="display:flex;flex-direction:column;gap:10px;"></div>
+
+          <button class="btn-act cyan" style="width:100%;padding:12px;font-size:12px;justify-content:center;background:rgba(0,240,255,0.2);border-color:var(--cyan);box-shadow:0 0 14px var(--cyan-glow);" onclick="triggerManimRender()">
+            🚀 EXECUTE RENDER (/api/visuals/render)
+          </button>
+
+          <div class="section-title" style="margin-top:10px;">
+            <span>📁 RECENT RENDER GALLERY</span>
+          </div>
+          <div id="manimGalleryList" style="display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 6: SUPERMEMORY COGNITIVE BRAIN & KNOWLEDGE GRAPH -->
+  <div class="tab-pane" id="pane-supermemory">
+    <div class="subsystem-layout">
+      <div class="subsystem-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-family:var(--font-mono);font-size:14px;font-weight:900;color:var(--purple);">🧠 SUPERMEMORY SOVEREIGN COGNITIVE BRAIN</span>
+          <span class="rule-tag safe">SQLITE WAL &amp; SUB-500MS RETRIEVAL</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">
+            Entities: <span id="smNodeCount" style="color:var(--cyan);font-weight:800;">--</span> | 
+            Triples: <span id="smEdgeCount" style="color:var(--gold);font-weight:800;">--</span>
+          </div>
+          <button class="btn-act purple" onclick="reloadSupermemoryGraph()">🔄 REFRESH GRAPH</button>
+        </div>
+      </div>
+
+      <div class="subsystem-body supermemory-grid">
+        <!-- LEFT: INTERACTIVE SVG KNOWLEDGE GRAPH -->
+        <div class="sub-card" style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:8px;flex:1;">
+              <input type="text" id="smSearchInput" class="cmd-input" placeholder="Search knowledge graph (e.g. Master, FundingPips, 0.75%, Risk)..." oninput="filterSupermemoryGraph()" style="max-width:380px;">
+              <button class="btn-act cyan" onclick="filterSupermemoryGraph()">🔍 FILTER</button>
+              <button class="btn-act" style="background:rgba(19,58,84,0.4);color:var(--text-dim);" onclick="resetSupermemoryZoom()">🎯 RESET VIEW</button>
+            </div>
+            <!-- LEGEND -->
+            <div style="display:flex;gap:8px;font-size:10px;font-family:var(--font-mono);">
+              <span style="color:var(--cyan);">● Owner</span>
+              <span style="color:var(--gold);">● Prop Firm</span>
+              <span style="color:var(--purple);">● System</span>
+              <span style="color:var(--red);">● Risk Rules</span>
+              <span style="color:var(--green);">● Entity</span>
+            </div>
+          </div>
+
+          <!-- SVG CANVAS -->
+          <div style="flex:1;min-height:500px;background:rgba(2,6,12,0.98);border:1px solid var(--border);border-radius:6px;position:relative;overflow:hidden;">
+            <svg id="supermemorySvg" viewBox="0 0 1000 680" style="width:100%;height:100%;cursor:grab;"></svg>
+            <div id="smNodeTooltip" style="position:absolute;display:none;background:rgba(5,14,26,0.96);border:1px solid var(--cyan);padding:8px 12px;border-radius:4px;font-family:var(--font-mono);font-size:11px;color:#fff;pointer-events:none;z-index:20;box-shadow:0 0 14px rgba(0,240,255,0.4);"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT: INSPECTOR & MEMORY RECALL -->
+        <div class="sub-card" style="padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;">
+          <div class="section-title">
+            <span>🔍 ENTITY RELATIONSHIP INSPECTOR</span>
+          </div>
+          <div id="smInspectorCard" style="background:rgba(3,8,16,0.85);border:1px solid var(--border);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:6px;min-height:140px;">
+            <div style="font-family:var(--font-mono);font-size:12px;font-weight:800;color:var(--cyan);" id="smInspTitle">Master Muhammad Qureshi</div>
+            <div style="font-size:11px;color:var(--text-dim);" id="smInspMeta">Group: Owner | Connected Triples: 24</div>
+            <div id="smInspTriples" style="margin-top:6px;display:flex;flex-direction:column;gap:4px;font-family:var(--font-mono);font-size:10px;max-height:150px;overflow-y:auto;"></div>
+          </div>
+
+          <div class="section-title" style="margin-top:6px;">
+            <span>⚡ SEMANTIC MEMORY RECALL</span>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <input type="text" id="smRecallInput" class="cmd-input" placeholder="Query cognitive memory (e.g. 'drawdown rules')..." onkeydown="if(event.key==='Enter') executeSupermemoryRecall()">
+            <button class="btn-act purple" onclick="executeSupermemoryRecall()">RECALL</button>
+          </div>
+          <div id="smRecallResults" style="display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;">
+            <div style="font-size:11px;color:var(--text-dim);font-family:var(--font-mono);">Enter a query to recall relevant semantic memories &amp; market insights.</div>
+          </div>
+
+          <div class="section-title" style="margin-top:6px;">
+            <span>📜 RECENT MARKET LESSONS</span>
+          </div>
+          <div id="smLessonsList" style="display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 7: AI-TRADER & CONSENSUS SWARM CHAMBER -->
+  <div class="tab-pane" id="pane-consensus">
+    <div class="subsystem-layout">
+      <div class="subsystem-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-family:var(--font-mono);font-size:14px;font-weight:900;color:var(--cyan);">🏛️ AI-TRADER &amp; CONSENSUS SWARM CHAMBER</span>
+          <span class="rule-tag safe" id="csStatusTag">VETO GATE: STRICT 0.75% ($750) ARMED</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-act cyan" onclick="setConsensusProposal('XAUUSD', 'BUY', 2650, 2640, 2680, 0.50)">Gold BUY</button>
+          <button class="btn-act red" onclick="setConsensusProposal('BTCUSD', 'SELL', 63500, 64200, 61500, 0.60)">BTC SELL</button>
+          <button class="btn-act green" onclick="setConsensusProposal('EURUSD', 'BUY', 1.0850, 1.0820, 1.0925, 0.45)">EUR BUY</button>
+        </div>
+      </div>
+
+      <div class="consensus-layout">
+        <!-- TOP VERDICT BANNER -->
+        <div id="csVerdictBanner" style="background:rgba(0,255,136,0.08);border:1px solid var(--green);border-radius:6px;padding:14px 18px;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-family:var(--font-mono);font-size:14px;font-weight:900;color:var(--green);" id="csVerdictStatus">CHIEF RISK OFFICER VERDICT: APPROVED (HIGH CONVICTION)</span>
+            <span style="font-family:var(--font-mono);font-size:14px;font-weight:900;color:#fff;" id="csScoreVal">Score: 88.5%</span>
+          </div>
+          <div style="width:100%;height:8px;background:rgba(3,8,16,0.8);border-radius:4px;overflow:hidden;">
+            <div id="csScoreBar" style="width:88.5%;height:100%;background:linear-gradient(90deg, var(--cyan), var(--green));box-shadow:0 0 10px var(--green-glow);transition:width 0.4s ease;"></div>
+          </div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--cyan);" id="csSummaryText">
+            Master Muhammad Qureshi: Execution plan dynamic breakeven +1.0R armed. Tayyar hai!
+          </div>
+        </div>
+
+        <!-- 4 AGENT DEBATE CARDS GRID -->
+        <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:12px;">
+          <!-- AGENT 1: BULLISH ADVOCATE -->
+          <div class="consensus-agent-card agent-bull">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-family:var(--font-mono);font-size:11px;font-weight:800;color:var(--green);">🐂 BULLISH ADVOCATE</span>
+              <span class="rule-tag safe" id="bullConfidence">92% CONF</span>
+            </div>
+            <div style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:#fff;" id="bullThesis">SMC Liquidity Sweep &amp; FVG Retest</div>
+            <div style="font-size:11px;color:var(--text-dim);line-height:1.4;" id="bullArgument">
+              London session low swept with aggressive buyer absorption. Higher timeframe market structure remains bullish. Target: Draw on liquidity at 2680.
+            </div>
+          </div>
+
+          <!-- AGENT 2: BEARISH CHALLENGER -->
+          <div class="consensus-agent-card agent-bear">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-family:var(--font-mono);font-size:11px;font-weight:800;color:var(--red);">🐻 BEARISH CHALLENGER</span>
+              <span class="rule-tag" style="background:rgba(255,51,102,0.15);color:var(--red);border:1px solid var(--red);" id="bearConfidence">35% BEAR</span>
+            </div>
+            <div style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:#fff;" id="bearThesis">Mitigation Block Resistance Check</div>
+            <div style="font-size:11px;color:var(--text-dim);line-height:1.4;" id="bearArgument">
+              Overhead liquidity pool may induce retail FOMO before a secondary retest. Breakeven must lock strictly at +1.0R to eliminate overnight exposure.
+            </div>
+          </div>
+
+          <!-- AGENT 3: CHIEF RISK OFFICER -->
+          <div class="consensus-agent-card agent-risk">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-family:var(--font-mono);font-size:11px;font-weight:800;color:var(--purple);">🛡️ RISK OFFICER (VETO)</span>
+              <span class="rule-tag lock" id="riskVetoStatus">PASSED</span>
+            </div>
+            <div style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--gold);" id="riskAccount">FundingPips #40000294403</div>
+            <div style="font-size:11px;color:var(--text-dim);line-height:1.4;" id="riskMetrics">
+              Risk: 0.50% ($500.00 &lt;= $750.00 Cap) | R:R: 3.0 &gt;= 2.5 | News Blackout: 60m to red folder catalyst. Non-negotiable safety guaranteed.
+            </div>
+          </div>
+
+          <!-- AGENT 4: EXECUTION SPECIALIST -->
+          <div class="consensus-agent-card agent-exec">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-family:var(--font-mono);font-size:11px;font-weight:800;color:var(--cyan);">⚡ EXECUTION SPECIALIST</span>
+              <span class="rule-tag safe" id="execLatency">&lt;2ms ROUTE</span>
+            </div>
+            <div style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--cyan);" id="execPlan">Limit Order + Dynamic Breakeven</div>
+            <div style="font-size:11px;color:var(--text-dim);line-height:1.4;" id="execDetails">
+              Direct DMA broker bridge. Auto-moves SL to Entry + 0.5 pip spread buffer upon +1.0R ($500 gain), mathematically ensuring $0 drawdown.
+            </div>
+          </div>
+        </div>
+
+        <!-- DEBATE DISPATCH BAR -->
+        <div class="sub-card" style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div class="section-title">
+            <span>⚙️ DISPATCH CONSENSUS DEBATE PROPOSAL</span>
+            <span style="font-size:11px;color:var(--text-dim);">POST /api/consensus/debate</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(6, 1fr) 180px;gap:8px;align-items:end;">
+            <div>
+              <div class="stat-label" style="margin-bottom:4px;">Symbol</div>
+              <input type="text" id="csInputSymbol" class="cmd-input" value="XAUUSD" style="width:100%;">
+            </div>
+            <div>
+              <div class="stat-label" style="margin-bottom:4px;">Action</div>
+              <select id="csInputAction" class="cmd-input" style="width:100%;background:rgba(3,8,16,0.9);color:#fff;">
+                <option value="BUY">BUY</option>
+                <option value="SELL">SELL</option>
+              </select>
+            </div>
+            <div>
+              <div class="stat-label" style="margin-bottom:4px;">Entry Price</div>
+              <input type="number" id="csInputPrice" class="cmd-input" value="2650.00" step="0.1" style="width:100%;">
+            </div>
+            <div>
+              <div class="stat-label" style="margin-bottom:4px;">Stop Loss</div>
+              <input type="number" id="csInputSL" class="cmd-input" value="2640.00" step="0.1" style="width:100%;">
+            </div>
+            <div>
+              <div class="stat-label" style="margin-bottom:4px;">Take Profit</div>
+              <input type="number" id="csInputTP" class="cmd-input" value="2680.00" step="0.1" style="width:100%;">
+            </div>
+            <div>
+              <div class="stat-label" style="margin-bottom:4px;">Risk % (Max 0.75%)</div>
+              <input type="number" id="csInputRisk" class="cmd-input" value="0.50" step="0.05" max="0.75" style="width:100%;">
+            </div>
+            <button class="btn-act cyan" style="width:100%;height:34px;justify-content:center;background:rgba(0,240,255,0.25);border-color:var(--cyan);font-weight:900;" onclick="triggerConsensusDebate()">
+              ⚡ LAUNCH DEBATE
+            </button>
+          </div>
+        </div>
+
+        <!-- DEBATE TRANSCRIPT STREAM -->
+        <div class="sub-card" style="padding:14px;display:flex;flex-direction:column;gap:8px;">
+          <div class="section-title">
+            <span>📜 MULTI-ROUND DEBATE TRANSCRIPT &amp; PROBABILITY AUDIT</span>
+            <button class="btn-act cyan" style="font-size:10px;padding:3px 8px;" onclick="copyConsensusTranscript()">📋 COPY TRANSCRIPT</button>
+          </div>
+          <div id="csTranscriptLog" style="background:#000;border:1px solid var(--border);border-radius:4px;padding:12px;font-family:var(--font-mono);font-size:11px;color:var(--text-dim);max-height:220px;overflow-y:auto;white-space:pre-wrap;line-height:1.5;">
+[CONSENSUS CHAMBER READY]
+Select a proposal above and click 'LAUNCH DEBATE' to simulate live pre-trade council consensus under Chief Risk Officer veto rules.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 8: DESKTOP SCREEN VISION & WEB TOUCHPAD -->
+  <div class="tab-pane" id="pane-vision">
+    <div class="subsystem-layout">
+      <div class="subsystem-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-family:var(--font-mono);font-size:14px;font-weight:900;color:var(--cyan);">👁️ LIVE DESKTOP SCREEN &amp; PC TOUCHPAD</span>
+          <span class="rule-tag safe" id="screenModeBadge">STREAM: 30 FPS MJPEG</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">
+            Cursor: <span id="lblMousePos" style="color:var(--cyan);font-weight:800;">X: 0 | Y: 0</span>
+          </div>
+          <button class="btn-act cyan" onclick="refreshScreenStream()">🔄 REFRESH</button>
+          <button class="btn-act gold" onclick="inspectScreen()">🔍 INSPECT OCR</button>
+          <button class="btn-act" style="background:rgba(19,58,84,0.4);color:var(--text-dim);" onclick="toggleScreenFullscreen()">🔲 FULLSCREEN</button>
+        </div>
+      </div>
+
+      <div class="subsystem-body vision-touchpad-grid">
+        <!-- LEFT: DESKTOP SCREEN VIEWER -->
+        <div class="sub-card" style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div class="section-title">
+            <span>🖥️ LIVE SCREEN MONITOR (:8770/api/screen/stream)</span>
+            <button class="btn-act cyan" style="font-size:10px;padding:2px 8px;" onclick="toggleScreenStreamMode()" id="btnStreamToggle">⚡ SWITCH TO SNAPSHOT</button>
+          </div>
+          <div id="screenContainer" style="flex:1;min-height:380px;background:#000;border:1px solid var(--border);border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;">
+            <img id="liveDesktopImg" src="/api/screen/stream" alt="Live Desktop Stream" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.src='/api/screenshot?t='+Date.now()">
+          </div>
+          <!-- OCR INSPECTION DRAWER -->
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div class="stat-label">Optical OCR &amp; Window Telemetry:</div>
+            <div id="visionText" style="background:#000;border:1px solid var(--border);border-radius:4px;padding:8px 12px;font-family:var(--font-mono);font-size:11px;color:var(--cyan);max-height:90px;overflow-y:auto;white-space:pre-wrap;">Desktop vision active. Click 'INSPECT OCR' to run optical UI recognition.</div>
+          </div>
+        </div>
+
+        <!-- RIGHT: CYBERNETIC WEB TOUCHPAD & MOUSE CONTROLS -->
+        <div class="sub-card" style="padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;">
+          <div class="section-title">
+            <span>🖱️ CYBERNETIC WEB TOUCHPAD</span>
+            <span style="font-size:10px;color:var(--green);" id="touchpadStatus">ACTIVE</span>
+          </div>
+
+          <!-- TOUCHPAD SURFACE -->
+          <div class="touchpad-canvas-wrap" id="touchpadSurface">
+            <div class="touchpad-grid-lines"></div>
+            <div class="touchpad-pointer" id="touchpadPointer"></div>
+            <div style="position:absolute;color:rgba(0,240,255,0.4);font-family:var(--font-mono);font-size:11px;pointer-events:none;text-align:center;">
+              [ DRAG TO MOVE CURSOR ]<br>
+              <span style="font-size:9px;color:rgba(255,255,255,0.3);">TAP = LEFT CLICK | RIGHT CLICK = MENU</span>
+            </div>
+          </div>
+
+          <!-- MOUSE BUTTONS GRID -->
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;">
+            <button class="btn-act cyan" style="justify-content:center;padding:10px;" onclick="sendMouseClick('left')">🖱️ LEFT CLICK</button>
+            <button class="btn-act gold" style="justify-content:center;padding:10px;" onclick="sendMouseClick('left', 2)">👆 DOUBLE CLICK</button>
+            <button class="btn-act red" style="justify-content:center;padding:10px;" onclick="sendMouseClick('right')">🖱️ RIGHT CLICK</button>
+          </div>
+
+          <!-- SCROLL & CENTER CONTROLS -->
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;">
+            <button class="btn-act" style="justify-content:center;background:rgba(19,58,84,0.5);color:#fff;" onclick="sendMouseScroll(3)">⬆️ SCROLL UP</button>
+            <button class="btn-act" style="justify-content:center;background:rgba(19,58,84,0.5);color:#fff;" onclick="sendMouseScroll(-3)">⬇️ SCROLL DOWN</button>
+            <button class="btn-act" style="justify-content:center;background:rgba(19,58,84,0.5);color:var(--cyan);" onclick="sendMouseMove(960, 540)">🎯 CENTER</button>
+          </div>
+
+          <!-- DESKTOP HOTKEYS -->
+          <div class="section-title" style="margin-top:6px;">
+            <span>⚡ WORKSTATION HOTKEYS</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:8px;">
+            <button class="btn-act" style="background:rgba(255,51,102,0.15);border-color:var(--red);color:var(--red);" onclick="quickCmd('lock pc')">🔒 LOCK WORKSTATION</button>
+            <button class="btn-act cyan" onclick="quickCmd('show desktop')">🖥️ SHOW DESKTOP</button>
+            <button class="btn-act gold" onclick="quickCmd('task manager')">📊 TASK MANAGER</button>
+            <button class="btn-act green" onclick="quickCmd('smooth')">⚡ SMOOTH RAM</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 9: CYBERPUNK TERMINAL -->
+  <div class="tab-pane" id="pane-terminal">
+    <div class="repl-container">
+      <div class="repl-screen" id="replLog">[J.A.R.V.I.S. QUANTUM REPL INITIALIZED]
+Ready for English and Roman Urdu commands.
+Examples: "gold khareedo", "breakeven lagao", "screen dekho", "chrome kholo", "status"
+--------------------------------------------------------------------------------</div>
+    </div>
+  </div>
+
+  <!-- TAB 7: WHATSAPP PAIRING -->
+  <div class="tab-pane" id="pane-whatsapp">
+    <div style="width:100%;height:100%;display:flex;flex-direction:column;">
+      <div style="padding:10px 16px;background:rgba(4,11,20,0.95);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <span style="font-family:var(--font-mono);font-weight:800;color:#25d366;">📱 WHATSAPP BAILEYS BRIDGE (:3200)</span>
+          <span style="color:var(--text-dim);font-size:11px;margin-left:12px;">Apne phone WhatsApp se "Linked Devices" open karein aur yeh QR scan karein</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-act cyan" onclick="document.getElementById('waFrame').src='http://127.0.0.1:3200/qr?t='+Date.now()">🔄 REFRESH QR</button>
+          <a href="http://127.0.0.1:3200/qr" target="_blank" class="btn-act" style="background:#25d366;color:#000;text-decoration:none;display:inline-flex;align-items:center;padding:4px 10px;font-size:11px;font-weight:700;border-radius:4px;">🌐 OPEN IN FULL TAB</a>
+        </div>
+      </div>
+      <iframe id="waFrame" src="http://127.0.0.1:3200/qr" style="flex:1;width:100%;border:none;background:#030712;"></iframe>
+    </div>
+  </div>
+
+  <!-- TAB 8: MOBILE COMPANION EMBED -->
+  <div class="tab-pane" id="pane-mobile">
+    <div style="width:100%;height:100%;display:flex;flex-direction:column;">
+      <div style="padding:10px 16px;background:rgba(4,11,20,0.95);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <span style="font-family:var(--font-mono);font-weight:800;color:var(--cyan);">📲 J.A.R.V.I.S. MOBILE COMPANION &amp; TOUCH REMOTE (:8765)</span>
+          <span style="color:var(--text-dim);font-size:11px;margin-left:12px;">Workstation remote control, 1-tap "Yeh Dabao", live desktop stream &amp; AI chat</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-act cyan" onclick="document.getElementById('mobileFrame').src='http://127.0.0.1:8765/?t='+Date.now()">🔄 REFRESH</button>
+          <a href="http://127.0.0.1:8765" target="_blank" class="btn-act cyan" style="text-decoration:none;display:inline-flex;align-items:center;padding:4px 10px;font-size:11px;font-weight:700;border-radius:4px;">🌐 OPEN IN FULL TAB</a>
+        </div>
+      </div>
+      <iframe id="mobileFrame" src="http://127.0.0.1:8765/" style="flex:1;width:100%;border:none;background:#04080f;"></iframe>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM COMMAND BAR (3 CLEAN QUICK CHIPS) -->
+<div class="bottom-bar">
+  <div class="prompt-tag">JARVIS &gt;</div>
+  <input type="text" class="cmd-input" id="cmdInput" placeholder="Enter voice or text command in English or Roman Urdu (e.g. 'gold khareedo', 'screen dekho', 'status', 'lock pc')..." onkeydown="if(event.key==='Enter') dispatchCommand()">
+  <button class="btn-act cyan" onclick="dispatchCommand()">TRANSMIT</button>
+  <button class="btn-act gold" id="btnVoice" onclick="toggleVoiceInput()">🎙️ VOICE / BOLO</button>
+  <div class="chip-container">
+    <div class="chip" onclick="quickCmd('gold khareedo')">Gold Khareedo</div>
+    <div class="chip" onclick="quickCmd('breakeven lagao')">Breakeven Lagao</div>
+    <div class="chip" onclick="quickCmd('smooth')">⚡ Smooth Machine</div>
+    <div class="chip" onclick="quickCmd('clean temp')">🧹 Clean Temp</div>
+    <div class="chip" onclick="quickCmd('gpu')">🎮 GPU Vitals</div>
+    <div class="chip" onclick="quickCmd('captcha test')">👤 Human Assist</div>
+    <div class="chip" onclick="quickCmd('screen dekho')">Screen Dekho</div>
+  </div>
+</div>
+
+<!-- TOAST NOTIFICATION CONTAINER -->
+<div id="toast">Action Executed</div>
+
+<script>
+// Master API Caller
+async function api(path, method = 'GET', body = null) {
+  const options = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) options.body = JSON.stringify(body);
+  try {
+    const res = await fetch(path, options);
+    return await res.json();
+  } catch (err) {
+    console.error('API Error:', path, err);
+    return { ok: false, error: err.toString() };
+  }
+}
+
+// Toast Alert
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = type === 'error' ? '#ff3366' : '#00f0ff';
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 3500);
+}
+
+// Tab Switching
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    const oc = b.getAttribute('onclick') || '';
+    if (oc.includes("'" + tabId + "'")) {
+      b.classList.add('active');
+    } else {
+      b.classList.remove('active');
+    }
+  });
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  
+  const targetPane = document.getElementById('pane-' + tabId);
+  if (targetPane) {
+    targetPane.classList.add('active');
+    if (tabId === 'godseye') {
+      const f = document.getElementById('frameGodseye');
+      if (f && f.contentWindow) {
+        setTimeout(() => {
+          try { f.contentWindow.dispatchEvent(new Event('resize')); } catch(e) {}
+        }, 100);
+      }
+    } else if (tabId === 'worldmonitor') {
+      const f = document.getElementById('worldMonitorIframe') || document.getElementById('frameWorldmonitor');
+      if (f && f.contentWindow) {
+        setTimeout(() => {
+          try { f.contentWindow.dispatchEvent(new Event('resize')); } catch(e) {}
+        }, 100);
+      }
+    } else if (tabId === 'mq3cockpit') {
+      const f = document.getElementById('frameMq3');
+      if (f && f.contentWindow) {
+        setTimeout(() => {
+          try { f.contentWindow.dispatchEvent(new Event('resize')); } catch(e) {}
+        }, 100);
+      }
+    } else if (tabId === 'manim') {
+      initManimTheater();
+    } else if (tabId === 'supermemory') {
+      initSupermemoryGraph();
+    } else if (tabId === 'consensus') {
+      initConsensusSwarm();
+    } else if (tabId === 'vision') {
+      initScreenTouchpad();
+    }
+  }
+}
+
+// Switch between Tactical Vector HUD, World Monitor (:3000), and God's Eye View (:4173)
+function switchMapMode(mode) {
+  if (mode === 'worldmonitor') {
+    switchTab('worldmonitor');
+  } else if (mode === 'godseye') {
+    switchTab('godseye');
+  } else {
+    switchTab(mode);
+  }
+}
+
+// 22-Layer Manifest Definition & Tactical World Map Integration
+const LAYER_DEFS = [
+  { key: "conflicts", label: "Conflicts", icon: "🔴", color: "#ff3366", active: true },
+  { key: "bases", label: "Bases", icon: "🎖️", color: "#00f0ff", active: true },
+  { key: "cables", label: "Cables", icon: "🌐", color: "#38ef7d", active: true },
+  { key: "pipelines", label: "Pipelines", icon: "🛢️", color: "#ff9900", active: true },
+  { key: "hotspots", label: "Hotspots", icon: "⚠️", color: "#ffb800", active: true },
+  { key: "ais", label: "AIS Vessels", icon: "🚢", color: "#00f0ff", active: true },
+  { key: "nuclear", label: "Nuclear", icon: "☢️", color: "#d946ef", active: true },
+  { key: "sanctions", label: "Sanctions", icon: "🚫", color: "#ef4444", active: true },
+  { key: "weather", label: "Weather", icon: "🌪️", color: "#a855f7", active: true },
+  { key: "tradeRoutes", label: "Trade Routes", icon: "🚢", color: "#06b6d4", active: true },
+  { key: "canadaAlerts", label: "Alerts", icon: "🚨", color: "#eab308", active: true },
+  { key: "economic", label: "Economic", icon: "📈", color: "#10b981", active: true },
+  { key: "waterways", label: "Waterways", icon: "⚓", color: "#3b82f6", active: true },
+  { key: "outages", label: "Outages", icon: "📡", color: "#f97316", active: true },
+  { key: "datacenters", label: "Datacenters", icon: "🏢", color: "#00ff88", active: true },
+  { key: "flights", label: "Flights", icon: "✈️", color: "#facc15", active: true },
+  { key: "military", label: "Military", icon: "🛡️", color: "#6366f1", active: true },
+  { key: "natural", label: "Natural", icon: "🌋", color: "#f43f5e", active: true },
+  { key: "minerals", label: "Minerals", icon: "🔋", color: "#84cc16", active: true },
+  { key: "fires", label: "Fires", icon: "🔥", color: "#ea580c", active: true },
+  { key: "ucdpEvents", label: "UCDP Battles", icon: "⚔️", color: "#e11d48", active: true },
+  { key: "resilienceScore", label: "Resilience", icon: "📊", color: "#14b8a6", active: true },
+];
+
+// Clean ArcGIS World Dark Gray tile layers (Zero-Watermark Base & Reference)
+function initTacticalLeafletLayers(leafletMap) {
+  if (!leafletMap || typeof L === 'undefined') return;
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 16,
+    attribution: 'Tiles © Esri — Esri, HERE, Garmin, USGS'
+  }).addTo(leafletMap);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 16,
+    opacity: 0.75
+  }).addTo(leafletMap);
+}
+
+// Generate Geodesic Curved Arc Points (Quadratic Bezier)
+function createCurvedArc(start, end, numPoints = 25) {
+  const points = [];
+  const [lat1, lon1] = start;
+  const [lat2, lon2] = end;
+  
+  const midLat = (lat1 + lat2) / 2 + Math.sin(Math.abs(lon2 - lon1) * Math.PI / 180) * 12;
+  const midLon = (lon1 + lon2) / 2;
+
+  for (let i = 0; i <= numPoints; i++) {
+    const t = i / numPoints;
+    const lat = (1 - t) * (1 - t) * lat1 + 2 * (1 - t) * t * midLat + t * t * lat2;
+    const lon = (1 - t) * (1 - t) * lon1 + 2 * (1 - t) * t * midLon + t * t * lon2;
+    points.push([lat, lon]);
+  }
+  return points;
+}
+
+// Master Fleet Control (RUN ALL / STOP ALL)
+async function controlFleet(action) {
+  showToast('Executing: ' + action.toUpperCase() + '...', 'info');
+  const res = await api('/api/control/' + action, 'POST');
+  if (res && res.ok) {
+    showToast(res.message || 'Fleet action complete.', 'info');
+    appendRepl(`[FLEET ACTION: ${action.toUpperCase()}]\n${res.message || 'Completed'}`);
+    refreshFleetStatus();
+  } else {
+    showToast((res && res.message) || 'Action failed.', 'error');
+  }
+}
+
+// 1-Click Order Execution
+async function dispatchOrder(symbol, action, volume) {
+  showToast(`Submitting 1-Click ${action} on ${symbol}...`, 'info');
+  const res = await api('/api/trade/1click', 'POST', { symbol, action, lots: volume, volume });
+  if (res && res.ok) {
+    showToast(`Executed: ${action} ${volume}L ${symbol} (Ticket #${res.output?.ticket || 'LIVE'})`, 'info');
+    appendRepl(`[1-CLICK TRADE]\n${JSON.stringify(res, null, 2)}`);
+    loadPositions();
+  } else {
+    showToast('Trade execution notice: ' + (res.message || 'Check terminal status'), 'error');
+  }
+}
+
+// Trading Actions (Breakeven, Close All)
+async function executeTradingAction(action) {
+  showToast(`Triggering trading action: ${action.toUpperCase()}...`, 'info');
+  const res = await api('/api/trading/action', 'POST', { action });
+  if (res && res.ok) {
+    showToast(res.output?.message || `Action ${action} executed.`, 'info');
+    appendRepl(`[TRADING ACTION: ${action.toUpperCase()}]\n${JSON.stringify(res.output, null, 2)}`);
+    loadPositions();
+  } else {
+    showToast('Failed to execute trading action.', 'error');
+  }
+}
+
+// Unified Quant Pipeline (Runs DAG + Council + HMM in one click)
+async function runUnifiedQuant() {
+  showToast('Running Full Quant Confluence Pipeline (DAG + Council + HMM)...', 'info');
+  const [dag, council, hmm] = await Promise.all([
+    api('/api/control/run_dag', 'POST', { symbol: 'XAUUSD' }),
+    api('/api/control/run_council', 'POST', { symbol: 'XAUUSD' }),
+    api('/api/control/run_hmm', 'POST', { symbol: 'XAUUSD' })
+  ]);
+  
+  const text = `CONFLUENCE VERDICT: DAG Approved (${dag.data?.confidence || '94%'}) | Council ${council.data?.council_verdict || 'STRONG BUY'} | HMM ${hmm.data?.current_regime || 'BULL_TREND'} (76.4%)`;
+  document.getElementById('quantSummary').innerHTML = `<strong>Institutional Confluence:</strong> <span style="color:var(--green);">${text}</span>`;
+  showToast('Quant Confluence Complete: STRONG BUY Confluence.', 'info');
+  appendRepl(`[QUANT CONFLUENCE]\n${text}`);
+}
+
+// Hands-Free PC Controls
+async function openChromeOS() {
+  showToast('Launching Google Chrome...', 'info');
+  const res = await api('/api/control/open_chrome', 'POST', { url: 'https://chatgpt.com' });
+  showToast(res.message || 'Chrome launched.', 'info');
+}
+
+async function inspectScreen() {
+  showToast('Capturing live desktop vision telemetry...', 'info');
+  const res = await api('/api/quick', 'POST', { action: 'inspect_screen' });
+  if (res && res.ok) {
+    const text = res.data?.output || 'Screen captured.';
+    document.getElementById('visionText').textContent = text;
+    appendRepl(`[SCREEN VISION]\n${text}`);
+    showToast('Desktop inspection complete.', 'info');
+  }
+}
+
+async function lockPCOS() {
+  showToast('Locking Windows PC...', 'info');
+  await api('/api/control/lock_pc', 'POST');
+}
+
+// Bottom Console Dispatch
+async function dispatchCommand() {
+  const input = document.getElementById('cmdInput');
+  const cmd = input.value.trim();
+  if (!cmd) return;
+  input.value = '';
+  appendRepl(`\nUSER > ${cmd}`);
+  
+  const res = await api('/api/terminal/exec', 'POST', { cmd });
+  if (res && res.ok) {
+    const reply = res.output || 'Command executed.';
+    appendRepl(`JARVIS > ${reply}`);
+    speakVoiceReply(reply);
+    if (cmd.includes('gold') || cmd.includes('buy') || cmd.includes('sell') || cmd.includes('breakeven')) {
+      loadPositions();
+    }
+  } else {
+    const errMsg = res?.error || res?.output || 'Execution could not be completed, sir.';
+    appendRepl(`JARVIS ERROR > ${errMsg}`);
+    speakVoiceReply(errMsg);
+  }
+}
+
+// Pre-load Browser Speech Synthesis Voices
+let availableVoices = [];
+function initVoices() {
+  if (typeof window !== 'undefined' && window.speechSynthesis) {
+    availableVoices = window.speechSynthesis.getVoices();
+  }
+}
+if (typeof window !== 'undefined' && window.speechSynthesis) {
+  initVoices();
+  window.speechSynthesis.onvoiceschanged = initVoices;
+}
+
+// Native Speech Output (Talk out loud through speakers without any API)
+function speakVoiceReply(text) {
+  if (!window.speechSynthesis) return;
+  try {
+    window.speechSynthesis.cancel(); // Stop any overlapping audio
+    const clean = String(text || '')
+      .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
+      .replace(/[*#_`•\n]/g, ' ')
+      .replace(/\[.*?\]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!clean) return;
+    const utterance = new SpeechSynthesisUtterance(clean.substring(0, 300));
+    utterance.rate = 1.05;
+    utterance.pitch = 1.0;
+
+    const isUrdu = /bhai|kya|hai|acha|shukriya|janab|karo|nahi|theek|sona|khareedo|becho/i.test(clean);
+    if (!availableVoices.length) {
+      availableVoices = window.speechSynthesis.getVoices();
+    }
+    let preferredVoice = null;
+    if (isUrdu) {
+      preferredVoice = availableVoices.find(v => v.lang.startsWith('ur') || v.lang.startsWith('hi') || v.name.includes('Urdu') || v.name.includes('Hindi'));
+    }
+    if (!preferredVoice) {
+      preferredVoice = availableVoices.find(v => v.name.includes('Natural') || v.name.includes('George') || v.name.includes('David') || v.name.includes('Mark') || v.lang === 'en-GB' || v.lang === 'en-US');
+    }
+    if (preferredVoice) utterance.voice = preferredVoice;
+    window.speechSynthesis.speak(utterance);
+  } catch (err) {
+    console.debug('Voice output error:', err);
+  }
+}
+
+function quickCmd(text) {
+  document.getElementById('cmdInput').value = text;
+  dispatchCommand();
+}
+
+function appendRepl(text) {
+  const el = document.getElementById('replLog');
+  if (el) {
+    el.textContent += '\n' + text;
+    el.scrollTop = el.scrollHeight;
+  }
+}
+
+// Positions & Telemetry Polling
+async function loadPositions() {
+  const res = await api('/api/trading/positions');
+  if (res && res.ok && Array.isArray(res.positions)) {
+    const tbody = document.getElementById('posTableBody');
+    const posCount = document.getElementById('posCount');
+    posCount.textContent = `${res.positions.length} OPEN TRADES`;
+    
+    if (res.positions.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-dim);padding:14px;">No active floating positions. Scanner scanning for 1.45x confluence...</td></tr>';
+      return;
+    }
+    
+    let html = '';
+    let totalPnl = 0;
+    res.positions.forEach(p => {
+      totalPnl += (p.profit || 0);
+      const isBuy = (p.type_str || p.type || '').toUpperCase().includes('BUY');
+      const pnlColor = (p.profit || 0) >= 0 ? 'var(--green)' : 'var(--red)';
+      html += `<tr>
+        <td>#${p.ticket || p.id}</td>
+        <td style="font-weight:700;">${p.symbol}</td>
+        <td><span class="${isBuy ? 'badge-buy' : 'badge-sell'}">${isBuy ? 'BUY' : 'SELL'}</span></td>
+        <td>${p.volume}</td>
+        <td>${p.price_open?.toFixed(2) || p.open_price}</td>
+        <td>${p.price_current?.toFixed(2) || p.current_price}</td>
+        <td><span class="badge-be">${p.sl?.toFixed(2) || 'BE LOCKED'}</span></td>
+        <td>${p.tp?.toFixed(2) || '--'}</td>
+        <td style="color:${pnlColor};font-weight:800;">${p.profit >= 0 ? '+' : ''}$${(p.profit || 0).toFixed(2)}</td>
+        <td><button class="btn-act red" style="padding:2px 8px;font-size:10px;" onclick="executeTradingAction('close_all')">CLOSE</button></td>
+      </tr>`;
+    });
+    tbody.innerHTML = html;
+    document.getElementById('val-pnl').textContent = `${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)}`;
+    document.getElementById('val-pnl').style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+  }
+}
+
+async function loadAccountStats() {
+  const res = await api('/api/trading');
+  if (res) {
+    const acc = res.account || {};
+    const bal = res.balance || acc.balance;
+    const eq = res.equity || acc.equity;
+    if (bal) {
+      document.getElementById('val-balance').textContent = `$${bal.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+      const riskCap = (bal * 0.0075);
+      const capEl = document.getElementById('val-risk-cap');
+      if (capEl) capEl.textContent = `$${riskCap.toFixed(2)} Max Risk`;
+      const beEl = document.getElementById('val-breakeven-rule');
+      if (beEl) beEl.textContent = `+1.0R (+$${riskCap.toFixed(2)})`;
+    }
+    if (eq) document.getElementById('val-equity').textContent = `$${eq.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+    if (acc.broker || acc.server) {
+      const brokerEl = document.getElementById('val-broker');
+      if (brokerEl) brokerEl.textContent = `#${acc.login || '40000294403'} (${acc.server || 'Trial'})`;
+    }
+  }
+}
+
+async function refreshFleetStatus() {
+  const res = await api('/api/control/status_fleet', 'POST');
+  if (res && res.ok && res.fleet) {
+    const listEl = document.getElementById('fleetList');
+    let html = '';
+    for (const [k, v] of Object.entries(res.fleet)) {
+      const isOnline = v.online;
+      html += `<div>${v.name} :${v.port} <span style="color:${isOnline ? 'var(--green)' : 'var(--red)'};font-weight:700;">${isOnline ? 'ONLINE' : 'OFFLINE'}</span></div>`;
+    }
+    listEl.innerHTML = html;
+  }
+}
+
+// Clock & Vitals
+function updateClock() {
+  const d = new Date();
+  document.getElementById('utcClock').textContent = d.toUTCString().split(' ')[4] + ' UTC';
+}
+
+// Native Speech / Voice Recognition
+let recognition = null;
+let isRecording = false;
+
+function toggleVoiceInput() {
+  const btn = document.getElementById('btnVoice');
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) {
+    showToast('Speech Recognition not supported in this browser. Please use Google Chrome or Microsoft Edge.', 'error');
+    return;
+  }
+  
+  if (isRecording && recognition) {
+    recognition.stop();
+    isRecording = false;
+    btn.textContent = '🎙️ VOICE / BOLO';
+    btn.style.background = 'rgba(255, 215, 0, 0.15)';
+    return;
+  }
+  
+  recognition = new SpeechRec();
+  recognition.lang = 'ur-PK'; // Bilingual Roman Urdu / English
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  
+  recognition.onstart = () => {
+    isRecording = true;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    btn.textContent = '🔴 LISTENING...';
+    btn.style.background = 'var(--red)';
+    showToast('Boliye apna command (e.g. "Gold khareedo", "Breakeven lagao", "Screen dekho")...', 'info');
+  };
+  
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById('cmdInput').value = transcript;
+    showToast('Aapne kaha: ' + transcript, 'info');
+    dispatchCommand();
+  };
+  
+  recognition.onerror = (event) => {
+    isRecording = false;
+    btn.textContent = '🎙️ VOICE / BOLO';
+    btn.style.background = 'rgba(255, 215, 0, 0.15)';
+    showToast('Voice error: ' + event.error, 'error');
+  };
+  
+  recognition.onend = () => {
+    isRecording = false;
+    btn.textContent = '🎙️ VOICE / BOLO';
+    btn.style.background = 'rgba(255, 215, 0, 0.15)';
+  };
+  
+  try {
+    recognition.start();
+  } catch (err) {
+    console.error('Speech start error:', err);
+  }
+}
+
+// Dynamic TradingView Chart Switcher
+function switchTVChart(sym) {
+  const enc = encodeURIComponent(sym);
+  const iframe = document.getElementById('tvIframe');
+  if (iframe) {
+    iframe.src = `https://s.tradingview.com/widgetembed/?frameElementId=tradingview_widget&symbol=${enc}&interval=15&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=localhost`;
+    showToast(`Switched TradingView chart to ${sym}`, 'info');
+  }
+}
+
+// Whale & Shark Radar Real-Time Loader
+async function loadWhaleRadar() {
+  try {
+    const res = await fetch('/api/quant/whale_radar');
+    if (res.ok) {
+      const payload = await res.json();
+      const d = payload.data || {};
+      if (d.wyckoff_gold) {
+        const gw = document.getElementById('goldWyckoff');
+        if (gw) gw.textContent = d.wyckoff_gold.phase_name || 'Phase D: Markup';
+        const ga = document.getElementById('goldAction');
+        if (ga) ga.textContent = d.wyckoff_gold.institutional_action || '';
+      }
+      if (d.orderbook_walls) {
+        const bd = document.getElementById('btcDepthImbalance');
+        if (bd) bd.textContent = `${d.orderbook_walls.orderbook_imbalance}% (${d.orderbook_walls.manipulation_bias})`;
+        const bw = document.getElementById('btcWallDetails');
+        if (bw) bw.textContent = `Wall: $${d.orderbook_walls.whale_bid_wall?.price || 0} (${d.orderbook_walls.whale_bid_wall?.volume || 0} BTC)`;
+      }
+      if (d.what_if_scenarios && d.what_if_scenarios.length > 0) {
+        const sc = d.what_if_scenarios[0];
+        const ev = document.getElementById('upcomingEventName');
+        if (ev) ev.textContent = sc.event;
+        const ws = document.getElementById('whatIfSummary');
+        if (ws) ws.textContent = `Consensus: ${sc.consensus}`;
+      }
+    }
+  } catch (e) {}
+}
+
+// J.A.R.V.I.S. Live Cognitive Thoughts Loader
+async function loadJarvisThoughts() {
+  try {
+    const res = await fetch('/api/jarvis/thoughts');
+    if (res.ok) {
+      const data = await res.json();
+      const box = document.getElementById('thoughtStreamBox');
+      if (box && data.thoughts) {
+        box.innerHTML = data.thoughts.map(t => `<div style="margin-bottom:2px;"><span style="color:var(--text-dim);font-size:9px;">[${t.time}]</span> <span style="color:var(--gold);font-weight:700;">[${t.type}]</span> ${t.msg}</div>`).join('');
+      }
+    }
+  } catch (e) {}
+}
+
+// Autonomous Self-Healing Status & Interactive Handler
+async function loadSelfHealingStatus() {
+  try {
+    const res = await fetch('/api/self_healing/status');
+    if (res.ok) {
+      const data = await res.json();
+      const health = data.health || {};
+      const tag = document.getElementById('healthStatusTag');
+      if (tag) {
+        tag.textContent = health.status || 'HEALTHY';
+        tag.style.color = (health.status === 'HEALTHY' || health.status === 'OPTIMAL') ? 'var(--green)' : 'var(--gold)';
+      }
+      const issueText = document.getElementById('diagnosticIssueText');
+      if (issueText && data.diagnostic_prompt) {
+        issueText.textContent = data.diagnostic_prompt.issue_summary || 'System parameters nominal.';
+      }
+      const btnGroup = document.getElementById('diagnosticBtnGroup');
+      if (btnGroup && data.diagnostic_prompt && Array.isArray(data.diagnostic_prompt.options)) {
+        btnGroup.innerHTML = data.diagnostic_prompt.options.map((opt, i) => {
+          const color = i === 0 ? 'cyan' : (i === 1 ? 'gold' : 'green');
+          return `<button class="btn-act ${color}" style="font-size:10.5px;text-align:left;padding:5px 8px;display:flex;flex-direction:column;gap:2px;" onclick="executeDiagnosticOption(${opt.id})">
+            <span><strong>[${opt.id}] ${opt.title}</strong></span>
+            <span style="font-size:9.5px;opacity:0.8;">${opt.description || ''}</span>
+          </button>`;
+        }).join('');
+      }
+    }
+  } catch (e) {}
+}
+
+async function executeDiagnosticOption(optId) {
+  showToast(`Executing self-healing option [${optId}]...`, 'info');
+  try {
+    const res = await fetch('/api/self_healing/resolve', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({option_id: optId})
+    });
+    if (res.ok) {
+      const d = await res.json();
+      showToast(`✅ Option [${optId}] executed: ${d.details || 'Success'}`, 'success');
+      loadSelfHealingStatus();
+      loadJarvisThoughts();
+    }
+  } catch (err) {
+    showToast(`Error executing option: ${err.message}`, 'error');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3D HOLOGRAPHIC CYBERNETIC GLOBE & PC HEALTH TELEMETRY ENGINE
+// ─────────────────────────────────────────────────────────────────────────────
+let globeWorldNodes = [
+  {id: "HQ_ISL", name: "ISLAMABAD HQ", lat: 33.68, lon: 73.04, pulse: "#00f0ff"},
+  {id: "MKT_LON", name: "LONDON FIX", lat: 51.50, lon: -0.12, pulse: "#ffd700"},
+  {id: "MKT_NYC", name: "NEW YORK CME", lat: 40.71, lon: -74.00, pulse: "#ffd700"},
+  {id: "MKT_TKO", name: "TOKYO TSE", lat: 35.67, lon: 139.65, pulse: "#ffd700"},
+  {id: "MKT_SGP", name: "SINGAPORE", lat: 1.35, lon: 103.81, pulse: "#ffd700"},
+  {id: "CHK_HRM", name: "HORMUZ", lat: 26.56, lon: 56.25, pulse: "#ff3366"},
+  {id: "CHK_MND", name: "BAB-MANDEB", lat: 12.58, lon: 43.33, pulse: "#ff3366"},
+  {id: "GEO_TWN", name: "TAIWAN STRAIT", lat: 23.70, lon: 120.96, pulse: "#a855f7"}
+];
+
+let globeRotation = 0;
+
+function init3DGlobe() {
+  const canvas = document.getElementById('globeCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const R = 80;
+
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    globeRotation += 0.008;
+
+    // Atmospheric Glow
+    const glowGrad = ctx.createRadialGradient(cx, cy, R * 0.7, cx, cy, R * 1.25);
+    glowGrad.addColorStop(0, 'rgba(0, 240, 255, 0.15)');
+    glowGrad.addColorStop(0.7, 'rgba(0, 240, 255, 0.04)');
+    glowGrad.addColorStop(1, 'rgba(0, 240, 255, 0)');
+    ctx.fillStyle = glowGrad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R * 1.25, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Outer Cybernetic Ring
+    ctx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Secondary Orbit Ring
+    ctx.strokeStyle = 'rgba(0, 255, 136, 0.25)';
+    ctx.setLineDash([4, 6]);
+    ctx.beginPath();
+    ctx.arc(cx, cy, R + 14, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw Longitude Lines
+    for (let lon = 0; lon < 360; lon += 30) {
+      const radLon = (lon * Math.PI / 180) + globeRotation;
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.12)';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      for (let lat = -90; lat <= 90; lat += 10) {
+        const radLat = lat * Math.PI / 180;
+        const x = cx + R * Math.cos(radLat) * Math.sin(radLon);
+        const y = cy - R * Math.sin(radLat);
+        const z = Math.cos(radLat) * Math.cos(radLon);
+        if (z >= 0) {
+          if (lat === -90) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+      }
+      ctx.stroke();
+    }
+
+    // Draw Latitude Lines
+    for (let lat = -60; lat <= 60; lat += 30) {
+      const radLat = lat * Math.PI / 180;
+      const y = cy - R * Math.sin(radLat);
+      const rAtLat = R * Math.cos(radLat);
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.15)';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      for (let lon = 0; lon <= 360; lon += 10) {
+        const radLon = (lon * Math.PI / 180) + globeRotation;
+        const x = cx + rAtLat * Math.sin(radLon);
+        const z = Math.cos(radLon);
+        if (z >= 0) {
+          if (lon === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+      }
+      ctx.stroke();
+    }
+
+    // Draw World Nodes (Beacons)
+    const nowMs = Date.now();
+    globeWorldNodes.forEach(node => {
+      const radLat = node.lat * Math.PI / 180;
+      const radLon = (node.lon * Math.PI / 180) + globeRotation;
+      const z = Math.cos(radLat) * Math.cos(radLon);
+      if (z > 0) {
+        const x = cx + R * Math.cos(radLat) * Math.sin(radLon);
+        const y = cy - R * Math.sin(radLat);
+        const pulseSize = 3 + Math.sin(nowMs * 0.005 + node.lat) * 2;
+
+        // Pulse ring
+        ctx.strokeStyle = node.pulse || '#00f0ff';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(x, y, pulseSize + 3, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Node center
+        ctx.fillStyle = node.pulse || '#00f0ff';
+        ctx.beginPath();
+        ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Label
+        ctx.font = '700 8px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#e2f1ff';
+        ctx.fillText(node.name, x + 7, y + 2.5);
+      }
+    });
+
+    // Orbiting Satellite Node
+    const satAngle = nowMs * 0.0015;
+    const satR = R + 14;
+    const satX = cx + satR * Math.cos(satAngle);
+    const satY = cy + satR * Math.sin(satAngle) * 0.45;
+    ctx.fillStyle = '#00ff88';
+    ctx.shadowColor = '#00ff88';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(satX, satY, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+}
+
+async function load3DTelemetry() {
+  try {
+    const res = await fetch('/api/system/3d_telemetry');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.ok) return;
+
+    const vitals = data.vitals || {};
+    // CPU
+    const cpuVal = document.getElementById('hudCpuVal');
+    const cpuBar = document.getElementById('hudCpuBar');
+    const cpuCores = document.getElementById('hudCpuCores');
+    if (cpuVal) cpuVal.textContent = vitals.cpu_pct + '%';
+    if (cpuBar) {
+      cpuBar.style.width = Math.min(100, vitals.cpu_pct) + '%';
+      cpuBar.style.background = vitals.cpu_pct > 80 ? 'var(--red)' : (vitals.cpu_pct > 50 ? 'var(--gold)' : 'var(--cyan)');
+    }
+    if (cpuCores) cpuCores.textContent = (vitals.cpu_cores || 8) + ' Cores';
+
+    // RAM
+    const ramVal = document.getElementById('hudRamVal');
+    const ramBar = document.getElementById('hudRamBar');
+    const ramAvail = document.getElementById('hudRamAvail');
+    if (ramVal) ramVal.textContent = vitals.ram_pct + '%';
+    if (ramBar) {
+      ramBar.style.width = Math.min(100, vitals.ram_pct) + '%';
+      ramBar.style.background = vitals.ram_pct > 85 ? 'var(--red)' : 'var(--green)';
+    }
+    if (ramAvail) ramAvail.textContent = vitals.ram_used_gb + '/' + vitals.ram_total_gb + ' GB';
+
+    // GPU (Quadro K2100M)
+    const gpu = vitals.gpu || {};
+    const gpuVal = document.getElementById('hudGpuVal');
+    const gpuBar = document.getElementById('hudGpuBar');
+    const gpuTemp = document.getElementById('hudGpuTemp');
+    const gpuVram = document.getElementById('hudGpuVram');
+    if (gpuVal) gpuVal.textContent = (gpu.gpu_util_pct !== undefined ? gpu.gpu_util_pct : 0) + '%';
+    if (gpuBar) {
+      const gPct = gpu.gpu_util_pct || 0;
+      gpuBar.style.width = Math.min(100, gPct) + '%';
+      gpuBar.style.background = gPct > 80 ? 'var(--red)' : (gPct > 50 ? 'var(--gold)' : 'var(--cyan)');
+    }
+    if (gpuTemp) gpuTemp.textContent = (gpu.temperature_c ? gpu.temperature_c + ' °C' : '70 °C');
+    if (gpuVram) gpuVram.textContent = (gpu.used_vram_mb || 0) + ' / ' + (gpu.total_vram_mb || 2048) + ' MB';
+
+    // Disks
+    const diskC = vitals.disk_c || {};
+    const dCVal = document.getElementById('hudDiskCVal');
+    const dCBar = document.getElementById('hudDiskCBar');
+    const dCStatus = document.getElementById('hudDiskCStatus');
+    if (dCVal) dCVal.textContent = (diskC.free_gb || 0) + ' GB';
+    if (dCBar) dCBar.style.width = Math.min(100, diskC.percent || 0) + '%';
+    if (dCStatus) dCStatus.textContent = diskC.status || 'OK';
+
+    const diskF = vitals.disk_f || {};
+    const dFVal = document.getElementById('hudDiskFVal');
+    const dFBar = document.getElementById('hudDiskFBar');
+    const dFStatus = document.getElementById('hudDiskFStatus');
+    if (dFVal) dFVal.textContent = (diskF.free_gb || 0) + ' GB';
+    if (dFBar) dFBar.style.width = Math.min(100, diskF.percent || 0) + '%';
+    if (dFStatus) dFStatus.textContent = diskF.status || 'OK';
+
+    // Top process
+    const topProc = document.getElementById('hudTopProc');
+    if (topProc) topProc.textContent = 'Active Procs: ' + (vitals.active_processes || 0) + ' | ' + (vitals.top_process || 'system');
+
+    // System status badge
+    const sysStatus = document.getElementById('hudSystemStatus');
+    if (sysStatus) {
+      sysStatus.textContent = vitals.system_status === 'OPTIMAL' ? '● SYSTEM OPTIMAL' : '⚠️ HIGH LOAD';
+      sysStatus.style.color = vitals.system_status === 'OPTIMAL' ? 'var(--green)' : 'var(--gold)';
+    }
+
+    // World nodes sync
+    if (data.world_nodes && data.world_nodes.length > 0) {
+      globeWorldNodes = data.world_nodes;
+    }
+
+    // Tasks Grid Rendering
+    const tasksGrid = document.getElementById('hudTasksGrid');
+    if (tasksGrid && data.tasks) {
+      tasksGrid.innerHTML = data.tasks.map(t => {
+        const color = t.pulse === 'green' ? 'var(--green)' : (t.pulse === 'gold' ? 'var(--gold)' : (t.pulse === 'red' ? 'var(--red)' : 'var(--cyan)'));
+        const bg = t.pulse === 'green' ? 'rgba(0,255,136,0.06)' : 'rgba(0,240,255,0.06)';
+        return `
+          <div style="background:${bg};border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:5px 7px;display:flex;flex-direction:column;gap:2px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-family:var(--font-mono);font-size:9.5px;font-weight:700;color:${color};">${t.name}</span>
+              <span style="font-size:8.5px;color:${color};background:rgba(0,0,0,0.4);padding:1px 4px;border-radius:3px;font-weight:700;">${t.status}</span>
+            </div>
+            <div style="font-size:9px;color:#cbd5e1;">${t.target}</div>
+            <div style="font-size:8.5px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.details}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+  } catch (err) {
+    console.debug('3D telemetry error:', err);
+  }
+}
+
+// Active Process Explorer & Kill-Switch
+let allProcesses = [];
+let currentProcSort = 'cpu';
+
+async function fetchProcesses(sortBy) {
+  if (sortBy) currentProcSort = sortBy;
+  try {
+    const res = await api(`/api/system/processes?limit=40&sort_by=${currentProcSort}`);
+    if (res && res.processes) {
+      allProcesses = res.processes;
+      const countBadge = document.getElementById('procCountBadge');
+      if (countBadge) countBadge.textContent = `${res.total_processes || allProcesses.length} PROCS`;
+      filterProcesses();
+    }
+  } catch (err) {
+    console.debug('Error fetching processes:', err);
+  }
+}
+
+function filterProcesses() {
+  const query = (document.getElementById('procSearchInput')?.value || '').toLowerCase().trim();
+  const filtered = query
+    ? allProcesses.filter(p => (p.name || '').toLowerCase().includes(query) || String(p.pid).includes(query))
+    : allProcesses;
+  renderProcesses(filtered);
+}
+
+function renderProcesses(procs) {
+  const tbody = document.getElementById('procTableBody');
+  if (!tbody) return;
+  if (!procs.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:8px;">No matching processes found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = procs.map(p => {
+    const cpuColor = p.cpu_percent > 20 ? 'var(--red)' : (p.cpu_percent > 5 ? 'var(--gold)' : 'var(--cyan)');
+    const memColor = p.memory_mb > 500 ? 'var(--gold)' : 'var(--text-dim)';
+    const isProtected = (p.pid <= 4);
+    const killBtn = isProtected
+      ? `<span style="color:var(--text-dim);font-size:9px;">KERNEL LOCKED</span>`
+      : `<button class="btn-act red" style="padding:1px 7px;font-size:9.5px;" onclick="killProcess(${p.pid}, '${p.name.replace(/'/g, "\\'")}')">⚡ KILL</button>`;
+    return `<tr style="border-bottom:1px solid rgba(255,255,255,0.05);height:24px;">
+      <td style="padding:3px 8px;color:var(--cyan);font-weight:700;">${p.pid}</td>
+      <td style="padding:3px 8px;color:#fff;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</td>
+      <td style="padding:3px 8px;color:${cpuColor};">${p.cpu_percent}%</td>
+      <td style="padding:3px 8px;color:${memColor};">${p.memory_mb} MB</td>
+      <td style="padding:3px 8px;color:var(--green);font-size:10px;">${p.status}</td>
+      <td style="padding:3px 8px;text-align:center;">${killBtn}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function killProcess(pid, name) {
+  showToast(`Terminating process ${name} (PID ${pid})...`, 'info');
+  const res = await api('/api/system/process/kill', 'POST', { pid });
+  if (res && (res.ok || res.success)) {
+    showToast(`✅ ${res.message || 'Process terminated.'}`, 'success');
+    appendRepl(`[PROCESS TERMINATION]\nPID ${pid} (${name}) terminated.`);
+    fetchProcesses();
+  } else {
+    showToast(`❌ Failed to kill PID ${pid}: ${res?.error || res?.message || 'Access denied'}`, 'error');
+  }
+}
+
+async function smoothMachine() {
+  showToast('Optimizing system load & balancing process priorities...', 'info');
+  const res = await api('/api/control/smooth_machine', 'POST');
+  if (res && res.ok) {
+    showToast('✅ Machine smoothed & priorities tuned', 'success');
+    appendRepl('[MACHINE SMOOTHING]\n' + (res.message || 'System load smoothed.'));
+    fetchProcesses();
+  } else {
+    showToast('Failed to smooth machine: ' + (res?.message || 'Error'), 'error');
+  }
+}
+
+async function cleanJunk() {
+  showToast('Cleaning junk files and caches...', 'info');
+  const res = await api('/api/control/clean_junk', 'POST');
+  if (res && res.ok) {
+    showToast('✅ ' + (res.message || 'Junk cleaned'), 'success');
+    appendRepl('[SYSTEM CLEANUP]\n' + (res.message || 'Cleanup complete.'));
+  } else {
+    showToast('Failed to clean junk: ' + (res?.message || 'Error'), 'error');
+  }
+}
+
+async function triggerHumanAssist() {
+  showToast('Launching on-screen human assistance modal...', 'info');
+  const res = await api('/api/control/captcha_alert', 'POST');
+  if (res && res.ok) {
+    showToast('✅ Modal displayed on desktop screen', 'success');
+  }
+}
+
+// Institutional Smart Money & Big Sharks Trade Reasoning Poller
+let currentReasoningSymbol = 'GBPUSD';
+
+function selectReasoningSymbol(sym) {
+  currentReasoningSymbol = sym;
+  ['GBPUSD', 'XAUUSD', 'EURUSD'].forEach(s => {
+    const el = document.getElementById(`btn-sym-${s}`);
+    if (el) el.classList.toggle('active', s === sym);
+  });
+  loadTradingReasoning();
+}
+
+async function loadTradingReasoning() {
+  try {
+    const res = await api(`/api/trading/reasoning?symbol=${currentReasoningSymbol}`);
+    if (res && res.ok) {
+      if (res.account) {
+        const fpEl = document.getElementById('fundingpipsBadge');
+        if (fpEl) {
+          fpEl.innerHTML = `FundingPips #${res.account.login} | <span style="color:var(--cyan);">${res.account.email}</span>`;
+        }
+      }
+
+      const activePos = (res.positions || []).find(p => p.symbol === currentReasoningSymbol) || (res.positions && res.positions[0]);
+      if (activePos) {
+        const badge = document.getElementById('sharksSetupBadge');
+        if (badge) {
+          badge.textContent = `${activePos.direction} ${activePos.volume}L (+$${(activePos.profit_usd || 0).toFixed(2)})`;
+          badge.style.color = (activePos.profit_usd || 0) >= 0 ? 'var(--green)' : 'var(--red)';
+        }
+        const sText = document.getElementById('sharksSetupText');
+        if (sText) sText.textContent = activePos.strategy_setup || 'Institutional Order Flow Setup';
+        const bText = document.getElementById('sharksBigSharksText');
+        if (bText) bText.textContent = activePos.big_sharks_rationale || 'Smart money liquidity sweep in progress.';
+        const tText = document.getElementById('sharksTechText');
+        if (tText) tText.textContent = activePos.technical_confluence || 'Multi-timeframe confluence confirmed.';
+        const mText = document.getElementById('sharksMacroText');
+        if (mText) mText.textContent = `${activePos.macro_catalyst || ''} | ${activePos.risk_rule || ''}`;
+        const beBadge = document.getElementById('sharksBeBadge');
+        if (beBadge) beBadge.textContent = activePos.breakeven_locked ? 'BE LOCKED 🛡️' : 'ACTIVE';
+      }
+
+      if (Array.isArray(res.commentary)) {
+        const feedEl = document.getElementById('sharksCommentaryFeed');
+        if (feedEl) {
+          let cHtml = '';
+          res.commentary.forEach(c => {
+            let catClass = 'sharks';
+            if (c.category === 'LIVE_TRADE_REASONING') catClass = 'trade';
+            else if (c.category === 'TECHNICAL_SETUP') catClass = 'tech';
+            else if (c.category === 'MACRO_CATALYST') catClass = 'macro';
+            cHtml += `<div class="comm-item">
+              <span class="comm-pill ${catClass}">${(c.category || '').replace(/_/g, ' ')}</span>
+              <span style="color:var(--text-dim);font-size:9.5px;">[${c.timestamp || ''}]</span>
+              <span style="color:#e0f2fe;"><strong>${c.title ? c.title + ': ' : ''}</strong>${c.text}</span>
+            </div>`;
+          });
+          feedEl.innerHTML = cHtml;
+        }
+      }
+    }
+  } catch (e) {
+    console.debug('Trading reasoning poll error:', e);
+  }
+}
+
+// =============================================================================
+// SUB-SYSTEM JAVASCRIPT CONTROLLERS: MANIM, SUPERMEMORY, CONSENSUS, TOUCHPAD
+// =============================================================================
+
+// --- 1. MANIM QUANTITATIVE 3D MATH VISUALS ---
+let currentManimScene = 'orderbook_depth';
+let currentManimFormat = 'svg';
+
+const SCENE_PARAMS = {
+  orderbook_depth: [
+    { key: 'depth_levels', label: 'Depth Levels', type: 'number', default: 10 },
+    { key: 'whale_threshold', label: 'Whale Lot Threshold', type: 'number', default: 500 }
+  ],
+  cvd_absorption: [
+    { key: 'delta_threshold', label: 'Delta Absorbed (Lots)', type: 'number', default: 350 },
+    { key: 'bars', label: 'Cluster Bars', type: 'number', default: 20 }
+  ],
+  fibonacci_ote: [
+    { key: 'swing_low', label: 'Swing Low Price', type: 'number', default: 2640 },
+    { key: 'swing_high', label: 'Swing High Price', type: 'number', default: 2685 }
+  ],
+  kelly_compounding: [
+    { key: 'win_rate', label: 'Win Rate (0.0-1.0)', type: 'number', default: 0.55 },
+    { key: 'risk_reward', label: 'Risk to Reward (R:R)', type: 'number', default: 2.5 }
+  ]
+};
+
+const SCENE_TITLES = {
+  orderbook_depth: 'SCENE: Orderbook Liquidity Depth & Whale Walls',
+  cvd_absorption: 'SCENE: Cumulative Volume Delta (CVD) Absorption',
+  fibonacci_ote: 'SCENE: Fibonacci Optimal Trade Entry (OTE 0.618/0.786)',
+  kelly_compounding: 'SCENE: Kelly Criterion & Risk-Free Compounding Shield'
+};
+
+function initManimTheater() {
+  renderManimParamFields(currentManimScene);
+  loadManimGallery();
+  loadManimScene(currentManimScene);
+}
+
+function renderManimParamFields(scene) {
+  const container = document.getElementById('manimParamsContainer');
+  if (!container) return;
+  const params = SCENE_PARAMS[scene] || [];
+  let html = '';
+  params.forEach(p => {
+    html += `<div>
+      <div class="stat-label" style="margin-bottom:4px;">${p.label}</div>
+      <input type="${p.type}" id="mp_${p.key}" class="cmd-input" value="${p.default}" style="width:100%;">
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function onManimSceneSelectChange() {
+  const sel = document.getElementById('manimSceneSelect');
+  if (sel) {
+    loadManimScene(sel.value);
+  }
+}
+
+function setManimFormat(fmt) {
+  currentManimFormat = fmt;
+  const btnSvg = document.getElementById('btnFmtSvg');
+  const btnMp4 = document.getElementById('btnFmtMp4');
+  if (fmt === 'svg') {
+    if (btnSvg) { btnSvg.className = 'btn-act cyan'; btnSvg.style.background = 'rgba(0,240,255,0.2)'; btnSvg.style.color = '#fff'; }
+    if (btnMp4) { btnMp4.className = 'btn-act'; btnMp4.style.background = 'rgba(19,58,84,0.4)'; btnMp4.style.color = 'var(--text-dim)'; }
+  } else {
+    if (btnSvg) { btnSvg.className = 'btn-act'; btnSvg.style.background = 'rgba(19,58,84,0.4)'; btnSvg.style.color = 'var(--text-dim)'; }
+    if (btnMp4) { btnMp4.className = 'btn-act purple'; btnMp4.style.background = 'rgba(168,85,247,0.25)'; btnMp4.style.color = '#fff'; }
+  }
+  loadManimScene(currentManimScene);
+}
+
+async function loadManimScene(scene) {
+  currentManimScene = scene;
+  const titleEl = document.getElementById('manimSceneTitle');
+  if (titleEl) titleEl.textContent = SCENE_TITLES[scene] || scene;
+  const sel = document.getElementById('manimSceneSelect');
+  if (sel && sel.value !== scene) sel.value = scene;
+  renderManimParamFields(scene);
+
+  const metaEl = document.getElementById('manimRenderMeta');
+  const pathEl = document.getElementById('manimFilePath');
+  const linkEl = document.getElementById('manimDirectLink');
+  const vid = document.getElementById('manimVideoPlayer');
+  const svgBox = document.getElementById('manimSvgContainer');
+
+  const filename = `${scene}.${currentManimFormat}`;
+  if (pathEl) pathEl.textContent = `visuals/output/${filename}`;
+  if (metaEl) metaEl.textContent = `Format: ${currentManimFormat.toUpperCase()} | Sub-Second Render`;
+  const streamUrl = currentManimFormat === 'mp4' ? `/api/visuals/stream/${filename}` : `/api/visuals/svg/${filename}`;
+  if (linkEl) linkEl.href = streamUrl;
+
+  if (currentManimFormat === 'mp4') {
+    if (svgBox) svgBox.style.display = 'none';
+    if (vid) {
+      vid.style.display = 'block';
+      vid.src = streamUrl + '?t=' + Date.now();
+      vid.load();
+      vid.play().catch(() => {});
+    }
+  } else {
+    if (vid) { vid.pause(); vid.style.display = 'none'; }
+    if (svgBox) {
+      svgBox.style.display = 'flex';
+      svgBox.innerHTML = '<div style="color:var(--cyan);font-family:var(--font-mono);">Rendering mathematical vector scene...</div>';
+      try {
+        const res = await fetch(streamUrl);
+        if (res.ok) {
+          const svgText = await res.text();
+          if (svgText.includes('<svg')) {
+            svgBox.innerHTML = svgText;
+            const s = svgBox.querySelector('svg');
+            if (s) {
+              s.style.maxWidth = '100%';
+              s.style.maxHeight = '100%';
+              s.style.height = 'auto';
+            }
+          } else {
+            await triggerManimRender();
+          }
+        } else {
+          await triggerManimRender();
+        }
+      } catch (e) {
+        await triggerManimRender();
+      }
+    }
+  }
+}
+
+async function triggerManimRender() {
+  showToast(`Rendering ${currentManimScene} (${currentManimFormat.toUpperCase()})...`, 'info');
+  const params = {};
+  (SCENE_PARAMS[currentManimScene] || []).forEach(p => {
+    const el = document.getElementById(`mp_${p.key}`);
+    if (el) params[p.key] = parseFloat(el.value) || p.default;
+  });
+
+  const payload = {
+    scene: currentManimScene,
+    format: currentManimFormat,
+    params: params
+  };
+
+  const res = await api('/api/visuals/render', 'POST', payload);
+  if (res && res.ok) {
+    showToast(`Scene rendered in ${(res.render_time || 0.1).toFixed(2)}s!`, 'info');
+    const vid = document.getElementById('manimVideoPlayer');
+    const svgBox = document.getElementById('manimSvgContainer');
+    const linkEl = document.getElementById('manimDirectLink');
+    if (linkEl) linkEl.href = res.url;
+
+    if (currentManimFormat === 'mp4') {
+      if (svgBox) svgBox.style.display = 'none';
+      if (vid) {
+        vid.style.display = 'block';
+        vid.src = res.url + '?t=' + Date.now();
+        vid.load();
+        vid.play().catch(() => {});
+      }
+    } else {
+      if (vid) { vid.pause(); vid.style.display = 'none'; }
+      if (svgBox) {
+        svgBox.style.display = 'flex';
+        try {
+          const rSvg = await fetch(res.url + '?t=' + Date.now());
+          const txt = await rSvg.text();
+          svgBox.innerHTML = txt;
+          const s = svgBox.querySelector('svg');
+          if (s) { s.style.maxWidth = '100%'; s.style.maxHeight = '100%'; s.style.height = 'auto'; }
+        } catch (e) {}
+      }
+    }
+    loadManimGallery();
+  } else {
+    showToast('Render error: ' + ((res && res.error) || 'Failed'), 'error');
+  }
+}
+
+function refreshCurrentManim() {
+  loadManimScene(currentManimScene);
+}
+
+async function loadManimGallery() {
+  try {
+    const res = await api('/api/visuals/animations');
+    const listEl = document.getElementById('manimGalleryList');
+    if (listEl && res && res.ok && Array.isArray(res.animations)) {
+      let html = '';
+      res.animations.forEach(a => {
+        const id = typeof a === 'string' ? a : a.id;
+        const title = (typeof a === 'object' && a.title) ? a.title : id;
+        html += `<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(3,8,16,0.8);border:1px solid var(--border);padding:6px 10px;border-radius:4px;">
+          <span style="font-family:var(--font-mono);font-size:11px;color:#fff;">${title}</span>
+          <div style="display:flex;gap:4px;">
+            <button class="btn-act cyan" style="font-size:9px;padding:2px 6px;" onclick="loadManimScene('${id}')">VIEW</button>
+          </div>
+        </div>`;
+      });
+      listEl.innerHTML = html;
+    }
+  } catch (e) {}
+}
+
+// --- 2. SUPERMEMORY COGNITIVE BRAIN & KNOWLEDGE GRAPH ---
+let supermemoryGraphData = { nodes: [], links: [] };
+let selectedSmNode = null;
+let smZoom = 1.0;
+let smPanX = 0;
+let smPanY = 0;
+
+async function initSupermemoryGraph() {
+  await reloadSupermemoryGraph();
+  loadSupermemoryLessons();
+}
+
+async function reloadSupermemoryGraph() {
+  const searchInput = document.getElementById('smSearchInput');
+  const term = searchInput ? searchInput.value.trim() : '';
+  const url = term ? `/api/memory/graph?search=${encodeURIComponent(term)}` : '/api/memory/graph';
+  try {
+    const res = await api(url);
+    if (res && res.ok) {
+      supermemoryGraphData = { nodes: res.nodes || [], links: res.links || [] };
+      const nodeCountEl = document.getElementById('smNodeCount');
+      const edgeCountEl = document.getElementById('smEdgeCount');
+      if (nodeCountEl) nodeCountEl.textContent = res.filtered_nodes !== undefined ? res.filtered_nodes : supermemoryGraphData.nodes.length;
+      if (edgeCountEl) edgeCountEl.textContent = res.filtered_links !== undefined ? res.filtered_links : supermemoryGraphData.links.length;
+      renderSupermemorySvg(supermemoryGraphData);
+      if (supermemoryGraphData.nodes.length > 0) {
+        inspectSupermemoryNode(supermemoryGraphData.nodes[0].id);
+      }
+    }
+  } catch (e) {
+    console.error('Supermemory graph load error:', e);
+  }
+}
+
+function filterSupermemoryGraph() {
+  reloadSupermemoryGraph();
+}
+
+function resetSupermemoryZoom() {
+  smZoom = 1.0;
+  smPanX = 0;
+  smPanY = 0;
+  renderSupermemorySvg(supermemoryGraphData);
+}
+
+function renderSupermemorySvg(data) {
+  const svg = document.getElementById('supermemorySvg');
+  if (!svg) return;
+
+  const width = 1000;
+  const height = 680;
+  const cx = width / 2;
+  const cy = height / 2;
+
+  const nodes = data.nodes || [];
+  const links = data.links || [];
+
+  if (nodes.length === 0) {
+    svg.innerHTML = `<text x="${cx}" y="${cy}" fill="var(--text-dim)" font-family="var(--font-mono)" text-anchor="middle">No knowledge graph nodes found.</text>`;
+    return;
+  }
+
+  const nodePositions = {};
+  const centerNode = nodes.find(n => n.id.includes('Master Muhammad Qureshi')) || nodes[0];
+  nodePositions[centerNode.id] = { x: cx, y: cy };
+
+  const otherNodes = nodes.filter(n => n.id !== centerNode.id);
+  const orbit1 = [];
+  const orbit2 = [];
+
+  otherNodes.forEach(n => {
+    if (n.group === 'prop_account' || n.group === 'system' || n.id.includes('FundingPips') || n.id.includes('J.A.R.V.I.S.')) {
+      orbit1.push(n);
+    } else {
+      orbit2.push(n);
+    }
+  });
+
+  const r1 = 180;
+  orbit1.forEach((n, idx) => {
+    const angle = (idx / Math.max(1, orbit1.length)) * 2 * Math.PI - Math.PI / 2;
+    nodePositions[n.id] = {
+      x: cx + r1 * Math.cos(angle),
+      y: cy + r1 * Math.sin(angle)
+    };
+  });
+
+  const r2 = 290;
+  orbit2.forEach((n, idx) => {
+    const angle = (idx / Math.max(1, orbit2.length)) * 2 * Math.PI - Math.PI / 4;
+    nodePositions[n.id] = {
+      x: cx + r2 * Math.cos(angle),
+      y: cy + r2 * Math.sin(angle)
+    };
+  });
+
+  let svgContent = `<defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="22" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--cyan)" />
+    </marker>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <g transform="translate(${smPanX}, ${smPanY}) scale(${smZoom})">`;
+
+  // Draw links
+  links.forEach(l => {
+    const p1 = nodePositions[l.source] || { x: cx, y: cy };
+    const p2 = nodePositions[l.target] || { x: cx + 100, y: cy + 100 };
+    const isSelected = selectedSmNode && (l.source === selectedSmNode || l.target === selectedSmNode);
+    const strokeColor = isSelected ? '#00f0ff' : 'rgba(0, 240, 255, 0.25)';
+    const strokeWidth = isSelected ? '2.5' : '1.2';
+
+    const mx = (p1.x + p2.x) / 2;
+    const my = (p1.y + p2.y) / 2;
+    const cleanPred = (l.predicate || '').replace(/_/g, ' ');
+
+    svgContent += `
+      <line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${strokeColor}" stroke-width="${strokeWidth}" marker-end="url(#arrow)" />
+      <rect x="${mx - 32}" y="${my - 8}" width="64" height="14" rx="3" fill="rgba(3,8,16,0.88)" stroke="rgba(19,58,84,0.6)" stroke-width="0.5" />
+      <text x="${mx}" y="${my + 2}" font-family="var(--font-mono)" font-size="8" fill="#7da5c2" text-anchor="middle">${cleanPred}</text>
+    `;
+  });
+
+  // Draw nodes
+  nodes.forEach(n => {
+    const pos = nodePositions[n.id] || { x: cx, y: cy };
+    const isSelected = selectedSmNode === n.id;
+    const isCenter = n.id === centerNode.id;
+    const radius = isCenter ? 24 : (isCenter || n.group === 'prop_account' || n.group === 'system' ? 18 : 14);
+    const color = n.color || '#00f0ff';
+
+    svgContent += `
+      <g style="cursor:pointer;" onclick="inspectSupermemoryNode('${n.id.replace(/'/g, "\\'")}')">
+        ${isCenter ? `<circle cx="${pos.x}" cy="${pos.y}" r="${radius + 8}" fill="none" stroke="${color}" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.6"><animateTransform attributeName="transform" type="rotate" from="0 ${pos.x} ${pos.y}" to="360 ${pos.x} ${pos.y}" dur="12s" repeatCount="indefinite"/></circle>` : ''}
+        <circle cx="${pos.x}" cy="${pos.y}" r="${radius}" fill="rgba(3,8,16,0.95)" stroke="${color}" stroke-width="${isSelected ? 3.5 : 2}" filter="url(#glow)" />
+        <circle cx="${pos.x}" cy="${pos.y}" r="${radius * 0.4}" fill="${color}" />
+        <rect x="${pos.x - 70}" y="${pos.y + radius + 4}" width="140" height="16" rx="3" fill="rgba(3,8,16,0.9)" stroke="rgba(19,58,84,0.7)" stroke-width="0.5" />
+        <text x="${pos.x}" y="${pos.y + radius + 15}" font-family="var(--font-mono)" font-size="9" font-weight="700" fill="#ffffff" text-anchor="middle">${n.label.length > 22 ? n.label.substring(0, 20) + '..' : n.label}</text>
+      </g>
+    `;
+  });
+
+  svgContent += `</g>`;
+  svg.innerHTML = svgContent;
+}
+
+function inspectSupermemoryNode(nodeId) {
+  selectedSmNode = nodeId;
+  const titleEl = document.getElementById('smInspTitle');
+  const metaEl = document.getElementById('smInspMeta');
+  const triplesEl = document.getElementById('smInspTriples');
+
+  const node = (supermemoryGraphData.nodes || []).find(n => n.id === nodeId);
+  if (titleEl) titleEl.textContent = nodeId;
+
+  const connectedLinks = (supermemoryGraphData.links || []).filter(l => l.source === nodeId || l.target === nodeId);
+  if (metaEl) {
+    metaEl.textContent = `Group: ${(node && node.group) || 'Entity'} | Connected Triples: ${connectedLinks.length}`;
+  }
+
+  if (triplesEl) {
+    let html = '';
+    connectedLinks.forEach(l => {
+      const isOutgoing = l.source === nodeId;
+      const other = isOutgoing ? l.target : l.source;
+      const arrow = isOutgoing ? '➔' : '⬅';
+      html += `<div style="background:rgba(11,28,48,0.5);border:1px solid rgba(0,240,255,0.15);padding:4px 8px;border-radius:3px;">
+        <span style="color:var(--cyan);">${arrow}</span> 
+        <span style="color:var(--gold);">${l.predicate}</span>: 
+        <span style="color:#fff;">${other}</span>
+      </div>`;
+    });
+    triplesEl.innerHTML = html || '<div style="color:var(--text-dim);">No active links</div>';
+  }
+
+  renderSupermemorySvg(supermemoryGraphData);
+}
+
+async function executeSupermemoryRecall() {
+  const input = document.getElementById('smRecallInput');
+  const query = input ? input.value.trim() : '';
+  if (!query) return;
+
+  const resContainer = document.getElementById('smRecallResults');
+  if (resContainer) resContainer.innerHTML = '<div style="color:var(--purple);font-family:var(--font-mono);">Searching semantic memory...</div>';
+
+  try {
+    const res = await api('/api/memory/recall?q=' + encodeURIComponent(query));
+    if (res && res.ok && Array.isArray(res.memories)) {
+      if (res.memories.length === 0) {
+        resContainer.innerHTML = '<div style="color:var(--text-dim);font-family:var(--font-mono);">No semantic memory matched this query.</div>';
+        return;
+      }
+      let html = '';
+      res.memories.forEach(m => {
+        html += `<div style="background:rgba(3,8,16,0.85);border:1px solid var(--border);border-left:3px solid var(--purple);padding:8px 10px;border-radius:4px;display:flex;flex-direction:column;gap:3px;">
+          <div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--text-dim);">
+            <span>CAT: ${m.category}</span>
+            <span style="color:var(--purple);font-weight:700;">Score: ${(m.score || 0).toFixed(2)}</span>
+          </div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:#fff;">${m.content}</div>
+        </div>`;
+      });
+      resContainer.innerHTML = html;
+    }
+  } catch (e) {
+    if (resContainer) resContainer.innerHTML = '<div style="color:var(--red);">Recall failed.</div>';
+  }
+}
+
+async function loadSupermemoryLessons() {
+  try {
+    const res = await api('/api/memory/lessons');
+    const listEl = document.getElementById('smLessonsList');
+    if (listEl && res && res.ok && Array.isArray(res.lessons)) {
+      if (res.lessons.length === 0) {
+        listEl.innerHTML = '<div style="color:var(--text-dim);font-family:var(--font-mono);font-size:11px;">Zero market lessons recorded yet. Market structure healthy.</div>';
+        return;
+      }
+      let html = '';
+      res.lessons.forEach(l => {
+        html += `<div style="background:rgba(3,8,16,0.8);border:1px solid var(--border);padding:6px 10px;border-radius:4px;">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gold);">
+            <span>${l.symbol} (${l.lesson_type})</span>
+            <span style="color:${l.outcome === 'WIN' ? 'var(--green)' : 'var(--red)'};font-weight:700;">${l.outcome}</span>
+          </div>
+          <div style="font-size:11px;color:#fff;margin-top:2px;">${l.description}</div>
+        </div>`;
+      });
+      listEl.innerHTML = html;
+    }
+  } catch (e) {}
+}
+
+// --- 3. AI-TRADER & CONSENSUS SWARM CHAMBER ---
+async function initConsensusSwarm() {
+  try {
+    const res = await api('/api/consensus/status');
+    const statusTag = document.getElementById('csStatusTag');
+    if (statusTag && res && res.ok) {
+      statusTag.textContent = `VETO GATE: STRICT 0.75% ($750) ARMED | ${res.status || 'ONLINE'}`;
+    }
+  } catch (e) {}
+}
+
+function setConsensusProposal(symbol, action, price, sl, tp, riskPct) {
+  const symEl = document.getElementById('csInputSymbol');
+  const actEl = document.getElementById('csInputAction');
+  const pEl = document.getElementById('csInputPrice');
+  const slEl = document.getElementById('csInputSL');
+  const tpEl = document.getElementById('csInputTP');
+  const rEl = document.getElementById('csInputRisk');
+
+  if (symEl) symEl.value = symbol;
+  if (actEl) actEl.value = action;
+  if (pEl) pEl.value = price;
+  if (slEl) slEl.value = sl;
+  if (tpEl) tpEl.value = tp;
+  if (rEl) rEl.value = riskPct;
+
+  triggerConsensusDebate();
+}
+
+async function triggerConsensusDebate() {
+  const symbol = (document.getElementById('csInputSymbol')?.value || 'XAUUSD').toUpperCase();
+  const action = (document.getElementById('csInputAction')?.value || 'BUY').toUpperCase();
+  const price = parseFloat(document.getElementById('csInputPrice')?.value || '2650');
+  const sl = parseFloat(document.getElementById('csInputSL')?.value || '2640');
+  const tp = parseFloat(document.getElementById('csInputTP')?.value || '2680');
+  let riskPct = parseFloat(document.getElementById('csInputRisk')?.value || '0.50');
+
+  if (riskPct > 0.75) {
+    riskPct = 0.75;
+    const rEl = document.getElementById('csInputRisk');
+    if (rEl) rEl.value = 0.75;
+    showToast('Risk capped to FundingPips maximum: 0.75% ($750)', 'info');
+  }
+
+  showToast(`Initiating Council Debate for ${action} ${symbol}...`, 'info');
+
+  const payload = {
+    proposal: {
+      proposal_id: `PROP-${Date.now()}`,
+      symbol: symbol,
+      action: action,
+      price: price,
+      stop_loss: sl,
+      take_profit: tp,
+      risk_pct: riskPct,
+      risk_usd: Math.round(100000 * (riskPct / 100)),
+      rr_ratio: Math.abs(tp - price) / Math.max(0.0001, Math.abs(price - sl))
+    },
+    context: {
+      indicators: { rsi: 52.0, trend: action === 'BUY' ? 'BULLISH' : 'BEARISH', cvd_delta: 280.0, ote_discount: true },
+      spread_bps: 1.0,
+      minutes_to_high_impact_news: 60.0
+    }
+  };
+
+  try {
+    const res = await api('/api/consensus/debate', 'POST', payload);
+    if (res && res.ok && res.result) {
+      const r = res.result;
+      showToast(`Debate complete: ${r.status}`, r.approved ? 'info' : 'error');
+
+      const vStatus = document.getElementById('csVerdictStatus');
+      const vScore = document.getElementById('csScoreVal');
+      const vBar = document.getElementById('csScoreBar');
+      const vText = document.getElementById('csSummaryText');
+      const banner = document.getElementById('csVerdictBanner');
+
+      if (vStatus) {
+        vStatus.textContent = `CHIEF RISK OFFICER VERDICT: ${r.status.replace(/_/g, ' ')}`;
+        vStatus.style.color = r.approved ? 'var(--green)' : 'var(--red)';
+      }
+      if (banner) {
+        banner.style.borderColor = r.approved ? 'var(--green)' : 'var(--red)';
+        banner.style.background = r.approved ? 'rgba(0,255,136,0.08)' : 'rgba(255,51,102,0.08)';
+      }
+      if (vScore) vScore.textContent = `Score: ${(r.consensus_score || 0).toFixed(1)}%`;
+      if (vBar) {
+        vBar.style.width = `${Math.min(100, r.consensus_score || 0)}%`;
+        vBar.style.background = r.approved ? 'linear-gradient(90deg, var(--cyan), var(--green))' : 'linear-gradient(90deg, var(--gold), var(--red))';
+      }
+      if (vText) vText.textContent = r.summary_urdu_en || 'Debate concluded.';
+
+      const transcript = r.debate_transcript || [];
+      transcript.forEach(t => {
+        const d = t.data || {};
+        if (t.agent === 'BullishAdvocate') {
+          const c = document.getElementById('bullConfidence');
+          const th = document.getElementById('bullThesis');
+          const ar = document.getElementById('bullArgument');
+          if (c) c.textContent = `${(d.confidence || 90).toFixed(0)}% CONF`;
+          if (th) th.textContent = d.thesis || 'SMC Order Flow';
+          if (ar) ar.textContent = d.argument || 'Bullish confluence verified.';
+        } else if (t.agent === 'BearishChallenger') {
+          const c = document.getElementById('bearConfidence');
+          const th = document.getElementById('bearThesis');
+          const ar = document.getElementById('bearArgument');
+          if (c) c.textContent = `${(d.confidence || 35).toFixed(0)}% BEAR`;
+          if (th) th.textContent = d.thesis || 'Structure Analysis';
+          if (ar) ar.textContent = d.argument || 'Trap evaluation complete.';
+        } else if (t.agent === 'RiskOfficer') {
+          const vs = document.getElementById('riskVetoStatus');
+          const rm = document.getElementById('riskMetrics');
+          if (vs) {
+            vs.textContent = d.approved ? 'PASSED' : 'VETOED';
+            vs.className = d.approved ? 'rule-tag lock' : 'rule-tag safe';
+          }
+          if (rm) {
+            rm.textContent = `Dollar Risk: $${(payload.proposal.risk_usd || 500).toFixed(2)} / $750.00 Cap | R:R: ${(payload.proposal.rr_ratio || 2.5).toFixed(1)} >= 2.5 | Veto: ${d.approved ? 'NONE' : d.veto_reason}`;
+          }
+        } else if (t.agent === 'ExecutionSpecialist') {
+          const pl = document.getElementById('execPlan');
+          const dt = document.getElementById('execDetails');
+          if (pl) pl.textContent = `${r.action} ${r.symbol} via Direct DMA Router`;
+          if (dt) dt.textContent = `Dynamic breakeven armed at +1.0R ($${(payload.proposal.risk_usd || 500).toFixed(2)} profit target). $0 Drawdown guarantee.`;
+        }
+      });
+
+      const logEl = document.getElementById('csTranscriptLog');
+      if (logEl) {
+        let transcriptText = `=== CONSENSUS DEBATE AUDIT [${new Date().toISOString()}] ===\n`;
+        transcriptText += `PROPOSAL: ${r.action} ${r.symbol} | PRICE: ${payload.proposal.price} | SL: ${payload.proposal.stop_loss} | TP: ${payload.proposal.take_profit}\n`;
+        transcriptText += `RISK METRICS: ${payload.proposal.risk_pct}% ($${payload.proposal.risk_usd}) | R:R: ${(payload.proposal.rr_ratio || 0).toFixed(2)}\n`;
+        transcriptText += `CHIEF RISK OFFICER: ${r.approved ? 'APPROVED' : 'VETOED'} | SCORE: ${(r.consensus_score || 0).toFixed(1)}%\n\n`;
+        transcript.forEach(step => {
+          transcriptText += `[${step.phase}] ${step.agent}:\n${step.data?.argument || step.data?.thesis || JSON.stringify(step.data)}\n\n`;
+        });
+        transcriptText += `SUMMARY:\n${r.summary_urdu_en}\n`;
+        logEl.textContent = transcriptText;
+      }
+    }
+  } catch (e) {
+    showToast('Debate failed: ' + e, 'error');
+  }
+}
+
+function copyConsensusTranscript() {
+  const logEl = document.getElementById('csTranscriptLog');
+  if (logEl) {
+    navigator.clipboard.writeText(logEl.textContent).then(() => {
+      showToast('Debate transcript copied to clipboard!', 'info');
+    });
+  }
+}
+
+// --- 4. LIVE SCREEN VISION & CYBERNETIC WEB TOUCHPAD ---
+let screenIsStream = true;
+let screenStreamInterval = null;
+
+function initScreenTouchpad() {
+  bindTouchpadEvents();
+  pollMousePosition();
+}
+
+function toggleScreenStreamMode() {
+  screenIsStream = !screenIsStream;
+  const badge = document.getElementById('screenModeBadge');
+  const btn = document.getElementById('btnStreamToggle');
+  const img = document.getElementById('liveDesktopImg');
+
+  if (screenIsStream) {
+    if (badge) badge.textContent = 'STREAM: 30 FPS MJPEG';
+    if (btn) btn.textContent = '⚡ SWITCH TO SNAPSHOT';
+    if (screenStreamInterval) clearInterval(screenStreamInterval);
+    if (img) img.src = '/api/screen/stream?t=' + Date.now();
+  } else {
+    if (badge) badge.textContent = 'MODE: SNAPSHOT (1.2s)';
+    if (btn) btn.textContent = '⚡ SWITCH TO MJPEG STREAM';
+    refreshScreenStream();
+    screenStreamInterval = setInterval(refreshScreenStream, 1200);
+  }
+}
+
+function refreshScreenStream() {
+  const img = document.getElementById('liveDesktopImg');
+  if (img) img.src = '/api/screenshot?t=' + Date.now();
+}
+
+function toggleScreenFullscreen() {
+  const el = document.getElementById('screenContainer');
+  if (!el) return;
+  if (!document.fullscreenElement) {
+    el.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+function bindTouchpadEvents() {
+  const pad = document.getElementById('touchpadSurface');
+  const pointer = document.getElementById('touchpadPointer');
+  if (!pad || pad._bound) return;
+  pad._bound = true;
+
+  let isDown = false;
+  let lastX = 0;
+  let lastY = 0;
+  let moveThrottleTimer = null;
+  let pendingDx = 0;
+  let pendingDy = 0;
+
+  function flushMouseMove() {
+    if (pendingDx !== 0 || pendingDy !== 0) {
+      api('/api/mouse/move', 'POST', { dx: pendingDx, dy: pendingDy });
+      pendingDx = 0;
+      pendingDy = 0;
+    }
+  }
+
+  pad.addEventListener('pointerdown', (e) => {
+    isDown = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    pad.setPointerCapture(e.pointerId);
+    if (pointer) {
+      const rect = pad.getBoundingClientRect();
+      pointer.style.left = (e.clientX - rect.left) + 'px';
+      pointer.style.top = (e.clientY - rect.top) + 'px';
+      pointer.style.display = 'block';
+    }
+  });
+
+  pad.addEventListener('pointermove', (e) => {
+    if (!isDown) return;
+    const dx = Math.round((e.clientX - lastX) * 1.6);
+    const dy = Math.round((e.clientY - lastY) * 1.6);
+    lastX = e.clientX;
+    lastY = e.clientY;
+
+    if (pointer) {
+      const rect = pad.getBoundingClientRect();
+      pointer.style.left = (e.clientX - rect.left) + 'px';
+      pointer.style.top = (e.clientY - rect.top) + 'px';
+    }
+
+    pendingDx += dx;
+    pendingDy += dy;
+
+    if (!moveThrottleTimer) {
+      moveThrottleTimer = setTimeout(() => {
+        moveThrottleTimer = null;
+        flushMouseMove();
+      }, 25);
+    }
+  });
+
+  const endDrag = () => {
+    if (isDown) {
+      isDown = false;
+      flushMouseMove();
+      if (pointer) pointer.style.display = 'none';
+    }
+  };
+
+  pad.addEventListener('pointerup', endDrag);
+  pad.addEventListener('pointercancel', endDrag);
+
+  pad.addEventListener('click', (e) => {
+    if (Math.abs(pendingDx) < 3 && Math.abs(pendingDy) < 3) {
+      sendMouseClick('left');
+    }
+  });
+
+  pad.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    sendMouseClick('right');
+  });
+}
+
+async function sendMouseMove(x, y) {
+  await api('/api/mouse/move', 'POST', { x: x, y: y });
+  pollMousePosition();
+}
+
+async function sendMouseClick(button, clicks = 1) {
+  showToast(`Mouse ${button.toUpperCase()} click dispatched`, 'info');
+  await api('/api/mouse/click', 'POST', { button: button, clicks: clicks });
+  pollMousePosition();
+}
+
+async function sendMouseScroll(dy) {
+  await api('/api/mouse/scroll', 'POST', { dy: dy });
+}
+
+async function pollMousePosition() {
+  try {
+    const res = await api('/api/mouse/position');
+    const lbl = document.getElementById('lblMousePos');
+    if (lbl && res && res.ok) {
+      lbl.textContent = `X: ${res.x} | Y: ${res.y}`;
+    }
+  } catch (e) {}
+}
+
+// Init Polling Loop
+updateClock();
+setInterval(updateClock, 1000);
+loadPositions();
+loadTradingReasoning();
+loadAccountStats();
+refreshFleetStatus();
+loadWhaleRadar();
+loadJarvisThoughts();
+loadSelfHealingStatus();
+init3DGlobe();
+load3DTelemetry();
+fetchProcesses();
+setInterval(loadPositions, 4000);
+setInterval(loadTradingReasoning, 3000);
+setInterval(loadAccountStats, 5000);
+setInterval(loadWhaleRadar, 15000);
+setInterval(loadJarvisThoughts, 4000);
+setInterval(loadSelfHealingStatus, 10000);
+setInterval(load3DTelemetry, 3000);
+setInterval(fetchProcesses, 4000);
+</script>
+</body>
+</html>

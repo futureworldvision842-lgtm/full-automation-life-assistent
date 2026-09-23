@@ -12,11 +12,7 @@ set PYTHONIOENCODING=utf-8
 cd /d "%~dp0"
 
 set "PY=.venv\Scripts\python.exe"
-if not exist "%PY%" set "PY=C:\Users\HP\AppData\Local\Programs\Python\Python311\python.exe"
-if not exist "%PY%" (
-  echo [X] Python 3.11 is required.
-  pause & exit /b 1
-)
+if not exist "%PY%" set "PY=python.exe"
 
 if not exist "config\api_keys.json" (
   echo [X] config\api_keys.json missing. Run install.bat, then add your Gemini key.

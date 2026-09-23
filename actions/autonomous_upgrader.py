@@ -34,3 +34,24 @@ def generate_local_skill(skill_name: str, code_content: str) -> str:
             except Exception:
                 pass
         return f"Failed to generate safe skill '{skill_name}': {e}"
+
+
+def autonomous_upgrader(
+    parameters: dict,
+    response: str | None = None,
+    player=None,
+    session_memory=None,
+    speak=None,
+) -> str:
+    """Action dispatch handler for autonomous skill generation."""
+    params = parameters or {}
+    skill_name = str(params.get("skill_name") or params.get("name") or "").strip()
+    code_content = str(params.get("code") or params.get("code_content") or "").strip()
+    if not skill_name or not code_content:
+        return "Skill name and Python code content are required for autonomous upgrade."
+    result = generate_local_skill(skill_name, code_content)
+    if player and hasattr(player, "write_log"):
+        player.write_log(f"[Upgrader] {result}")
+    if speak and callable(speak):
+        speak(f"Skill upgrade processed: {skill_name}")
+    return result

@@ -1,0 +1,157 @@
+{
+  "name": "Morning Macro & Trading Briefing Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 5 * * *"
+            }
+          ]
+        }
+      },
+      "name": "Schedule Trigger (05:00 AM PKT)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:8770/api/institutional/macro",
+        "options": {}
+      },
+      "name": "Fetch Institutional Macro & Yields",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:5050/api/market_structure?symbol=XAUUSD",
+        "options": {}
+      },
+      "name": "Analyze Gold Market Structure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const macro = $items('Fetch Institutional Macro & Yields')[0].json;\nconst gold = $items('Analyze Gold Market Structure')[0].json;\nreturn [{ json: {\n  title: '\ud83c\udf05 J.A.R.V.I.S. MORNING MACRO & TRADING BRIEFING',\n  dxy: macro.dxy_index || 104.2,\n  us10y: macro.us_10y_yield || 4.25,\n  gold_bias: gold.bias || 'BULLISH',\n  briefing: `DXY at ${macro.dxy_index || 104.2}, US10Y at ${macro.us_10y_yield || 4.25}%. Gold institutional bias: ${gold.bias || 'BULLISH'}. 18-Gate Risk Kernel active with $750 max risk cap.`\n}}];"
+      },
+      "name": "Synthesize AI Briefing",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "channel": "elite-trade",
+        "text": "={{ $json.briefing }}"
+      },
+      "name": "Broadcast Discord",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 1,
+      "position": [
+        980,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:3200/send",
+        "method": "POST",
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "phone",
+              "value": "923468053268"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.briefing }}"
+            }
+          ]
+        }
+      },
+      "name": "Broadcast WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        980,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger (05:00 AM PKT)": {
+      "main": [
+        [
+          {
+            "node": "Fetch Institutional Macro & Yields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Institutional Macro & Yields": {
+      "main": [
+        [
+          {
+            "node": "Analyze Gold Market Structure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Gold Market Structure": {
+      "main": [
+        [
+          {
+            "node": "Synthesize AI Briefing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Synthesize AI Briefing": {
+      "main": [
+        [
+          {
+            "node": "Broadcast Discord",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Broadcast WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

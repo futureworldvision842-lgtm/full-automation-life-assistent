@@ -1,31 +1,25 @@
 @echo off
-title J.A.R.V.I.S. Launcher
-color 0A
-cls
-echo ============================================================
-echo   🤖 J.A.R.V.I.S. MANUAL ECOSYSTEM LAUNCHER
-echo ============================================================
-echo.
-echo Removing manual-stop lock...
-del /f /q "E:\jarvis\scratch\jarvis.stop" 2>nul
+:: Check for Administrator privileges
+net session >nul 2>&1
+if %errorLevel% == 0 (
+    goto :run
+) else (
+    echo Requesting Administrative Elevation (UAC)...
+    powershell -Command "Start-Process -FilePath '%0' -ArgumentList 'elevated' -Verb RunAs"
+    exit /b
+)
 
-echo [1/4] Starting J.A.R.V.I.S. Voice Assistant GUI...
-start "JARVIS_Voice_GUI" cmd /k "cd /d E:\jarvis && set PYTHONUTF8=1 && py -3 main.py"
-
-echo [2/4] Starting J.A.R.V.I.S. Web Telemetry Server (Port 8090)...
-start "JARVIS_HUD_Server" cmd /k "cd /d E:\jarvis && py -3 web\server.py"
-
-echo [3/4] Starting J.A.R.V.I.S. WhatsApp Bridge (Port 3200)...
-start "JARVIS_WhatsApp_Bridge" cmd /k "cd /d E:\jarvis\wa && node jarvis_wweb.js"
-
-echo [4/4] Opening J.A.R.V.I.S. Web Dashboard...
-start "" "E:\jarvis\web\live_trade_terminal.html"
-
-echo.
-echo ============================================================
-echo   ✅ J.A.R.V.I.S. is now RUNNING!
-echo   To STOP J.A.R.V.I.S. anytime, run STOP_JARVIS.bat.
-echo ============================================================
-echo.
-timeout /t 5 >nul
-exit /b 0
+:run
+title JARVIS Mark XXXIX-OR
+cd /d "%~dp0"
+chcp 65001 > nul
+set PYTHONUTF8=1
+set PYTHONIOENCODING=utf-8
+set PYTHONUNBUFFERED=1
+echo Starting JARVIS Mark XXXIX-OR with Administrative privileges...
+if exist ".venv\Scripts\python.exe" (
+    ".venv\Scripts\python.exe" main.py
+) else (
+    python main.py
+)
+pause

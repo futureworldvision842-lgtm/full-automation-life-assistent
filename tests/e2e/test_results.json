@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-09-20T11:01:33.379873+00:00",
+  "status": "FAIL",
+  "total_tests": 103,
+  "total_passed": 102,
+  "total_failures": 1,
+  "total_errors": 0,
+  "total_skipped": 0,
+  "total_elapsed_seconds": 56.46,
+  "tiers": [
+    {
+      "tier": "Tier 1 - Feature Coverage",
+      "script": "tests\\e2e\\test_tier1_feature_coverage.py",
+      "tests_run": 38,
+      "passed": 38,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 15.39,
+      "status": "PASS"
+    },
+    {
+      "tier": "Tier 2 - Boundary & Corner Cases",
+      "script": "tests\\e2e\\test_tier2_boundary_corner.py",
+      "tests_run": 37,
+      "passed": 36,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 12.25,
+      "status": "FAIL"
+    },
+    {
+      "tier": "Tier 3 - Cross-Feature Pairwise",
+      "script": "tests\\e2e\\test_tier3_cross_feature.py",
+      "tests_run": 21,
+      "passed": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 15.27,
+      "status": "PASS"
+    },
+    {
+      "tier": "Tier 4 - Real-World Scenarios",
+      "script": "tests\\e2e\\test_tier4_real_world.py",
+      "tests_run": 7,
+      "passed": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 13.55,
+      "status": "PASS"
+    }
+  ]
+}

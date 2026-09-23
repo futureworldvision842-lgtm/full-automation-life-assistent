@@ -1,0 +1,102 @@
+{
+  "GOLD_PATTERNS": [
+    {
+      "lesson": "Gold tends to sweep lows before London open.",
+      "importance": 0.9,
+      "timestamp": "2026-08-13T16:41:03.152114+00:00",
+      "access_count": 347
+    },
+    {
+      "lesson": "BUY on XAUUSD via BULLISH_ORDER_BLOCK during LONDON \u2014 Quality 3.6/5",
+      "importance": 0.72,
+      "timestamp": "2026-08-14T08:28:19.055856+00:00",
+      "access_count": 346
+    },
+    {
+      "lesson": "BUY on XAUUSD via BULLISH_ORDER_BLOCK during LONDON \u2014 Quality 3.4/5",
+      "importance": 0.68,
+      "timestamp": "2026-08-14T11:12:28.831945+00:00",
+      "access_count": 2
+    },
+    {
+      "lesson": "SELL on XAUUSD via KEY_RESISTANCE_REJECTION during NEW_YORK \u2014 Quality 3.4/5",
+      "importance": 0.68,
+      "timestamp": "2026-08-14T12:21:23.275320+00:00",
+      "access_count": 1
+    },
+    {
+      "lesson": "SELL on XAUUSD via BEARISH_SWEEP during NEW_YORK \u2014 Quality 3.4/5",
+      "importance": 0.68,
+      "timestamp": "2026-08-14T12:52:05.030837+00:00",
+      "access_count": 0
+    },
+    {
+      "lesson": "STRICT_TREND_DOMINANCE: Never short Gold during strong H1 Bullish trend days; minor M15 sweep wicks are continuation traps, not reversals. Gold must ONLY trade with the H1 trend.",
+      "importance": 1.0,
+      "timestamp": "2026-08-14T13:35:29.597791+00:00",
+      "access_count": 0
+    },
+    {
+      "lesson": "M15_ORDER_BLOCK_RETEST during LONDON session on XAUUSD showed strong institutional follow-through.",
+      "importance": 0.8,
+      "timestamp": "2026-08-15T13:14:53.214847+00:00",
+      "access_count": 0
+    },
+    {
+      "lesson": "ASIAN_JUDAS_SWEEP during LONDON session on XAUUSD showed strong institutional follow-through.",
+      "importance": 0.8,
+      "timestamp": "2026-08-15T13:15:00.565950+00:00",
+      "access_count": 0
+    }
+  ],
+  "FOREX_PATTERNS": [
+    {
+      "lesson": "BUY on GBPUSD via BULLISH_FVG during ASIAN \u2014 Quality 3.25/5",
+      "importance": 0.65,
+      "timestamp": "2026-08-14T04:08:33.392028+00:00",
+      "access_count": 447
+    },
+    {
+      "lesson": "SELL on EURUSD via BEARISH_ORDER_BLOCK during LONDON \u2014 Quality 3.85/5",
+      "importance": 0.77,
+      "timestamp": "2026-08-14T08:28:23.569965+00:00",
+      "access_count": 446
+    },
+    {
+      "lesson": "BUY on USDJPY via BULLISH_ORDER_BLOCK during LONDON \u2014 Quality 3.85/5",
+      "importance": 0.77,
+      "timestamp": "2026-08-14T08:44:35.268106+00:00",
+      "access_count": 386
+    },
+    {
+      "lesson": "BUY on EURUSD via BULLISH_ORDER_BLOCK during NEW_YORK \u2014 Quality 3.65/5",
+      "importance": 0.73,
+      "timestamp": "2026-08-14T12:08:26.915218+00:00",
+      "access_count": 143
+    },
+    {
+      "lesson": "BUY on USDJPY via BULLISH_SWEEP during NEW_YORK \u2014 Quality 3.4/5",
+      "importance": 0.68,
+      "timestamp": "2026-08-14T12:52:33.227907+00:00",
+      "access_count": 0
+    },
+    {
+      "lesson": "PRICE_ACTION during LIVE session on USDJPY showed strong institutional follow-through.",
+      "importance": 0.8,
+      "timestamp": "2026-08-14T21:56:52.427079+00:00",
+      "access_count": 0
+    },
+    {
+      "lesson": "Be cautious of stop hunts near 2390.00000 on EURUSD; wait for rejection candle before re-entering.",
+      "importance": 0.9,
+      "timestamp": "2026-08-15T13:14:57.298056+00:00",
+      "access_count": 0
+    }
+  ],
+  "SESSION_BEHAVIOR": [],
+  "RISK_LESSONS": [],
+  "MARKET_MAKER_GAMES": [],
+  "NEWS_IMPACT": [],
+  "STRATEGY_PERFORMANCE": [],
+  "GENERAL": []
+}

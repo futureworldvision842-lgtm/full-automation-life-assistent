@@ -2,7 +2,13 @@ import re
 import shutil
 from pathlib import Path
 from datetime import datetime
-import send2trash
+
+try:
+    import send2trash
+    _SEND2TRASH_AVAILABLE = True
+except ImportError:
+    send2trash = None
+    _SEND2TRASH_AVAILABLE = False
 
 def _get_desktop() -> Path:
     """Returns desktop path — works on Windows, Mac, Linux."""
@@ -123,11 +129,12 @@ def delete_file(path: str, confirm: bool = True) -> str:
         if not target.exists():
             return f"Not found: {path}"
 
-        try:
-            send2trash.send2trash(str(target))
-            return f"Moved to Recycle Bin: {target.name}"
-        except ImportError:
-            pass
+        if _SEND2TRASH_AVAILABLE and send2trash is not None:
+            try:
+                send2trash.send2trash(str(target))
+                return f"Moved to Recycle Bin: {target.name}"
+            except Exception:
+                pass
 
         # Fallback: permanent delete
         if target.is_dir():

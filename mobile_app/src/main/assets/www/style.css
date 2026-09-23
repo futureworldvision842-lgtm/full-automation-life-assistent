@@ -1,0 +1,38 @@
+:root {
+  --bg: #030811;
+  --pan: #071524;
+  --pan2: #0b2238;
+  --bd: #103a57;
+  --pri: #00f0ff;
+  --pri-glow: rgba(0, 240, 255, 0.4);
+  --grn: #00ff88;
+  --red: #ff3366;
+  --amb: #ffb800;
+  --txt: #d4f0fc;
+  --dim: #628da6;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Consolas, sans-serif; }
+body { background: var(--bg); color: var(--txt); padding: 12px; font-size: 13px; }
+
+.top-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--pan); border: 1px solid var(--bd); border-radius: 10px; margin-bottom: 12px; }
+.brand { font-size: 15px; font-weight: 900; color: var(--pri); letter-spacing: 2px; text-shadow: 0 0 10px var(--pri-glow); display: flex; align-items: center; gap: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--amb); box-shadow: 0 0 6px var(--amb); }
+.dot.online { background: var(--grn); box-shadow: 0 0 6px var(--grn); }
+.dot.offline { background: var(--red); box-shadow: 0 0 6px var(--red); }
+.status-pill { font-size: 11px; padding: 3px 8px; border-radius: 4px; background: rgba(0,240,255,0.1); color: var(--pri); border: 1px solid var(--pri); font-weight: bold; }
+
+.card { background: var(--pan); border: 1px solid var(--bd); border-radius: 10px; padding: 12px; margin-bottom: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
+.card-title { font-size: 12px; font-weight: 800; color: var(--pri); letter-spacing: 1px; margin-bottom: 10px; border-bottom: 1px solid rgba(16,58,87,0.5); padding-bottom: 4px; }
+.btn-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 8px; }
+
+button { background: var(--pan2); color: var(--txt); border: 1px solid var(--bd); border-radius: 8px; padding: 10px; font-size: 12px; font-weight: bold; cursor: pointer; transition: all .15s; }
+button:active { transform: scale(0.97); background: var(--pri); color: #000; }
+button.pri { background: rgba(0,240,255,0.15); border-color: var(--pri); color: var(--pri); }
+button.grn { background: rgba(0,255,136,0.15); border-color: var(--grn); color: var(--grn); }
+button.red { background: rgba(255,51,102,0.15); border-color: var(--red); color: var(--red); }
+button.amb { background: rgba(255,184,0,0.15); border-color: var(--amb); color: var(--amb); }
+
+input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--bd); background: #040d17; color: #fff; font-size: 13px; margin-bottom: 8px; }
+input:focus { outline: none; border-color: var(--pri); box-shadow: 0 0 8px var(--pri-glow); }
+
+#telemetryDisplay { font-family: Consolas, monospace; font-size: 11px; color: var(--txt); line-height: 1.5; white-space: pre-wrap; }

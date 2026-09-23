@@ -1,0 +1,7 @@
+{
+  "bot_token": "YOUR_DISCORD_BOT_TOKEN",
+  "owner_id": "1538137229904322640",
+  "elite_trade_channel_id": "1541528931063177226",
+  "crypto_bot_channel_id": "1541529106074828890",
+  "jarvis_backend_url": "http://127.0.0.1:8770/api/terminal/exec"
+}

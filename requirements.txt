@@ -2,7 +2,6 @@
 google-genai
 google-generativeai
 sounddevice
-pyaudio
 numpy
 pillow
 requests
@@ -26,9 +25,30 @@ send2trash
 
 # ---- Dashboards / API (dashboard.py, mobile_control.py) ----
 fastapi
+Flask
 uvicorn[standard]
 python-multipart
 websockets
+qrcode==8.2
+
+# ---- UI / Display ----
+PyQt6
 
 # ---- Memory / database ----
 pymongo
+firebase-admin
+
+# ---- Document / File processing ----
+PyPDF2
+pdfplumber
+python-docx
+python-pptx
+pandas
+MetaTrader5==5.0.6090; platform_system == "Windows"
+
+# ---- Voice offline / Audio / Feeds ----
+faster-whisper
+SpeechRecognition
+pydub
+feedparser
+edge-tts

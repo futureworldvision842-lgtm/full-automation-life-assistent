@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Institutional Web Trading Terminal & AI Cockpit</title>
+    <link rel="stylesheet" href="/static/css/terminal.css">
+    <!-- TradingView Lightweight Charts v4.1+ -->
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+
+    <!-- 1. Master Header Bar -->
+    <header id="terminal-header">
+        <div class="header-left">
+            <div class="terminal-logo">
+                <span class="logo-glow">MQ3 RISK LAB</span>
+                <span>// QUANT</span>
+                <span class="logo-badge">PRO v2.0 // FUNDING PIPS</span>
+            </div>
+
+            <!-- Symbol Switcher Tabs -->
+            <div class="symbol-tabs-container" id="symbol-tabs">
+                <button class="symbol-tab active" data-symbol="XAUUSD">XAUUSD</button>
+                <button class="symbol-tab" data-symbol="EURUSD">EURUSD</button>
+                <button class="symbol-tab" data-symbol="GBPUSD">GBPUSD</button>
+                <button class="symbol-tab" data-symbol="USDJPY">USDJPY</button>
+                <button class="symbol-tab" data-symbol="BTCUSD">BTCUSD</button>
+                <button class="symbol-tab" data-symbol="ETHUSD">ETHUSD</button>
+                <button class="symbol-tab" data-symbol="SOLUSD">SOLUSD</button>
+            </div>
+
+            <!-- Timeframe Selector -->
+            <div class="tf-container" id="timeframe-selector">
+                <button class="tf-btn" data-tf="M1">M1</button>
+                <button class="tf-btn" data-tf="M5">M5</button>
+                <button class="tf-btn active" data-tf="M15">M15</button>
+                <button class="tf-btn" data-tf="M30">M30</button>
+                <button class="tf-btn" data-tf="H1">H1</button>
+                <button class="tf-btn" data-tf="H4">H4</button>
+                <button class="tf-btn" data-tf="D1">D1</button>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <!-- Active Symbol Live Ticker -->
+            <div class="header-ticker-display">
+                <span class="ticker-label" id="active-symbol-name">XAUUSD (Spot Gold / USD)</span>
+                <span class="text-bullish font-bold" id="active-symbol-bid">2650.38</span>
+                <span class="text-dim">/</span>
+                <span class="text-bearish font-bold" id="active-symbol-ask">2650.62</span>
+                <span class="badge badge-buy" id="active-symbol-spread">2.4 pips</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <!-- Account Preset Switcher ($25k, $50k, $100k) -->
+            <div class="account-selector-wrapper">
+                <select id="account-profile-select" title="Select Prop Firm Account Tier">
+                    <option value="25k" selected>Funding Pips $25k Tier ($700 Cap)</option>
+                    <option value="50k">Funding Pips $50k Tier ($1,400 Cap)</option>
+                    <option value="100k">Funding Pips $100k Tier ($2,800 Cap)</option>
+                </select>
+            </div>
+
+            <!-- Connection Status -->
+            <div class="status-badge conn-connecting" id="terminal-status-badge">
+                <div class="status-dot" id="status-dot"></div>
+                <span id="status-text">CONNECTING</span>
+            </div>
+
+            <!-- Voice Copilot Mic Button -->
+            <button class="btn-voice-mic" id="voice-mic-btn" title="Toggle Voice AI Assistant">
+                <span class="mic-icon">🎙</span>
+                <span>JARVIS</span>
+                <canvas id="voice-wave-canvas"></canvas>
+            </button>
+
+            <!-- Bot Pause / Resume Toggle -->
+            <button class="btn-ctrl btn-pause" id="btn-toggle-pause">⏸ PAUSE BOT</button>
+
+            <!-- Emergency Circuit Breaker (Kill Switch) -->
+            <button class="btn-ctrl btn-kill-switch" id="btn-emergency-kill">🚨 KILL SWITCH</button>
+        </div>
+    </header>
+
+    <!-- 2. Master Workspace (Left DOM, Center Chart, Right Risk Cockpit) -->
+    <div id="terminal-workspace">
+        
+        <!-- Left Pane: 5-Level Level 2 Order Book & Quick Order Entry -->
+        <aside class="terminal-pane" id="pane-left">
+            <div class="pane-header">
+                <span>Depth of Market (DOM)</span>
+                <span class="badge badge-buy">L2 5-TIER</span>
+            </div>
+            <div class="pane-scrollable">
+                <!-- DOM Ladder Card -->
+                <div class="dom-card" id="dom-container">
+                    <div class="dom-ratio-bar-container">
+                        <span class="text-bullish font-bold" id="dom-buyer-pct">54.2%</span>
+                        <div class="dom-ratio-progress-bg">
+                            <div class="dom-ratio-progress-fill" id="dom-ratio-bar" style="width: 54.2%;"></div>
+                        </div>
+                        <span class="text-bearish font-bold" id="dom-seller-pct">45.8%</span>
+                    </div>
+
+                    <div class="dom-ladder-table">
+                        <!-- Asks (Red) -->
+                        <div id="dom-asks">
+                            <div class="dom-row dom-ask-row">
+                                <div class="dom-depth-bar bg-bearish" style="width: 85%;"></div>
+                                <span class="dom-price text-bearish font-mono">2651.15</span>
+                                <span class="dom-vol font-mono">115.6</span>
+                            </div>
+                            <div class="dom-row dom-ask-row">
+                                <div class="dom-depth-bar bg-bearish" style="width: 65%;"></div>
+                                <span class="dom-price text-bearish font-mono">2650.95</span>
+                                <span class="dom-vol font-mono">67.3</span>
+                            </div>
+                            <div class="dom-row dom-ask-row">
+                                <div class="dom-depth-bar bg-bearish" style="width: 35%;"></div>
+                                <span class="dom-price text-bearish font-mono">2650.75</span>
+                                <span class="dom-vol font-mono">32.1</span>
+                            </div>
+                        </div>
+
+                        <!-- Spread -->
+                        <div class="dom-spread-divider">SPREAD 0.25 (2.5 PIPS)</div>
+
+                        <!-- Bids (Green) -->
+                        <div id="dom-bids">
+                            <div class="dom-row dom-bid-row">
+                                <div class="dom-depth-bar bg-bullish" style="width: 40%;"></div>
+                                <span class="dom-price text-bullish font-mono">2650.50</span>
+                                <span class="dom-vol font-mono">35.2</span>
+                            </div>
+                            <div class="dom-row dom-bid-row">
+                                <div class="dom-depth-bar bg-bullish" style="width: 60%;"></div>
+                                <span class="dom-price text-bullish font-mono">2650.40</span>
+                                <span class="dom-vol font-mono">56.8</span>
+                            </div>
+                            <div class="dom-row dom-bid-row">
+                                <div class="dom-depth-bar bg-bullish" style="width: 90%;"></div>
+                                <span class="dom-price text-bullish font-mono">2650.20</span>
+                                <span class="dom-vol font-mono">94.4</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Order Entry -->
+                <div class="order-entry-card" id="order-form">
+                    <div class="metric-card-title">Quick Order Entry</div>
+                    <div class="form-group-row">
+                        <label class="text-dim">Volume (Lots):</label>
+                        <input type="number" step="0.01" min="0.01" max="50.0" value="0.50" class="form-input font-mono" id="order-volume">
+                    </div>
+                    <div class="form-group-row">
+                        <label class="text-dim">SL Buffer (Pips):</label>
+                        <input type="number" step="1" value="20" class="form-input font-mono" id="order-sl-pips">
+                    </div>
+                    <div class="form-group-row">
+                        <label class="text-dim">TP Target (Pips):</label>
+                        <input type="number" step="1" value="50" class="form-input font-mono" id="order-tp-pips">
+                    </div>
+                    <div class="order-btn-group">
+                        <button class="btn-order btn-order-buy" id="btn-order-buy">BUY / LONG</button>
+                        <button class="btn-order btn-order-sell" id="btn-order-sell">SELL / SHORT</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center Pane: TradingView Lightweight Chart, SMC Overlays & CVD Pane -->
+        <main class="terminal-pane" id="pane-center">
+            <!-- SMC Overlay Info Bar -->
+            <div class="smc-info-bar">
+                <div class="smc-stat-pill">
+                    <span>Fair Value Gaps:</span>
+                    <span class="val" id="smc-fvg-count">3 Active</span>
+                </div>
+                <div class="smc-stat-pill">
+                    <span>Order Blocks:</span>
+                    <span class="val" id="smc-ob-count">2 Intact</span>
+                </div>
+                <div class="smc-stat-pill">
+                    <span>OTE Fib Grid:</span>
+                    <span class="val" id="smc-ote-level">Sweet Spot 70.5% (2644.20)</span>
+                </div>
+                <div class="smc-stat-pill">
+                    <span>Structure:</span>
+                    <span class="badge badge-buy" id="smc-trend-badge">BULLISH</span>
+                </div>
+            </div>
+
+            <!-- Candlestick Chart Mount Point -->
+            <div id="candlestick-chart-container" class="chart-container"></div>
+
+            <!-- Lee-Ready CVD Sub-Pane -->
+            <div id="cvd-pane-container" class="cvd-container">
+                <div class="cvd-header">
+                    <div>
+                        <span class="font-bold text-dim">LEE-READY CVD:</span>
+                        <span class="font-mono text-bullish font-bold" id="cvd-cumulative-val">+1,420</span>
+                    </div>
+                    <div class="status-badge badge-buy" id="cvd-divergence-badge">SYNCHRONIZED</div>
+                    <div>
+                        <span class="text-bullish font-mono font-bold" id="cvd-buyer-pct">58.2%</span>
+                        <span class="text-dim">Buyer / Seller</span>
+                        <span class="text-bearish font-mono font-bold" id="cvd-seller-pct">41.8%</span>
+                    </div>
+                </div>
+                <div class="cvd-ratio-bar-wrapper">
+                    <div class="cvd-ratio-fill" id="cvd-ratio-fill" style="width: 58.2%;"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Pane: Account Risk Cockpit & Voice AI Drawer -->
+        <aside class="terminal-pane" id="pane-right">
+            <div class="pane-header">
+                <span>Account Risk Cockpit</span>
+                <span class="badge badge-buy">REAL-TIME TELEMETRY</span>
+            </div>
+            <div class="pane-scrollable" id="risk-cockpit-pane">
+                
+                <!-- World Monitor Geopolitical Quick Radar Card -->
+                <div class="metric-card" id="wm-quick-card">
+                    <div class="metric-card-title">
+                        <span>World Monitor Radar</span>
+                        <span class="status-badge alert-red" id="wm-badge-threat">DEFCON 3</span>
+                    </div>
+                    <div class="balance-grid">
+                        <div class="metric-box">
+                            <div class="metric-label">Composite Threat</div>
+                            <div class="metric-val text-bearish font-mono" id="wm-val-risk-index">74.8 / 100</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">Primary Flashpoint</div>
+                            <div class="metric-val text-gold" style="font-size: 10px;" id="wm-val-hotspot">RED SEA & HORMUZ</div>
+                        </div>
+                    </div>
+                    <div class="gauge-bar-wrapper" style="margin-top: 6px;">
+                        <div class="bar-fill bg-bearish" id="wm-threat-gauge-fill" style="width: 74.8%;"></div>
+                    </div>
+                    <div class="dom-ratio-bar-container" style="margin-top: 6px;">
+                        <span>Gold Sovereign Bias: <strong class="text-bullish font-mono">+1.15x</strong></span>
+                        <button class="btn-xs-action" id="btn-open-world-monitor-tab" style="background: rgba(0,240,255,0.15); border: 1px solid rgba(0,240,255,0.4); color: var(--accent-cyan); border-radius: 4px; padding: 2px 6px; font-size: 10px; cursor: pointer;">FULL RADAR 🛰️</button>
+                    </div>
+                </div>
+
+                <!-- Account Balances Card -->
+                <div class="metric-card">
+                    <div class="metric-card-title">Account Telemetry</div>
+                    <div class="balance-grid">
+                        <div class="metric-box">
+                            <div class="metric-label">Floating Equity</div>
+                            <div class="metric-val text-bullish" id="val-equity">$25,730.00</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">Realized Balance</div>
+                            <div class="metric-val" id="val-balance">$25,480.00</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">Net Floating PnL</div>
+                            <div class="metric-val pnl-positive" id="val-floating-pnl">+$250.00</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">Free Margin</div>
+                            <div class="metric-val text-dim" id="val-margin-free">$25,360.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prop Firm Trailing HWM Floor Meter -->
+                <div class="metric-card">
+                    <div class="metric-card-title">
+                        <span>Trailing HWM Ratchet Floor</span>
+                        <span class="text-bullish font-mono font-bold" id="val-trailing-buffer">$1,500.00 Buf</span>
+                    </div>
+                    <div class="gauge-bar-wrapper">
+                        <div class="bar-fill bg-success" id="hwm-progress-fill" style="width: 100%;"></div>
+                    </div>
+                    <div class="dom-ratio-bar-container">
+                        <span>Floor: <strong class="text-bearish font-mono" id="val-trailing-floor">$24,230.00</strong></span>
+                        <span>Peak HWM: <strong class="text-bullish font-mono" id="val-hwm">$25,730.00</strong></span>
+                    </div>
+                </div>
+
+                <!-- Start-of-Day Daily Drawdown Meter -->
+                <div class="metric-card">
+                    <div class="metric-card-title">
+                        <span>Daily Drawdown Allowance (2.5%)</span>
+                        <span class="font-mono text-dim"><span id="val-daily-loss">$0.00</span> / <span id="val-daily-limit">$625.00</span></span>
+                    </div>
+                    <div class="gauge-bar-wrapper">
+                        <div class="bar-fill bg-success" id="daily-drawdown-fill" style="width: 0%;"></div>
+                    </div>
+                    <div class="dom-ratio-bar-container">
+                        <span>Remaining Allowance:</span>
+                        <span class="text-bullish font-mono font-bold" id="val-daily-loss-rem">$625.00</span>
+                    </div>
+                </div>
+
+                <!-- Local model 1-Day VaR & CVaR; no proprietary institutional feed -->
+                <div class="metric-card">
+                    <div class="metric-card-title">
+                        <span>Local Model VaR / CVaR</span>
+                        <span class="badge badge-buy">1-DAY 99%</span>
+                    </div>
+                    <div class="balance-grid">
+                        <div class="metric-box">
+                            <div class="metric-label">1D 99% Parametric VaR</div>
+                            <div class="metric-val text-dim" id="val-var-99-usd">$598.66</div>
+                            <div class="text-dim font-mono" style="font-size: 10px;" id="val-var-99-pct">2.33% eq</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">1D 99% CVaR (Shortfall)</div>
+                            <div class="metric-val text-dim" id="val-cvar-99-usd">$685.90</div>
+                            <div class="text-dim font-mono" style="font-size: 10px;" id="val-cvar-99-pct">2.67% eq</div>
+                        </div>
+                    </div>
+                    <div class="gauge-bar-wrapper" style="margin-top: 8px;">
+                        <div class="bar-fill bg-cyan" id="var-progress-fill" style="width: 35%;"></div>
+                    </div>
+                    <div class="dom-ratio-bar-container">
+                        <span>95% VaR: <strong class="font-mono" id="val-var-95-usd">$423.25</strong></span>
+                        <span>Shortfall / VaR Ratio: <strong class="text-bullish font-mono">1.1457x</strong></span>
+                    </div>
+                </div>
+
+                <!-- 35% Consistency Rule Distribution Pacing Gauge -->
+                <div class="metric-card">
+                    <div class="metric-card-title">
+                        <span>35% Consistency Rule Pacing</span>
+                        <span class="status-badge stage-1 alert-green" id="consistency-status-badge">STAGE 1: NOMINAL</span>
+                    </div>
+                    <div class="gauge-bar-wrapper">
+                        <div class="bar-fill bg-stage-1" id="consistency-progress-fill" style="width: 35.7%;"></div>
+                    </div>
+                    <div class="dom-ratio-bar-container">
+                        <span>Profit Today: <strong class="text-bullish font-mono" id="val-consistency-today">$250.00</strong></span>
+                        <span>Daily Cap: <strong class="text-gold font-mono" id="val-consistency-cap">$700.00</strong></span>
+                    </div>
+                    <div class="text-dim" style="font-size: 10px; margin-top: 4px;" id="consistency-action-msg">
+                        Nominal Trading Pacing. Full 0.75% risk per trade permitted.
+                    </div>
+                </div>
+
+                <!-- Voice AI Copilot Interaction Drawer -->
+                <div class="voice-drawer" id="voice-copilot-drawer">
+                    <div class="metric-card-title">Voice AI Copilot (Jarvis)</div>
+                    <div class="voice-transcript-box" id="voice-transcript-text">
+                        Tap mic or type trading commands below...
+                    </div>
+                    <div class="voice-logs-list" id="jarvis-speech-log"></div>
+                    <div class="voice-input-row">
+                        <input type="text" id="voice-cmd-input" placeholder="e.g. 'Close 50% on Gold' or 'Lock Breakeven'">
+                        <button id="btn-send-voice-cmd">EXECUTE</button>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+    </div>
+
+    <!-- 3. Bottom Pane: Interactive Open Positions Table & Console Logs -->
+    <footer id="pane-bottom">
+        <div class="bottom-tab-bar">
+            <button class="bottom-tab-btn active" data-pane="positions-pane" id="tab-btn-positions">
+                <span>OPEN POSITIONS</span>
+                <span class="tab-badge" id="pos-count-badge">2</span>
+            </button>
+            <button class="bottom-tab-btn" data-pane="world-monitor-pane" id="tab-btn-world-monitor">
+                <span>WORLD MONITOR RADAR</span>
+                <span class="tab-badge" id="wm-tab-badge" style="background: rgba(255,61,113,0.3); color: #ff3d71;">DEFCON 3</span>
+            </button>
+            <button class="bottom-tab-btn" data-pane="history-pane" id="tab-btn-history">TRADE HISTORY</button>
+            <button class="bottom-tab-btn" data-pane="logs-pane" id="tab-btn-logs">SYSTEM CONSOLE</button>
+            <button class="bottom-tab-btn" data-pane="voice-logs-pane" id="tab-btn-voice">JARVIS LOGS</button>
+        </div>
+
+        <!-- Open Positions Table Pane -->
+        <div class="bottom-pane-content active" id="positions-pane">
+            <div class="positions-table-wrapper">
+                <table class="positions-table" id="positions-table">
+                    <thead>
+                        <tr>
+                            <th>Ticket</th>
+                            <th>Symbol</th>
+                            <th>Type</th>
+                            <th>Volume</th>
+                            <th>Open Price</th>
+                            <th>Mark Price</th>
+                            <th>Stop Loss</th>
+                            <th>Take Profit</th>
+                            <th>Floating PnL</th>
+                            <th>1-Click Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="positions-tbody">
+                        <!-- Populated by terminal_app.js -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Trade History Pane -->
+        <div class="bottom-pane-content" id="history-pane">
+            <div class="positions-table-wrapper">
+                <table class="positions-table">
+                    <thead>
+                        <tr>
+                            <th>Closed Time</th>
+                            <th>Ticket</th>
+                            <th>Symbol</th>
+                            <th>Type</th>
+                            <th>Volume</th>
+                            <th>Entry</th>
+                            <th>Exit</th>
+                            <th>Realized PnL</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody">
+                        <tr>
+                            <td class="font-mono text-dim">12:30:15</td>
+                            <td class="font-mono">#100098</td>
+                            <td class="font-bold">XAUUSD</td>
+                            <td><span class="badge badge-buy">BUY</span></td>
+                            <td class="font-mono">0.50</td>
+                            <td class="font-mono">2640.00</td>
+                            <td class="font-mono">2648.50</td>
+                            <td class="font-mono text-bullish font-bold">+$425.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- System Console Logs Pane -->
+        <div class="bottom-pane-content" id="logs-pane">
+            <div id="system-logs-container"></div>
+        </div>
+
+        <!-- Jarvis Voice Interaction Log Pane -->
+        <div class="bottom-pane-content" id="voice-logs-pane">
+            <div style="padding: 12px;" id="jarvis-full-log-container">
+                <p class="text-dim font-mono">Jarvis AI voice transcripts and execution logs stream here.</p>
+            </div>
+        </div>
+
+        <!-- World Monitor Geopolitical Radar Pane -->
+        <div class="bottom-pane-content" id="world-monitor-pane">
+            <div class="world-monitor-layout">
+                <!-- Top Row: DEFCON Gauge & Market Shock Matrix -->
+                <div class="wm-header-row">
+                    <div class="wm-gauge-panel">
+                        <div class="wm-panel-title">
+                            <span class="pulse-dot"></span>
+                            <span>GLOBAL THREAT LEVEL & GEOPOLITICAL COMPOSITE</span>
+                        </div>
+                        <div class="wm-defcon-display">
+                            <div class="defcon-shield" id="wm-defcon-shield">DEFCON 3</div>
+                            <div class="defcon-details">
+                                <div class="defcon-score font-mono" id="wm-full-score">74.8 <span class="text-dim">/ 100 (HIGH ELEVATION)</span></div>
+                                <div class="text-gold font-bold" id="wm-full-hotspot">PRIMARY HOTSPOT: Middle East & Red Sea Corridor</div>
+                                <div class="text-dim" style="font-size: 11px;" id="wm-last-updated">Real-Time Geopolitical Telemetry Feed</div>
+                            </div>
+                        </div>
+                        <div class="gauge-bar-wrapper" style="margin-top: 8px;">
+                            <div class="bar-fill bg-bearish" id="wm-full-gauge-bar" style="width: 74.8%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="wm-bias-panel">
+                        <div class="wm-panel-title">QUANTITATIVE MARKET SHOCK BIAS MULTIPLIERS</div>
+                        <div class="wm-bias-grid" id="wm-bias-grid">
+                            <div class="wm-bias-box"><span class="sym">XAUUSD (Gold)</span><span class="val text-bullish font-mono font-bold" id="bias-xau">+1.15x BULLISH</span></div>
+                            <div class="wm-bias-box"><span class="sym">WTI (Crude Oil)</span><span class="val text-bullish font-mono font-bold" id="bias-wti">+1.20x SPIKE</span></div>
+                            <div class="wm-bias-box"><span class="sym">BTCUSD (Bitcoin)</span><span class="val text-bullish font-mono font-bold" id="bias-btc">+1.08x LIQUIDITY</span></div>
+                            <div class="wm-bias-box"><span class="sym">USDJPY</span><span class="val text-bearish font-mono font-bold" id="bias-usdjpy">-1.10x FLIGHT</span></div>
+                            <div class="wm-bias-box"><span class="sym">EURUSD</span><span class="val text-bearish font-mono font-bold" id="bias-eurusd">-0.85x DRAG</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Row: 5 Maritime Chokepoints Radar, CII v8 & OSINT Alert Stream -->
+                <div class="wm-grid-row">
+                    <!-- 5 Maritime Chokepoints -->
+                    <div class="wm-sub-card">
+                        <div class="wm-panel-title">
+                            <span>5 MARITIME CHOKEPOINTS & SUPPLY CHAIN BOTTLENECKS</span>
+                            <span class="badge badge-buy">LIVE AIS RADAR</span>
+                        </div>
+                        <div class="wm-chokepoints-container" id="wm-chokepoints-container">
+                            <!-- Populated dynamically by terminal_app.js -->
+                        </div>
+                    </div>
+
+                    <!-- Country Instability Index (CII v8) -->
+                    <div class="wm-sub-card">
+                        <div class="wm-panel-title">
+                            <span>COUNTRY INSTABILITY INDEX (CII v8)</span>
+                            <span class="badge badge-buy">SOVEREIGN QUANT</span>
+                        </div>
+                        <div class="wm-cii-container" id="wm-cii-container">
+                            <!-- Populated dynamically by terminal_app.js -->
+                        </div>
+                    </div>
+
+                    <!-- Live Geopolitical OSINT Alert Cards Stream -->
+                    <div class="wm-sub-card">
+                        <div class="wm-panel-title">
+                            <span>LIVE GEOPOLITICAL OSINT ALERT STREAM</span>
+                            <span class="status-badge alert-red">ACTIVE ALERTS</span>
+                        </div>
+                        <div class="wm-osint-stream" id="wm-osint-stream">
+                            <!-- Populated dynamically by terminal_app.js -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 4. Emergency Kill Switch Modal Dialog -->
+    <div class="modal-overlay" id="kill-switch-modal">
+        <div class="modal-card">
+            <div class="modal-title">🚨 EMERGENCY CIRCUIT BREAKER</div>
+            <div class="modal-body">
+                Are you absolutely sure you want to trigger the <strong>Emergency Kill Switch</strong>?
+                <br><br>
+                This will immediately <strong>liquidate ALL open positions</strong> at market price, cancel all pending orders, and lock the autonomous bot engine.
+            </div>
+            <div class="modal-btn-group">
+                <button class="btn-modal btn-modal-cancel" id="btn-modal-cancel-kill">CANCEL</button>
+                <button class="btn-modal btn-modal-danger" id="btn-modal-confirm-kill">CONFIRM EMERGENCY STOP</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Toast Notifications Container -->
+    <div id="toast-container"></div>
+
+    <!-- Scripts Loading -->
+    <script src="/static/js/chart_engine.js"></script>
+    <script src="/static/js/smc_overlays.js"></script>
+    <script src="/static/js/cvd_pane.js"></script>
+    <script src="/static/js/terminal_core.js"></script>
+    <script src="/static/js/risk_cockpit.js"></script>
+    <script src="/static/js/voice_copilot.js"></script>
+    <script src="/static/js/terminal_app.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!window.TradingTerminal || !window.TradingTerminal.app) {
+                window.TradingTerminalApp = new TerminalApp();
+            }
+        });
+    </script>
+</body>
+</html>

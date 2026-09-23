@@ -1,0 +1,431 @@
+/* ==========================================================================
+   J.A.R.V.I.S. Sovereign Cybernetic Mobile Companion — stylesheet
+   Aesthetic: Iron Man Arc Reactor / Palantir Sovereign Command Center
+   ========================================================================== */
+
+:root {
+  --bg-dark: #030811;
+  --panel-bg: rgba(7, 21, 36, 0.85);
+  --panel-border: #103A57;
+  --cyan-primary: #00F0FF;
+  --cyan-glow: rgba(0, 240, 255, 0.4);
+  --cyan-dim: rgba(0, 240, 255, 0.15);
+  --green-status: #00FF88;
+  --green-glow: rgba(0, 255, 136, 0.4);
+  --red-alert: #FF3366;
+  --amber-warning: #FFB800;
+  --text-main: #D4F0FC;
+  --text-muted: #7E9EB8;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: var(--font-family);
+  font-size: 14px;
+  line-height: 1.4;
+  overflow-x: hidden;
+  padding-bottom: 24px;
+}
+
+/* Top Tactical Header */
+.top-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(3, 8, 17, 0.94);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--panel-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  box-shadow: 0 2px 12px rgba(0, 240, 255, 0.1);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1.2px;
+  color: var(--cyan-primary);
+  text-shadow: 0 0 8px var(--cyan-glow);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+.dot.online { background-color: var(--green-status); color: var(--green-status); }
+.dot.connecting { background-color: var(--amber-warning); color: var(--amber-warning); }
+.dot.offline { background-color: var(--red-alert); color: var(--red-alert); }
+
+.header-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.latency-pill, .status-pill {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  background: var(--cyan-dim);
+  border: 1px solid var(--panel-border);
+}
+
+.latency-pill {
+  color: var(--green-status);
+  border-color: rgba(0, 255, 136, 0.3);
+}
+
+.status-pill {
+  color: var(--text-main);
+}
+
+/* Main Container */
+.content-container {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* Card Container */
+.card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan-primary), transparent);
+  opacity: 0.6;
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.card-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--cyan-primary);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.stream-badge {
+  font-size: 9px;
+  padding: 2px 6px;
+  background: rgba(0, 255, 136, 0.2);
+  color: var(--green-status);
+  border: 1px solid var(--green-status);
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+/* Avatar Card */
+.avatar-card {
+  text-align: center;
+  padding: 14px 10px;
+}
+
+.avatar-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 4px auto 8px auto;
+  cursor: pointer;
+}
+
+#avatarCanvas {
+  width: 260px;
+  height: 260px;
+  max-width: 100%;
+  filter: drop-shadow(0 0 16px rgba(0, 240, 255, 0.25));
+  transition: transform 0.2s ease;
+}
+
+#avatarCanvas:active {
+  transform: scale(0.97);
+}
+
+.avatar-state-text {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green-status);
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  text-shadow: 0 0 6px var(--green-glow);
+}
+
+/* Voice & Mic Button */
+.voice-bar {
+  margin-bottom: 10px;
+}
+
+.mic-btn {
+  width: 100%;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(0, 136, 255, 0.25));
+  border: 1px solid var(--cyan-primary);
+  color: #FFFFFF;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 0 12px var(--cyan-glow);
+  transition: all 0.2s ease;
+}
+
+.mic-btn.active-mic {
+  background: linear-gradient(135deg, #FF3366, #FF6600);
+  border-color: #FF3366;
+  box-shadow: 0 0 20px rgba(255, 51, 102, 0.6);
+  animation: pulseMic 1.2s infinite ease-in-out;
+}
+
+@keyframes pulseMic {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* Chat & Console */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-history {
+  background: #040A12;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  padding: 10px;
+  max-height: 120px;
+  overflow-y: auto;
+  text-align: left;
+  font-size: 12px;
+  color: var(--text-main);
+  scroll-behavior: smooth;
+}
+
+.chat-input-row, .clip-row, .term-input-row {
+  display: flex;
+  gap: 6px;
+}
+
+input[type="text"], input:not([type]) {
+  flex: 1;
+  background: #06111D;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  color: var(--text-main);
+  font-size: 12px;
+  outline: none;
+}
+
+input[type="text"]:focus {
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 6px var(--cyan-glow);
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.pri-btn {
+  background: var(--cyan-primary);
+  color: #030811;
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.sec-btn {
+  background: var(--cyan-dim);
+  border: 1px solid var(--panel-border);
+  color: var(--text-main);
+  padding: 8px 12px;
+  font-size: 11px;
+}
+
+.btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.wol-btn {
+  grid-column: span 2;
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 240, 255, 0.2));
+  border: 1px solid var(--green-status);
+  color: #FFFFFF;
+  padding: 12px;
+  font-weight: bold;
+  font-size: 13px;
+  text-shadow: 0 0 6px var(--green-glow);
+}
+
+.lock-btn {
+  grid-column: span 2;
+  background: rgba(255, 51, 102, 0.15);
+  border: 1px solid var(--red-alert);
+  color: #FFFFFF;
+  padding: 10px;
+  font-size: 12px;
+}
+
+.buy-btn {
+  background: rgba(0, 255, 136, 0.18);
+  border: 1px solid var(--green-status);
+  color: var(--green-status);
+  padding: 10px;
+  font-size: 11px;
+}
+
+.sell-btn {
+  background: rgba(255, 51, 102, 0.18);
+  border: 1px solid var(--red-alert);
+  color: var(--red-alert);
+  padding: 10px;
+  font-size: 11px;
+}
+
+/* Screen Stream */
+.screen-viewport {
+  position: relative;
+  background: #02050A;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  min-height: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.screen-stream-img {
+  width: 100%;
+  height: auto;
+  max-height: 240px;
+  object-fit: contain;
+  display: block;
+}
+
+.stream-fallback {
+  position: absolute;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.stream-controls {
+  margin-top: 8px;
+}
+
+/* Remote Terminal */
+.terminal-output {
+  background: #02060C;
+  border: 1px solid #102B40;
+  border-radius: 4px;
+  padding: 8px;
+  height: 130px;
+  overflow-y: auto;
+  font-family: monospace;
+  margin-bottom: 8px;
+}
+
+.quick-chip-row {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+.chip-btn {
+  background: #0A1C2C;
+  color: var(--cyan-primary);
+  border: 1px solid #144060;
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.term-ps-label {
+  align-self: center;
+  color: var(--cyan-primary);
+  font-family: monospace;
+  font-weight: bold;
+}
+
+/* Vitals & Telemetry */
+.vitals-display, .mobile-telem-display {
+  background: #050E17;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* Config */
+.config-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #040A12;
+}
+::-webkit-scrollbar-thumb {
+  background: #103A57;
+  border-radius: 2px;
+}

@@ -16,16 +16,16 @@ BASE_DIR = get_base_dir()
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-from database.mongo_db import MongoDBHandler
+from database.firebase_db import FirebaseDBHandler
 from memory.memory_manager import update_memory, load_memory
 
 def run_self_training(limit: int = 150) -> str:
     print("[Self-Training] Initializing database connection...")
-    db = MongoDBHandler()
+    db = FirebaseDBHandler()
     if db.db is None:
-        return "Failed to run self-training: MongoDB connection unavailable."
+        return "Failed to run self-training: Firebase connection unavailable."
 
-    print(f"[Self-Training] Fetching last {limit} chat entries from MongoDB...")
+    print(f"[Self-Training] Fetching last {limit} chat entries from Firebase...")
     chats = db.find("chat_history", limit=limit)
     if not chats:
         return "No chat history found in database to train with."

@@ -239,12 +239,69 @@ def _send_telegram(receiver: str, message: str) -> str:
 
 
 
+def _send_discord(receiver: str, message: str) -> str:
+    """Dispatches message headlessly to Discord DM or Channel."""
+    import urllib.request, json as _j
+    cfg_file = Path(__file__).resolve().parent.parent / "config" / "discord.json"
+    if not cfg_file.exists():
+        return "Discord config not found."
+    try:
+        cfg = _j.loads(cfg_file.read_text(encoding="utf-8"))
+        token = cfg.get("bot_token")
+        owner_id = cfg.get("owner_id", "1538137229904322640")
+        if not token:
+            return "Discord bot token not configured."
+
+        headers = {
+            "Authorization": f"Bot {token}",
+            "Content-Type": "application/json",
+            "User-Agent": "DiscordBot (JARVIS, 1.0)"
+        }
+
+        # Check if targeting specific channel
+        target_channel_id = None
+        r_lower = (receiver or "").lower()
+        if "elite" in r_lower or "forex" in r_lower or "trade" in r_lower:
+            target_channel_id = cfg.get("elite_trade_channel_id")
+        elif "crypto" in r_lower or "meme" in r_lower or "spot" in r_lower:
+            target_channel_id = cfg.get("crypto_bot_channel_id")
+        elif receiver and receiver.isdigit() and len(receiver) > 15:
+            target_channel_id = receiver
+
+        if not target_channel_id:
+            # Send to Master Owner DM
+            dm_req = urllib.request.Request(
+                "https://discord.com/api/v10/users/@me/channels",
+                data=_j.dumps({"recipient_id": owner_id}).encode("utf-8"),
+                headers=headers,
+                method="POST"
+            )
+            with urllib.request.urlopen(dm_req, timeout=8) as resp:
+                target_channel_id = _j.loads(resp.read().decode("utf-8")).get("id")
+
+        if target_channel_id:
+            msg_payload = {"content": message[:2000]}
+            msg_req = urllib.request.Request(
+                f"https://discord.com/api/v10/channels/{target_channel_id}/messages",
+                data=_j.dumps(msg_payload).encode("utf-8"),
+                headers=headers,
+                method="POST"
+            )
+            with urllib.request.urlopen(msg_req, timeout=8) as m_resp:
+                return f"Message delivered to Discord ({receiver or 'Owner DM'}) successfully."
+        return "Failed to resolve Discord recipient."
+    except Exception as e:
+        return f"Discord dispatch error: {e}"
+
+
 def _send_generic(platform: str, receiver: str, message: str) -> str:
     """
     For any other platform not explicitly supported.
     Opens the app, searches for contact, types and sends.
-    Works for: Messenger, Discord, Signal, etc.
+    Works for: Messenger, Signal, etc.
     """
+    if "discord" in platform:
+        return _send_discord(receiver, message)
     try:
         if not _open_app(platform):
             return f"Could not open {platform}."
@@ -277,18 +334,16 @@ def send_message(
     parameters:
         receiver     : Contact name to send to
         message_text : The message content
-        platform     : whatsapp | instagram | telegram | <any app name>
-                       Default: whatsapp
+        platform     : discord | whatsapp | instagram | telegram | <any app name>
+                       Default: discord
     """
     params       = parameters or {}
     receiver     = params.get("receiver", "").strip()
     message_text = params.get("message_text", "").strip()
-    platform     = params.get("platform", "whatsapp").strip().lower()
+    platform     = params.get("platform", "discord").strip().lower()
     audio_path   = params.get("audio_path", None)
 
-    if not receiver:
-        return "Please specify who to send the message to, sir."
-    if not message_text and not audio_path:
+    if not receiver and not message_text:
         return "Please specify what message to send, sir."
 
     try:
@@ -299,8 +354,16 @@ def send_message(
     if player:
         player.write_log(f"[msg] Sending to {receiver} via {platform}...")
 
-    if "whatsapp" in platform or "wp" in platform or "wapp" in platform:
-        result = _send_whatsapp(receiver, message_text, audio_path=audio_path)
+    if "discord" in platform or not platform:
+        result = _send_discord(receiver, message_text)
+
+    elif "whatsapp" in platform or "wp" in platform or "wapp" in platform:
+        # If WhatsApp is offline, automatically fallback to Discord
+        res = _send_whatsapp(receiver, message_text, audio_path=audio_path)
+        if "Could not send" in res or "error" in res.lower():
+            result = _send_discord(receiver, f"[WhatsApp Forward] {message_text}")
+        else:
+            result = res
 
     elif "instagram" in platform or "ig" in platform or "insta" in platform:
         result = _send_instagram(receiver, message_text)

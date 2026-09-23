@@ -1,171 +1,325 @@
-"""
-JARVIS portable supervisor.
-
-Launches AND keeps alive the JARVIS core on ANY machine — paths are derived
-from this file's location and the Python interpreter running it, so no absolute
-paths are hard-coded. Each component runs in its own detached console (survives
-this process) and is relaunched automatically if it dies.
-
-Run via run.bat (which points a venv/python at this file). This is what the
-Startup shortcut / desktop button launch so that on every boot JARVIS + all its
-in-repo services come up and stay up.
-"""
+"""Local supervisor with process ownership, HTTP readiness and bounded restarts."""
+from __future__ import annotations
+import json
 import os
+from pathlib import Path
 import shutil
 import socket
 import subprocess
 import sys
 import time
+from datetime import datetime, timezone
+import psutil
+import requests
 
-# Repo root = parent of this bootstrap/ folder. Everything is relative to it.
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PY = sys.executable  # the (venv) python that launched us
-NEW_CONSOLE = 0x00000010  # CREATE_NEW_CONSOLE — detached window that persists
-
-# Manual-stop flag: when present, the user deliberately stopped Jarvis, so the
-# Voice GUI must NOT be auto-relaunched until they open it again (Start clears it).
-STOP_FLAG = os.path.join(ROOT, "scratch", "jarvis.stop")
-
-# Keep the existing model library when present and give agentic sessions enough
-# server-side context. These values affect only the supervised Ollama process.
-shared_ollama_models = os.path.join(os.path.dirname(ROOT), "ollama", "models")
-os.environ.setdefault("OLLAMA_MODELS", shared_ollama_models if os.path.isdir(shared_ollama_models) else os.path.join(ROOT, "scratch", "ollama", "models"))
-os.environ.setdefault("OLLAMA_CONTEXT_LENGTH", "65536")
-os.environ.setdefault("OLLAMA_KEEP_ALIVE", "24h")
-
-try:
-    import psutil
-except Exception:
-    psutil = None
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from platform_runtime import WORLD_MONITOR_ROOT, MQ3_ROOT, GODS_EYE_VIEW_ROOT, mq3_dashboard_port
+STATE_FILE = ROOT / "runtime" / "supervisor-state.json"
+LOCK_FILE = ROOT / "runtime" / "supervisor.lock"
+STOP_FLAG = ROOT / "scratch" / "jarvis.stop"
+OVERRIDES_FILE = ROOT / 'runtime/service-overrides.json'
+LOG_DIR = ROOT / "logs" / "services"
+PY = sys.executable
 
 
-def port_up(port):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(0.3)
+def stamp():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def identity(pid):
+    proc = psutil.Process(pid)
+    return {"pid": proc.pid, "created": proc.create_time()}
+
+
+def matching_process(entry):
+    """PID alone is insufficient: Windows may have reused it."""
     try:
-        return s.connect_ex(("127.0.0.1", port)) == 0
-    except Exception:
+        proc = psutil.Process(int(entry["pid"]))
+        return proc if abs(proc.create_time() - float(entry["created"])) < 0.01 and proc.is_running() else None
+    except (KeyError, ValueError, TypeError, psutil.Error):
+        return None
+
+
+def proc_running(needle: str) -> bool:
+    """Check if any running process matches the given pattern in its command line."""
+    if not needle:
         return False
-    finally:
-        s.close()
-
-
-def proc_running(needle):
-    if psutil is None:
-        return True  # can't check — assume up rather than spawn duplicates
-    # Only count python/node executables — otherwise any shell command that
-    # merely mentions the needle (e.g. a grep for 'main.py') looks like the GUI.
-    for p in psutil.process_iter(["name", "cmdline"]):
-        try:
-            nm = (p.info.get("name") or "").lower()
-            if not (nm.startswith("python") or nm.startswith("node")):
+    needle_lower = needle.lower()
+    try:
+        for p in psutil.process_iter(["pid", "name", "cmdline"]):
+            try:
+                cmd = " ".join(p.info.get("cmdline") or []).lower()
+                if needle_lower in cmd:
+                    return True
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 continue
-            if needle in " ".join(p.info.get("cmdline") or []):
-                return True
-        except Exception:
-            continue
+    except Exception:
+        pass
     return False
 
 
-def have(exe):
-    return shutil.which(exe) is not None
+def read_state():
+    try:
+        value = json.loads(STATE_FILE.read_text(encoding="utf-8"))
+        return value if value.get("root") == str(ROOT) else {}
+    except (OSError, ValueError, AttributeError):
+        return {}
 
 
-def _p(*parts):
-    return os.path.join(ROOT, *parts)
+def write_state(value):
+    """Publish atomically; a brief Windows reader lock must not kill supervision."""
+    temp = STATE_FILE.with_name(f"{STATE_FILE.name}.{os.getpid()}.tmp")
+    try:
+        STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        temp.write_text(json.dumps(value, indent=2), encoding="utf-8")
+        for attempt in range(8):
+            try:
+                os.replace(temp, STATE_FILE)
+                return True
+            except PermissionError:
+                time.sleep(0.05 * (attempt + 1))
+        # Fallback to direct overwrite if atomic replace had a share lock
+        try:
+            STATE_FILE.write_text(json.dumps(value, indent=2), encoding="utf-8")
+            return True
+        except Exception:
+            pass
+        return False
+    except Exception as exc:
+        print(f"[{stamp()}] State publication deferred: {type(exc).__name__}", flush=True)
+        return False
+    finally:
+        try:
+            temp.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+BELOW_NORMAL_PRIORITY_CLASS = getattr(subprocess, "BELOW_NORMAL_PRIORITY_CLASS", 0x00004000) if os.name == "nt" else 0
+CREATE_NO_WINDOW = (subprocess.CREATE_NO_WINDOW | BELOW_NORMAL_PRIORITY_CLASS) if os.name == "nt" else 0
+DAEMON_CREATIONFLAGS = CREATE_NO_WINDOW
+
+
+def port_up(port: int) -> bool:
+    if port <= 0:
+        return False
+    try:
+        with socket.create_connection(("127.0.0.1", port), timeout=0.25):
+            return True
+    except OSError:
+        return False
+
+
+def alive(kind: str, key: Any) -> bool:
+    """Check liveness by kind ('port' or 'proc') and key (port integer or process pattern string)."""
+    if kind == "port":
+        return port_up(int(key))
+    elif kind == "proc":
+        return proc_running(str(key))
+    return False
+
+
+def spawn(name, cmd, cwd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL):
+    """Spawn a managed child process with clean process group flags."""
+    flags = CREATE_NO_WINDOW
+    return subprocess.Popen(
+        cmd, cwd=str(cwd), creationflags=flags, stdout=stdout, stderr=stderr
+    )
+
+
+def probe(url: str | None, timeout: float = 1.5):
+    if not url or not url.startswith("http"):
+        return {"ready": False, "error": "NoHttpUrl"}
+    try:
+        response = requests.get(url, timeout=(0.5, timeout))
+        return {"ready": response.status_code == 200, "http_status": response.status_code}
+    except requests.RequestException as exc:
+        return {"ready": False, "error": type(exc).__name__}
+
+
+class ServiceSpec(dict):
+    """Service specification supporting both dict access (name, port, cmd, cwd)
+    and 5-element tuple unpacking (name, kind, key, cmd, cwd) for full backward compatibility."""
+
+    def __init__(self, name: str, port: int, path: str, cmd: list, cwd: Path | str, match: str = "", allow_external: bool = False):
+        kind = "port" if port > 0 else "proc"
+        key = port if port > 0 else (match or name)
+        resolved_cwd = Path(cwd).resolve()
+        super().__init__(
+            name=name,
+            kind=kind,
+            key=key,
+            port=port,
+            path=path,
+            cmd=cmd,
+            cwd=resolved_cwd,
+            match=match,
+            allow_external=allow_external,
+        )
+
+    def __iter__(self):
+        return iter((self["name"], self["kind"], self["key"], self["cmd"], str(self["cwd"])))
+
+    def __len__(self):
+        return 5
+
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            return (self["name"], self["kind"], self["key"], self["cmd"], str(self["cwd"]))[item]
+        return super().__getitem__(item)
 
 
 def build_services():
-    """Only include components whose files/tools actually exist on this machine."""
-    node = "node" if have("node") else None
-    svcs = []
+    """Build catalog of all 9 core services and optional modules."""
+    services = [
+        ServiceSpec("Master Operations Command Center", 8770, "/api/health", [PY, "dashboard.py"], ROOT, match="dashboard.py"),
+        ServiceSpec("World Monitor Geospatial Radar", 3000, "/", ["cmd.exe", "/c", "npm.cmd", "run", "dev", "--", "--port", "3000", "--host", "127.0.0.1", "--strictPort"], WORLD_MONITOR_ROOT, match="worldmonitor"),
+        ServiceSpec("God's Eye View 3D Globe", 4173, "/", ["cmd.exe", "/c", "npm.cmd", "run", "dev", "--", "--port", "4173", "--host", "127.0.0.1"], GODS_EYE_VIEW_ROOT, match="gods-eye-view"),
+        ServiceSpec("MQ3 Trading Cockpit", mq3_dashboard_port(), "/api/status", [PY, "run.py", "--demo", "--read-only", "--host", "127.0.0.1", "--port", str(mq3_dashboard_port())], MQ3_ROOT, match="run.py"),
+        ServiceSpec("Odysseus AI Brain", 7000, "/api/health", [PY, "-m", "uvicorn", "app:app", "--host", "127.0.0.1", "--port", "7000"], ROOT / "bots" / "odysseus", match="uvicorn"),
+        ServiceSpec("Mobile Companion & Remote Gateway", 8765, "/api/health", [PY, "mobile_control.py"], ROOT, match="mobile_control.py"),
+        ServiceSpec("Gods Eye Mobile Viewer", 8766, "/api/health", [PY, "gods_eye_mobile.py"], ROOT, match="gods_eye_mobile.py"),
+    ]
 
-    # Voice + brain GUI (the heart of JARVIS)
-    if os.path.exists(_p("main.py")):
-        svcs.append(("Voice GUI", "proc", "main.py", [PY, "main.py"], ROOT))
+    ollama = shutil.which("ollama")
+    fallback = Path.home() / "AppData/Local/Programs/Ollama/ollama.exe"
+    if not ollama and fallback.exists():
+        ollama = str(fallback)
+    ollama_cmd = [ollama, "serve"] if ollama else ["ollama", "serve"]
+    services.insert(0, ServiceSpec("Ollama Local LLM Node", 11434, "/api/tags", ollama_cmd, ROOT, match="ollama"))
 
-    # Ops dashboard (world monitor, PC vitals, activity) — http://localhost:8770
-    if os.path.exists(_p("dashboard.py")):
-        svcs.append(("Dashboard", "port", 8770, [PY, "dashboard.py"], ROOT))
+    if (ROOT / "wa/node_modules/@whiskeysockets/baileys").exists():
+        services.append(ServiceSpec("WhatsApp Gateway Bridge", 3200, "/status", [shutil.which("node") or "node", "jarvis_baileys.js"], ROOT / "wa", match="jarvis_baileys.js"))
 
-    # Phone remote — http://localhost:8765
-    if os.path.exists(_p("mobile_control.py")):
-        svcs.append(("Mobile", "port", 8765, [PY, "mobile_control.py"], ROOT))
-
-    # Status-only local bridge and cloud heartbeat used by the GAIGS app.
-    if os.path.exists(_p("web", "server.py")):
-        svcs.append(("GAIGS Bridge", "port", 8090, [PY, "server.py"], _p("web")))
-    if os.path.exists(_p("web", "heartbeat_reporter.py")):
-        svcs.append(("GAIGS Heartbeat", "proc", "heartbeat_reporter.py", [PY, "heartbeat_reporter.py"], _p("web")))
-
-    # Read-only daily mission health, memory and owner WhatsApp briefing.
-    if os.path.exists(_p("agent", "mission_daemon.py")):
-        svcs.append(("Mission Control", "proc", "mission_daemon.py", [PY, "mission_daemon.py"], _p("agent")))
-
-    # WhatsApp bridge (Baileys) — port 3200. Needs node + npm install done.
-    if node and os.path.exists(_p("wa", "jarvis_baileys.js")) and os.path.isdir(_p("wa", "node_modules")):
-        svcs.append(("WhatsApp", "port", 3200, [node, "jarvis_baileys.js"], _p("wa")))
-
-    # Local LLM (optional). Uses ollama on PATH, or a copy under scratch/ollama.
-    ollama = "ollama" if have("ollama") else None
-    local_ollama = _p("scratch", "ollama", "ollama.exe")
-    if not ollama and os.path.exists(local_ollama):
-        ollama = local_ollama
-    if ollama:
-        svcs.append(("Ollama", "port", 11434, [ollama, "serve"], os.path.dirname(ollama) if os.path.isabs(ollama) else ROOT))
-
-    # ---- Optional external bots (installed by install_extras.bat) ----
-
-    # Moltbot / clawdbot gateway — installed globally via npm.
-    if have("clawdbot"):
-        svcs.append(("Moltbot", "port", 18789, ["cmd", "/c", "clawdbot gateway run --port 18789 --bind loopback --allow-unconfigured"], ROOT))
-
-    # Odysseus AI server — cloned into bots/odysseus (FastAPI on 7000).
-    ody = _p("bots", "odysseus", "app.py")
-    if os.path.exists(ody):
-        svcs.append(("Odysseus", "port", 7000,
-                     [PY, "-m", "uvicorn", "app:app", "--host", "127.0.0.1", "--port", "7000"],
-                     _p("bots", "odysseus")))
-
-    return svcs
+    return services
 
 
-def spawn(name, cmd, cwd):
-    try:
-        subprocess.Popen(cmd, cwd=cwd, creationflags=NEW_CONSOLE)
-        print(f"[Supervisor] launched {name}")
-    except Exception as e:
-        print(f"[Supervisor] {name} launch error: {e}")
-
-
-def alive(kind, key):
-    return port_up(key) if kind == "port" else proc_running(key)
+def acquire_lock():
+    LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
+    for _ in range(2):
+        try:
+            with LOCK_FILE.open("x", encoding="utf-8") as handle:
+                json.dump(identity(os.getpid()), handle)
+            return True
+        except FileExistsError:
+            try:
+                existing = json.loads(LOCK_FILE.read_text(encoding="utf-8"))
+                if matching_process(existing):
+                    return False
+            except (OSError, ValueError):
+                try:
+                    LOCK_FILE.unlink(missing_ok=True)
+                except Exception:
+                    pass
+                time.sleep(0.2)
+                continue
+            try:
+                LOCK_FILE.unlink(missing_ok=True)
+            except Exception:
+                pass
+    return False
 
 
 def main():
-    if os.path.exists(STOP_FLAG):
-        print("[Supervisor] Manual stop is active. Open JARVIS normally to clear it.")
+    if os.path.exists(STOP_FLAG) or STOP_FLAG.exists() or not acquire_lock():
         return
-    services = build_services()
-    print(f"[Supervisor] JARVIS supervisor online. Root: {ROOT}")
-    print("[Supervisor] Managing: " + ", ".join(s[0] for s in services))
-    first = True
-    while True:
-        manual_stop = os.path.exists(STOP_FLAG)
-        if manual_stop:
-            print("[Supervisor] Owner stop detected. Supervisor is exiting and will not relaunch services.")
-            return
-        for name, kind, key, cmd, cwd in services:
-            try:
-                if not alive(kind, key):
-                    if not first:
-                        print(f"[Supervisor] {name} is down — relaunching")
-                    spawn(name, cmd, cwd)
-                    time.sleep(3 if name in ("Ollama", "Voice GUI") else 1.5)
-            except Exception as e:
-                print(f"[Supervisor] check {name} error: {e}")
-        first = False
-        time.sleep(10)
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    records = read_state().get("services", {})
+    state = {"root": str(ROOT), "supervisor": identity(os.getpid()), "services": records,
+             "mode": "local-research-read-only", "disabled": ["autonomous-trading", "discord", "mission-broadcasts", "whatsapp-group-commands"]}
+    env = os.environ.copy()
+    env.setdefault("OLLAMA_MODELS", str(ROOT / "data" / "ollama" / "models"))
+    env["OLLAMA_HOST"] = "127.0.0.1:11434"
+    env["OLLAMA_BASE_URL"] = "http://127.0.0.1:11434"
+    env["OLLAMA_NO_CLOUD"] = "1"
+    env["ODYSSEUS_INPROCESS_TASKS"] = "0"
+    env["ODYSSEUS_INPROCESS_POLLERS"] = "0"
+    env.setdefault("JARVIS_ACLED_PAUSED", "1")
+    env.setdefault("HF_HOME", str(ROOT / "data" / "huggingface"))
+    env.setdefault("OLLAMA_CONTEXT_LENGTH", "4096")
+    env.setdefault("OLLAMA_KEEP_ALIVE", "10m")
+    env.setdefault("PYTHONUTF8", "1")
+    env.setdefault("PYTHONUNBUFFERED", "1")
+    env.setdefault("JARVIS_OPENROUTER_ENABLED", "0")
+    env.setdefault("JARVIS_GEMINI_ENABLED", "0")
+    env.setdefault("JARVIS_WEB_LLM_ENABLED", "0")
+    env["JARVIS_WA_GROUP_COMMANDS"] = "0"
+    env['MQ3_READ_ONLY'] = '1'
+    env['JARVIS_DASHBOARD_BIND'] = '127.0.0.1'
+    children = {}
+    try:
+        while not STOP_FLAG.exists():
+            for spec in build_services():
+                name = spec["name"]
+                rec = records.setdefault(name, {"starts": 0})
+                try:
+                    disabled = json.loads(OVERRIDES_FILE.read_text(encoding='utf-8')).get('disabled', [])
+                except (OSError, ValueError, TypeError):
+                    disabled = []
+                if name in disabled:
+                    rec.update(ready=False, status='disabled-by-owner')
+                    continue
+                port = spec.get("port", 0)
+                url = f"http://127.0.0.1:{port}{spec['path']}" if port > 0 else None
+                rec.update({"url": url, "log": str(LOG_DIR / f"{name}.log"), "port": port})
+                process = matching_process(rec) if rec.get("owned") else None
+                if name in children and children[name].poll() is not None:
+                    rec["exit_code"] = children.pop(name).returncode
+                if process:
+                    if url:
+                        observed = probe(rec["url"])
+                        rec.pop("error", None)
+                        rec.update(observed)
+                        rec["status"] = "ready" if observed["ready"] else "starting-or-unhealthy"
+                    else:
+                        rec.pop("error", None)
+                        rec.update({"ready": process.is_running(), "http_status": None})
+                        rec["status"] = "ready" if process.is_running() else "starting-or-unhealthy"
+                    try:
+                        rec["children"] = [identity(p.pid) for p in process.children(recursive=True)]
+                    except psutil.Error:
+                        pass
+                elif port > 0 and port_up(port):
+                    # Never adopt or kill an unknown listener simply by its port.
+                    observed = probe(rec["url"])
+                    rec.update(observed)
+                    rec["owned"] = False
+                    rec["status"] = "external-ready" if spec.get("allow_external") or observed["ready"] else "port-conflict"
+                    if rec["status"] == "port-conflict":
+                        rec["ready"] = False
+                elif port == 0 and spec.get("match") and proc_running(spec["match"]):
+                    rec["owned"] = False
+                    rec["ready"] = True
+                    rec["status"] = "external-ready"
+                elif time.time() >= rec.get("retry_at", 0):
+                    if any(matching_process(item) for item in rec.get("children", [])):
+                        rec.update(ready=False, status="orphan-child-needs-stop")
+                        continue
+                    try:
+                        with open(rec["log"], "ab", buffering=0) as log:
+                            proc = subprocess.Popen(spec["cmd"], cwd=spec["cwd"], env=env,
+                                creationflags=DAEMON_CREATIONFLAGS,
+                                stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT)
+                        children[name] = proc
+                        rec.update(identity(proc.pid))
+                        rec.update(owned=True, ready=False, status="starting", children=[], started_at=stamp())
+                        rec["starts"] = rec.get("starts", 0) + 1
+                        rec["retry_at"] = time.time() + min(120, 5 * 2 ** min(rec["starts"], 5))
+                    except (OSError, psutil.Error) as exc:
+                        rec.update(ready=False, status="launch-failed", error=type(exc).__name__, retry_at=time.time() + 60)
+                else:
+                    rec.update(ready=False, status="restart-backoff")
+                rec["checked_at"] = stamp()
+            state["checked_at"] = stamp()
+            write_state(state)
+            time.sleep(3)
+    finally:
+        state["status"] = "stopped"
+        state["checked_at"] = stamp()
+        write_state(state)
+        LOCK_FILE.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

@@ -24,6 +24,7 @@ PENDING_PATH = ROOT / "scratch" / "owner_approvals.json"
 AUDIT_PATH = ROOT / "logs" / "owner-control.jsonl"
 APPROVAL_TTL_SECONDS = 10 * 60
 _lock = threading.Lock()
+_invalid_attempts: dict[str, list[float]] = {}
 
 
 @dataclass(frozen=True)
@@ -108,30 +109,98 @@ def _risk_for(command: str) -> tuple[str, str]:
     return ("high", ", ".join(matches)) if matches else ("low", "read-only or ordinary assistance")
 
 
+def request_consequential_approval(
+    command: str,
+    reason: str,
+    source: str = "desktop-ui",
+    owner_id: str = "owner",
+) -> Decision:
+    """Create/reuse an approval for a caller-classified consequential action.
+
+    Tool adapters know more than the natural-language classifier about whether
+    a particular operation mutates local or external state.  This entry point
+    lets them fail closed without teaching the model an approval bypass.  The
+    payload is released only by the same exact ``approve CODE`` flow used by
+    :func:`evaluate_command`.
+    """
+    text = (command or "").strip()
+    risk_reason = " ".join((reason or "consequential action").strip().split())
+    if not text:
+        return Decision("invalid", "Command is empty.")
+
+    now = time.time()
+    with _lock:
+        pending = _prune(_load_pending(), now)
+        digest = hashlib.sha256(f"{owner_id}\0{text}".encode("utf-8")).hexdigest()
+        for code, item in pending.items():
+            if item.get("digest") == digest and item.get("owner_id") == owner_id:
+                return Decision(
+                    "approval_required",
+                    f"Approval required ({risk_reason}). Reply: approve {code}",
+                    text,
+                    code,
+                    risk_reason,
+                )
+
+        code = secrets.token_hex(5).upper()
+        pending[code] = {
+            "command": text,
+            "digest": digest,
+            "owner_id": owner_id,
+            "source": source,
+            "risk": risk_reason,
+            "created": now,
+            "expires": now + APPROVAL_TTL_SECONDS,
+        }
+        _save_pending(pending)
+        _audit("approval_requested", source, owner_id, text, risk_reason, code)
+        return Decision(
+            "approval_required",
+            f"This action can change state ({risk_reason}). Reply within 10 minutes: "
+            f"approve {code}. To cancel: reject {code}.",
+            text,
+            code,
+            risk_reason,
+        )
+
+
 def evaluate_command(command: str, source: str = "whatsapp", owner_id: str = "owner") -> Decision:
     """Return execute, approval_required, denied, rejected, or invalid."""
-    text = " ".join((command or "").strip().split())
+    text = (command or "").strip()
     if not text:
         return Decision("invalid", "Command is empty.")
     now = time.time()
-    approve = re.fullmatch(r"(?i)approve\s+([A-F0-9]{6})", text)
-    reject = re.fullmatch(r"(?i)(?:reject|cancel)\s+([A-F0-9]{6})", text)
+
+    approve = re.fullmatch(r"(?i)approve\s+([A-F0-9]{6,16})", text)
+    reject = re.fullmatch(r"(?i)(?:reject|cancel)\s+([A-F0-9]{6,16})", text)
 
     with _lock:
         pending = _prune(_load_pending(), now)
         if approve:
             code = approve.group(1).upper()
-            item = pending.pop(code, None)
-            _save_pending(pending)
+            attempts = [stamp for stamp in _invalid_attempts.get(owner_id, []) if now - stamp < 300]
+            _invalid_attempts[owner_id] = attempts
+            if len(attempts) >= 8:
+                _audit("approval_rate_limited", source, owner_id, text, "high", code)
+                return Decision("invalid", "Too many invalid approval attempts. Try again later.")
+            item = pending.get(code)
             if not item or item.get("owner_id") != owner_id:
+                attempts.append(now)
                 _audit("invalid_approval", source, owner_id, text, "high", code)
                 return Decision("invalid", "Approval code is invalid or expired.")
+            pending.pop(code, None)
+            _invalid_attempts.pop(owner_id, None)
+            _save_pending(pending)
             original = str(item.get("command") or "")
             _audit("approved", source, owner_id, original, str(item.get("risk") or "high"), code)
             return Decision("execute", "Owner approval accepted.", original, code, "approved")
         if reject:
             code = reject.group(1).upper()
-            item = pending.pop(code, None)
+            item = pending.get(code)
+            if not item or item.get("owner_id") != owner_id:
+                _audit("invalid_rejection", source, owner_id, text, "high", code)
+                return Decision("invalid", "Approval code is invalid or expired.")
+            pending.pop(code, None)
             _save_pending(pending)
             _audit("rejected", source, owner_id, str((item or {}).get("command") or ""), "high", code)
             return Decision("rejected", "Pending command cancelled.", code=code, risk="high")
@@ -149,7 +218,7 @@ def evaluate_command(command: str, source: str = "whatsapp", owner_id: str = "ow
             for code, item in pending.items():
                 if item.get("digest") == digest and item.get("owner_id") == owner_id:
                     return Decision("approval_required", f"Approval required ({reason}). Reply: approve {code}", text, code, risk)
-            code = secrets.token_hex(3).upper()
+            code = secrets.token_hex(5).upper()
             pending[code] = {
                 "command": text,
                 "digest": digest,

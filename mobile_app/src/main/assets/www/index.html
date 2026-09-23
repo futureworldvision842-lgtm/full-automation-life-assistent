@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>JARVIS Mobile Companion</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="top-header">
+  <div class="brand"><div class="dot" id="connDot"></div> J.A.R.V.I.S. SOVEREIGN</div>
+  <div class="status-pill" id="connStatus">🟡 STANDALONE (24/7 Phone Active)</div>
+</div>
+
+<div class="card">
+  <div class="card-title">⚡ REMOTE POWER-ON &amp; STATION LINK</div>
+  <div class="btn-grid">
+    <button class="grn" style="grid-column: span 2; font-weight:bold; font-size:14px; padding:12px;" onclick="wakeOnLanPC()">🖥️ WAKE / POWER ON PC (WoL)</button>
+  </div>
+  <input id="serverIp" value="http://192.168.100.17:8765" placeholder="Master PC Gateway (e.g. http://192.168.100.17:8765)">
+  <input id="serverToken" value="CfHj8WkUTMdKFd5bxyDH5W3QDpbsWL08" placeholder="Access Token">
+  <div class="btn-grid">
+    <button class="pri" onclick="saveAndConnect()">CONNECT TO PC</button>
+    <button onclick="refreshTelemetry()">READ TELEMETRY</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">🗣️ 24/7 STANDALONE J.A.R.V.I.S. VOICE / CHAT</div>
+  <div id="chatHistory" style="max-height:140px; overflow-y:auto; font-size:12px; margin-bottom:8px; color:#a0c0e0; background:#071018; padding:8px; border-radius:6px; border:1px solid #1a3048;">
+    <div>🤖 <b>JARVIS:</b> I am online and alive 24/7 on your phone, Sir. Say <i>'computer kholo'</i> to power on your PC or converse freely.</div>
+  </div>
+  <input id="chatInput" placeholder="Command in Roman Urdu / English (e.g. computer kholo, trading status)..." onkeypress="if(event.key==='Enter') sendUserMessage()">
+  <div class="btn-grid">
+    <button class="pri" onclick="sendUserMessage()">SEND COMMAND</button>
+    <button class="amb" onclick="wakeOnLanPC()">⚡ WAKE PC</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">⚡ 1-TAP QUICK CONTROLS</div>
+  <div class="btn-grid">
+    <button class="red" onclick="triggerQuickAction('lock')">🔒 LOCK PC</button>
+    <button class="amb" onclick="triggerQuickAction('mute')">MUTE / UNMUTE</button>
+  </div>
+  <div class="btn-grid">
+    <button class="grn" onclick="sendTestNotification()">🔔 TEST NOTIF</button>
+    <button class="red" onclick="triggerTestAlarm()">🚨 TEST ALARM</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">📋 CLIPBOARD SYNC</div>
+  <input id="clipInput" placeholder="Enter text to sync with PC clipboard...">
+  <button class="pri" style="width:100%;" onclick="syncClipboard()">SYNC CLIPBOARD</button>
+</div>
+
+<div class="card">
+  <div class="card-title">📱 LIVE DEVICE TELEMETRY</div>
+  <div id="telemetryDisplay">Loading hardware sensors...</div>
+</div>
+
+<script src="bridge_client.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

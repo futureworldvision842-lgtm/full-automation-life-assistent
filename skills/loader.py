@@ -10,6 +10,7 @@ This is the mechanism behind the `self_upgrade` action: Jarvis writes a new file
 here, and on the next session it becomes a callable tool.
 """
 import importlib.util
+import sys
 import traceback
 from pathlib import Path
 
@@ -27,6 +28,7 @@ def load_skills():
         try:
             spec = importlib.util.spec_from_file_location(f"skills.{f.stem}", f)
             mod = importlib.util.module_from_spec(spec)
+            sys.modules[f"skills.{f.stem}"] = mod
             spec.loader.exec_module(mod)
             manifest = getattr(mod, "MANIFEST", None)
             run = getattr(mod, "run", None)

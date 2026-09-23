@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import time
 import base64
@@ -21,6 +22,9 @@ BASE_DIR     = _get_base_dir()
 API_KEY_PATH = BASE_DIR / "config" / "api_keys.json"
 
 def _load_api_key() -> str:
+    environment_key = os.getenv("OPENROUTER_API_KEY", "").strip()
+    if environment_key:
+        return environment_key
     try:
         with open(API_KEY_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -67,9 +71,8 @@ VISION_MODELS: list[str] = [
 API_URL               = "https://openrouter.ai/api/v1/chat/completions"
 DEFAULT_MAX_TOKENS    = 4096
 DEFAULT_TEMPERATURE   = 0.7
-REQUEST_TIMEOUT       = 60   # seconds per request
-MAX_RETRIES_PER_MODEL = 2    # attempts before moving to next model
-RETRY_DELAY           = 2    # seconds between retries
+REQUEST_TIMEOUT       = 20   # bounded per call; callers can lower this
+MAX_MODELS_PER_CALL   = 2    # keep one request from walking the whole free pool
 RATE_LIMIT_COOLDOWN   = 60   # seconds before retrying a rate-limited model
 
 _rate_limited: dict[str, float] = {}
@@ -108,6 +111,7 @@ class OpenRouterClient:
         max_tokens: int = DEFAULT_MAX_TOKENS,
         temperature: float = DEFAULT_TEMPERATURE,
         response_format: Optional[dict] = None,
+        timeout: float = REQUEST_TIMEOUT,
     ) -> Optional[str]:
         if not self.api_key:
             logger.warning("[OpenRouter] API key is missing. Skipping request.")
@@ -121,44 +125,31 @@ class OpenRouterClient:
         if response_format:
             payload["response_format"] = response_format
 
-        for attempt in range(1, MAX_RETRIES_PER_MODEL + 1):
-            try:
-                resp = requests.post(
-                    API_URL,
-                    headers=self._headers,
-                    json=payload,
-                    timeout=REQUEST_TIMEOUT,
+        try:
+            resp = requests.post(
+                API_URL,
+                headers=self._headers,
+                json=payload,
+                timeout=max(0.5, float(timeout)),
+            )
+            if resp.status_code in {401, 403}:
+                raise PermissionError(
+                    f"OpenRouter authentication failed (HTTP {resp.status_code})."
                 )
-
-                if resp.status_code == 429:
-                    self._mark_rate_limited(model)
-                    return None
-
-                if resp.status_code == 200:
-                    data    = resp.json()
-                    content = (
-                        data.get("choices", [{}])[0]
-                            .get("message", {})
-                            .get("content", "")
-                    )
-                    return content.strip() if content else None
-
-                logger.warning(
-                    f"[OpenRouter] {model} → HTTP {resp.status_code} "
-                    f"(attempt {attempt}/{MAX_RETRIES_PER_MODEL})"
-                )
-
-            except requests.exceptions.Timeout:
-                logger.warning(
-                    f"[OpenRouter] {model} → Timeout "
-                    f"(attempt {attempt}/{MAX_RETRIES_PER_MODEL})"
-                )
-            except Exception as e:
-                logger.error(f"[OpenRouter] {model} → Unexpected error: {e}")
-
-            if attempt < MAX_RETRIES_PER_MODEL:
-                time.sleep(RETRY_DELAY)
-
+            if resp.status_code == 429:
+                self._mark_rate_limited(model)
+                return None
+            if resp.status_code == 200:
+                data = resp.json()
+                content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                return content.strip() if content else None
+            logger.warning(f"[OpenRouter] {model} → HTTP {resp.status_code}")
+        except PermissionError:
+            raise
+        except requests.exceptions.Timeout:
+            logger.warning(f"[OpenRouter] {model} → Timeout")
+        except Exception as e:
+            logger.error(f"[OpenRouter] {model} → Unexpected error: {e}")
         return None
 
     def _call_with_fallback(
@@ -169,25 +160,34 @@ class OpenRouterClient:
         max_tokens: int = DEFAULT_MAX_TOKENS,
         temperature: float = DEFAULT_TEMPERATURE,
         response_format: Optional[dict] = None,
+        timeout: float = REQUEST_TIMEOUT,
+        max_models: int = MAX_MODELS_PER_CALL,
     ) -> str:
         # Fail fast if no key is configured — don't spin through the whole model pool.
         if not self.api_key:
             raise RuntimeError("[OpenRouter] No API key configured; skipping OpenRouter.")
 
-        if model and not self._is_rate_limited(model):
-            result = self._call(model, messages, max_tokens, temperature, response_format)
-            if result:
-                return result
-            logger.info(
-                f"[OpenRouter] Requested model failed, "
-                f"falling back to pool: {model}"
-            )
+        deadline = time.monotonic() + max(1.0, float(timeout))
+        candidates = []
+        if model:
+            candidates.append(model)
+        candidates.extend(m for m in pool if m != model)
 
-        for m in pool:
+        attempted = 0
+        for m in candidates:
             if self._is_rate_limited(m):
                 continue
+            if attempted >= max(1, int(max_models)):
+                break
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            attempted += 1
             logger.info(f"[OpenRouter] Trying: {m}")
-            result = self._call(m, messages, max_tokens, temperature, response_format)
+            result = self._call(
+                m, messages, max_tokens, temperature, response_format,
+                timeout=remaining,
+            )
             if result:
                 logger.info(f"[OpenRouter] ✓ Success: {m}")
                 return result
@@ -207,13 +207,14 @@ class OpenRouterClient:
         model: Optional[str] = None,
         max_tokens: int = DEFAULT_MAX_TOKENS,
         temperature: float = DEFAULT_TEMPERATURE,
+        timeout: float = REQUEST_TIMEOUT,
     ) -> str:
         messages = [
             {"role": "system", "content": system},
             {"role": "user",   "content": prompt},
         ]
         return self._call_with_fallback(
-            TEXT_MODELS, messages, model, max_tokens, temperature
+            TEXT_MODELS, messages, model, max_tokens, temperature, timeout=timeout
         )
 
     def chat_json(
@@ -327,6 +328,32 @@ class OpenRouterClient:
         }
 
 client = OpenRouterClient()
+
+
+def query_openrouter(
+    prompt: str,
+    system_prompt: Optional[str] = None,
+    messages: Optional[list[dict]] = None,
+    timeout: float = REQUEST_TIMEOUT,
+) -> str:
+    """Compatibility entry point used by JARVIS's local-first AI router."""
+    requested_model = os.getenv("JARVIS_OPENROUTER_MODEL", "").strip() or None
+    if messages:
+        return client._call_with_fallback(
+            TEXT_MODELS,
+            messages,
+            model=requested_model,
+            timeout=timeout,
+        )
+    return client.chat(
+        prompt,
+        system=system_prompt or (
+            "You are JARVIS, an owner-operated local assistant. Be concise and truthful; "
+            "never claim that a tool action, live datum, or trade occurred without evidence."
+        ),
+        model=requested_model,
+        timeout=timeout,
+    )
 
 if __name__ == "__main__":
     print("=" * 55)

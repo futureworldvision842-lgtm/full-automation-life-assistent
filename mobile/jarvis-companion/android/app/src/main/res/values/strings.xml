@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">J.A.R.V.I.S. Mobile</string>
+    <string name="default_server_host">192.168.1.100</string>
+    <string name="default_server_port">8765</string>
+    <string name="default_token">CfHj8WkUTMdKFd5bxyDH5W3QDpbsWL08</string>
+    <string name="channel_critical">Trading &amp; Security Alerts</string>
+    <string name="channel_general">System Telemetry &amp; Notifications</string>
+    <string name="service_running_title">J.A.R.V.I.S. Bridge Active</string>
+    <string name="service_running_desc">Connected to Master Workstation</string>
+</resources>

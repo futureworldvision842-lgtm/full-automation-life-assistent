@@ -1,0 +1,80 @@
+{
+  "policy": {
+    "public_and_licensed_sources_only": true,
+    "material_nonpublic_information": "PROHIBITED",
+    "synthetic_data_for_live_execution": "PROHIBITED",
+    "missing_source_behavior": "FAIL_CLOSED",
+    "required_fields": [
+      "source",
+      "observed_at",
+      "received_at",
+      "data_mode",
+      "actionable"
+    ]
+  },
+  "sources": [
+    {
+      "id": "sec_edgar",
+      "purpose": "Public company filings, XBRL facts, Forms 3/4/5",
+      "official_url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+      "access": "FREE_PUBLIC",
+      "execution_role": "CONTEXT_ONLY"
+    },
+    {
+      "id": "cftc_cot",
+      "purpose": "Weekly public trader-positioning aggregates",
+      "official_url": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm",
+      "access": "FREE_PUBLIC",
+      "execution_role": "SLOW_CONTEXT_ONLY",
+      "runtime_adapter": "src.verified_market_context.VerifiedMarketContextEngine",
+      "limitation": "Tuesday aggregate positions normally released Friday; no trader identity, motive, or live order flow"
+    },
+    {
+      "id": "fred_alfred",
+      "purpose": "Macroeconomic time series and vintage-aware research",
+      "official_url": "https://fred.stlouisfed.org/docs/api/fred/",
+      "access": "FREE_WITH_KEY",
+      "execution_role": "SLOW_CONTEXT_ONLY"
+    },
+    {
+      "id": "binance_market_data",
+      "purpose": "Public crypto trades, klines, book data and testnet validation",
+      "official_url": "https://developers.binance.com/en/docs/catalog",
+      "access": "FREE_PUBLIC",
+      "execution_role": "CONTEXT_ONLY",
+      "runtime_adapter": "src.verified_market_context.VerifiedMarketContextEngine",
+      "limitation": "Single-venue snapshot; not global liquidity or named-participant attribution"
+    },
+    {
+      "id": "hyperliquid_market_data",
+      "purpose": "Public perpetual-market and order-book telemetry",
+      "official_url": "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api",
+      "access": "FREE_PUBLIC",
+      "execution_role": "OBSERVED_MARKET_DATA"
+    },
+    {
+      "id": "mt5_broker",
+      "purpose": "Broker-native quotes, account state, order_check and execution",
+      "official_url": "https://www.mql5.com/en/docs/python_metatrader5/mt5ordercheck_py",
+      "access": "LOCAL_TERMINAL_AND_ACCOUNT",
+      "execution_role": "AUTHORITATIVE_EXECUTION"
+    },
+    {
+      "id": "federal_reserve_rss",
+      "purpose": "Recent official Federal Reserve Board press releases",
+      "official_url": "https://www.federalreserve.gov/feeds/press_all.xml",
+      "access": "FREE_PUBLIC",
+      "execution_role": "CONTEXT_ONLY",
+      "runtime_adapter": "src.verified_market_context.VerifiedMarketContextEngine",
+      "limitation": "Recent releases only; not a complete global upcoming calendar or future-news forecast"
+    },
+    {
+      "id": "global_attributable_order_flow",
+      "purpose": "Cross-venue full-depth and named participant attribution",
+      "official_url": null,
+      "access": "UNAVAILABLE_LICENSE_REQUIRED",
+      "execution_role": "NONE",
+      "limitation": "No free public feed supplies complete legally attributable global order flow or participant intent"
+    }
+  ]
+}

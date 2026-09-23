@@ -11,6 +11,7 @@
 #   optimize     → Mevcut kodu Gemini ile optimize et (performans, okunabilirlik, best practices)
 #   auto         → (default) Intent auto-detected from context
 
+import os
 import subprocess
 import sys
 import json
@@ -32,18 +33,57 @@ GEMINI_MODEL       = "gemini-2.5-pro"
 
 
 def _get_api_key() -> str:
-    with open(API_CONFIG_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)["gemini_api_key"]
+    try:
+        with open(API_CONFIG_PATH, "r", encoding="utf-8") as f:
+            return json.load(f).get("gemini_api_key", "")
+    except Exception:
+        return ""
+
+
+def _generate_code_response(prompt: str, system_prompt: str = "") -> str:
+    # 1. Try Gemini if configured and enabled
+    gemini_key = _get_api_key()
+    if gemini_key and os.getenv("JARVIS_GEMINI_ENABLED", "").lower() in {"1", "true", "yes", "on"}:
+        try:
+            from google import genai
+            client = genai.Client(api_key=gemini_key)
+            full_prompt = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
+            resp = client.models.generate_content(model=GEMINI_MODEL, contents=full_prompt)
+            if resp and getattr(resp, "text", None):
+                return resp.text.strip()
+        except Exception:
+            pass
+
+    # 2. Try ai_engine.query_ai (Odysseus -> Ollama -> OpenRouter Free)
+    try:
+        from ai_engine import query_ai
+        res = query_ai(prompt, system_prompt=system_prompt or None)
+        if res and not res.startswith("No AI provider is currently available"):
+            return res.strip()
+    except Exception:
+        pass
+
+    # 3. Try or_client OpenRouter free rotation directly
+    try:
+        from or_client import client as or_c
+        return or_c.chat(prompt, system=system_prompt or "You are an expert developer. Output only clean code.")
+    except Exception:
+        pass
+
+    raise RuntimeError("No AI model provider available for code generation.")
 
 
 class _CodeHelperWrapper:
-    def __init__(self, model_name: str):
-        from google import genai
-        self.client = genai.Client(api_key=_get_api_key())
+    def __init__(self, model_name: str = GEMINI_MODEL):
         self.model = model_name
 
     def generate_content(self, contents, **kwargs):
-        return self.client.models.generate_content(model=self.model, contents=contents, **kwargs)
+        class _Resp:
+            def __init__(self, text):
+                self.text = text
+        text = _generate_code_response(str(contents))
+        return _Resp(text)
+
 
 def _get_gemini(model: str = GEMINI_MODEL):
     return _CodeHelperWrapper(model)
@@ -113,10 +153,10 @@ def _take_screenshot() -> Path | None:
         screenshot_path = Path.home() / "Desktop" / f"jarvis_debug_{int(time.time())}.png"
         screenshot = pyautogui.screenshot()
         screenshot.save(str(screenshot_path))
-        print(f"[Code] 📸 Screenshot: {screenshot_path}")
+        print(f"[Code] Screenshot saved: {screenshot_path}")
         return screenshot_path
     except Exception as e:
-        print(f"[Code] ⚠️ Screenshot failed: {e}")
+        print(f"[Code] Screenshot failed: {e}")
         return None
 
 
@@ -256,7 +296,7 @@ def _build(description, language, output_path, args, timeout, speak=None, player
 
     try:
         code, path = _write(description, lang, output_path, player)
-        print(f"[Code] ✅ Written: {path}")
+        print(f"[Code] Written: {path}")
     except Exception as e:
         msg = f"Could not write initial code: {e}"
         if speak: speak(msg)
@@ -264,7 +304,7 @@ def _build(description, language, output_path, args, timeout, speak=None, player
 
     last_output = ""
     for attempt in range(1, MAX_BUILD_ATTEMPTS + 1):
-        print(f"[Code] 🔄 Attempt {attempt}/{MAX_BUILD_ATTEMPTS}")
+        print(f"[Code] Attempt {attempt}/{MAX_BUILD_ATTEMPTS}")
         if player:
             player.write_log(f"[Code] Attempt {attempt}...")
 
@@ -279,7 +319,7 @@ def _build(description, language, output_path, args, timeout, speak=None, player
             if speak: speak(msg)
             return f"{msg}\n\nOutput:\n{last_output}"
 
-        print(f"[Code] ⚠️ Error on attempt {attempt}, fixing...")
+        print(f"[Code] Error on attempt {attempt}, fixing...")
         if player:
             player.write_log(f"[Code] Fixing (attempt {attempt})...")
 
@@ -305,7 +345,7 @@ def _write_action(description, language, output_path, player) -> str:
         player.write_log("[Code] Writing code...")
     try:
         code, path = _write(description, language, output_path, player)
-        print(f"[Code] ✅ Written: {path}")
+        print(f"[Code] Written: {path}")
         return f"Code written. Saved to: {path}\n\nPreview:\n{_preview(code)}"
     except Exception as e:
         return f"Could not generate code: {e}"
@@ -343,7 +383,7 @@ Updated code:"""
         return f"Could not edit code: {e}"
 
     status = _save_file(Path(file_path), edited)
-    print(f"[Code] ✅ Edited: {file_path}")
+    print(f"[Code] Edited: {file_path}")
     return f"File edited. {status}\n\nPreview:\n{_preview(edited)}"
 
 
@@ -428,7 +468,7 @@ Optimized code:"""
         save_path = _resolve_save_path(output_path, lang)
 
     status = _save_file(save_path, optimized)
-    print(f"[Code] ✅ Optimized: {save_path}")
+    print(f"[Code] Optimized: {save_path}")
 
     original_lines  = len(code.splitlines())
     optimized_lines = len(optimized.splitlines())
@@ -447,7 +487,7 @@ def _screen_debug_action(description, file_path, player, speak=None) -> str:
     if player:
         player.write_log("[Code] Taking screenshot for analysis...")
 
-    print("[Code] 📸 Capturing screen for debug...")
+    print("[Code] Capturing screen for debug...")
 
 
     screenshot_path = _take_screenshot()
@@ -459,24 +499,16 @@ def _screen_debug_action(description, file_path, player, speak=None) -> str:
     if file_path:
         file_content, err = _read_file(file_path)
         if err:
-            print(f"[Code] ⚠️ Could not read file: {err}")
+            print(f"[Code] Could not read file: {err}")
 
-    try:
-        from google import genai
-        from google.genai import types
+    analysis = ""
+    user_question = description or "What error or problem do you see on the screen? How can it be fixed?"
 
-        client = genai.Client(api_key=_get_api_key())
+    context = ""
+    if file_content:
+        context = f"\n\nAdditionally, here is the related file content:\n```\n{file_content[:4000]}\n```"
 
-        image_bytes  = screenshot_path.read_bytes()
-        image_base64 = _image_to_base64(screenshot_path)
-
-        user_question = description or "What error or problem do you see on the screen? How can it be fixed?"
-
-        context = ""
-        if file_content:
-            context = f"\n\nAdditionally, here is the related file content:\n```\n{file_content[:4000]}\n```"
-
-        analysis_prompt = f"""You are an expert programmer and debugger analyzing a screenshot.
+    analysis_prompt = f"""You are an expert programmer and debugger analyzing a screenshot.
 
 User's question: {user_question}{context}
 
@@ -488,43 +520,74 @@ Please:
 
 Be specific and actionable. If you see an error message, quote it exactly."""
 
-        contents = [
-            types.Part.from_bytes(data=image_bytes, mime_type="image/png"),
-            analysis_prompt,
-        ]
-
-        response = client.models.generate_content(
-            model="gemini-2.5-pro",
-            contents=contents,
-        )
-
-        analysis = response.text.strip()
-        print(f"[Code] ✅ Screen analysis complete")
-
+    # 1. Try Gemini Vision if key configured & enabled
+    gemini_key = _get_api_key()
+    if gemini_key and os.getenv("JARVIS_GEMINI_ENABLED", "").lower() in {"1", "true", "yes", "on"}:
         try:
-            screenshot_path.unlink()
+            from google import genai
+            from google.genai import types
+            client = genai.Client(api_key=gemini_key)
+            image_bytes = screenshot_path.read_bytes()
+            contents = [
+                types.Part.from_bytes(data=image_bytes, mime_type="image/png"),
+                analysis_prompt,
+            ]
+            response = client.models.generate_content(
+                model="gemini-2.5-pro",
+                contents=contents,
+            )
+            if response and getattr(response, "text", None):
+                analysis = response.text.strip()
+                print("[Code] Screen analysis complete via Gemini Vision")
+        except Exception as e:
+            print(f"[Code] Gemini Vision failed: {e}")
+
+    # 2. Try zero-cost OpenRouter Vision models
+    if not analysis:
+        for v_model in ["nvidia/nemotron-nano-12b-v2-vl:free", "google/gemma-4-31b-it:free"]:
+            try:
+                from or_client import client as or_c
+                analysis = or_c.vision_from_file(
+                    prompt=f"User question: {user_question}{context}",
+                    image_path=str(screenshot_path),
+                    system=analysis_prompt,
+                    model=v_model,
+                )
+                if analysis:
+                    print(f"[Code] Screen analysis complete via OpenRouter ({v_model})")
+                    break
+            except Exception as e:
+                print(f"[Code] OpenRouter Vision {v_model} failed: {e}")
+
+    # 3. Fallback: text analysis of context if vision models failed
+    if not analysis and file_content:
+        try:
+            from ai_engine import query_ai
+            analysis = query_ai(
+                f"Debug code error: {user_question}\nCode:\n{file_content[:3000]}",
+                system_prompt=analysis_prompt,
+            )
         except Exception:
             pass
 
-        if file_path and file_content:
+    try:
+        screenshot_path.unlink()
+    except Exception:
+        pass
 
-            code_match = re.search(r"```[a-zA-Z]*\n(.*?)```", analysis, re.DOTALL)
-            if code_match:
-                fixed_code = code_match.group(1).strip()
-                save_path  = Path(file_path)
-                _save_file(save_path, fixed_code)
-                analysis += f"\n\n✅ Fixed code has been saved to: {file_path}"
-                print(f"[Code] ✅ Fixed code saved: {file_path}")
+    if not analysis:
+        return "Screen analysis failed: No vision or AI provider available."
 
-        return analysis
+    if file_path and file_content:
+        code_match = re.search(r"```[a-zA-Z]*\n(.*?)```", analysis, re.DOTALL)
+        if code_match:
+            fixed_code = code_match.group(1).strip()
+            save_path  = Path(file_path)
+            _save_file(save_path, fixed_code)
+            analysis += f"\n\nFixed code has been saved to: {file_path}"
+            print(f"[Code] Fixed code saved: {file_path}")
 
-    except Exception as e:
-
-        try:
-            screenshot_path.unlink()
-        except Exception:
-            pass
-        return f"Screen analysis failed: {e}"
+    return analysis
 
 
 def code_helper(
@@ -559,7 +622,7 @@ def code_helper(
 
     if action == "auto":
         action = _detect_intent(description, file_path, code)
-        print(f"[Code] 🤖 Auto-detected: {action}")
+        print(f"[Code] Auto-detected: {action}")
 
     if action == "write":
         return _write_action(description, language, output_path, player)

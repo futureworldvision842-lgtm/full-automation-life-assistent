@@ -9,6 +9,7 @@ import subprocess
 import sys
 import threading
 import time
+import webbrowser
 from pathlib import Path
 
 import psutil
@@ -81,22 +82,23 @@ class _SysMetrics:
         self.gpu  = -1.0  
         self.tmp  = -1.0  
         self.services = {
-            "ollama": False,
+            "dashboard": False,
             "odysseus": False,
-            "gateway": False,
-            "ts_jarvis": False,
-            "backend": False,
-            "frontend": False,
-            "wa_forwarder": False,
+            "mq3_trading": False,
+            "world_monitor": False,
+            "gods_eye_view": False,
+            "mobile_remote": False,
+            "ollama": False,
             "hud_gui": True
         }
         self.ports = {
-            "ollama": False,
+            "dashboard": False,
             "odysseus": False,
-            "gateway": False,
-            "ts_jarvis": False,
-            "frontend": False,
-            "mongodb": False
+            "mq3_trading": False,
+            "world_monitor": False,
+            "gods_eye_view": False,
+            "mobile_remote": False,
+            "ollama": False
         }
         self._lock = threading.Lock()
         self._last_net = psutil.net_io_counters()
@@ -115,22 +117,25 @@ class _SysMetrics:
 
     def _check_port(self, port: int) -> bool:
         import socket
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.settimeout(0.15)
-                return s.connect_ex(('127.0.0.1', port)) == 0
-        except Exception:
-            return False
+        for host in ('127.0.0.1', 'localhost'):
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    s.settimeout(0.15)
+                    if s.connect_ex((host, port)) == 0:
+                        return True
+            except Exception:
+                pass
+        return False
 
     def _get_services(self) -> dict:
         status = {
-            "ollama": False,
-            "odysseus": False,
-            "gateway": False,
-            "ts_jarvis": False,
-            "backend": False,
-            "frontend": False,
-            "wa_forwarder": False,
+            "dashboard": self._check_port(8770),
+            "odysseus": self._check_port(7000),
+            "mq3_trading": self._check_port(5050),
+            "world_monitor": self._check_port(3000),
+            "gods_eye_view": self._check_port(4173),
+            "mobile_remote": self._check_port(8765),
+            "ollama": self._check_port(11434),
             "hud_gui": True
         }
         for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
@@ -139,22 +144,20 @@ class _SysMetrics:
                 if not cmd:
                     continue
                 cmd_str = " ".join(cmd).lower()
-                if "ollama" in cmd_str:
-                    status["ollama"] = True
+                if "dashboard.py" in cmd_str:
+                    status["dashboard"] = True
                 elif "uvicorn" in cmd_str and "7000" in cmd_str:
                     status["odysseus"] = True
-                elif "clawdbot" in cmd_str and "gateway" in cmd_str:
-                    status["gateway"] = True
-                elif "bun" in cmd_str and ("start" in cmd_str or "daemon" in cmd_str or "index.ts" in cmd_str):
-                    status["ts_jarvis"] = True
-                elif "node" in cmd_str and "server.js" in cmd_str:
-                    status["backend"] = True
-                elif "node" in cmd_str and "vite.js" in cmd_str:
-                    status["frontend"] = True
-                elif "node" in cmd_str and "app.js" in cmd_str:
-                    status["wa_forwarder"] = True
-                elif "python" in cmd_str and "main.py" in cmd_str:
-                    status["hud_gui"] = True
+                elif "mq3" in cmd_str or ("run.py" in cmd_str and "5050" in cmd_str):
+                    status["mq3_trading"] = True
+                elif "3000" in cmd_str or "worldmonitor" in cmd_str:
+                    status["world_monitor"] = True
+                elif "4173" in cmd_str or "gods-eye-view" in cmd_str:
+                    status["gods_eye_view"] = True
+                elif "mobile_control.py" in cmd_str:
+                    status["mobile_remote"] = True
+                elif "ollama" in cmd_str:
+                    status["ollama"] = True
             except Exception:
                 pass
         return status
@@ -180,12 +183,12 @@ class _SysMetrics:
         
         services = self._get_services()
         ports = {
-            "ollama": self._check_port(11434),
-            "odysseus": self._check_port(7000),
-            "gateway": self._check_port(18789),
-            "ts_jarvis": self._check_port(3142),
-            "frontend": self._check_port(3000),
-            "mongodb": self._check_port(27017)
+            "dashboard (8770)": self._check_port(8770),
+            "odysseus (7000)": self._check_port(7000),
+            "whatsapp (3200)": self._check_port(3200),
+            "trading (5050)": self._check_port(5050),
+            "mobile (8765)": self._check_port(8765),
+            "ollama (11434)": self._check_port(11434)
         }
 
         with self._lock:
@@ -1182,7 +1185,7 @@ class SetupOverlay(QWidget):
         sep.setStyleSheet(f"color: {C.BORDER};"); layout.addWidget(sep)
         layout.addSpacing(4)
 
-        layout.addWidget(_lbl("GEMINI API KEY", 8, color=C.TEXT_DIM,
+        layout.addWidget(_lbl("GEMINI API KEY (OPTIONAL / CLOUD OPT-IN)", 8, color=C.TEXT_DIM,
                                align=Qt.AlignmentFlag.AlignLeft))
         self._key_input = QLineEdit()
         self._key_input.setEchoMode(QLineEdit.EchoMode.Password)
@@ -1277,17 +1280,11 @@ class SetupOverlay(QWidget):
                     }}
                     QPushButton:hover {{ color: {C.TEXT}; border: 1px solid {C.BORDER_B}; }}
                 """)
-
     def _submit(self):
         key = self._key_input.text().strip()
         or_key = self._or_input.text().strip()
-        if not key:
-            self._key_input.setStyleSheet(
-                self._key_input.styleSheet() +
-                f" QLineEdit {{ border: 1px solid {C.RED}; }}"
-            )
-            return
-        # OpenRouter key is optional
+        # Both cloud keys are optional. Local/Ollama and tools-only operation is
+        # the safe default; environment flags must explicitly enable cloud use.
         self.done.emit(key, or_key, self._sel_os)
 
 
@@ -1352,7 +1349,6 @@ class MainWindow(QMainWindow):
         self._clock_tmr.start(1000)
         self._tick_clock()
 
-        # Metrik güncelleme timer'ı
         self._metric_tmr = QTimer(self)
         self._metric_tmr.timeout.connect(self._update_metrics)
         self._metric_tmr.start(2000)
@@ -1371,9 +1367,7 @@ class MainWindow(QMainWindow):
         self._wm_dash_sig.connect(self._apply_dashboard)
 
         self._overlay: SetupOverlay | None = None
-        self._ready = self._check_config()
-        if not self._ready:
-            self._show_setup()
+        self._ready = True
 
         sc_mute = QShortcut(QKeySequence("F4"), self)
         sc_mute.activated.connect(self._toggle_mute)
@@ -1401,31 +1395,31 @@ class MainWindow(QMainWindow):
         snap = _metrics.snapshot()
 
         # CPU
-        cpu = snap["cpu"]
+        cpu = snap.get("cpu", 0.0)
         self._bar_cpu.set_value(cpu, f"{cpu:.0f}%")
 
         # MEM
-        mem = snap["mem"]
+        mem = snap.get("mem", 0.0)
         self._bar_mem.set_value(mem, f"{mem:.0f}%")
 
         # NET
-        net = snap["net"]
+        net = snap.get("net", 0.0)
         if net < 1.0:
             net_str = f"{net*1024:.0f}KB/s"
         else:
             net_str = f"{net:.1f}MB/s"
-        net_pct = min(100, net * 10)  # 10 MB/s = %100
+        net_pct = min(100, net * 10)
         self._bar_net.set_value(net_pct, net_str)
 
         # GPU
-        gpu = snap["gpu"]
+        gpu = snap.get("gpu", -1.0)
         if gpu >= 0:
             self._bar_gpu.set_value(gpu, f"{gpu:.0f}%")
         else:
             self._bar_gpu.set_value(0, "N/A")
 
         # TMP
-        tmp = snap["tmp"]
+        tmp = snap.get("tmp", -1.0)
         if tmp >= 0:
             tmp_pct = min(100, (tmp / 100) * 100)
             self._bar_tmp.set_value(tmp_pct, f"{tmp:.0f}°C")
@@ -1447,44 +1441,20 @@ class MainWindow(QMainWindow):
         except Exception:
             self._proc_lbl.setText("PROC  --")
 
-        # --- PC DIAGNOSTICS: flag real problems (where/what is wrong) ---
+        # Diagnostics Problem Radar
         try:
             problems = []
             if cpu >= 90:
                 problems.append(f"CPU critical {cpu:.0f}%")
-            elif cpu >= 75:
-                problems.append(f"CPU high {cpu:.0f}%")
             if mem >= 90:
                 problems.append(f"RAM critical {mem:.0f}%")
-            elif mem >= 80:
-                problems.append(f"RAM high {mem:.0f}%")
-            try:
-                disk = psutil.disk_usage("C:\\").percent
-                if disk >= 92:
-                    problems.append(f"Disk C: full {disk:.0f}%")
-                elif disk >= 85:
-                    problems.append(f"Disk C: low {disk:.0f}%")
-            except Exception:
-                pass
-            if tmp is not None and tmp >= 85:
-                problems.append(f"Temp hot {tmp:.0f}°C")
-            svc = snap.get("services", {})
-            down = [n for k, n in (
-                ("ollama", "Ollama"), ("odysseus", "Odysseus"), ("gateway", "Gateway"),
-                ("ts_jarvis", "TS-Jarvis"), ("backend", "Studio-BE"),
-                ("frontend", "Studio-FE"), ("wa_forwarder", "WhatsApp"),
-            ) if not svc.get(k, False)]
-            if down:
-                problems.append("Down: " + ", ".join(down))
-
+            
             if not problems:
                 self._diag_lbl.setText("● ALL SYSTEMS NOMINAL")
                 self._diag_lbl.setStyleSheet(f"color: {C.GREEN}; background: transparent; border: none;")
             else:
-                crit = any("critical" in p or "full" in p for p in problems)
-                col = C.RED if crit else C.ACC2
                 self._diag_lbl.setText("⚠ " + "\n⚠ ".join(problems))
-                self._diag_lbl.setStyleSheet(f"color: {col}; background: transparent; border: none;")
+                self._diag_lbl.setStyleSheet(f"color: {C.RED}; background: transparent; border: none;")
         except Exception:
             pass
 
@@ -1502,21 +1472,18 @@ class MainWindow(QMainWindow):
         except Exception:
             pass
 
-        # Update live WhatsApp connection badge (gateway + forwarder = linked)
+        # Update live Discord connection badge
         try:
-            svc = snap.get("services", {})
-            prt = snap.get("ports", {})
-            gw = bool(svc.get("gateway") or prt.get("gateway"))
-            fwd = bool(svc.get("wa_forwarder"))
-            if gw and fwd:
-                wa_txt, wa_col = "WHATSAPP\n● LINKED", C.GREEN
-            elif gw or fwd:
-                wa_txt, wa_col = "WHATSAPP\n◐ PARTIAL", C.PRI
+            services = snap.get("services", {})
+            ports = snap.get("ports", {})
+            discord_on = bool(services.get("discord_bot") or services.get("dashboard") or ports.get("dashboard"))
+            if discord_on:
+                disc_txt, disc_col = "DISCORD\n● ONLINE", C.GREEN
             else:
-                wa_txt, wa_col = "WHATSAPP\n○ OFFLINE", C.RED
-            self._wa_badge.setText(wa_txt)
+                disc_txt, disc_col = "DISCORD\n○ STANDBY", C.ACC2
+            self._wa_badge.setText(disc_txt)
             self._wa_badge.setStyleSheet(
-                f"color: {wa_col}; background: {C.PANEL2};"
+                f"color: {disc_col}; background: {C.PANEL2};"
                 f"border: 1px solid {C.BORDER_A}; border-radius: 3px; padding: 4px;"
             )
         except Exception:
@@ -1526,17 +1493,17 @@ class MainWindow(QMainWindow):
         try:
             ports = snap.get("ports", {})
             ports_text = (
-                f"● PORT 11434 (Ollama)    : {'ACTIVE' if ports.get('ollama') else 'INACTIVE'}\n"
-                f"● PORT 7000  (Odysseus)  : {'ACTIVE' if ports.get('odysseus') else 'INACTIVE'}\n"
-                f"● PORT 27017 (MongoDB)   : {'ACTIVE' if ports.get('mongodb') else 'INACTIVE'}\n"
-                f"● PORT 18789 (Gateway)   : {'ACTIVE' if ports.get('gateway') else 'INACTIVE'}\n"
-                f"● PORT 3142  (TS Jarvis) : {'ACTIVE' if ports.get('ts_jarvis') else 'INACTIVE'}\n"
-                f"● PORT 3000  (Studio Web): {'ACTIVE' if ports.get('frontend') else 'INACTIVE'}"
+                f"● PORT 8770  (War Room)   : {'ACTIVE' if ports.get('dashboard') else 'INACTIVE'}\n"
+                f"● PORT 7000  (Odysseus)   : {'ACTIVE' if ports.get('odysseus') else 'INACTIVE'}\n"
+                f"● PORT 5050  (MQ3 Trading): {'ACTIVE' if ports.get('mq3_trading') else 'INACTIVE'}\n"
+                f"● PORT 3000  (World Radar): {'ACTIVE' if ports.get('world_monitor') else 'INACTIVE'}\n"
+                f"● PORT 4173  (God's Eye 3D): {'ACTIVE' if ports.get('gods_eye_view') else 'INACTIVE'}\n"
+                f"● PORT 8765  (Mobile)     : {'ACTIVE' if ports.get('mobile_remote') else 'INACTIVE'}\n"
+                f"● PORT 11434 (Ollama)     : {'ACTIVE' if ports.get('ollama') else 'INACTIVE'}"
             )
             self.ports_widget.setPlainText(ports_text)
         except Exception:
             pass
-
 
     def _build_header(self) -> QWidget:
         w = QWidget()
@@ -1596,8 +1563,7 @@ class MainWindow(QMainWindow):
 
         hdr = QLabel("◈ SYS MONITOR")
         hdr.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
-        hdr.setStyleSheet(f"color: {C.PRI}; background: transparent; "
-                          f"border-bottom: 1px solid {C.BORDER}; padding-bottom: 4px;")
+        hdr.setStyleSheet(f"color: {C.PRI}; background: transparent; border-bottom: 1px solid {C.BORDER}; padding-bottom: 4px;")
         lay.addWidget(hdr)
         lay.addSpacing(2)
 
@@ -1932,162 +1898,224 @@ class MainWindow(QMainWindow):
         tools_grid = QGridLayout(self._tools_widget)
         tools_grid.setContentsMargins(6, 6, 6, 6)
         tools_grid.setSpacing(4)
-        
-        self.tool_labels = {}
-        tool_names = [
-            ("open_app", "App Opener"), ("weather_report", "Weather"), ("browser_control", "Browser"),
-            ("file_controller", "Files"), ("send_message", "WhatsApp"), ("reminder", "Reminder"),
-            ("youtube_video", "YouTube"), ("file_processor", "DocProc"), ("screen_process", "Vision"),
-            ("code_helper", "Coder"), ("dev_agent", "DevAgent"), ("agent_task", "Planner"),
-            ("web_search", "Search"), ("computer_control", "OS Control"), ("cmd_control", "PowerShell")
-        ]
-        
-        for idx, (t_id, t_name) in enumerate(tool_names):
-            row = idx // 3
-            col = idx % 3
-            lbl = QLabel(t_name)
-            lbl.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
-            lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            lbl.setStyleSheet(f"""
-                QLabel {{
-                    color: {C.TEXT_DIM};
-                    background: {C.PANEL};
-                    border: 1px solid {C.BORDER_A};
-                    border-radius: 2px;
-                    padding: 3px;
-                }}
-            """)
-            tools_grid.addWidget(lbl, row, col)
-            self.tool_labels[t_id] = lbl
-            
-        brain_lay.addWidget(self._tools_widget, stretch=2)
+    def _build_right_panel(self) -> QWidget:
+        w = QWidget()
+        w.setFixedWidth(_RIGHT_W)
+        w.setStyleSheet(f"background: {C.DARK}; border-left: 1px solid {C.BORDER};")
+        lay = QVBoxLayout(w)
+        lay.setContentsMargins(4, 4, 4, 4)
+        lay.setSpacing(4)
 
-        self.tabs.addTab(hud_tab, "HUD")
-        self.tabs.addTab(console_tab, "CONSOLE")
-        self.tabs.addTab(brain_tab, "BRAIN CORE")
-
-        # --- MOTHERBOT Tab ---
-        motherbot_tab = QWidget()
-        motherbot_lay = QVBoxLayout(motherbot_tab)
-        motherbot_lay.setContentsMargins(6, 6, 6, 6)
-        motherbot_lay.setSpacing(6)
-
-        motherbot_lay.addWidget(_sec("MOTHERBOT CORE SERVICES"))
-        
-        self.services_widget = QWidget()
-        self.services_widget.setStyleSheet(f"background: {C.PANEL2}; border: 1px solid {C.BORDER}; border-radius: 4px;")
-        services_grid = QGridLayout(self.services_widget)
-        services_grid.setContentsMargins(6, 6, 6, 6)
-        services_grid.setSpacing(4)
-        
-        self.service_labels = {}
-        service_names = [
-            ("ollama", "Ollama Local LLM"),
-            ("odysseus", "Odysseus AI Server"),
-            ("gateway", "Moltbot Gateway"),
-            ("ts_jarvis", "TS Jarvis Daemon"),
-            ("backend", "AI Studio Backend"),
-            ("frontend", "AI Studio Frontend"),
-            ("wa_forwarder", "WhatsApp Forwarder"),
-            ("hud_gui", "PyQt6 HUD GUI")
-        ]
-        
-        for idx, (s_id, s_name) in enumerate(service_names):
-            row = idx // 2
-            col = idx % 2
-            
-            box = QFrame()
-            box.setFrameShape(QFrame.Shape.Box)
-            box.setStyleSheet(f"background: {C.PANEL}; border: 1px solid {C.BORDER_A}; border-radius: 2px; padding: 4px;")
-            box_lay = QVBoxLayout(box)
-            box_lay.setContentsMargins(4, 4, 4, 4)
-            box_lay.setSpacing(1)
-            
-            name_lbl = QLabel(s_name)
-            name_lbl.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
-            name_lbl.setStyleSheet(f"color: {C.TEXT_MED}; border: none;")
-            box_lay.addWidget(name_lbl)
-            
-            status_lbl = QLabel("○ OFFLINE")
-            status_lbl.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
-            status_lbl.setStyleSheet(f"color: {C.RED}; border: none;")
-            box_lay.addWidget(status_lbl)
-            
-            services_grid.addWidget(box, row, col)
-            self.service_labels[s_id] = status_lbl
-            
-        motherbot_lay.addWidget(self.services_widget, stretch=2)
-
-        # Add Telemetry info
-        motherbot_lay.addWidget(_sec("NETWORK & CORE LISTENER PORTS"))
-        self.ports_widget = QTextEdit()
-        self.ports_widget.setReadOnly(True)
-        self.ports_widget.setFont(QFont("Courier New", 7))
-        self.ports_widget.setStyleSheet(f"background: #000a0f; color: {C.PRI}; border: 1px solid {C.BORDER}; border-radius: 4px; padding: 4px;")
-        motherbot_lay.addWidget(self.ports_widget, stretch=1)
-
-        # Controls Group
-        motherbot_lay.addWidget(_sec("MOTHERBOT CORE ACTIONS"))
-        self.controls_widget = QWidget()
-        self.controls_widget.setStyleSheet(f"background: {C.PANEL2}; border: 1px solid {C.BORDER}; border-radius: 4px;")
-        ctrl_lay = QHBoxLayout(self.controls_widget)
-        ctrl_lay.setContentsMargins(4, 4, 4, 4)
-        ctrl_lay.setSpacing(4)
-
-        btn_onboard = QPushButton("ONBOARD")
-        btn_health = QPushButton("HEALTH")
-        btn_train = QPushButton("TRAIN")
-        btn_stop = QPushButton("STOP JARVIS")
-        
-        for btn in [btn_onboard, btn_health, btn_train]:
-            btn.setFixedHeight(22)
-            btn.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
-            btn.setCursor(Qt.CursorShape.PointingHandCursor)
-            btn.setStyleSheet(f"""
-                QPushButton {{
-                    background: {C.PANEL}; color: {C.TEXT};
-                    border: 1px solid {C.BORDER}; border-radius: 2px;
-                }}
-                QPushButton:hover {{
-                    background: {C.PRI_GHO}; color: {C.PRI}; border: 1px solid {C.PRI};
-                }}
-            """)
-            ctrl_lay.addWidget(btn)
-            
-        btn_onboard.clicked.connect(lambda: self._run_motherbot_cmd("clawdbot onboard"))
-        btn_health.clicked.connect(lambda: self._run_motherbot_cmd("clawdbot health"))
-        btn_train.clicked.connect(lambda: self._run_motherbot_cmd("self_training"))
-        btn_stop.setFixedHeight(22)
-        btn_stop.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
-        btn_stop.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn_stop.setStyleSheet(f"""
-            QPushButton {{ background: #1a0006; color: {C.RED};
-                border: 1px solid {C.RED}; border-radius: 2px; }}
-            QPushButton:hover {{ background: {C.RED}; color: #ffffff; }}
+        self.tabs = QTabWidget()
+        self.tabs.setStyleSheet(f"""
+            QTabWidget::pane {{
+                border: 1px solid {C.BORDER};
+                background: {C.BG};
+            }}
+            QTabBar::tab {{
+                background: {C.PANEL};
+                color: {C.TEXT_DIM};
+                border: 1px solid {C.BORDER};
+                border-bottom: none;
+                padding: 6px 10px;
+                font-family: 'Courier New';
+                font-size: 8px;
+                font-weight: bold;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+            }}
+            QTabBar::tab:selected {{
+                background: {C.PANEL2};
+                color: {C.PRI};
+                border: 1px solid {C.PRI};
+                border-bottom: none;
+            }}
+            QTabBar::tab:hover {{
+                color: {C.WHITE};
+            }}
         """)
-        btn_stop.clicked.connect(self._stop_jarvis)
-        ctrl_lay.addWidget(btn_stop)
-        
-        motherbot_lay.addWidget(self.controls_widget, stretch=0)
 
-        # Recent events
-        motherbot_lay.addWidget(_sec("MOTHERBOT SYSTEM EVENTS"))
-        self._motherbot_events = QListWidget()
-        self._motherbot_events.setFont(QFont("Courier New", 7))
-        self._motherbot_events.setStyleSheet(f"background: #000a0f; color: {C.TEXT_MED}; border: 1px solid {C.BORDER}; border-radius: 4px; padding: 4px;")
-        motherbot_lay.addWidget(self._motherbot_events, stretch=2)
+        def _sec(txt):
+            l = QLabel(f"▸ {txt}")
+            l.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
+            l.setStyleSheet(f"color: {C.TEXT_MED}; background: transparent;")
+            return l
 
-        self.tabs.addTab(motherbot_tab, "MOTHERBOT")
+        # =========================================================================
+        # TAB 1: HUD
+        # =========================================================================
+        hud_tab = QWidget()
+        hud_lay = QVBoxLayout(hud_tab)
+        hud_lay.setContentsMargins(6, 6, 6, 6)
+        hud_lay.setSpacing(6)
 
-        # --- WORLD MONITOR Tab (worldmonitor integration) ---
+        intent_box = QGroupBox("◈ INTENT INTERPRETATION")
+        intent_box.setFont(QFont("Courier New", 8, QFont.Weight.Bold))
+        intent_box.setStyleSheet(f"""
+            QGroupBox {{
+                color: {C.PRI};
+                border: 1px solid {C.BORDER};
+                border-radius: 4px;
+                margin-top: 10px;
+                padding-top: 5px;
+                background: {C.PANEL};
+            }}
+            QGroupBox::title {{
+                subcontrol-origin: margin;
+                left: 8px;
+                padding: 0 3px;
+            }}
+        """)
+        intent_lay = QVBoxLayout(intent_box)
+        intent_lay.setContentsMargins(6, 6, 6, 6)
+        intent_lay.setSpacing(4)
+
+        self._lbl_user_input = QLabel("USER INPUT: (Listening...)")
+        self._lbl_user_input.setFont(QFont("Courier New", 8))
+        self._lbl_user_input.setStyleSheet(f"color: {C.WHITE};")
+        self._lbl_user_input.setWordWrap(True)
+        intent_lay.addWidget(self._lbl_user_input)
+
+        self._lbl_interpretation = QLabel("INTERPRETATION: Waiting for input...")
+        self._lbl_interpretation.setFont(QFont("Courier New", 8))
+        self._lbl_interpretation.setStyleSheet(f"color: {C.TEXT_MED};")
+        self._lbl_interpretation.setWordWrap(True)
+        intent_lay.addWidget(self._lbl_interpretation)
+        hud_lay.addWidget(intent_box, stretch=0)
+
+        thought_box = QGroupBox("◈ COGNITIVE THINKING STREAM")
+        thought_box.setFont(QFont("Courier New", 8, QFont.Weight.Bold))
+        thought_box.setStyleSheet(f"""
+            QGroupBox {{
+                color: {C.ACC2};
+                border: 1px solid {C.BORDER};
+                border-radius: 4px;
+                margin-top: 10px;
+                padding-top: 5px;
+                background: {C.PANEL};
+            }}
+            QGroupBox::title {{
+                subcontrol-origin: margin;
+                left: 8px;
+                padding: 0 3px;
+            }}
+        """)
+        thought_lay = QVBoxLayout(thought_box)
+        thought_lay.setContentsMargins(4, 4, 4, 4)
+
+        self._thought_text = QTextEdit()
+        self._thought_text.setReadOnly(True)
+        self._thought_text.setFont(QFont("Courier New", 8))
+        self._thought_text.setStyleSheet(f"""
+            QTextEdit {{
+                background: #000a0f;
+                color: {C.ACC2};
+                border: none;
+                padding: 4px;
+            }}
+        """)
+        thought_lay.addWidget(self._thought_text)
+        hud_lay.addWidget(thought_box, stretch=3)
+
+        flow_box = QGroupBox("◈ SYSTEM EXECUTION FLOW")
+        flow_box.setFont(QFont("Courier New", 8, QFont.Weight.Bold))
+        flow_box.setStyleSheet(f"""
+            QGroupBox {{
+                color: {C.GREEN};
+                border: 1px solid {C.BORDER};
+                border-radius: 4px;
+                margin-top: 10px;
+                padding-top: 5px;
+                background: {C.PANEL};
+            }}
+            QGroupBox::title {{
+                subcontrol-origin: margin;
+                left: 8px;
+                padding: 0 3px;
+            }}
+        """)
+        flow_lay = QVBoxLayout(flow_box)
+        flow_lay.setContentsMargins(4, 4, 4, 4)
+
+        self._flow_list = QListWidget()
+        self._flow_list.setFont(QFont("Courier New", 8))
+        self._flow_list.setStyleSheet(f"""
+            QListWidget {{
+                background: #000a0f;
+                color: {C.TEXT};
+                border: none;
+                padding: 4px;
+            }}
+        """)
+        flow_lay.addWidget(self._flow_list)
+        hud_lay.addWidget(flow_box, stretch=3)
+
+        # =========================================================================
+        # TAB 2: TRADING COCKPIT (MQ3 Institutional System)
+        # =========================================================================
+        trading_tab = QWidget()
+        trading_lay = QVBoxLayout(trading_tab)
+        trading_lay.setContentsMargins(6, 6, 6, 6)
+        trading_lay.setSpacing(6)
+
+        trading_lay.addWidget(_sec("MQ3 INSTITUTIONAL TRADING COCKPIT (MT5)"))
+
+        self._trading_vitals = QLabel("Balance: $100,000.00  |  Equity: $101,420.50  |  Mode: BROKER_DEMO")
+        self._trading_vitals.setFont(QFont("Courier New", 8, QFont.Weight.Bold))
+        self._trading_vitals.setStyleSheet(f"background: {C.PANEL2}; color: {C.GREEN}; border: 1px solid {C.BORDER}; border-radius: 4px; padding: 6px;")
+        trading_lay.addWidget(self._trading_vitals, stretch=0)
+
+        trade_btn_widget = QWidget()
+        trade_btn_widget.setStyleSheet(f"background: {C.PANEL2}; border: 1px solid {C.BORDER}; border-radius: 4px;")
+        trade_btn_grid = QGridLayout(trade_btn_widget)
+        trade_btn_grid.setContentsMargins(4, 4, 4, 4)
+        trade_btn_grid.setSpacing(3)
+
+        trade_btns = [
+            ("GOLD (XAU)", "gold"),
+            ("EUR/USD", "eurusd"),
+            ("CALENDAR", "calendar"),
+            ("STRATEGIES", "strategies"),
+            ("POSITIONS", "positions"),
+            ("START BOT", "start"),
+            ("STOP BOT", "stop"),
+            ("AUDIT", "audit")
+        ]
+
+        for idx, (lbl_txt, action_cmd) in enumerate(trade_btns):
+            b = QPushButton(lbl_txt)
+            b.setFixedHeight(22)
+            b.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
+            b.setCursor(Qt.CursorShape.PointingHandCursor)
+            is_stop = action_cmd == "stop"
+            col_txt = C.RED if is_stop else C.TEXT
+            b.setStyleSheet(f"""
+                QPushButton {{ background: {C.PANEL}; color: {col_txt};
+                    border: 1px solid {C.BORDER}; border-radius: 2px; }}
+                QPushButton:hover {{ background: {C.PRI_GHO}; color: {C.PRI}; border: 1px solid {C.PRI}; }}
+            """)
+            b.clicked.connect(lambda _=False, a=action_cmd: self._run_trading_action(a))
+            trade_btn_grid.addWidget(b, idx // 4, idx % 4)
+
+        trading_lay.addWidget(trade_btn_widget, stretch=0)
+
+        trading_lay.addWidget(_sec("LIVE TELEMETRY & MARKET STRUCTURE"))
+        self._trading_log = QTextEdit()
+        self._trading_log.setReadOnly(True)
+        self._trading_log.setFont(QFont("Courier New", 8))
+        self._trading_log.setStyleSheet(f"background: #000a0f; color: {C.TEXT}; border: 1px solid {C.BORDER}; border-radius: 4px; padding: 4px;")
+        self._trading_log.setText("MQ3 Institutional Engine online.\nClick buttons above or say 'trade gold' to analyze.")
+        trading_lay.addWidget(self._trading_log, stretch=3)
+
+        # =========================================================================
+        # TAB 3: WORLD MONITOR (Real APIs)
+        # =========================================================================
         wm_tab = QWidget()
         wm_lay = QVBoxLayout(wm_tab)
         wm_lay.setContentsMargins(6, 6, 6, 6)
         wm_lay.setSpacing(6)
 
         wm_lay.addWidget(_sec("WORLD MONITOR — LIVE GLOBAL INTELLIGENCE"))
-
-        # Situation panel: Islamabad weather + AI world outlook
         sit_panel = QWidget()
         sit_panel.setStyleSheet(f"background: {C.PANEL2}; border: 1px solid {C.BORDER}; border-radius: 4px;")
         sit_lay = QVBoxLayout(sit_panel)
@@ -2107,7 +2135,6 @@ class MainWindow(QMainWindow):
 
         wm_lay.addWidget(sit_panel, stretch=0)
 
-        # --- MARKETS strip (live indices) ---
         mk_row = QHBoxLayout(); mk_row.setSpacing(6)
         mk_row.addWidget(_sec("MARKETS"))
         self._wm_live = QLabel("● LIVE")
@@ -2123,7 +2150,6 @@ class MainWindow(QMainWindow):
         self._wm_markets.setStyleSheet(f"background: #06121c; color: {C.TEXT}; border: 1px solid {C.BORDER}; border-radius: 4px; padding: 6px;")
         wm_lay.addWidget(self._wm_markets, stretch=0)
 
-        # --- CONFLICT MONITOR (live defense/crisis) ---
         wm_lay.addWidget(_sec("CONFLICT MONITOR"))
         self._wm_conflict = QListWidget()
         self._wm_conflict.setFont(QFont("Courier New", 7))
@@ -2131,7 +2157,6 @@ class MainWindow(QMainWindow):
         self._wm_conflict.setStyleSheet(f"background: #0c0608; color: #ff9a7a; border: 1px solid {C.BORDER}; border-radius: 4px; padding: 4px;")
         wm_lay.addWidget(self._wm_conflict, stretch=2)
 
-        # Category buttons
         self._wm_cats = [
             ("world", "WORLD"), ("us", "US"), ("europe", "EUROPE"),
             ("middleeast", "MID-EAST"), ("asia", "ASIA"), ("finance", "FINANCE"),
@@ -2168,25 +2193,328 @@ class MainWindow(QMainWindow):
         self._wm_list.itemActivated.connect(self._wm_open_item)
         wm_lay.addWidget(self._wm_list, stretch=3)
 
+        # =========================================================================
+        # TAB 3B: GOD'S EYE VIEW 3D (Spatial Intelligence)
+        # =========================================================================
+        gev_tab = QWidget()
+        gev_lay = QVBoxLayout(gev_tab)
+        gev_lay.setContentsMargins(6, 6, 6, 6)
+        gev_lay.setSpacing(6)
+
+        gev_lay.addWidget(_sec("GOD'S EYE VIEW — 3D SPY SATELLITE GLOBE (PORT 4173)"))
+
+        gev_panel = QWidget()
+        gev_panel.setStyleSheet(f"background: {C.PANEL2}; border: 1px solid {C.BORDER}; border-radius: 4px;")
+        gp_lay = QVBoxLayout(gev_panel)
+        gp_lay.setContentsMargins(8, 6, 8, 6)
+        gp_lay.setSpacing(4)
+
+        self._gev_status_lbl = QLabel("🛰️ 3D Globe Engine: ONLINE (Port 4173)")
+        self._gev_status_lbl.setFont(QFont("Courier New", 8, QFont.Weight.Bold))
+        self._gev_status_lbl.setStyleSheet(f"color: {C.PRI}; background: transparent; border: none;")
+        gp_lay.addWidget(self._gev_status_lbl)
+
+        gev_desc = QLabel(
+            "Photorealistic 3D Globe simulation featuring live flight state vectors, military aircraft transponders, "
+            "maritime AIS shipping, active wildfire perimeters, orbital satellite passes, and municipal CCTV camera viewsheds."
+        )
+        gev_desc.setFont(QFont("Courier New", 7))
+        gev_desc.setWordWrap(True)
+        gev_desc.setStyleSheet(f"color: {C.TEXT_MED}; background: transparent; border: none;")
+        gp_lay.addWidget(gev_desc)
+
+        act_row = QWidget()
+        act_lay = QHBoxLayout(act_row)
+        act_lay.setContentsMargins(0, 4, 0, 4)
+        act_lay.setSpacing(4)
+
+        btn_open_gev = QPushButton("🌐 OPEN 3D GLOBE")
+        btn_cockpit = QPushButton("🛩️ FLIGHT COCKPIT")
+        btn_apk = QPushButton("📱 ANDROID APK")
+        for b in [btn_open_gev, btn_cockpit, btn_apk]:
+            b.setFixedHeight(24)
+            b.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
+            b.setCursor(Qt.CursorShape.PointingHandCursor)
+            b.setStyleSheet(f"""
+                QPushButton {{ background: {C.PANEL}; color: {C.PRI}; border: 1px solid {C.BORDER_A}; border-radius: 2px; padding: 2px 6px; }}
+                QPushButton:hover {{ background: {C.PRI_GHO}; color: {C.WHITE}; border: 1px solid {C.PRI}; }}
+            """)
+            act_lay.addWidget(b)
+        btn_open_gev.clicked.connect(lambda: webbrowser.open("http://127.0.0.1:4173"))
+        btn_cockpit.clicked.connect(lambda: webbrowser.open("http://127.0.0.1:4173/?mission=contacts"))
+        btn_apk.clicked.connect(lambda: webbrowser.open("http://127.0.0.1:8765/api/download/apk"))
+        gp_lay.addWidget(act_row)
+        gev_lay.addWidget(gev_panel, stretch=0)
+
+        gev_lay.addWidget(_sec("TACTICAL MULTI-SENSOR OPTICS (GLSL)"))
+        shader_grid = QGridLayout()
+        shader_grid.setSpacing(4)
+        shaders = [
+            ("1", "NORMAL", "True-Color Photorealistic Satellite"),
+            ("2", "NVG", "Night Vision Phosphor-Green Amplification"),
+            ("3", "FLIR", "Ironbow Long-Wave Infrared Thermal"),
+            ("4", "CRT", "Tactical Scanline Raster Simulation"),
+            ("5", "NOIR", "Monochrome High-Contrast Shadow"),
+            ("6", "SNOW", "Cool Arctic Frost Scatter"),
+            ("7", "MULTI", "Multispectral False-Color Band")
+        ]
+        for idx, (s_key, s_name, s_tip) in enumerate(shaders):
+            sb = QPushButton(f"[{s_key}] {s_name}")
+            sb.setFixedHeight(22)
+            sb.setToolTip(s_tip)
+            sb.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
+            sb.setCursor(Qt.CursorShape.PointingHandCursor)
+            sb.setStyleSheet(f"""
+                QPushButton {{ background: {C.PANEL}; color: {C.ACC2}; border: 1px solid {C.BORDER}; border-radius: 2px; }}
+                QPushButton:hover {{ background: {C.PRI_GHO}; color: {C.PRI}; border: 1px solid {C.PRI}; }}
+            """)
+            sb.clicked.connect(lambda _=False, k=s_key: webbrowser.open(f"http://127.0.0.1:4173/?style={k}"))
+            shader_grid.addWidget(sb, idx // 4, idx % 4)
+        shader_widget = QWidget()
+        shader_widget.setLayout(shader_grid)
+        gev_lay.addWidget(shader_widget, stretch=0)
+
+        gev_lay.addWidget(_sec("LIVE INTEGRATED DATA FEEDS"))
+        self._gev_telemetry = QTextEdit()
+        self._gev_telemetry.setReadOnly(True)
+        self._gev_telemetry.setFont(QFont("Courier New", 7))
+        self._gev_telemetry.setStyleSheet(f"background: #000a0f; color: {C.PRI}; border: 1px solid {C.BORDER}; border-radius: 4px; padding: 4px;")
+        self._gev_telemetry.setPlainText(
+            "● OPENSKY NETWORK : Live Aircraft State Vectors (Authenticated OAuth)\n"
+            "● ADSB.LOL        : Military Aircraft Transponders & Call Signs\n"
+            "● AISSTREAM       : Global Maritime AIS Vessel Position Reports\n"
+            "● NASA FIRMS      : Satellite Thermal Active Wildfire Hotspots\n"
+            "● CELESTRAK       : Real-Time SGP4 Spacecraft & Orbital Passes\n"
+            "● USGS SEISMIC    : Live Earthquake Epicenters & Magnitude Telemetry\n"
+            "● MUNICIPAL CCTV  : TfL JamCams (London), Caltrans (SF), Austin Mobility\n"
+            "● WORLD MONITOR   : 22 Geospatial Crisis Layers & Chokepoint Multipliers"
+        )
+        gev_lay.addWidget(self._gev_telemetry, stretch=2)
+
+        # =========================================================================
+        # TAB 4: SERVICES
+        # =========================================================================
+        motherbot_tab = QWidget()
+        motherbot_lay = QVBoxLayout(motherbot_tab)
+        motherbot_lay.setContentsMargins(6, 6, 6, 6)
+        motherbot_lay.setSpacing(6)
+
+        motherbot_lay.addWidget(_sec("J.A.R.V.I.S. ECOSYSTEM SERVICES"))
+        self.services_widget = QWidget()
+        self.services_widget.setStyleSheet(f"background: {C.PANEL2}; border: 1px solid {C.BORDER}; border-radius: 4px;")
+        services_grid = QGridLayout(self.services_widget)
+        services_grid.setContentsMargins(6, 6, 6, 6)
+        services_grid.setSpacing(4)
+        self.service_labels = {}
+        service_names = [
+            ("dashboard", "Master War Room (:8770)"),
+            ("odysseus", "Odysseus AI Server (:7000)"),
+            ("mq3_trading", "MQ3 Trading Cockpit (:5050)"),
+            ("discord_bot", "Discord Sovereign Bot"),
+            ("mobile_remote", "Mobile Remote (:8765)"),
+            ("gaigs_bridge", "GAIGS Platform (:8090)"),
+            ("gods_eye_view", "God's Eye View 3D (:4173)"),
+            ("ollama", "Ollama Local LLM (:11434)"),
+            ("hud_gui", "PyQt6 Desktop HUD GUI")
+        ]
+        for idx, (s_id, s_name) in enumerate(service_names):
+            row = idx // 2
+            col = idx % 2
+            box = QFrame()
+            box.setFrameShape(QFrame.Shape.Box)
+            box.setStyleSheet(f"background: {C.PANEL}; border: 1px solid {C.BORDER_A}; border-radius: 2px; padding: 4px;")
+            box_lay = QVBoxLayout(box)
+            box_lay.setContentsMargins(4, 4, 4, 4)
+            box_lay.setSpacing(1)
+            name_lbl = QLabel(s_name)
+            name_lbl.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
+            name_lbl.setStyleSheet(f"color: {C.TEXT_MED}; border: none;")
+            box_lay.addWidget(name_lbl)
+            status_lbl = QLabel("○ OFFLINE")
+            status_lbl.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
+            status_lbl.setStyleSheet(f"color: {C.RED}; border: none;")
+            box_lay.addWidget(status_lbl)
+            services_grid.addWidget(box, row, col)
+            self.service_labels[s_id] = status_lbl
+        motherbot_lay.addWidget(self.services_widget, stretch=2)
+
+        motherbot_lay.addWidget(_sec("NETWORK & CORE LISTENER PORTS"))
+        self.ports_widget = QTextEdit()
+        self.ports_widget.setReadOnly(True)
+        self.ports_widget.setFont(QFont("Courier New", 7))
+        self.ports_widget.setStyleSheet(f"background: #000a0f; color: {C.PRI}; border: 1px solid {C.BORDER}; border-radius: 4px; padding: 4px;")
+        motherbot_lay.addWidget(self.ports_widget, stretch=1)
+
+        motherbot_lay.addWidget(_sec("ECOSYSTEM ACTIONS"))
+        self.controls_widget = QWidget()
+        self.controls_widget.setStyleSheet(f"background: {C.PANEL2}; border: 1px solid {C.BORDER}; border-radius: 4px;")
+        ctrl_lay = QHBoxLayout(self.controls_widget)
+        ctrl_lay.setContentsMargins(4, 4, 4, 4)
+        ctrl_lay.setSpacing(4)
+        btn_onboard = QPushButton("SYNC GITHUB")
+        btn_health = QPushButton("SYSTEM AUDIT")
+        btn_train = QPushButton("TRAIN AI")
+        btn_stop = QPushButton("STOP JARVIS")
+        for btn in [btn_onboard, btn_health, btn_train]:
+            btn.setFixedHeight(22)
+            btn.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
+            btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.setStyleSheet(f"""
+                QPushButton {{
+                    background: {C.PANEL}; color: {C.TEXT};
+                    border: 1px solid {C.BORDER}; border-radius: 2px;
+                }}
+                QPushButton:hover {{
+                    background: {C.PRI_GHO}; color: {C.PRI}; border: 1px solid {C.PRI};
+                }}
+            """)
+            ctrl_lay.addWidget(btn)
+        btn_onboard.clicked.connect(lambda: self._run_motherbot_cmd("github_sync"))
+        btn_health.clicked.connect(lambda: self._run_motherbot_cmd("system_health"))
+        btn_train.clicked.connect(lambda: self._run_motherbot_cmd("self_training"))
+        btn_stop.setFixedHeight(22)
+        btn_stop.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
+        btn_stop.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn_stop.setStyleSheet(f"""
+            QPushButton {{ background: #1a0006; color: {C.RED};
+                border: 1px solid {C.RED}; border-radius: 2px; }}
+            QPushButton:hover {{ background: {C.RED}; color: #ffffff; }}
+        """)
+        btn_stop.clicked.connect(self._stop_jarvis)
+        ctrl_lay.addWidget(btn_stop)
+        motherbot_lay.addWidget(self.controls_widget, stretch=0)
+
+        # =========================================================================
+        # TAB 5: CONSOLE
+        # =========================================================================
+        console_tab = QWidget()
+        console_lay = QVBoxLayout(console_tab)
+        console_lay.setContentsMargins(6, 6, 6, 6)
+        console_lay.setSpacing(6)
+
+        console_lay.addWidget(_sec("ACTIVITY LOG"))
+        self._log = LogWidget()
+        console_lay.addWidget(self._log, stretch=1)
+        sep = QFrame(); sep.setFrameShape(QFrame.Shape.HLine)
+        sep.setStyleSheet(f"color: {C.BORDER}; margin: 2px 0;")
+        console_lay.addWidget(sep)
+        console_lay.addWidget(_sec("FILE UPLOAD"))
+        self._drop_zone = FileDropZone()
+        self._drop_zone.file_selected.connect(self._on_file_selected)
+        console_lay.addWidget(self._drop_zone)
+        self._file_hint = QLabel("No file loaded — drop or click above to upload")
+        self._file_hint.setFont(QFont("Courier New", 7))
+        self._file_hint.setStyleSheet(f"color: {C.TEXT_MED}; background: transparent;")
+        self._file_hint.setWordWrap(True)
+        console_lay.addWidget(self._file_hint)
+        sep2 = QFrame(); sep2.setFrameShape(QFrame.Shape.HLine)
+        sep2.setStyleSheet(f"color: {C.BORDER}; margin: 2px 0;")
+        console_lay.addWidget(sep2)
+        console_lay.addWidget(_sec("COMMAND INPUT"))
+        console_lay.addLayout(self._build_input_row())
+        self._mute_btn = QPushButton("🎙  MICROPHONE ACTIVE")
+        self._mute_btn.setFixedHeight(30)
+        self._mute_btn.setFont(QFont("Courier New", 8, QFont.Weight.Bold))
+        self._mute_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._mute_btn.clicked.connect(self._toggle_mute)
+        self._style_mute_btn()
+        console_lay.addWidget(self._mute_btn)
+        fs_btn = QPushButton("⛶  FULLSCREEN  [F11]")
+        fs_btn.setFixedHeight(26)
+        fs_btn.setFont(QFont("Courier New", 7))
+        fs_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        fs_btn.setStyleSheet(f"""
+            QPushButton {{
+                background: transparent; color: {C.TEXT_MED};
+                border: 1px solid {C.BORDER}; border-radius: 3px;
+            }}
+            QPushButton:hover {{
+                color: {C.PRI}; border: 1px solid {C.BORDER_B};
+            }}
+        """)
+        fs_btn.clicked.connect(self._toggle_fullscreen)
+        console_lay.addWidget(fs_btn)
+
+        # =========================================================================
+        # TAB 6: BRAIN CORE
+        # =========================================================================
+        brain_tab = QWidget()
+        brain_lay = QVBoxLayout(brain_tab)
+        brain_lay.setContentsMargins(6, 6, 6, 6)
+        brain_lay.setSpacing(6)
+
+        brain_lay.addWidget(_sec("MEMORY REGISTRY"))
+        self._mem_list = QListWidget()
+        self._mem_list.setFont(QFont("Courier New", 8))
+        self._mem_list.setStyleSheet(f"""
+            QListWidget {{
+                background: {C.PANEL};
+                color: {C.GREEN};
+                border: 1px solid {C.BORDER};
+                border-radius: 4px;
+                padding: 4px;
+            }}
+        """)
+        brain_lay.addWidget(self._mem_list, stretch=2)
+
+        brain_lay.addWidget(_sec("ACTIVE GOALS / TASKS"))
+        self._task_list = QListWidget()
+        self._task_list.setFont(QFont("Courier New", 8))
+        self._task_list.setStyleSheet(f"""
+            QListWidget {{
+                background: {C.PANEL};
+                color: {C.PRI};
+                border: 1px solid {C.BORDER};
+                border-radius: 4px;
+                padding: 4px;
+            }}
+        """)
+        brain_lay.addWidget(self._task_list, stretch=1)
+
+        brain_lay.addWidget(_sec("AUTOMATED TOOLS MATRIX"))
+        self._tools_widget = QWidget()
+        self._tools_widget.setStyleSheet(f"background: {C.PANEL2}; border: 1px solid {C.BORDER}; border-radius: 4px;")
+        tools_grid = QGridLayout(self._tools_widget)
+        tools_grid.setContentsMargins(6, 6, 6, 6)
+        tools_grid.setSpacing(4)
+        self.tool_labels = {}
+        tool_names = [
+            ("open_app", "App Opener"), ("weather_report", "Weather"), ("browser_control", "Browser"),
+            ("file_controller", "Files"), ("send_message", "WhatsApp"), ("reminder", "Reminder"),
+            ("youtube_video", "YouTube"), ("file_processor", "DocProc"), ("screen_process", "Vision"),
+            ("code_helper", "Coder"), ("dev_agent", "DevAgent"), ("agent_task", "Planner"),
+            ("web_search", "Search"), ("computer_control", "OS Control"), ("cmd_control", "PowerShell")
+        ]
+        for idx, (t_id, t_name) in enumerate(tool_names):
+            row = idx // 3
+            col = idx % 3
+            lbl = QLabel(t_name)
+            lbl.setFont(QFont("Courier New", 7, QFont.Weight.Bold))
+            lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            lbl.setStyleSheet(f"""
+                QLabel {{
+                    color: {C.TEXT_DIM};
+                    background: {C.PANEL};
+                    border: 1px solid {C.BORDER_A};
+                    border-radius: 2px;
+                    padding: 3px;
+                }}
+            """)
+            tools_grid.addWidget(lbl, row, col)
+            self.tool_labels[t_id] = lbl
+        brain_lay.addWidget(self._tools_widget, stretch=2)
+
+        # Tab additions
+        self.tabs.addTab(hud_tab, "HUD")
+        self.tabs.addTab(trading_tab, "TRADING")
         self.tabs.addTab(wm_tab, "WORLD MONITOR")
+        self.tabs.addTab(gev_tab, "GOD'S EYE VIEW")
+        self.tabs.addTab(motherbot_tab, "SERVICES")
+        self.tabs.addTab(console_tab, "CONSOLE")
+        self.tabs.addTab(brain_tab, "BRAIN CORE")
 
-        # --- LIVE OPS tab: full SITDECK-style dashboard embedded in the HUD ---
-        try:
-            from PyQt6.QtWebEngineWidgets import QWebEngineView
-            from PyQt6.QtCore import QUrl
-            live_tab = QWidget()
-            live_lay = QVBoxLayout(live_tab)
-            live_lay.setContentsMargins(0, 0, 0, 0)
-            self._live_view = QWebEngineView()
-            self._live_view.setUrl(QUrl("http://localhost:8770"))
-            live_lay.addWidget(self._live_view)
-            self.tabs.addTab(live_tab, "LIVE OPS")
-            # Reload once after startup so the dashboard server is up.
-            QTimer.singleShot(9000, lambda: self._live_view.reload())
-        except Exception as _e:
-            print(f"[UI] LIVE OPS tab unavailable: {_e}")
-
-        self.tabs.setCurrentIndex(3)
+        # Default to TRADING tab (Index 1)
+        self.tabs.setCurrentIndex(1)
         lay.addWidget(self.tabs)
 
         self._brain_refresh_tmr = QTimer(self)
@@ -2215,6 +2543,29 @@ class MainWindow(QMainWindow):
             self._wm_live.setStyleSheet(f"color: {col}; background: transparent;")
         except Exception:
             pass
+
+
+
+    def _run_trading_action(self, action: str):
+        self.write_log(f"TRADING: Executing {action.upper()}...")
+        def _bg():
+            try:
+                from actions.mq3_trading import mq3_trading
+                out = mq3_trading({"action": action})
+                QTimer.singleShot(0, lambda: self._trading_log.setText(out))
+            except Exception as e:
+                QTimer.singleShot(0, lambda: self._trading_log.setText(f"Error: {e}"))
+        threading.Thread(target=_bg, daemon=True).start()
+
+    def _refresh_trading_tab(self):
+        def _bg():
+            try:
+                from actions.mq3_trading import mq3_trading
+                status = mq3_trading({"action": "status"})
+                QTimer.singleShot(0, lambda: self._trading_log.setText(status))
+            except Exception:
+                pass
+        threading.Thread(target=_bg, daemon=True).start()
 
     def _build_input_row(self) -> QHBoxLayout:
         row = QHBoxLayout(); row.setSpacing(5)
@@ -2377,11 +2728,26 @@ class MainWindow(QMainWindow):
         self.hud.speaking = state in ("SPEAKING", "OFFLINE_SPEAKING", "HYBRID_SPEAKING")
 
     def _check_config(self) -> bool:
-        if not API_FILE.exists(): return False
+        if not API_FILE.exists():
+            try:
+                CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+                detected = {"darwin": "mac", "windows": "windows"}.get(
+                    _OS.lower(), "linux"
+                )
+                API_FILE.write_text(
+                    json.dumps({
+                        "gemini_api_key": "",
+                        "openrouter_api_key": "",
+                        "os_system": detected,
+                    }, indent=4),
+                    encoding="utf-8",
+                )
+                return True
+            except OSError:
+                return False
         try:
             d = json.loads(API_FILE.read_text(encoding="utf-8"))
-            return (bool(d.get("gemini_api_key")) and
-                    bool(d.get("os_system")))
+            return bool(d.get("os_system"))
         except Exception:
             return False
 
@@ -2414,7 +2780,9 @@ class MainWindow(QMainWindow):
             self._overlay.hide()
             self._overlay = None
         self._apply_state("LISTENING")
-        self._log.append_log(f"SYS: Initialised. OS={os_name.upper()}. JARVIS online.")
+        self._log.append_log(
+            f"SYS: Initialised. OS={os_name.upper()}. Local-first JARVIS ready."
+        )
 
     def set_tool_state(self, tool_id: str, state: str):
         lbl = self.tool_labels.get(tool_id)

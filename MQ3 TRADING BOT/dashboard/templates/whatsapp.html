@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp AI Bridge — QR Linking</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --accent: #238636;
+      --accent-hover: #2ea043;
+      --wa-green: #25D366;
+      --text: #c9d1d9;
+      --text-bright: #f0f6fc;
+      --text-muted: #8b949e;
+      --danger: #da3633;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    .header h1 {
+      font-size: 26px;
+      color: var(--text-bright);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .header p {
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 900px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 768px) {
+      .container { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 16px;
+      align-self: flex-start;
+    }
+    .status-connected { background: rgba(35, 134, 54, 0.2); color: var(--wa-green); border: 1px solid var(--accent); }
+    .status-waiting { background: rgba(210, 153, 34, 0.2); color: #d29922; border: 1px solid #d29922; }
+    .status-disconnected { background: rgba(218, 54, 51, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+    .qr-box {
+      background: #000;
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 15px 0;
+    }
+    .qr-box img {
+      max-width: 230px;
+      border-radius: 8px;
+      background: #fff;
+      padding: 10px;
+    }
+    .instructions ol {
+      padding-left: 20px;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .instructions li strong { color: var(--text-bright); }
+    .code-block {
+      background: #090d13;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 15px;
+    }
+    .code-block .cmd { color: var(--wa-green); font-weight: 600; }
+    .code-block .desc { color: var(--text-muted); }
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--accent-hover); }
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      margin-top: 20px;
+      display: inline-block;
+    }
+    .nav-link:hover { color: var(--text-bright); }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1><span style="color:var(--wa-green);">💬</span> WhatsApp Multi-Device AI Bridge</h1>
+    <p>Scan the QR code with WhatsApp on your phone to link two-way trading notifications and AI commands.</p>
+  </div>
+
+  <div class="container">
+    <!-- QR Code Card -->
+    <div class="card">
+      <div id="statusBadge" class="status-badge status-waiting">
+        <span id="statusDot">🟡</span> <span id="statusText">Checking WhatsApp Bridge...</span>
+      </div>
+
+      <div class="qr-box" id="qrContainer">
+        <div id="qrPlaceholder" style="color:var(--text-muted);">
+          <p>Generating Multi-Device QR Code...</p>
+        </div>
+        <img id="qrImg" style="display:none;" alt="Scan WhatsApp QR" />
+      </div>
+
+      <div class="instructions">
+        <ol>
+          <li>Open <strong>WhatsApp</strong> on your mobile phone.</li>
+          <li>Tap <strong>Settings / Three Dots</strong> &gt; <strong>Linked Devices</strong>.</li>
+          <li>Tap <strong>Link a Device</strong> and point your camera at this QR code.</li>
+          <li>The linked-device auth state is saved locally, excluded from Git, and reused after restarts. Protect it like a credential. Re-pairing is required if WhatsApp logs out/revokes the device or the session becomes invalid.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Commands & Controls Card -->
+    <div class="card">
+      <h3 style="color:var(--text-bright); margin-bottom:12px;">📱 Interactive WhatsApp Commands</h3>
+      <p style="font-size:13px; color:var(--text-muted);">Reply to your bot directly on WhatsApp using any of these commands:</p>
+
+      <div class="code-block">
+        <div><span class="cmd">system status</span> <span class="desc">— Verified broker mode, telemetry, execution lock & WhatsApp health</span></div>
+        <div><span class="cmd">status</span> <span class="desc">— Broker-reported Balance, Equity, Drawdown & Trades</span></div>
+        <div><span class="cmd">trades</span> <span class="desc">— Active Open Positions & Profit Locking</span></div>
+        <div><span class="cmd">signal XAUUSD</span> <span class="desc">— Broker quote + closed multi-timeframe evidence, conditional levels, account fit and blockers</span></div>
+        <div><span class="cmd">what if XAUUSD +0.5%</span> <span class="desc">— Sensitivity branch from a fresh broker baseline; not a forecast</span></div>
+        <div><span class="cmd">YES / NO</span> <span class="desc">— Record your decision on the last reviewed signal; YES cannot bypass safety gates</span></div>
+        <div><span class="cmd">remember &lt;note&gt;</span> <span class="desc">— Store a non-secret operator instruction with an audit receipt</span></div>
+        <div><span class="cmd">memory list</span> <span class="desc">— Show recent operator memory</span></div>
+        <div><span class="cmd">update status</span> <span class="desc">— Show local code version and pending reviewed-update requests</span></div>
+        <div><span class="cmd">update request &lt;change&gt;</span> <span class="desc">— Queue a safe local-review request; remote code execution stays blocked</span></div>
+        <div><span class="cmd">help</span> <span class="desc">— Display all available bot commands</span></div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <h4 style="color:var(--text-bright); font-size:14px; margin-bottom:8px;">End-to-end command check</h4>
+        <p style="font-size:13px;color:var(--text-muted);">From the paired owner chat, send <strong style="color:var(--wa-green);">system status</strong>. A verified reply confirms phone → bridge → dashboard → bot → phone routing. Never send passwords, account credentials, API keys, or recovery phrases.</p>
+      </div>
+
+      <a href="/" class="nav-link">← Back to Main Trading Dashboard</a>
+    </div>
+  </div>
+
+  <script>
+    async function pollQR() {
+      try {
+        const res = await fetch('/api/whatsapp_qr');
+        const data = await res.json();
+
+        const badge = document.getElementById('statusBadge');
+        const statusText = document.getElementById('statusText');
+        const statusDot = document.getElementById('statusDot');
+        const qrContainer = document.getElementById('qrContainer');
+        const qrImg = document.getElementById('qrImg');
+        const qrPlaceholder = document.getElementById('qrPlaceholder');
+
+        if (data.connected) {
+          badge.className = 'status-badge status-connected';
+          statusDot.textContent = '🟢';
+          statusText.textContent = 'CONNECTED: ' + (data.user || 'Linked');
+          qrPlaceholder.innerHTML = '<h3 style="color:var(--wa-green);">✅ WhatsApp Connected!</h3><p style="color:var(--text-muted);font-size:13px;margin-top:6px;">Your owner device is linked. Approved commands and explicitly enabled alerts use this session.</p>';
+          qrPlaceholder.style.display = 'block';
+          qrImg.style.display = 'none';
+        } else if (data.qr_image) {
+          badge.className = 'status-badge status-waiting';
+          statusDot.textContent = '🟡';
+          statusText.textContent = 'WAITING FOR SCAN (Scan QR Below)';
+          qrImg.src = data.qr_image;
+          qrImg.style.display = 'block';
+          qrPlaceholder.style.display = 'none';
+        } else {
+          badge.className = 'status-badge status-disconnected';
+          statusDot.textContent = '⚪';
+          statusText.textContent = 'Starting WhatsApp Bridge...';
+          qrPlaceholder.innerHTML = '<p style="color:var(--text-muted);">Starting Multi-Device Engine...</p>';
+          qrPlaceholder.style.display = 'block';
+          qrImg.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('Polling error:', err);
+      }
+    }
+
+    pollQR();
+    setInterval(pollQR, 3000);
+  </script>
+</body>
+</html>

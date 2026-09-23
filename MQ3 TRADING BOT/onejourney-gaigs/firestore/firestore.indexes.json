@@ -1,0 +1,9 @@
+{
+  "indexes": [
+    { "collectionGroup": "posts", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "scope", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "proposals", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "communityId", "order": "ASCENDING" }, { "fieldPath": "stage", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "ledgerEntries", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "treasuryId", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "incidents", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "severity", "order": "DESCENDING" }] }
+  ],
+  "fieldOverrides": []
+}

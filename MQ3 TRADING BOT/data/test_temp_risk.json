@@ -1,0 +1,53 @@
+{
+  "active_accounts": 2,
+  "total_aum_potential": 25000.0,
+  "fleet": {
+    "account_25k": {
+      "account_name": "Master 25k Evaluation",
+      "account_id": 5054340275,
+      "server": "MetaQuotes-Demo",
+      "starting_balance": 25000.0,
+      "account_type": "FUNDING_PIPS",
+      "risk_per_trade_pct": 0.0075,
+      "max_daily_loss_pct": 0.025,
+      "max_total_loss_pct": 0.06,
+      "daily_loss_dollar_cap": 625.0,
+      "trailing_hwm_floor": 23500.0,
+      "allowed_assets": [
+        "XAUUSD",
+        "EURUSD",
+        "GBPUSD",
+        "USDJPY",
+        "BTCUSD",
+        "ETHUSD"
+      ],
+      "consistency_cap_pct": 35.0,
+      "is_active": true,
+      "execution_mode": "LIVE_MT5"
+    },
+    "account_ZERO_BAL_ACC": {
+      "account_name": "Funding Pips Prop Firm #ZERO_BAL_ACC",
+      "account_id": "ZERO_BAL_ACC",
+      "server": "MetaQuotes-Demo",
+      "starting_balance": 0.0,
+      "account_type": "FUNDING_PIPS",
+      "risk_per_trade_pct": 0.0075,
+      "max_daily_loss_pct": 0.025,
+      "max_total_loss_pct": 0.06,
+      "daily_loss_dollar_cap": 0.0,
+      "trailing_hwm_floor": 0.0,
+      "allowed_assets": [
+        "XAUUSD",
+        "EURUSD",
+        "GBPUSD",
+        "USDJPY",
+        "BTCUSD",
+        "ETHUSD"
+      ],
+      "consistency_cap_pct": 35.0,
+      "is_active": true,
+      "onboarded_at": "2026-08-15T22:04:21.236315+00:00",
+      "execution_mode": "LIVE_MT5"
+    }
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "name": "Economic News Circuit Breaker & Lockout",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 2
+            }
+          ]
+        }
+      },
+      "name": "Interval Trigger (2m)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:5050/api/calendar/high_impact",
+        "options": {}
+      },
+      "name": "Check High-Impact Events (CPI/NFP/FOMC)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.minutes_until }}",
+              "operation": "smallerEqual",
+              "value2": 15
+            }
+          ]
+        }
+      },
+      "name": "Is Event Within 15m?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:8770/api/trading/lockout",
+        "method": "POST",
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "lockout",
+              "value": "true"
+            },
+            {
+              "name": "event",
+              "value": "={{ $json.event_name }}"
+            },
+            {
+              "name": "reason",
+              "value": "High-Impact Economic News within 15-minute blackout window"
+            }
+          ]
+        }
+      },
+      "name": "Enforce Admission Lockout",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        760,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:8770/api/hud/toast",
+        "method": "POST",
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "level",
+              "value": "CRITICAL"
+            },
+            {
+              "name": "message",
+              "value": "\ud83d\uded1 CIRCUIT BREAKER ARMED: 15m News Lockout Active for {{ $json.event_name }}"
+            }
+          ]
+        }
+      },
+      "name": "Alert Master Dashboard HUD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        980,
+        200
+      ]
+    }
+  ],
+  "connections": {
+    "Interval Trigger (2m)": {
+      "main": [
+        [
+          {
+            "node": "Check High-Impact Events (CPI/NFP/FOMC)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check High-Impact Events (CPI/NFP/FOMC)": {
+      "main": [
+        [
+          {
+            "node": "Is Event Within 15m?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Event Within 15m?": {
+      "main": [
+        [
+          {
+            "node": "Enforce Admission Lockout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enforce Admission Lockout": {
+      "main": [
+        [
+          {
+            "node": "Alert Master Dashboard HUD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

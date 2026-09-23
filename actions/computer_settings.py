@@ -47,7 +47,18 @@ def _get_macos_wifi_interface() -> str:
 
 def volume_up():
     if _OS == "Windows":
-        for _ in range(5): pyautogui.press("volumeup")
+        try:
+            from pycaw.pycaw import AudioUtilities
+            speakers = AudioUtilities.GetSpeakers()
+            vol = getattr(speakers, "EndpointVolume", None)
+            if vol:
+                cur = vol.GetMasterVolumeLevelScalar()
+                vol.SetMasterVolumeLevelScalar(min(1.0, cur + 0.05), None)
+                return
+        except Exception:
+            pass
+        if _PYAUTOGUI:
+            for _ in range(5): pyautogui.press("volumeup")
     elif _OS == "Darwin":
         subprocess.run(["osascript", "-e",
             "set volume output volume (output volume of (get volume settings) + 10)"],
@@ -58,7 +69,18 @@ def volume_up():
 
 def volume_down():
     if _OS == "Windows":
-        for _ in range(5): pyautogui.press("volumedown")
+        try:
+            from pycaw.pycaw import AudioUtilities
+            speakers = AudioUtilities.GetSpeakers()
+            vol = getattr(speakers, "EndpointVolume", None)
+            if vol:
+                cur = vol.GetMasterVolumeLevelScalar()
+                vol.SetMasterVolumeLevelScalar(max(0.0, cur - 0.05), None)
+                return
+        except Exception:
+            pass
+        if _PYAUTOGUI:
+            for _ in range(5): pyautogui.press("volumedown")
     elif _OS == "Darwin":
         subprocess.run(["osascript", "-e",
             "set volume output volume (output volume of (get volume settings) - 10)"],
@@ -69,7 +91,18 @@ def volume_down():
 
 def volume_mute():
     if _OS == "Windows":
-        pyautogui.press("volumemute")
+        try:
+            from pycaw.pycaw import AudioUtilities
+            speakers = AudioUtilities.GetSpeakers()
+            vol = getattr(speakers, "EndpointVolume", None)
+            if vol:
+                cur = vol.GetMute()
+                vol.SetMute(0 if cur else 1, None)
+                return
+        except Exception:
+            pass
+        if _PYAUTOGUI:
+            pyautogui.press("volumemute")
     elif _OS == "Darwin":
         subprocess.run(["osascript", "-e", "set volume with output muted"],
             capture_output=True)
@@ -81,20 +114,26 @@ def volume_set(value: int):
     value = max(0, min(100, int(value)))
     if _OS == "Windows":
         try:
-            import math
-            from ctypes import cast, POINTER
-            from comtypes import CLSCTX_ALL
-            from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-            devices   = AudioUtilities.GetSpeakers()
-            interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-            vol       = cast(interface, POINTER(IAudioEndpointVolume))
-            vol_db    = -65.25 if value == 0 else max(-65.25, 20 * math.log10(value / 100))
-            vol.SetMasterVolumeLevel(vol_db, None)
-            return
+            from pycaw.pycaw import AudioUtilities
+            speakers = AudioUtilities.GetSpeakers()
+            if hasattr(speakers, "EndpointVolume"):
+                vol = speakers.EndpointVolume
+            else:
+                from ctypes import cast, POINTER
+                from comtypes import CLSCTX_ALL
+                from pycaw.pycaw import IAudioEndpointVolume
+                interface = speakers.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+                vol = cast(interface, POINTER(IAudioEndpointVolume))
+            scalar = value / 100.0
+            vol.SetMasterVolumeLevelScalar(scalar, None)
+            if value > 0 and vol.GetMute():
+                vol.SetMute(0, None)
+            return vol.GetMasterVolumeLevelScalar()
         except Exception as e:
             print(f"[Settings] pycaw failed, using keypress fallback: {e}")
-            pyautogui.press("volumemute")
-            pyautogui.press("volumemute")
+            if _PYAUTOGUI:
+                pyautogui.press("volumemute")
+                pyautogui.press("volumemute")
     elif _OS == "Darwin":
         subprocess.run(["osascript", "-e", f"set volume output volume {value}"],
             capture_output=True)

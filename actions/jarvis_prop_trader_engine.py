@@ -174,17 +174,17 @@ class MarketConfluenceAnalyzer:
         except Exception as e:
             return {
                 "symbol": "XAU/USD (Gold)",
-                "price": 4098.50,
-                "ema_50": 4092.00,
-                "ema_200": 4080.00,
-                "rsi_14": 54.2,
-                "trend": "STRONG_BULLISH",
-                "fvg_detected": True,
-                "fvg_type": "BULLISH_FVG",
-                "high_24h": 4110.00,
-                "low_24h": 4025.00,
+                "price": None,
+                "ema_50": None,
+                "ema_200": None,
+                "rsi_14": None,
+                "trend": "DATA_UNAVAILABLE",
+                "fvg_detected": False,
+                "fvg_type": None,
+                "can_trade": False,
+                "status": "DATA_DISCONNECTED_FAIL_CLOSED",
                 "timestamp": time.strftime("%Y-%m-%d %H:%M:%S PKT"),
-                "notice": f"Live feed fallback: {e}"
+                "notice": f"FAIL-CLOSED: Live market data feed unavailable ({e}). Trade execution strictly blocked to protect capital."
             }
 
 class MT5ExnessConnector:

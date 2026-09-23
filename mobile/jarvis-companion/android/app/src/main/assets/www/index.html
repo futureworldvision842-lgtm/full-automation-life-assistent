@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>J.A.R.V.I.S. Sovereign Mobile Companion</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Tactical Status Bar -->
+  <header class="top-header">
+    <div class="brand">
+      <div class="dot online" id="connDot"></div>
+      <span>J.A.R.V.I.S. COMPANION</span>
+    </div>
+    <div class="header-pills">
+      <div class="latency-pill" id="latencyBadge">⚡ &lt;15ms</div>
+      <div class="status-pill" id="connStatus">🟢 CONNECTED (Sub-50ms)</div>
+    </div>
+  </header>
+
+  <main class="content-container">
+
+    <!-- 1. Cybernetic Animated Avatar HUD -->
+    <section class="card avatar-card">
+      <div class="card-title">🤖 ARC REACTOR CYBERNETIC AVATAR HUD</div>
+      <div class="avatar-wrapper">
+        <canvas id="avatarCanvas" width="280" height="280"></canvas>
+      </div>
+      <div class="avatar-state-text" id="avatarStateText">🟢 SYSTEM ACTIVE — STANDBY</div>
+
+      <!-- Bilingual Voice & Chat Control -->
+      <div class="voice-bar">
+        <button id="micBtn" class="mic-btn" onclick="jarvisApp.toggleVoiceInput()">
+          🎙️ TAP TO SPEAK (Roman Urdu / English)
+        </button>
+      </div>
+
+      <div class="chat-container">
+        <div id="chatHistory" class="chat-history">
+          <div><b style="color:#00F0FF;">[JARVIS]:</b> <span style="color:#D4F0FC;">Sovereign Companion online 24/7, Sir. Say <i>'computer kholo'</i> to power on your PC, <i>'trading status'</i> for MT5 prop vitals, or converse freely.</span></div>
+        </div>
+        <div class="chat-input-row">
+          <input id="chatInput" type="text" placeholder="Command in Roman Urdu or English..." onkeypress="if(event.key==='Enter') { jarvisApp.handleUserInput(this.value); this.value=''; }">
+          <button class="pri-btn" onclick="const el=document.getElementById('chatInput'); jarvisApp.handleUserInput(el.value); el.value='';">SEND</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Real-Time Desktop Screen Stream Viewer -->
+    <section class="card screen-card">
+      <div class="card-header-row">
+        <div class="card-title">🖥️ LIVE DESKTOP SCREEN STREAM (Sub-35ms)</div>
+        <div class="stream-badge">LIVE GDI 30 FPS</div>
+      </div>
+      <div class="screen-viewport">
+        <img id="screenStreamImg" class="screen-stream-img" alt="Desktop Screen Stream" src="" onerror="this.style.display='none';">
+        <div class="stream-fallback" id="streamFallback">Connecting to GDI Screen Stream (:8765)...</div>
+      </div>
+      <div class="btn-grid stream-controls">
+        <button id="toggleStreamBtn" class="sec-btn" onclick="jarvisApp.toggleScreenStream()">PAUSE STREAM</button>
+        <button class="sec-btn" onclick="jarvisApp.expandScreenStream()">⛶ FULLSCREEN</button>
+      </div>
+    </section>
+
+    <!-- 3. Interactive Remote PowerShell Terminal Emulator -->
+    <section class="card terminal-card">
+      <div class="card-title">💻 POWERSHELL REMOTE TERMINAL (CMD_EXEC)</div>
+      <div id="termOutput" class="terminal-output">
+        <div style="color:#00F0FF; font-size:11px;">J.A.R.V.I.S. Quantum PowerShell Terminal v2.5.0</div>
+        <div style="color:#6688AA; font-size:10px;">Sub-50ms bi-directional execution ready. Type any command below.</div>
+      </div>
+
+      <!-- Quick Command Action Chips -->
+      <div class="quick-chip-row">
+        <button class="chip-btn" onclick="jarvisApp.appendTerminalOutput('Get-Process', '', true); bridgeClient.executeCommand('Get-Process | Select-Object -First 10 ProcessName, CPU, WorkingSet64 | Format-Table -AutoSize')">Processes</button>
+        <button class="chip-btn" onclick="jarvisApp.appendTerminalOutput('Vitals Check', '', true); bridgeClient.executeCommand('Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize, FreePhysicalMemory')">Memory</button>
+        <button class="chip-btn" onclick="jarvisApp.appendTerminalOutput('Network Ports', '', true); bridgeClient.executeCommand('Get-NetTCPConnection -State Listen | Where-Object LocalPort -in 8770,8765,5050,7000,3000,11434,3200,5678 | Format-Table LocalPort, OwningProcess')">Fleet Ports</button>
+        <button class="chip-btn" onclick="jarvisApp.appendTerminalOutput('Trading Daemon', '', true); bridgeClient.executeCommand('Get-Process -Name python, terminal64 -ErrorAction SilentlyContinue')">MT5 / Daemons</button>
+      </div>
+
+      <div class="term-input-row">
+        <span class="term-ps-label">PS&gt;</span>
+        <input id="termInput" type="text" placeholder="Get-Process, systeminfo, dir...">
+        <button class="pri-btn" onclick="jarvisApp.sendTerminalCommand()">RUN</button>
+      </div>
+    </section>
+
+    <!-- 4. 1-Click Operational Controls & MT5 Trading Cockpit -->
+    <section class="card controls-card">
+      <div class="card-title">⚡ 1-CLICK TACTICAL &amp; TRADING CONTROLS</div>
+      <div class="btn-grid">
+        <button class="wol-btn" onclick="bridgeClient.wakeOnLan()">🖥️ WAKE / POWER ON PC (WoL)</button>
+        <button class="lock-btn" onclick="bridgeClient.triggerQuickAction('lock')">🔒 LOCK WORKSTATION</button>
+      </div>
+
+      <div class="btn-grid">
+        <button class="buy-btn" onclick="bridgeClient.dispatchTrade('XAUUSD', 'BUY', 0.01, 2720.0, 2735.0)">📈 1-CLICK BUY GOLD (0.01)</button>
+        <button class="sell-btn" onclick="bridgeClient.dispatchTrade('XAUUSD', 'SELL', 0.01, 2740.0, 2725.0)">📉 1-CLICK SELL GOLD (0.01)</button>
+      </div>
+
+      <div class="btn-grid">
+        <button class="sec-btn" onclick="bridgeClient.triggerQuickAction('mute')">🔇 MUTE / UNMUTE AUDIO</button>
+        <button class="sec-btn" onclick="jarvisApp.refreshVitals()">📊 REFRESH VITALS HUD</button>
+      </div>
+    </section>
+
+    <!-- 5. System Vitals & Hardware Telemetry -->
+    <section class="card vitals-card">
+      <div class="card-title">📊 MASTER WORKSTATION VITALS</div>
+      <div id="vitalsDisplay" class="vitals-display">
+        <div><b>CPU:</b> 12.4% | <b>RAM:</b> 48.2% (15.4 GB / 32 GB)</div>
+        <div><b>Drive C:</b> 62.1% | <b>Drive F (NVMe):</b> 38.5%</div>
+        <div><b>Status:</b> ALL 10 CORE SERVICES HEALTHY</div>
+      </div>
+    </section>
+
+    <!-- 6. Mobile Device Hardware Telemetry -->
+    <section class="card mobile-telem-card">
+      <div class="card-title">📱 MOBILE TELEMETRY (24/7 BACKGROUND LINK)</div>
+      <div id="deviceTelemetryDisplay" class="mobile-telem-display">
+        <span>🔋 92% (⚡)</span> | <span>📶 JARVIS-SECURE-5G (-44 dBm)</span> | <span>📱 Companion Phone</span>
+      </div>
+    </section>
+
+    <!-- 7. Bi-Directional Clipboard Sync -->
+    <section class="card clipboard-card">
+      <div class="card-title">📋 BI-DIRECTIONAL CLIPBOARD SYNC</div>
+      <div class="clip-row">
+        <input id="clipInput" type="text" placeholder="Enter text to push to PC clipboard...">
+        <button class="pri-btn" onclick="jarvisApp.syncClipboard()">PUSH</button>
+      </div>
+    </section>
+
+    <!-- 8. Connection Configuration -->
+    <section class="card config-card">
+      <div class="card-title">⚙️ MASTER GATEWAY LINK SETTINGS</div>
+      <div class="config-grid">
+        <input id="serverHostInput" type="text" value="http://127.0.0.1:8765" placeholder="Host URL (e.g. http://192.168.100.17:8765)">
+        <input id="serverTokenInput" type="text" value="CfHj8WkUTMdKFd5bxyDH5W3QDpbsWL08" placeholder="Access Token">
+        <button class="pri-btn" onclick="jarvisApp.saveConfig()">SAVE &amp; RECONNECT</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="avatar.js"></script>
+  <script src="bridge_client.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

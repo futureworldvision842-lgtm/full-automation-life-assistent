@@ -1,0 +1,141 @@
+{
+  "name": "Geopolitical Shock & Maritime Threat Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
+      },
+      "name": "Interval Trigger (10m)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:3000/api/geopolitical/conflicts",
+        "options": {}
+      },
+      "name": "Fetch Conflict Incidents",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:3000/api/maritime/chokepoints",
+        "options": {}
+      },
+      "name": "Fetch Chokepoint Risk Telemetry",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const chokepoints = $items('Fetch Chokepoint Risk Telemetry')[0].json;\nconst maxRisk = Math.max(...(chokepoints.items || [{risk_score: 50}]).map(c => c.risk_score || 50));\nconst multiplier = Number((1.0 + maxRisk / 200.0).toFixed(3));\nreturn [{ json: {\n  shock_multiplier: multiplier,\n  defcon_level: multiplier > 1.3 ? 2 : (multiplier > 1.15 ? 3 : 4),\n  gold_safe_haven: multiplier > 1.2 ? 'ACCELERATED_LONG' : 'NEUTRAL',\n  oil_risk_premium: (multiplier * 4.5).toFixed(2)\n}}];"
+      },
+      "name": "Compute Geopolitical Shock Multiplier",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:8770/api/trading/risk_multiplier",
+        "method": "POST",
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "multiplier",
+              "value": "={{ $json.shock_multiplier }}"
+            },
+            {
+              "name": "defcon",
+              "value": "={{ $json.defcon_level }}"
+            },
+            {
+              "name": "gold_bias",
+              "value": "={{ $json.gold_safe_haven }}"
+            }
+          ]
+        }
+      },
+      "name": "Update Quant Trading Engine",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        980,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Interval Trigger (10m)": {
+      "main": [
+        [
+          {
+            "node": "Fetch Conflict Incidents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Conflict Incidents": {
+      "main": [
+        [
+          {
+            "node": "Fetch Chokepoint Risk Telemetry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Chokepoint Risk Telemetry": {
+      "main": [
+        [
+          {
+            "node": "Compute Geopolitical Shock Multiplier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Geopolitical Shock Multiplier": {
+      "main": [
+        [
+          {
+            "node": "Update Quant Trading Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

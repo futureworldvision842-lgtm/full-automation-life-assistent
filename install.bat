@@ -36,8 +36,8 @@ set "VPY=.venv\Scripts\python.exe"
 
 :: ---- 3. Install Python dependencies ----
 echo [3/6] Installing Python packages (this can take a few minutes) ...
-"%VPY%" -m pip install --upgrade pip >nul
-"%VPY%" -m pip install -r requirements.txt || ( echo [X] pip install failed & pause & exit /b 1 )
+"%VPY%" -m pip install --no-cache-dir --upgrade pip >nul
+"%VPY%" -m pip install --no-cache-dir -r requirements.txt || ( echo [X] pip install failed & pause & exit /b 1 )
 
 :: ---- 4. Install Playwright browser (for web control) ----
 echo [4/6] Installing Playwright browser ...

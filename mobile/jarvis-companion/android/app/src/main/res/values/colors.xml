@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_dark">#030811</color>
+    <color name="panel_bg">#071524</color>
+    <color name="cyan_primary">#00F0FF</color>
+    <color name="green_status">#00FF88</color>
+    <color name="red_alert">#FF3366</color>
+    <color name="amber_warning">#FFB800</color>
+    <color name="text_main">#D4F0FC</color>
+    <color name="border_cyan">#103A57</color>
+</resources>

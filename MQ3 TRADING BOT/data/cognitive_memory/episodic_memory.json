@@ -1,0 +1,62 @@
+[
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 0.0,
+    "is_win": false,
+    "pattern": "OTE_705_FIBONACCI",
+    "reason": "Nightly Retrospective Audit: NEWS_SHOCK_SWEEP (Accuracy: 95.4%)",
+    "regime": "RISK_OFF_GOLD_SURGE",
+    "timestamp": "2026-08-15T02:37:57.510597"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 0.0,
+    "is_win": false,
+    "pattern": "OTE_705_FIBONACCI",
+    "reason": "Nightly Retrospective Audit: NEWS_SHOCK_SWEEP (Accuracy: 95.4%)",
+    "regime": "RISK_OFF_GOLD_SURGE",
+    "timestamp": "2026-08-15T02:38:05.642019"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 0.0,
+    "is_win": false,
+    "pattern": "OTE_705_FIBONACCI",
+    "reason": "Nightly Retrospective Audit: NEWS_SHOCK_SWEEP (Accuracy: 95.4%)",
+    "regime": "RISK_OFF_GOLD_SURGE",
+    "timestamp": "2026-08-15T02:38:14.309860"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 0.0,
+    "is_win": false,
+    "pattern": "OTE_705_FIBONACCI",
+    "reason": "Nightly Retrospective Audit: NEWS_SHOCK_SWEEP (Accuracy: 95.4%)",
+    "regime": "RISK_OFF_GOLD_SURGE",
+    "timestamp": "2026-08-15T02:38:52.949177"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 0.0,
+    "is_win": false,
+    "pattern": "OTE_705_FIBONACCI",
+    "reason": "Nightly Retrospective Audit: NEWS_SHOCK_SWEEP (Accuracy: 95.4%)",
+    "regime": "RISK_OFF_GOLD_SURGE",
+    "timestamp": "2026-08-15T02:39:01.048159"
+  },
+  {
+    "symbol": "XAUUSD",
+    "direction": "BUY",
+    "pnl": 0.0,
+    "is_win": false,
+    "pattern": "OTE_705_FIBONACCI",
+    "reason": "Nightly Retrospective Audit: NEWS_SHOCK_SWEEP (Accuracy: 95.4%)",
+    "regime": "RISK_OFF_GOLD_SURGE",
+    "timestamp": "2026-08-15T02:39:09.809237"
+  }
+]

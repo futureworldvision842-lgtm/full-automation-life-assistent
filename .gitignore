@@ -16,6 +16,9 @@ wa/test_auth/
 wa/test_ipv4_auth/
 wa/test_clean_auth/
 wa/test_clean_auth_2/
+wa/qr_raw.txt
+wa/qr_current.txt
+**/.wa_auth/
 **/wa_sender_session/
 **/tokens/
 *.stop
@@ -75,3 +78,73 @@ apps/**/.next/
 
 # Boss's personal founder identity/persona — local only (loads into JARVIS if present)
 core/founder_mission.md
+
+ai assistant_old/
+.venv/
+__pycache__/
+*.log
+
+# Heavy agent directories and tool clones
+.agents/
+.claude/
+.gemini/
+scratch/
+quarantine/
+backups/
+runtime/backups/
+runtime/*.bak
+
+# Test caches & temporary runs
+.pytest_cache/
+tests/.pytest_cache/
+.pytest_temp/
+
+# Heavy external vendor trees
+MQ3 TRADING BOT/repos/
+worldmonitor-main/
+**/node_modules/
+node_modules/
+
+# Database files
+database/
+memory/*.db
+memory/*.db-wal
+memory/*.db-shm
+memory/*.db-journal
+
+.pytest_tmp/
+*.tmp
+legacy_desktop_shortcuts_backup/
+recovery-20260914/
+
+wa/auth*
+wa/*archived*
+wa/*revoked*
+tests/system_diagnostics_report.json
+tests/temp_test.py
+
+# Data runtime directories, profiles & model weights
+data/browser_profile/
+data/huggingface/
+data/ollama/
+data/screenshots/
+data/higgsfield_renders/
+data/visual_reports/
+data/runtimes/
+data/speech/
+data/db/
+data/*.db
+data/*.db-wal
+data/*.db-shm
+logs/
+
+# Additional ignored folders and helpers
+PUSH_TO_GITHUB.bat
+gods-eye-view/
+integrations/gods-eye-view/
+apps/android-gods-eye-view/
+brain/
+data/
+reports/
+runtime/
+test_sample/

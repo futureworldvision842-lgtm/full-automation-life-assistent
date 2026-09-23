@@ -1,0 +1,109 @@
+{
+  "name": "Whale Transfer & On-Chain Flow Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "name": "Interval Trigger (15m)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:8770/api/institutional/whales",
+        "options": {}
+      },
+      "name": "Fetch On-Chain Whale Movements",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.transfer_usd }}",
+              "operation": "largerEqual",
+              "value2": 1000000
+            }
+          ]
+        }
+      },
+      "name": "Filter $1M+ Movements",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "channel": "crypto-bot",
+        "text": "\ud83d\udea8 *WHALE MOVEMENT DETECTED (> $1M USD)*\nAsset: {{ $json.asset }}\nAmount: {{ $json.amount }}\nUSD Value: ${{ $json.transfer_usd }}\nFrom: {{ $json.from_label }}\nTo: {{ $json.to_label }}\nSOPR Metric: 1.028 (Bullish Absorption)"
+      },
+      "name": "Notify Discord #crypto-bot",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 1,
+      "position": [
+        760,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Interval Trigger (15m)": {
+      "main": [
+        [
+          {
+            "node": "Fetch On-Chain Whale Movements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch On-Chain Whale Movements": {
+      "main": [
+        [
+          {
+            "node": "Filter $1M+ Movements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter $1M+ Movements": {
+      "main": [
+        [
+          {
+            "node": "Notify Discord #crypto-bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

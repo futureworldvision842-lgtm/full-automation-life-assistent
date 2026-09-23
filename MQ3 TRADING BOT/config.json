@@ -1,0 +1,139 @@
+{
+  "account_info": {
+    "target_account_size": 100000.0,
+    "target_account_size_source": "funding_pips_100k_challenge",
+    "currency": "USD",
+    "prop_firm": "Funding Pips",
+    "account_type": "Funding Pips 100k Evaluation"
+  },
+  "execution": {
+    "default_mode": "broker_demo",
+    "live_enabled": true,
+    "demo_telemetry_enabled": true,
+    "demo_order_execution_enabled": true,
+    "require_demo_confirmation_env": false,
+    "demo_confirmation_env": "MQ3_DEMO_TRADING_CONFIRMATION",
+    "demo_confirmation_phrase": "I_ACCEPT_DEMO_TRADING_RISK",
+    "require_live_confirmation_env": false,
+    "live_confirmation_env": "MQ3_LIVE_TRADING_CONFIRMATION",
+    "live_confirmation_phrase": "I_ACCEPT_LIVE_TRADING_RISK",
+    "allow_synthetic_data_for_live_orders": true,
+    "require_human_approval_for_new_live_positions": false,
+    "dashboard_host": "127.0.0.1",
+    "max_order_lots": 1.0,
+    "require_central_admission_receipt": false,
+    "enable_unattended_routine_broadcasts": true
+  },
+  "account_validation": {
+    "expected_login": 40000294403,
+    "expected_server": "FundingPips-Trial",
+    "target_login": 40000294403,
+    "target_server": "FundingPips-Trial",
+    "terminal_path": "C:\\Program Files\\MetaTrader 5\\terminal64.exe",
+    "expected_trade_mode": "DEMO",
+    "allow_demo_accounts": true,
+    "allow_real_money_accounts": true
+  },
+  "risk_management": {
+    "max_daily_loss_pct": 4.0,
+    "max_total_loss_pct": 8.0,
+    "risk_per_trade_pct": 0.75,
+    "max_risk_usd_cap": 750.0,
+    "max_open_trades": 10,
+    "max_daily_trades": 20,
+    "min_rr_ratio": 2.5,
+    "dynamic_breakeven_r": 1.0,
+    "atr_sl_multiplier": 1.5,
+    "forex_atr_sl_multiplier": 1.5,
+    "gold_atr_sl_multiplier": 2.0,
+    "crypto_atr_sl_multiplier": 2.5,
+    "use_trailing_stop": true,
+    "trailing_stop_activation_rr": 1.0,
+    "trailing_stop_distance_rr": 0.5
+  },
+  "portfolio_risk": {
+    "max_open_risk_pct_per_account": 2.5,
+    "max_correlated_idea_risk_pct_per_account": 1.5,
+    "max_consecutive_losses": 3,
+    "max_daily_trades_per_account": 10,
+    "minimum_hard_limit_buffer_pct": 25.0
+  },
+  "prop_rules": {
+    "firm": "Funding Pips",
+    "default_model": "FUNDING_PIPS_100K",
+    "default_stage": "EVALUATION_PHASE_1",
+    "profit_target_pct": 8.0,
+    "max_daily_loss_pct": 4.0,
+    "max_total_loss_pct": 10.0,
+    "hard_floor_equity": 90000.0,
+    "rules_verified_on": "2026-08-27",
+    "server_timezone": "UTC+02:00",
+    "require_exact_model_before_live": false,
+    "require_exact_reward_cycle_before_master_live": false
+  },
+  "live_readiness": {
+    "config_path": "data/live_readiness.json",
+    "minimum_shadow_trading_days": 20,
+    "minimum_shadow_trades": 100,
+    "minimum_demo_trading_days": 10,
+    "minimum_demo_trades": 50,
+    "minimum_out_of_sample_profit_factor": 1.2,
+    "maximum_forward_drawdown_pct": 2.0,
+    "maximum_execution_error_rate_pct": 1.0
+  },
+  "signal_quality": {
+    "minimum_out_of_sample_trades": 100,
+    "minimum_out_of_sample_profit_factor": 1.2,
+    "maximum_validation_drawdown_pct": 4.0,
+    "minimum_estimated_reward_risk_after_costs": 1.5,
+    "minimum_cost_adjusted_expectancy_r": 0.01,
+    "maximum_calibration_brier_score": 0.25,
+    "minimum_independent_evidence_sources": 3,
+    "require_regime_support": true,
+    "require_lookahead_bias_check": true,
+    "require_verified_cost_model": true
+  },
+  "scale_out": {"enabled": true, "tp1_rr": 1.2, "tp1_close_pct": 50},
+  "spread_guard": {
+    "enabled": true,
+    "max_spread_multiplier": 2.5,
+    "max_gold_spread_points": 35.0,
+    "max_forex_spread_pips": 2.5,
+    "max_crypto_spread_points": {"BTCUSD": 50.0, "ETHUSD": 5.0, "SOLUSD": 0.5}
+  },
+  "adr_guard": {"enabled": true, "max_adr_expansion_pct": 120},
+  "symbols": ["BTCUSD", "ETHUSD", "SOLUSD", "XAUUSD", "EURUSD", "GBPUSD", "USDJPY"],
+  "gold_primary_focus": {
+    "enabled": true,
+    "gold_is_benchmark_king": true,
+    "xauusd_min_confluence_score": 4.0,
+    "other_pairs_min_confluence_score": 4.2,
+    "gold_max_risk_allocation_pct": 70,
+    "ny_close_block_start_utc": 15,
+    "ny_close_block_end_utc": 17
+  },
+  "timeframes": {"macro_tf": "H4", "trend_tf": "H1", "entry_tf": "M15", "trigger_tf": "M5", "daily_tf": "D1"},
+  "news_guard": {"enabled": true, "buffer_before_minutes": 15, "buffer_after_minutes": 15, "impact_levels": ["HIGH"]},
+  "whatsapp": {
+    "phone_number": "923468053268",
+    "api_key": "",
+    "authorized_contacts": [{"name": "Master User", "phone": "923468053268"}],
+    "strict_whitelist_only": true
+  },
+  "higgsfield": {"enabled": false, "api_key_id": "", "api_key_secret": "", "base_url": "https://api.higgsfield.ai/v1", "model": "local-candle-geometry"},
+  "public_apis": {"enabled": true, "catalog_path": "repos/public-apis/README.md", "active_categories": ["Finance", "Currency & Exchange", "Cryptocurrency", "News & Geopolitics", "Weather"]},
+  "jarvis_master": {
+    "enabled": true,
+    "repo_path": "repos/Muhammad-s-Jarvis",
+    "gold_advisor_active": true,
+    "world_monitor_active": true,
+    "broker_telemetry_active": true,
+    "position_management_active": false,
+    "system_control_active": false,
+    "screen_vision_active": false,
+    "voice_speech_active": true
+  },
+  "world_monitor": {"enabled": true, "repo_path": "worldmonitor-main", "feed_interval_seconds": 60},
+  "bot": {"poll_interval_seconds": 15, "magic_number": 250001, "dashboard_port": 5050, "log_file": "logs/trading_bot.log"},
+  "api_keys": {"openai": "", "gemini": "", "google": ""}
+}

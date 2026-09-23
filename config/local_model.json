@@ -1,0 +1,5 @@
+{
+  "active_model": "qwen2.5:0.5b",
+  "mode": "local-offline",
+  "note": "Zero-API local reasoning via Ollama"
+}

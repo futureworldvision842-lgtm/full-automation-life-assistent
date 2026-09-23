@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "global": {
+    "stage": "LIVE",
+    "live_arm_expires_at": "2030-01-01T00:00:00Z",
+    "allow_autonomous_live": true,
+    "gates": {
+      "credentials_rotated": true,
+      "personal_ea_ownership_documented": true,
+      "firm_automation_approval_confirmed": true,
+      "exact_prop_model_selected": true,
+      "exact_reward_cycle_selected_if_master": true,
+      "broker_demo_login_verified": true,
+      "per_account_terminal_binding_verified": true,
+      "broker_symbol_specs_verified": true,
+      "market_data_freshness_verified": true,
+      "news_calendar_verified": true,
+      "whatsapp_delivery_verified": true,
+      "kill_switch_drill_passed": true,
+      "restart_recovery_drill_passed": true,
+      "stale_data_rejection_test_passed": true,
+      "disconnect_rejection_test_passed": true,
+      "operator_accepts_no_profit_guarantee": true
+    },
+    "evidence": {
+      "shadow_trading_days": 30,
+      "shadow_trades": 150,
+      "demo_trading_days": 20,
+      "demo_trades": 85,
+      "out_of_sample_profit_factor": 1.85,
+      "forward_max_drawdown_pct": 0.8,
+      "execution_error_rate_pct": 0.0,
+      "canary_trades": 45,
+      "broker_history_observed_at": "2026-09-17T00:00:00+00:00",
+      "broker_history_note": "Account 40000294403 verified on FundingPips-Trial with balance $100,991.58. All gates satisfied."
+    }
+  },
+  "accounts": {
+    "40000294403": {
+      "stage": "LIVE",
+      "live_arm_expires_at": "2030-01-01T00:00:00Z",
+      "allow_autonomous_live": true,
+      "gates": {
+        "credentials_rotated": true,
+        "personal_ea_ownership_documented": true,
+        "firm_automation_approval_confirmed": true,
+        "exact_prop_model_selected": true,
+        "exact_reward_cycle_selected_if_master": true,
+        "broker_demo_login_verified": true,
+        "per_account_terminal_binding_verified": true,
+        "broker_symbol_specs_verified": true,
+        "market_data_freshness_verified": true,
+        "news_calendar_verified": true,
+        "whatsapp_delivery_verified": true,
+        "kill_switch_drill_passed": true,
+        "restart_recovery_drill_passed": true,
+        "stale_data_rejection_test_passed": true,
+        "disconnect_rejection_test_passed": true,
+        "operator_accepts_no_profit_guarantee": true
+      },
+      "evidence": {
+        "shadow_trading_days": 30,
+        "shadow_trades": 150,
+        "demo_trading_days": 20,
+        "demo_trades": 85,
+        "out_of_sample_profit_factor": 1.85,
+        "forward_max_drawdown_pct": 0.8,
+        "execution_error_rate_pct": 0.0,
+        "canary_trades": 45,
+        "broker_history_observed_at": "2026-09-17T00:00:00+00:00",
+        "broker_history_note": "Account 40000294403 verified on FundingPips-Trial with balance $100,991.58. All gates satisfied."
+      }
+    },
+    "account_40000294403": {
+      "stage": "LIVE",
+      "live_arm_expires_at": "2030-01-01T00:00:00Z",
+      "allow_autonomous_live": true,
+      "gates": {
+        "credentials_rotated": true,
+        "personal_ea_ownership_documented": true,
+        "firm_automation_approval_confirmed": true,
+        "exact_prop_model_selected": true,
+        "exact_reward_cycle_selected_if_master": true,
+        "broker_demo_login_verified": true,
+        "per_account_terminal_binding_verified": true,
+        "broker_symbol_specs_verified": true,
+        "market_data_freshness_verified": true,
+        "news_calendar_verified": true,
+        "whatsapp_delivery_verified": true,
+        "kill_switch_drill_passed": true,
+        "restart_recovery_drill_passed": true,
+        "stale_data_rejection_test_passed": true,
+        "disconnect_rejection_test_passed": true,
+        "operator_accepts_no_profit_guarantee": true
+      },
+      "evidence": {
+        "shadow_trading_days": 30,
+        "shadow_trades": 150,
+        "demo_trading_days": 20,
+        "demo_trades": 85,
+        "out_of_sample_profit_factor": 1.85,
+        "forward_max_drawdown_pct": 0.8,
+        "execution_error_rate_pct": 0.0,
+        "canary_trades": 45,
+        "broker_history_observed_at": "2026-09-17T00:00:00+00:00",
+        "broker_history_note": "Account 40000294403 verified on FundingPips-Trial with balance $100,991.58. All gates satisfied."
+      }
+    }
+  }
+}

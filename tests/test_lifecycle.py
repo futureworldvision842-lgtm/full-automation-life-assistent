@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from bootstrap import lifecycle
+from platform_runtime import MQ3_ROOT, WORLD_MONITOR_ROOT
 
 
 class LifecycleTests(unittest.TestCase):
@@ -25,7 +26,26 @@ class LifecycleTests(unittest.TestCase):
                 lifecycle.clear_manual_stop()
                 self.assertFalse(flag.exists())
 
+    def test_mq3_and_world_monitor_roots_registered(self):
+        self.assertIn(MQ3_ROOT, lifecycle.KNOWN_PROJECT_ROOTS)
+        self.assertIn(WORLD_MONITOR_ROOT, lifecycle.KNOWN_PROJECT_ROOTS)
+
+    def test_autonomous_live_daemon_and_run_py_managed(self):
+        self.assertIn("autonomous_live_daemon.py", lifecycle.MANAGED_MARKERS)
+        self.assertIn("run.py", lifecycle.MANAGED_MARKERS)
+        self.assertTrue(lifecycle.process_is_managed(
+            "python.exe",
+            ["python", "src/autonomous_live_daemon.py"],
+            str(MQ3_ROOT)
+        ))
+
+    def test_stop_managed_processes_dry_run(self):
+        result = lifecycle.stop_managed_processes(reason="test-dry-run", dry_run=True)
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["dryRun"])
+        self.assertFalse(result["manualStop"])
+        self.assertIsInstance(result["processes"], list)
+
 
 if __name__ == "__main__":
     unittest.main()
-

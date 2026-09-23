@@ -1,171 +1,222 @@
-"""Owner-controlled lifecycle helpers for the local JARVIS ecosystem.
-
-The stop path is local, explicit and reversible: it raises a manual-stop flag,
-finds only processes launched from known JARVIS project folders, and terminates
-those processes. It never scans or controls remote machines.
-"""
+"""Stop only recorded JARVIS process identities; leave unrelated apps alone."""
 from __future__ import annotations
-
 import json
 import os
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable
-
-try:
-    import psutil
-except Exception:  # pragma: no cover
-    psutil = None
-
+import subprocess
+import sys
+from datetime import datetime, timezone
+import psutil
 
 ROOT = Path(__file__).resolve().parents[1]
-STOP_FLAG = ROOT / "scratch" / "jarvis.stop"
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from bootstrap.supervisor import read_state, matching_process, STOP_FLAG
+from platform_runtime import MQ3_ROOT, WORLD_MONITOR_ROOT, GODS_EYE_VIEW_ROOT
 AUDIT_LOG = ROOT / "logs" / "lifecycle.jsonl"
-KNOWN_PROJECT_ROOTS = (
-    ROOT,
-    Path.home() / "jarvis_ts",
-    Path(r"E:\Muhammad's Work VP automation\full bot\vision-point-ai-studio-complete\backend"),
-    Path(r"E:\Muhammad's Work VP automation\full bot\vision-point-ai-studio-complete\frontend"),
-    Path(r"E:\Muhammad's Work VP automation\full bot\voice-automation my upgradation"),
-)
-RUNTIME_NAMES = {
-    "python.exe", "pythonw.exe", "node.exe", "npm.exe", "npm.cmd",
-    "bun.exe", "cmd.exe", "ollama.exe", "clawdbot.exe",
-}
+KNOWN_PROJECT_ROOTS = (ROOT, WORLD_MONITOR_ROOT, MQ3_ROOT, GODS_EYE_VIEW_ROOT)
+CORE_PORTS = (8770, 3000, 4173, 5050, 7000, 11434, 8765, 3200, 5678)
 MANAGED_MARKERS = (
-    "bootstrap\\supervisor.py", "bootstrap/supervisor.py",
-    "main.py", "dashboard.py", "mobile_control.py", "server.py", "heartbeat_reporter.py",
-    "mission_daemon.py", "jarvis_baileys.js", "jarvis_watchdog",
-    "jarvis_supervisor", "clawdbot gateway", "ollama serve",
+    "supervisor.py", "dashboard.py", "mobile_control.py", "vite", "uvicorn",
+    "ollama serve", "ollama.exe", "run.py", "autonomous_live_daemon.py",
+    "discord_bot.py", "gods-eye-view", "worldmonitor", "app.py", "main.py", "terminal.py",
+    "server.py", "heartbeat_reporter.py", "mission_daemon.py", "jarvis_baileys.js", "n8n"
 )
 
 
-def _normal(value: str | os.PathLike | None) -> str:
-    if not value:
-        return ""
-    try:
-        return os.path.normcase(os.path.abspath(os.fspath(value))).rstrip("\\/")
-    except Exception:
-        return ""
-
-
-def _under(path: str | os.PathLike | None, roots: Iterable[Path] = KNOWN_PROJECT_ROOTS) -> bool:
-    candidate = _normal(path)
-    if not candidate:
+def _under(path, roots=None) -> bool:
+    """Check whether a path is strictly inside or identical to one of the given root directories."""
+    if not path:
         return False
-    for root in roots:
-        base = _normal(root)
-        if candidate == base or candidate.startswith(base + os.sep):
-            return True
+    if roots is None:
+        roots = KNOWN_PROJECT_ROOTS
+    elif isinstance(roots, (str, Path)):
+        roots = [roots]
+    try:
+        norm_path = Path(path).resolve()
+    except Exception:
+        return False
+
+    for r in roots:
+        try:
+            norm_r = Path(r).resolve()
+            if norm_path == norm_r or norm_r in norm_path.parents:
+                return True
+        except Exception:
+            continue
     return False
 
 
-def process_is_managed(name: str, cmdline: Iterable[str], cwd: str | None) -> bool:
-    """Pure process classifier used by the real stop path and unit tests."""
-    runtime = str(name or "").lower()
-    command = " ".join(str(part) for part in (cmdline or ())).lower()
-    if runtime not in RUNTIME_NAMES and not any(runtime.endswith(item) for item in RUNTIME_NAMES):
-        return False
+def owned_entries(service_names=None, include_supervisor=True):
+    """Ownership comes only from recorded PID and creation time pairs."""
+    state = read_state()
+    entries = [state.get("supervisor", {})] if include_supervisor else []
+    for name, rec in state.get("services", {}).items():
+        if rec.get("owned") and (service_names is None or name in service_names):
+            entries.extend([rec, *rec.get("children", [])])
+    unique = {}
+    for entry in entries:
+        if "pid" in entry and "created" in entry:
+            unique[(entry["pid"], entry["created"])] = {"pid": entry["pid"], "created": entry["created"]}
+    return list(unique.values())
+
+
+def _stop_entries(entries):
+    details, remaining = [], []
+    excluded = {os.getpid(), os.getppid(), 0, 4}
+    for entry in entries:
+        proc = matching_process(entry)
+        if not proc:
+            continue
+        details.append(dict(entry))
+        if proc.pid in excluded:
+            remaining.append(proc.pid)
+            continue
+        try:
+            proc.terminate()
+        except psutil.NoSuchProcess:
+            pass
+        except psutil.Error:
+            remaining.append(proc.pid)
+    for entry in entries:
+        proc = matching_process(entry)
+        if not proc:
+            continue
+        if proc.pid in excluded:
+            remaining.append(proc.pid)
+            continue
+        try:
+            proc.wait(timeout=2)
+        except psutil.TimeoutExpired:
+            proc = matching_process(entry)
+            if proc:
+                try:
+                    proc.kill()
+                    proc.wait(timeout=2)
+                except psutil.Error:
+                    remaining.append(proc.pid)
+        except psutil.NoSuchProcess:
+            pass
+        except psutil.Error:
+            remaining.append(proc.pid)
+    for entry in entries:
+        if matching_process(entry):
+            remaining.append(entry["pid"])
+    return {"ok": not remaining, "matched": len(details), "processes": details, "remaining": sorted(set(remaining))}
+
+
+def stop_recorded_services(service_names):
+    return _stop_entries(owned_entries(set(service_names), include_supervisor=False))
+
+
+def kill_process_tree(pid, expected_created=None):
+    """Terminate only an exact recorded identity, never an arbitrary PID."""
+    for entry in owned_entries():
+        if entry.get('pid') == pid and (expected_created is None or entry.get('created') == expected_created):
+            if matching_process(entry):
+                state = read_state()
+                records = [state.get('supervisor', {}), *state.get('services', {}).values()]
+                rec = next((r for r in records if r.get('pid') == pid and r.get('created') == entry['created']), entry)
+                return _stop_entries([entry, *rec.get('children', [])])['ok']
+    return False
+
+
+def get_pids_on_port(port: int) -> list[int]:
+    """Find all PIDs listening on a given port."""
+    if port <= 0:
+        return []
+    pids = set()
+    try:
+        for conn in psutil.net_connections(kind="inet"):
+            if conn.laddr and conn.laddr.port == port and conn.pid:
+                pids.add(conn.pid)
+    except Exception:
+        pass
+    if not pids and os.name == "nt":
+        try:
+            out = subprocess.check_output(
+                ["netstat", "-ano", "-p", "tcp"],
+                text=True,
+                timeout=5,
+                creationflags=subprocess.CREATE_NO_WINDOW
+            )
+            for line in out.splitlines():
+                parts = line.strip().split()
+                if len(parts) >= 5 and parts[0].upper() == "TCP":
+                    local_addr = parts[1]
+                    state = parts[3]
+                    pid_str = parts[4]
+                    if f":{port}" in local_addr and state.upper() == "LISTENING" and pid_str.isdigit():
+                        pids.add(int(pid_str))
+        except Exception:
+            pass
+    return [p for p in pids if p not in (os.getpid(), os.getppid(), 0, 4)]
+
+
+def process_is_managed(name, cmdline, cwd):
+    """Compatibility classifier to identify JARVIS-related processes."""
     if not _under(cwd):
         return False
-    cwd_normal = _normal(cwd)
-    root_normal = _normal(ROOT)
-    if cwd_normal == root_normal or cwd_normal.startswith(root_normal + os.sep):
-        return any(marker.lower() in command for marker in MANAGED_MARKERS)
-    # External roots are dedicated JARVIS integrations; npm/bun often hides
-    # the script path from CommandLine, so their runtime process is sufficient.
-    return True
+    try:
+        cwd_path = Path(cwd).resolve()
+    except Exception:
+        cwd_path = None
+
+    name_str = str(name).lower()
+    valid_name = name_str in {"python.exe", "pythonw.exe", "node.exe", "cmd.exe", "ollama.exe", "bun.exe"}
+    if not valid_name:
+        return False
+
+    # Known external project runtime (e.g. world-monitor bun/node server)
+    if cwd_path != ROOT and any(cwd_path == r or r in cwd_path.parents for r in KNOWN_PROJECT_ROOTS[1:]) and name_str in {"bun.exe", "node.exe"}:
+        return True
+
+    cmd_str = " ".join(cmdline).lower() if isinstance(cmdline, (list, tuple)) else str(cmdline).lower()
+    return any(marker in cmd_str for marker in MANAGED_MARKERS)
 
 
-def request_manual_stop(reason: str = "owner-request") -> Path:
+def request_manual_stop(reason="owner-request"):
     STOP_FLAG.parent.mkdir(parents=True, exist_ok=True)
-    STOP_FLAG.write_text(f"{reason}\n", encoding="utf-8")
+    STOP_FLAG.write_text(reason + "\n", encoding="utf-8")
     return STOP_FLAG
 
 
-def clear_manual_stop() -> None:
-    try:
-        STOP_FLAG.unlink()
-    except FileNotFoundError:
-        pass
+def clear_manual_stop():
+    STOP_FLAG.unlink(missing_ok=True)
 
 
-def managed_processes(exclude_pids: Iterable[int] = ()):
-    if psutil is None:
-        raise RuntimeError("psutil is required for a scoped JARVIS shutdown")
-    excluded = {int(pid) for pid in exclude_pids}
-    found = []
-    for process in psutil.process_iter(["pid", "name", "cmdline"]):
-        try:
-            if process.pid in excluded:
-                continue
-            cwd = process.cwd()
-            if process_is_managed(process.info.get("name") or "", process.info.get("cmdline") or (), cwd):
-                found.append(process)
-        except (psutil.NoSuchProcess, psutil.AccessDenied, OSError):
-            continue
-    return found
+def managed_processes(exclude_pids=()):
+    excluded = {os.getpid(), os.getppid(), 0, 4, *exclude_pids}
+    return [proc for entry in owned_entries()
+            if (proc := matching_process(entry)) and proc.pid not in excluded]
 
 
-def _audit(payload: dict) -> None:
+def free_ports(ports=CORE_PORTS):
+    """Compatibility helper: only recorded owners can be stopped."""
+    freed = []
+    for port in ports:
+        for pid in get_pids_on_port(port):
+            if kill_process_tree(pid) and pid not in get_pids_on_port(port):
+                freed.append({'port': port, 'pid': pid})
+    return freed
+
+
+def stop_managed_processes(reason="owner-request", dry_run=False):
+    entries = owned_entries()
+    if dry_run:
+        details = [entry for entry in entries if matching_process(entry)]
+        return {"ok": True, "manualStop": False, "dryRun": True, "matched": len(details),
+                "processes": details, "remaining": [], "freedPorts": []}
+    request_manual_stop(reason)
+    # Stop the registry writer first so no new children can be created.
+    supervisor = read_state().get("supervisor", {})
+    if matching_process(supervisor):
+        _stop_entries([supervisor])
+    recorded = {(entry["pid"], entry["created"]): entry for entry in [*entries, *owned_entries()]}
+    result = _stop_entries(list(recorded.values()))
+    result.update(manualStop=True, dryRun=False, freedPorts=[])
     AUDIT_LOG.parent.mkdir(parents=True, exist_ok=True)
-    payload = {"at": datetime.now(timezone.utc).isoformat(), **payload}
     with AUDIT_LOG.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
-
-
-def stop_managed_processes(reason: str = "owner-request", dry_run: bool = False) -> dict:
-    if not dry_run:
-        request_manual_stop(reason)
-    processes = managed_processes({os.getpid(), os.getppid()})
-    by_pid = {process.pid: process for process in processes}
-    for process in list(processes):
-        try:
-            for child in process.children(recursive=True):
-                if child.pid not in {os.getpid(), os.getppid()}:
-                    by_pid.setdefault(child.pid, child)
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            pass
-    processes = list(by_pid.values())
-    details = []
-    for process in processes:
-        try:
-            details.append({
-                "pid": process.pid,
-                "name": process.name(),
-                "cwd": process.cwd(),
-                "command": " ".join(process.cmdline())[:500],
-            })
-        except Exception:
-            details.append({"pid": process.pid, "name": "JARVIS process"})
-
-    if not dry_run and processes:
-        def depth(item):
-            try:
-                return len(item.parents())
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                return 0
-        ordered = sorted(processes, key=depth, reverse=True)
-        for process in ordered:
-            try:
-                process.terminate()
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                pass
-        _gone, alive = psutil.wait_procs(processes, timeout=5)
-        for process in alive:
-            try:
-                process.kill()
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                pass
-        if alive:
-            psutil.wait_procs(alive, timeout=3)
-
-    result = {
-        "ok": True,
-        "manualStop": not dry_run,
-        "dryRun": bool(dry_run),
-        "matched": len(details),
-        "processes": details,
-    }
-    _audit({"event": "stop-request", "reason": reason, **result})
+        handle.write(json.dumps({"at": datetime.now(timezone.utc).isoformat(), "event": "stop-request",
+                                 "reason": reason, **result}) + "\n")
     return result
