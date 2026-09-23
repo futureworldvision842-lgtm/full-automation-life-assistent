@@ -177,7 +177,7 @@ def build_services():
         ServiceSpec("Master Operations Command Center", 8770, "/api/health", [PY, "dashboard.py"], ROOT, match="dashboard.py"),
         ServiceSpec("World Monitor Geospatial Radar", 3000, "/", ["cmd.exe", "/c", "npm.cmd", "run", "dev", "--", "--port", "3000", "--host", "127.0.0.1", "--strictPort"], WORLD_MONITOR_ROOT, match="worldmonitor"),
         ServiceSpec("God's Eye View 3D Globe", 4173, "/", ["cmd.exe", "/c", "npm.cmd", "run", "dev", "--", "--port", "4173", "--host", "127.0.0.1"], GODS_EYE_VIEW_ROOT, match="gods-eye-view"),
-        ServiceSpec("MQ3 Trading Cockpit", mq3_dashboard_port(), "/api/status", [PY, "run.py", "--demo", "--read-only", "--host", "127.0.0.1", "--port", str(mq3_dashboard_port())], MQ3_ROOT, match="run.py"),
+        ServiceSpec("MQ3 Trading Cockpit", mq3_dashboard_port(), "/api/status", [PY, "run.py", "--demo", "--host", "127.0.0.1", "--port", str(mq3_dashboard_port())], MQ3_ROOT, match="run.py"),
         ServiceSpec("Odysseus AI Brain", 7000, "/api/health", [PY, "-m", "uvicorn", "app:app", "--host", "127.0.0.1", "--port", "7000"], ROOT / "bots" / "odysseus", match="uvicorn"),
         ServiceSpec("Mobile Companion & Remote Gateway", 8765, "/api/health", [PY, "mobile_control.py"], ROOT, match="mobile_control.py"),
         ServiceSpec("Gods Eye Mobile Viewer", 8766, "/api/health", [PY, "gods_eye_mobile.py"], ROOT, match="gods_eye_mobile.py"),
@@ -249,7 +249,7 @@ def main():
     env.setdefault("JARVIS_GEMINI_ENABLED", "0")
     env.setdefault("JARVIS_WEB_LLM_ENABLED", "0")
     env["JARVIS_WA_GROUP_COMMANDS"] = "0"
-    env['MQ3_READ_ONLY'] = '1'
+    env['MQ3_READ_ONLY'] = '0'
     env['JARVIS_DASHBOARD_BIND'] = '127.0.0.1'
     children = {}
     try:

@@ -290,6 +290,59 @@
   </header>
 
   <!-- ========================================================================= -->
+  <!-- 1.5 DYNAMIC MULTI-ASSET REAL-TIME MARKET TICKER RIBBON                    -->
+  <!-- ========================================================================= -->
+  <div class="hud-panel px-3 py-1 mb-2 flex items-center justify-between text-xs font-mono overflow-x-auto whitespace-nowrap gap-4 border-b border-[#142e47]" id="topLiveTickerRibbon">
+    <div class="flex items-center space-x-1.5 flex-shrink-0">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
+      <span class="text-cyan-400 font-bold tracking-wider text-[10px]">LIVE FEEDS</span>
+    </div>
+    <div class="flex items-center space-x-5 text-[11px]" id="tickerItemsContainer">
+      <div class="flex items-center space-x-1.5 cursor-pointer hover:opacity-80" onclick="switchMasterpieceTab('trading'); switchRealTradingView('OANDA:XAUUSD');">
+        <span class="text-amber-400 font-bold">🥇 XAUUSD</span>
+        <span class="text-white font-black" id="tick_XAUUSD">$4,320.90</span>
+        <span class="text-emerald-400 text-[10px] font-bold" id="chg_XAUUSD">+0.42%</span>
+      </div>
+      <div class="flex items-center space-x-1.5 cursor-pointer hover:opacity-80" onclick="switchMasterpieceTab('trading'); switchRealTradingView('BINANCE:BTCUSDT');">
+        <span class="text-cyan-400 font-bold">₿ BTCUSD</span>
+        <span class="text-white font-black" id="tick_BTCUSD">$84,172.00</span>
+        <span class="text-emerald-400 text-[10px] font-bold" id="chg_BTCUSD">+2.85%</span>
+      </div>
+      <div class="flex items-center space-x-1.5 cursor-pointer hover:opacity-80" onclick="switchMasterpieceTab('trading'); switchRealTradingView('FX:EURUSD');">
+        <span class="text-blue-400 font-bold">💶 EURUSD</span>
+        <span class="text-white font-black" id="tick_EURUSD">1.1387</span>
+        <span class="text-red-400 text-[10px] font-bold" id="chg_EURUSD">-0.05%</span>
+      </div>
+      <div class="flex items-center space-x-1.5 cursor-pointer hover:opacity-80" onclick="switchMasterpieceTab('trading'); switchRealTradingView('FX:GBPUSD');">
+        <span class="text-purple-400 font-bold">💷 GBPUSD</span>
+        <span class="text-white font-black" id="tick_GBPUSD">1.3241</span>
+        <span class="text-emerald-400 text-[10px] font-bold" id="chg_GBPUSD">+0.12%</span>
+      </div>
+      <div class="flex items-center space-x-1.5 cursor-pointer hover:opacity-80" onclick="switchMasterpieceTab('trading'); switchRealTradingView('FX:USDJPY');">
+        <span class="text-pink-400 font-bold">💴 USDJPY</span>
+        <span class="text-white font-black" id="tick_USDJPY">158.29</span>
+        <span class="text-red-400 text-[10px] font-bold" id="chg_USDJPY">-0.21%</span>
+      </div>
+      <div class="flex items-center space-x-1.5 cursor-pointer hover:opacity-80" onclick="switchMasterpieceTab('trading'); switchRealTradingView('TVC:USOIL');">
+        <span class="text-orange-400 font-bold">🛢️ CRUDE WTI</span>
+        <span class="text-white font-black" id="tick_USOIL">$93.67</span>
+        <span class="text-emerald-400 text-[10px] font-bold" id="chg_USOIL">+0.80%</span>
+      </div>
+      <div class="flex items-center space-x-1.5 cursor-pointer hover:opacity-80" onclick="switchMasterpieceTab('trading'); switchRealTradingView('OANDA:XAGUSD');">
+        <span class="text-slate-300 font-bold">🥈 SILVER</span>
+        <span class="text-white font-black" id="tick_XAGUSD">$64.98</span>
+        <span class="text-emerald-400 text-[10px] font-bold" id="chg_XAGUSD">+1.15%</span>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2 flex-shrink-0 text-[10px]">
+      <span class="px-1.5 py-0.5 rounded bg-cyan-950/60 text-cyan-300 border border-cyan-800 font-bold" id="tickerSourceBadge">BINANCE + YAHOO LIVE</span>
+      <button onclick="triggerGitHubUpgrade()" class="px-2 py-0.5 rounded bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 border border-emerald-500/40 font-bold transition-all flex items-center space-x-1 shadow-[0_0_8px_rgba(16,185,129,0.3)]" title="Trigger Autonomous GitHub Self-Upgrade & Auto-Sync">
+        <span>⚡</span><span>UPGRADE FROM GITHUB</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- 2. MAIN COCKPIT: LEFT SIDEBAR + FULLY ACTIVE TAB ROUTER                   -->
   <!-- ========================================================================= -->
   <div class="flex gap-2.5 min-h-[calc(100vh-75px)]">

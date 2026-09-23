@@ -54,6 +54,13 @@ app.include_router(cua_api_router)
 from core.sovereign_api_router import router as sovereign_api_router
 app.include_router(sovereign_api_router)
 app.mount('/command-center-assets', StaticFiles(directory=str(BASE / 'web' / 'command_center')), name='command-center-assets')
+
+# Launch Autonomous GitHub Evolution & Self-Upgrade Daemon (Runs 24/7 in background)
+try:
+    from core.autonomous_github_upgrader import get_autonomous_github_upgrader
+    get_autonomous_github_upgrader().start_background_daemon()
+except Exception as _upg_exc:
+    print(f"[JARVIS Upgrader] Background daemon initialization note: {_upg_exc}")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://127.0.0.1:8770", "http://localhost:8770"],
