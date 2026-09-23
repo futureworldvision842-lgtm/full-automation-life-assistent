@@ -2477,9 +2477,43 @@ Listening on local event bus: http://localhost:8770/api/n8n/webhook</pre>
               <span>SLA PERFORMANCE TRACES &amp; OPTIMIZATION RECIPES</span>
               <span class="text-[9px] text-slate-400">Auto-detected via SQL GROUP BY HAVING AVG(latency_ms) &gt; 500ms</span>
             </div>
-            <div id="evoTracesList" class="max-h-36 overflow-y-auto space-y-1 font-mono text-[10px] text-slate-300">
-              <div class="p-1.5 rounded bg-[#061221] border border-[#12273d]">Loading execution traces from SQLite WAL...</div>
+          <!-- Row 3: Autonomous GitHub Recursive Upgrader & Auto-Sync Engine -->
+          <div class="mt-3 p-3 rounded bg-[#081220] border border-cyan-500/40 space-y-2.5 font-mono text-xs">
+            <div class="flex items-center justify-between pb-1.5 border-b border-[#142e47]">
+              <div class="flex items-center space-x-2">
+                <span class="text-base text-cyan-400">⚡</span>
+                <span class="text-white font-bold text-xs uppercase">AUTONOMOUS GITHUB RECURSIVE UPGRADE &amp; AUTO-SYNC ENGINE</span>
+              </div>
+              <span id="githubUpgradeBadge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[9px] font-bold border border-emerald-500/40">ONLINE // 24/7 AUTO-SYNC ACTIVE</span>
             </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-[10px]">
+              <div class="p-2 rounded bg-[#040a14] border border-[#142e47]">
+                <div class="text-slate-400">TARGET GITHUB REPO</div>
+                <div class="text-cyan-300 font-bold truncate mt-0.5">futureworldvision842-lgtm/full-automation-life-assistent</div>
+                <div class="text-[8px] text-slate-500 mt-1">Branch: main (Clean origin tracking)</div>
+              </div>
+              <div class="p-2 rounded bg-[#040a14] border border-[#142e47]">
+                <div class="text-slate-400">CURATED SOURCES MONITORED</div>
+                <div class="text-white font-bold mt-0.5">CLI-Anything &bull; trycua/cua &bull; Quant Tools</div>
+                <div class="text-[8px] text-emerald-400 mt-1">AST Sandbox &bull; Zero Secret Leaks</div>
+              </div>
+              <div class="p-2 rounded bg-[#040a14] border border-[#142e47]">
+                <div class="text-slate-400">AUTONOMOUS ACTIONS</div>
+                <div class="flex gap-1.5 mt-1">
+                  <button id="btnGithubUpgrade" onclick="triggerGitHubUpgradeNow(true)" class="flex-1 py-1 rounded bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400 text-cyan-300 font-bold text-[9px] transition-all">
+                    ⚡ CHECK &amp; UPGRADE NOW
+                  </button>
+                  <button onclick="triggerGitHubUpgradeNow(false)" class="px-2 py-1 rounded bg-[#071322] border border-[#142e47] text-slate-300 hover:text-white text-[9px]">
+                    PULL ONLY
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- Live Output Terminal -->
+            <pre id="githubUpgradeOutput" class="h-24 overflow-y-auto p-2 bg-[#020611] rounded border border-[#142e47] text-[10px] text-cyan-300 whitespace-pre-wrap leading-relaxed">
+[GITHUB UPGRADE ENGINE READY]
+Waiting for automated cycle or manual trigger...
+Click 'CHECK & UPGRADE NOW' to pull upstream updates, verify skills, and auto-push evolutions.</pre>
           </div>
         </div>
       </div>
@@ -3931,6 +3965,46 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
         }
       } catch (err) {
         if (fb) fb.innerText = `Error: ${err.message}`;
+      }
+    }
+
+    async function triggerGitHubUpgradeNow(autoPush = true) {
+      const btn = document.getElementById('btnGithubUpgrade');
+      const out = document.getElementById('githubUpgradeOutput');
+      const badge = document.getElementById('githubUpgradeBadge');
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⚡ UPGRADING...';
+      }
+      if (out) out.innerText = `[RUNNING GITHUB UPGRADE CYCLE]\nConnecting to GitHub, scanning upstream commits, verifying skills...`;
+
+      try {
+        const resp = await fetch('/api/github/upgrade-and-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ auto_push: autoPush })
+        });
+        const data = await resp.json();
+        if (data.ok) {
+          const logText = (data.log_messages || []).join('\n');
+          if (out) {
+            out.innerText = `[UPGRADE & SYNC COMPLETE - ${data.duration_ms}ms]\n${logText}\n\nUpstream Pulled: ${data.upstream_pulled} | Verified Skills: ${data.sandbox_verified_count} | Pushed: ${data.pushed_to_github ? 'SUCCESS (' + (data.pushed_commit_sha || '').slice(0,7) + ')' : 'NO CHANGES'}`;
+          }
+          if (badge) {
+            badge.innerText = data.pushed_to_github ? `PUSHED: ${(data.pushed_commit_sha || '').slice(0,7)}` : 'UP-TO-DATE';
+          }
+          showToast(`GitHub Self-Upgrade completed in ${data.duration_ms}ms!`);
+        } else {
+          if (out) out.innerText = `[UPGRADE ERROR]\n${data.error || 'Failed to complete upgrade cycle'}`;
+        }
+      } catch (err) {
+        if (out) out.innerText = `[NETWORK ERROR]\n${err.message}`;
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '⚡ CHECK & UPGRADE NOW';
+        }
       }
     }
 

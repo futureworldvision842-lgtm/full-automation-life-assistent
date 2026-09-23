@@ -48,6 +48,7 @@ class EvolutionDaemon:
                 self._check_and_heal_errors()
                 self._verify_skill_integrity()
                 self._enhance_managed_projects()
+                self._check_github_auto_upgrade()
                 if os.getenv("JARVIS_ALLOW_SCHEDULED_CLIENT_REPORTS") == "1":
                     self._check_4am_trading_report()
             except Exception as e:
@@ -94,6 +95,22 @@ class EvolutionDaemon:
                 flag_file.write_text(today_str, encoding="utf-8")
         except Exception as e:
             print(f"[EvolutionDaemon] 4AM trading report check error: {e}")
+
+    def _check_github_auto_upgrade(self):
+        """Periodically checks GitHub for upstream updates and assimilates verified capabilities."""
+        now = time.time()
+        if not hasattr(self, "_last_github_check"):
+            self._last_github_check = 0.0
+        # Check every 2 hours
+        if now - self._last_github_check > 7200.0:
+            self._last_github_check = now
+            try:
+                from core.autonomous_github_upgrader import get_autonomous_github_upgrader
+                upgrader = get_autonomous_github_upgrader()
+                receipt = upgrader.run_full_upgrade_cycle(auto_push=True)
+                print(f"[EvolutionDaemon] ⚡ GitHub Self-Upgrade executed: OK={receipt.ok}, Pulled={receipt.upstream_pulled}, Pushed={receipt.pushed_to_github}")
+            except Exception as e:
+                print(f"[EvolutionDaemon] GitHub upgrade check error: {e}")
 
     def _enhance_managed_projects(self):
         """Monitors and maintains One Piece Crew, Future World, and Jarvis Web Apps."""

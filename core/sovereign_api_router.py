@@ -21,6 +21,7 @@ from typing import Dict, Any, List, Optional, Union
 from pydantic import BaseModel, Field
 from fastapi import APIRouter, Request, HTTPException, status
 from fastapi.responses import JSONResponse
+from starlette.concurrency import run_in_threadpool
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -304,3 +305,39 @@ def create_backup_endpoint(payload: BackupRequest) -> Dict[str, Any]:
         "backup_path": str(backup_path),
         "timestamp": time.time()
     }
+
+
+# -----------------------------------------------------------------------------
+# 4. AUTONOMOUS GITHUB REPOSITORY UPGRADE & AUTO-SYNC ENDPOINTS
+# -----------------------------------------------------------------------------
+
+class GitHubUpgradeRequest(BaseModel):
+    auto_push: bool = Field(default=True, description="Whether to auto-push verified changes to GitHub")
+    commit_message: Optional[str] = Field(default=None, description="Custom commit message")
+
+
+@router.post("/github/upgrade-and-sync", summary="Trigger Autonomous GitHub Self-Upgrade & Auto-Sync")
+async def trigger_github_upgrade_endpoint(payload: GitHubUpgradeRequest = GitHubUpgradeRequest()) -> Dict[str, Any]:
+    """
+    Executes autonomous GitHub self-upgrade cycle:
+    1. Checks upstream repo and pulls updates.
+    2. Scans and compiles skills in sandbox.
+    3. Auto-pushes new verified capabilities to GitHub.
+    """
+    from core.autonomous_github_upgrader import get_autonomous_github_upgrader
+    upgrader = get_autonomous_github_upgrader()
+    receipt = await run_in_threadpool(upgrader.run_full_upgrade_cycle, auto_push=payload.auto_push)
+    return receipt.to_dict()
+
+
+@router.get("/github/upgrade-status", summary="Get GitHub Upgrade Status & Latest Receipt")
+def get_github_upgrade_status() -> Dict[str, Any]:
+    """Returns the latest autonomous GitHub self-upgrade status and receipt."""
+    from core.autonomous_github_upgrader import get_autonomous_github_upgrader
+    upgrader = get_autonomous_github_upgrader()
+    return {
+        "ok": True,
+        "is_daemon_running": upgrader.is_running,
+        "last_receipt": upgrader.last_receipt.to_dict() if upgrader.last_receipt else None
+    }
+

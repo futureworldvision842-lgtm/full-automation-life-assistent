@@ -682,9 +682,10 @@ def print_hud():
         "[bold yellow][24][/bold yellow] Supermemory Recall\n"
         "[bold yellow][25][/bold yellow] WhatsApp Daily Alpha     "
         "[bold green][26][/bold green] Ubuntu Linux Terminal     "
-        "[bold green][27][/bold green] Real CCTV Live Matrix"
+        "[bold green][27][/bold green] Real CCTV Live Matrix\n"
+        "[bold green][28][/bold green] GitHub Self-Upgrade & Auto-Sync (Assimilate & Push)"
     )
-    console.print(Panel(menu, title="[bold yellow]SOVEREIGN QUICK OPERATIONS[/bold yellow] (Type 1-27 or command in English/Roman Urdu)", border_style="yellow", box=box.ROUNDED))
+    console.print(Panel(menu, title="[bold yellow]SOVEREIGN QUICK OPERATIONS[/bold yellow] (Type 1-28 or command in English/Roman Urdu)", border_style="yellow", box=box.ROUNDED))
 
 
 
@@ -1146,6 +1147,29 @@ def handle_quick_action(choice: str) -> bool:
         except Exception as e:
             print("CCTV notice:", e)
         return True
+    elif choice == "28":
+        if _HAS_RICH:
+            console.print("[bold yellow]⚡ [GITHUB EVOLUTION] Checking upstream GitHub repo, assimilating skills & executing auto-push...[/bold yellow]")
+        try:
+            from core.autonomous_github_upgrader import get_autonomous_github_upgrader
+            upgrader = get_autonomous_github_upgrader()
+            receipt = upgrader.run_full_upgrade_cycle(auto_push=True)
+            push_info = f"[bold green]PUSHED TO GITHUB[/bold green] (Commit: [cyan]{receipt.pushed_commit_sha[:7]}[/cyan])" if receipt.pushed_to_github else "[yellow]ALREADY UP-TO-DATE (No Push Needed)[/yellow]"
+            out = (
+                f"⚡ [bold cyan]AUTONOMOUS GITHUB RECURSIVE UPGRADE RECEIPT:[/bold cyan]\n\n"
+                f"• Upstream Checked: [bold green]{receipt.upstream_checked}[/bold green] (Pulled: {receipt.upstream_pulled})\n"
+                f"• Verified Skills in Sandbox: [bold green]{receipt.sandbox_verified_count}[/bold green] Clean Modules\n"
+                f"• Remote Push Status: {push_info}\n"
+                f"• Execution Latency: [cyan]{receipt.duration_ms} ms[/cyan]\n\n"
+                f"[dim white]Log:[/dim white] {receipt.log_messages[-1] if receipt.log_messages else 'Complete'}"
+            )
+            if _HAS_RICH:
+                console.print(Panel(out, title="[bold green]⚡ GITHUB RECURSIVE EVOLUTION COMPLETE[/bold green]", border_style="green"))
+            else:
+                print(out)
+        except Exception as ge:
+            print("GitHub Upgrade Notice:", ge)
+        return True
     return False
 
 
@@ -1219,8 +1243,8 @@ def main(argv=None):
             print("🔇 Voice feedback disabled.")
             continue
 
-        # Check numeric quick action (options 1 to 25)
-        if prompt in {str(i) for i in range(1, 26)}:
+        # Check numeric quick action (options 1 to 28)
+        if prompt in {str(i) for i in range(1, 29)}:
             handle_quick_action(prompt)
             continue
 
@@ -1266,6 +1290,9 @@ def main(argv=None):
             "23": {"consensus", "consensus chamber", "debate", "tauric debate", "bahas suno", "ai consensus", "trading debate"},
             "24": {"supermemory", "supermemory recall", "yaad karo", "asbaaq dikhao", "lessons recall", "memory recall", "purani baatein"},
             "25": {"whatsapp", "whatsapp alpha", "briefing bhejo", "subah ka paighaam", "whatsapp dispatch", "daily alpha", "paighaam bhejo"},
+            "26": {"ubuntu", "linux", "bash", "terminal linux", "ubuntu terminal", "linux shell", "wsl"},
+            "27": {"cctv", "camera", "cameras", "cameras dikhao", "live camera", "cctv matrix", "cctv dikhao"},
+            "28": {"upgrade", "github upgrade", "github sync", "github push", "auto upgrade", "khud ko upgrade kero", "khud ko upgrade karo", "github se upgrade karo", "upgrade jarvis", "sync github", "repositories se upgrade", "repo upgrade"},
         }
         matched_action = None
         for action_num, phrases in urdu_en_map.items():

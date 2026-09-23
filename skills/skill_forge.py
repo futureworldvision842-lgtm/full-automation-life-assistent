@@ -1,4 +1,4 @@
-﻿"""
+"""
 skills/skill_forge.py — Sandboxed Autonomous Self-Upgrade Engine
 ================================================================
 Allows J.A.R.V.I.S. to discover open-source capabilities on GitHub, run static
