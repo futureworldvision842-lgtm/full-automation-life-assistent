@@ -1,4 +1,4 @@
-"""
+r"""
 web_autopilot — JARVIS's autonomous internet operator.
 
 Give it a GOAL and it works the web on the Boss's behalf: plans steps with

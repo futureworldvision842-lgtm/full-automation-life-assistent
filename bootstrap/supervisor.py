@@ -193,6 +193,9 @@ def build_services():
     if (ROOT / "wa/node_modules/@whiskeysockets/baileys").exists():
         services.append(ServiceSpec("WhatsApp Gateway Bridge", 3200, "/status", [shutil.which("node") or "node", "jarvis_baileys.js"], ROOT / "wa", match="jarvis_baileys.js"))
 
+    if (ROOT / "bots" / "discord_bot.py").exists():
+        services.append(ServiceSpec("Discord Bot Engine", 0, "", [PY, "bots/discord_bot.py"], ROOT, match="discord_bot.py"))
+
     return services
 
 

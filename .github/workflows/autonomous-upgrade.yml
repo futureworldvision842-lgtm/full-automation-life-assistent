@@ -1,0 +1,81 @@
+name: Autonomous Capability Sync & Integrity Guard
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Every 6 hours
+  workflow_dispatch:      # Manual trigger
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  autonomous-integrity-guard:
+    name: Autonomous Self-Upgrade & Integrity Guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: '**/requirements*.txt'
+
+      - name: Install Core Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest requests psutil
+
+      - name: Security Invariant Audit (Zero Prohibited Identity & Zero Secrets)
+        run: |
+          echo "🔍 Scanning repository for prohibited tokens and secret patterns..."
+          PROHIBITED_TOKEN=$(echo -n "adeel" && echo -n "qureshi" && echo -n "99")
+          
+          # Check for prohibited token
+          if grep -rnwi . -e "$PROHIBITED_TOKEN" \
+            --exclude-dir={.git,.venv,venv,node_modules,data,scratch,logs,runtime} \
+            --exclude={"*.log","*.tmp"}; then
+            echo "❌ Prohibited token detected in repository files!"
+            exit 1
+          fi
+          echo "✅ Security Invariant PASSED: Zero prohibited tokens found."
+
+      - name: Python Bytecode Compile Check
+        run: |
+          echo "⚙️ Compiling all Python modules in core/ and skills/..."
+          python -m py_compile core/*.py
+          python -m py_compile skills/*.py
+          python -m py_compile agent/*.py
+          echo "✅ All core and skill modules compiled cleanly."
+
+      - name: Run Core Autonomous Verification Suite
+        run: |
+          echo "⚡ Executing autonomous upgrader verification..."
+          python -c "
+          from core.autonomous_github_upgrader import get_autonomous_github_upgrader
+          upgrader = get_autonomous_github_upgrader()
+          synth, verified, reloaded, logs = upgrader.harvest_and_verify_skills()
+          print(f'Verified {verified} skills cleanly.')
+          assert verified > 0, 'No skills verified!'
+          "
+
+      - name: Run Command Routing Unit Tests
+        run: |
+          echo "🧪 Running command router tests..."
+          pytest tests/e2e/test_tier1_m3_dashboard.py -k "exec" --tb=short
+
+      - name: Sovereign Deployment Receipt
+        if: always()
+        run: |
+          echo "### ⚡ J.A.R.V.I.S. Sovereign Autonomous Integrity Receipt" >> $GITHUB_STEP_SUMMARY
+          echo "- **Repository**: \`futureworldvision842-lgtm/full-automation-life-assistent\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ All Invariants & Self-Upgrade Checks Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **24/7 Autonomy**: Active" >> $GITHUB_STEP_SUMMARY

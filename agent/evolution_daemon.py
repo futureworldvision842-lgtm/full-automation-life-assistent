@@ -75,7 +75,10 @@ class EvolutionDaemon:
         except Exception:
             print("[EvolutionDaemon] 🚨 Baileys service down on :3200. Auto-restarting...")
             try:
-                subprocess.Popen(["node", "E:\\jarvis\\wa\\jarvis_baileys.js"], cwd="E:\\jarvis\\wa")
+                wa_dir = BASE_DIR / "wa"
+                wa_script = wa_dir / "jarvis_baileys.js"
+                if wa_script.exists():
+                    subprocess.Popen(["node", str(wa_script)], cwd=str(wa_dir))
             except Exception as e:
                 print(f"[AutoHealError] {e}")
 

@@ -37,22 +37,46 @@ LOG_DIR = BASE_DIR / "logs"
 
 PROHIBITED_TOKEN: str = "".join(["adeel", "qureshi", "99"])
 
-# Known curated capability sources
+# Known curated capability sources across user ecosystem & open-source agents
 CURATED_SOURCES = [
     {
+        "name": "decentralized_governance",
+        "full_name": "futureworldvision842-lgtm/Global-Ai-Decentralize-Governance-System-with-Blockchain-Transparency-and-Democracy",
+        "url": "https://github.com/futureworldvision842-lgtm/Global-Ai-Decentralize-Governance-System-with-Blockchain-Transparency-and-Democracy",
+        "category": "governance_blockchain",
+        "description": "Decentralized AI Governance System with Blockchain Transparency, Quad-Voting, and Democracy"
+    },
+    {
+        "name": "openhuman_telemetry",
+        "full_name": "futureworldvision842-lgtm/openhuman",
+        "url": "https://github.com/futureworldvision842-lgtm/openhuman",
+        "category": "biometric_health",
+        "description": "OpenHuman Autonomous Health, Biometric Telemetry, and Cross-Platform Channel Orchestrator"
+    },
+    {
+        "name": "worldmonitor_radar",
+        "full_name": "futureworldvision842-lgtm/worldmonitor",
+        "url": "https://github.com/futureworldvision842-lgtm/worldmonitor",
+        "category": "geospatial_intelligence",
+        "description": "World Monitor Geospatial Radar and Real-Time Macro Conflict/Economic Intelligence"
+    },
+    {
         "name": "cli_anything",
+        "full_name": "HKUDS/CLI-Anything",
         "url": "https://github.com/HKUDS/CLI-Anything",
         "category": "terminal_automation",
-        "description": "Cross-platform CLI and GUI automation agent"
+        "description": "Cross-platform CLI and GUI automation agent with OS command execution"
     },
     {
         "name": "cua_browser",
+        "full_name": "trycua/cua",
         "url": "https://github.com/trycua/cua",
         "category": "browser_vision",
-        "description": "Autonomous browser agent and screen vision controller"
+        "description": "Autonomous browser agent, DOM controller, and screen vision perception"
     },
     {
         "name": "quant_indicators",
+        "full_name": "futureworldvision842-lgtm/full-automation-life-assistent",
         "url": "https://github.com/futureworldvision842-lgtm/full-automation-life-assistent",
         "category": "prop_trading",
         "description": "Proprietary J.A.R.V.I.S. sovereign life assistant & prop trader suite"
@@ -114,6 +138,18 @@ class AutonomousGitHubUpgrader:
                 cls._instance = AutonomousGitHubUpgrader()
             return cls._instance
 
+    @staticmethod
+    def _run_git(args: List[str], timeout: float = 60.0) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            args,
+            cwd=str(BASE_DIR),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout
+        )
+
     # =========================================================================
     # 1. UPSTREAM GITHUB REPO CHECK & PULL
     # =========================================================================
@@ -127,37 +163,25 @@ class AutonomousGitHubUpgrader:
         before_sha = ""
         after_sha = ""
         try:
-            r0 = subprocess.run(["git", "rev-parse", "HEAD"], cwd=str(BASE_DIR), capture_output=True, text=True)
+            r0 = self._run_git(["git", "rev-parse", "HEAD"])
             before_sha = r0.stdout.strip()
             logs.append(f"Current local HEAD: {before_sha[:7]}")
 
             # Fetch origin
-            fetch_res = subprocess.run(
-                ["git", "fetch", "origin", "main"],
-                cwd=str(BASE_DIR),
-                capture_output=True,
-                text=True,
-                timeout=45
-            )
+            fetch_res = self._run_git(["git", "fetch", "origin", "main"], timeout=45.0)
             if fetch_res.returncode != 0:
                 logs.append(f"git fetch origin notice: {fetch_res.stderr.strip()[:100]}")
 
             # Check remote HEAD
-            r1 = subprocess.run(["git", "rev-parse", "origin/main"], cwd=str(BASE_DIR), capture_output=True, text=True)
+            r1 = self._run_git(["git", "rev-parse", "origin/main"])
             remote_sha = r1.stdout.strip()
             logs.append(f"Remote origin/main HEAD: {remote_sha[:7]}")
 
             if remote_sha and remote_sha != before_sha:
                 # Upstream has new commits, check if we can fast-forward pull
-                pull_res = subprocess.run(
-                    ["git", "merge", "--ff-only", "origin/main"],
-                    cwd=str(BASE_DIR),
-                    capture_output=True,
-                    text=True,
-                    timeout=30
-                )
+                pull_res = self._run_git(["git", "merge", "--ff-only", "origin/main"], timeout=30.0)
                 if pull_res.returncode == 0:
-                    r2 = subprocess.run(["git", "rev-parse", "HEAD"], cwd=str(BASE_DIR), capture_output=True, text=True)
+                    r2 = self._run_git(["git", "rev-parse", "HEAD"])
                     after_sha = r2.stdout.strip()
                     logs.append(f"Successfully pulled upstream commits to {after_sha[:7]}")
                     return True, True, before_sha, after_sha, logs
@@ -208,7 +232,28 @@ class AutonomousGitHubUpgrader:
         if not SKILLS_DIR.exists():
             SKILLS_DIR.mkdir(parents=True, exist_ok=True)
 
-        # Audit and verify existing skills in skills/
+        # 1. Synthesize missing capabilities from curated sources
+        for src in CURATED_SOURCES:
+            src_name = src["name"]
+            skill_target = SKILLS_DIR / f"{src_name}.py"
+            if not skill_target.exists():
+                try:
+                    from skills.github_skill_harvester import get_github_skill_harvester
+                    harvester = get_github_skill_harvester()
+                    ok, res = harvester.harvest_and_compile_skill({
+                        "name": src_name,
+                        "full_name": src.get("full_name", src_name),
+                        "description": src.get("description", ""),
+                        "html_url": src.get("url", ""),
+                        "stars": 500,
+                    }, skill_slug=src_name)
+                    if ok:
+                        synthesized.append(src_name)
+                        logs.append(f"Auto-assimilated new capability '{src_name}' from {src.get('url')}")
+                except Exception as ex:
+                    logs.append(f"Notice auto-assimilating {src_name}: {ex}")
+
+        # 2. Audit and verify existing skills in skills/
         for skill_file in sorted(SKILLS_DIR.glob("*.py")):
             if skill_file.name.startswith("__"):
                 continue
@@ -248,47 +293,49 @@ class AutonomousGitHubUpgrader:
         logs = []
         try:
             # Check git status
-            status_res = subprocess.run(["git", "status", "--porcelain"], cwd=str(BASE_DIR), capture_output=True, text=True)
+            status_res = self._run_git(["git", "status", "--porcelain"])
             dirty_lines = [l for l in status_res.stdout.splitlines() if l.strip()]
 
             if not dirty_lines:
                 logs.append("Working tree is completely clean. No new local changes to push.")
                 # Verify remote matches local
-                rev_res = subprocess.run(["git", "rev-parse", "HEAD"], cwd=str(BASE_DIR), capture_output=True, text=True)
+                rev_res = self._run_git(["git", "rev-parse", "HEAD"])
                 sha = rev_res.stdout.strip()
                 return True, sha, logs
 
             logs.append(f"Detected {len(dirty_lines)} modified/untracked files. Staging verified files...")
 
-            # Safety check: ensure no prohibited tokens in staged files
-            add_res = subprocess.run(["git", "add", "-A"], cwd=str(BASE_DIR), capture_output=True, text=True)
+            # Stage files
+            add_res = self._run_git(["git", "add", "-A"])
             if add_res.returncode != 0:
                 logs.append(f"git add error: {add_res.stderr.strip()[:100]}")
                 return False, "", logs
 
+            # Pre-commit safety scan on staged diff
+            diff_res = self._run_git(["git", "diff", "--cached"])
+            staged_diff = diff_res.stdout
+            if PROHIBITED_TOKEN in staged_diff:
+                logs.append("ABORTED: Prohibited identity token detected in staged git diff!")
+                self._run_git(["git", "reset", "HEAD"])
+                return False, "", logs
+            for pat in SECRET_PATTERNS:
+                if pat.search(staged_diff):
+                    logs.append("ABORTED: Secret pattern detected in staged git diff! Unstaging...")
+                    self._run_git(["git", "reset", "HEAD"])
+                    return False, "", logs
+
             # Commit
-            commit_res = subprocess.run(
-                ["git", "commit", "-m", commit_message],
-                cwd=str(BASE_DIR),
-                capture_output=True,
-                text=True
-            )
+            commit_res = self._run_git(["git", "commit", "-m", commit_message])
             if commit_res.returncode != 0:
                 logs.append(f"Commit output: {commit_res.stdout.strip()[:100]} | {commit_res.stderr.strip()[:100]}")
 
             # Get new commit SHA
-            rev_res = subprocess.run(["git", "rev-parse", "HEAD"], cwd=str(BASE_DIR), capture_output=True, text=True)
+            rev_res = self._run_git(["git", "rev-parse", "HEAD"])
             new_sha = rev_res.stdout.strip()
             logs.append(f"Local commit created: {new_sha[:7]}")
 
             # Push to origin main
-            push_res = subprocess.run(
-                ["git", "push", "origin", "main"],
-                cwd=str(BASE_DIR),
-                capture_output=True,
-                text=True,
-                timeout=60
-            )
+            push_res = self._run_git(["git", "push", "origin", "main"], timeout=60.0)
             if push_res.returncode == 0:
                 logs.append(f"Successfully pushed {new_sha[:7]} to GitHub repository!")
                 return True, new_sha, logs
