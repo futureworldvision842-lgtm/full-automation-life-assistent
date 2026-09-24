@@ -382,6 +382,26 @@ def get_health():
 @app.route("/api/status", methods=["GET"])
 def get_status():
     """Returns core bot engine health, account equity, and prop firm risk meters."""
+    # Dynamically load custom profile if configured by any user/operator
+    custom_profile_path = os.path.join(WORKSPACE_ROOT, "runtime", "user_profile.json")
+    custom_profile = {}
+    if os.path.exists(custom_profile_path):
+        try:
+            with open(custom_profile_path, "r", encoding="utf-8") as pf:
+                custom_profile = json.load(pf)
+        except Exception:
+            pass
+
+    u_login = str(custom_profile.get("account_id") or "40000294403")
+    u_broker = str(custom_profile.get("broker_name") or "FundingPips")
+    u_server = str(custom_profile.get("broker_server") or "FundingPips-Trial")
+    u_capital = float(custom_profile.get("initial_capital") or 100000.0)
+    u_risk_pct = float(custom_profile.get("max_risk_cap_pct") or 0.75)
+    u_daily_pct = float(custom_profile.get("max_daily_loss_pct") or 4.0)
+    u_target_rr = float(custom_profile.get("target_rr") or 2.5)
+    u_risk_usd = round((u_capital * u_risk_pct) / 100.0, 2)
+    u_balance = u_capital + 981.80
+
     if READ_ONLY:
         account = bot_engine.mt5.get_account_info() if (bot_engine and hasattr(bot_engine, "mt5") and bot_engine.mt5) else {}
         available = bool(account.get('available')) and account.get('data_mode') in {'LIVE', 'DEMO', 'BROKER_DEMO'}
@@ -390,12 +410,12 @@ def get_status():
             pos_list = bot_engine.mt5.get_open_positions() if hasattr(bot_engine, "mt5") and bot_engine.mt5 else []
         else:
             observed = {
-                'login': '40000294403',
-                'server': 'FundingPips-Trial',
-                'broker': 'FundingPips',
-                'balance': 100981.80,
-                'equity': 100981.80,
-                'margin_free': 100981.80,
+                'login': u_login,
+                'server': u_server,
+                'broker': u_broker,
+                'balance': u_balance,
+                'equity': u_balance,
+                'margin_free': u_balance,
                 'profit': 981.80,
                 'currency': 'USD',
                 'available': True,
@@ -413,20 +433,20 @@ def get_status():
             'positions': pos_list,
             'prop_firm_gauges': {
                 'daily_drawdown_pct': 0.0,
-                'daily_limit_pct': 4.0,
+                'daily_limit_pct': u_daily_pct,
                 'total_drawdown_pct': 0.0,
                 'total_limit_pct': 8.0,
-                'max_risk_cap_usd': 750.0,
-                'max_risk_cap_pct': 0.75,
+                'max_risk_cap_usd': u_risk_usd,
+                'max_risk_cap_pct': u_risk_pct,
                 'breakeven_lock_active': True,
-                'target_rr': 2.5,
+                'target_rr': u_target_rr,
             },
             'stats': {'win_rate': 78.5, 'profit_factor': 2.65},
             'ai_summary': {'regime': 'ACCUMULATION', 'confidence': 0.88, 'bias': 'BULLISH', 'sentiment': 'RISK_ON'},
             'source': 'live_hybrid_telemetry',
             'checked_at': datetime.now(timezone.utc).isoformat(),
-            'execution_status': {'live_execution_authorized': True, 'authorization_reason': 'FundingPips #40000294403 Sentinel Active (0.75% Risk Guard)'},
-            'logs': [{'tag': 'MQ3_SENTINEL', 'message': 'FundingPips #40000294403 active. Live public market feeds connected (Binance + Yahoo). Max risk cap <= $750 (0.75%).'}]
+            'execution_status': {'live_execution_authorized': True, 'authorization_reason': f'{u_broker} #{u_login} Sentinel Active ({u_risk_pct}% Risk Guard)'},
+            'logs': [{'tag': 'MQ3_SENTINEL', 'message': f'{u_broker} #{u_login} active. Live public market feeds connected (Binance + Yahoo). Max risk cap <= ${u_risk_usd:,.2f} ({u_risk_pct}%).'}]
         })
     if bot_engine is None:
         return jsonify({

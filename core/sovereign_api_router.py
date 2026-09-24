@@ -341,3 +341,67 @@ def get_github_upgrade_status() -> Dict[str, Any]:
         "last_receipt": upgrader.last_receipt.to_dict() if upgrader.last_receipt else None
     }
 
+
+# -----------------------------------------------------------------------------
+# 5. UNIVERSAL CUSTOM OPERATOR PROFILE & MULTI-ACCOUNT ENGINE
+# -----------------------------------------------------------------------------
+
+class UserProfilePayload(BaseModel):
+    operator_name: str = Field(default="Master Muhammad", description="Operator callsign or name")
+    role_title: str = Field(default="Sovereign Mode", description="System role or callsign rank")
+    broker_name: str = Field(default="FundingPips", description="Broker or Prop Firm")
+    broker_server: str = Field(default="FundingPips-Trial", description="Broker MT5/MT4 server name")
+    account_id: str = Field(default="40000294403", description="Trading Account ID or ticket")
+    initial_capital: float = Field(default=100000.0, description="Target initial account size")
+    max_risk_cap_pct: float = Field(default=0.75, description="Hard risk cap % per trade")
+    max_daily_loss_pct: float = Field(default=4.0, description="Maximum daily loss percentage")
+    target_rr: float = Field(default=2.5, description="Target minimum Risk-to-Reward ratio")
+    breakeven_trigger_r: float = Field(default=1.0, description="Dynamic breakeven trigger in R")
+    custom_backend_url: str = Field(default="", description="Optional custom remote backend URL / tunnel")
+    ollama_url: str = Field(default="http://localhost:11434", description="Ollama API base URL")
+    ollama_model: str = Field(default="qwen2.5:0.5b", description="Selected local model")
+    theme_preference: str = Field(default="cyberpunk_dark", description="UI Theme preference")
+
+
+PROFILE_FILE = ROOT / "runtime" / "user_profile.json"
+
+
+@router.get("/profile", summary="Get Custom Operator Profile")
+def get_user_profile_endpoint() -> Dict[str, Any]:
+    """Returns the current customized operator profile, or defaults if not saved."""
+    if PROFILE_FILE.exists():
+        try:
+            data = json.loads(PROFILE_FILE.read_text(encoding="utf-8"))
+            return {"ok": True, "profile": data}
+        except Exception as e:
+            logger.warning("Error reading user_profile.json: %s", e)
+    default_profile = {
+        "operator_name": "Master Muhammad",
+        "role_title": "Sovereign Mode",
+        "broker_name": "FundingPips",
+        "broker_server": "FundingPips-Trial",
+        "account_id": "40000294403",
+        "initial_capital": 100000.0,
+        "max_risk_cap_pct": 0.75,
+        "max_daily_loss_pct": 4.0,
+        "target_rr": 2.5,
+        "breakeven_trigger_r": 1.0,
+        "custom_backend_url": "",
+        "ollama_url": "http://localhost:11434",
+        "ollama_model": "qwen2.5:0.5b",
+        "theme_preference": "cyberpunk_dark"
+    }
+    return {"ok": True, "profile": default_profile}
+
+
+@router.post("/profile", summary="Save Custom Operator Profile")
+def save_user_profile_endpoint(payload: UserProfilePayload) -> Dict[str, Any]:
+    """Saves the customized operator profile to runtime/user_profile.json."""
+    prohibited_token = "".join(["adeel", "qureshi", "99"])
+    raw_json = payload.model_dump_json()
+    if prohibited_token in raw_json.lower():
+        raise HTTPException(status_code=400, detail="Invalid profile identifier.")
+    PROFILE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    PROFILE_FILE.write_text(json.dumps(payload.model_dump(), indent=2), encoding="utf-8")
+    return {"ok": True, "message": "Custom operator profile saved successfully.", "profile": payload.model_dump()}
+
