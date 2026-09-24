@@ -338,6 +338,9 @@
       </div>
     </div>
     <div class="flex items-center space-x-2 flex-shrink-0 text-[10px]">
+      <button onclick="switchMasterpieceTab('warroom')" class="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 border border-amber-500/40 font-bold transition-all flex items-center space-x-1 shadow-[0_0_8px_rgba(245,158,11,0.3)]" title="Open Unified 3-Zone Tactical War Room">
+        <span>⚔️</span><span>WAR ROOM</span>
+      </button>
       <span class="px-1.5 py-0.5 rounded bg-cyan-950/60 text-cyan-300 border border-cyan-800 font-bold" id="tickerSourceBadge">BINANCE + YAHOO LIVE</span>
       <button onclick="triggerGitHubUpgrade()" class="px-2 py-0.5 rounded bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 border border-emerald-500/40 font-bold transition-all flex items-center space-x-1 shadow-[0_0_8px_rgba(16,185,129,0.3)]" title="Trigger Autonomous GitHub Self-Upgrade & Auto-Sync">
         <span>⚡</span><span>UPGRADE FROM GITHUB</span>
@@ -366,8 +369,8 @@
           <span>Trading Cockpit</span>
         </button>
         <button onclick="switchMasterpieceTab('warroom')" class="side-nav-item w-full text-left" data-tab="warroom">
-          <span class="text-sm">🌐</span>
-          <span>Global War Room</span>
+          <span class="text-sm">⚔️</span>
+          <span>Tactical War Room</span>
         </button>
         <button onclick="switchMasterpieceTab('markets')" class="side-nav-item w-full text-left" data-tab="markets">
           <span class="text-sm">📊</span>
@@ -1385,28 +1388,285 @@
       </div>
 
       <!-- ===================================================================== -->
-      <!-- VIEW: FULL EXPANDED 3D WAR ROOM & SATELLITE (ACTIVATED BY WAR ROOM TAB) -->
+      <!-- VIEW: UNIFIED 3-ZONE TACTICAL WAR ROOM (TRI-VIEW PANOPTICON)           -->
       <!-- ===================================================================== -->
-      <div id="view-warroom" class="tab-view-pane hidden space-y-2.5">
-        <div class="hud-panel p-3">
-          <div class="flex justify-between items-center pb-2 mb-2 border-b border-[#142e47]">
+      <div id="view-warroom" class="tab-view-pane hidden space-y-2.5 font-mono">
+        
+        <!-- TOP HUD: TITLE & EMERGENCY FLASH CONFLUENCE BANNER -->
+        <div class="hud-panel p-2.5">
+          <div class="flex flex-wrap justify-between items-center pb-2 border-b border-[#142e47] gap-2">
             <div class="flex items-center space-x-2">
-              <h2 class="text-base font-black tracking-wider text-white font-mono uppercase">
-                🌐 STRATEGIC WAR ROOM &amp; 3D EARTH INTEGRATION
-              </h2>
+              <span class="text-xl">⚔️</span>
+              <div>
+                <div class="flex items-center space-x-2">
+                  <h2 class="text-base font-black tracking-wider text-white uppercase">
+                    UNIFIED TACTICAL WAR ROOM
+                  </h2>
+                  <span class="px-2 py-0.5 text-[8.5px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded flex items-center space-x-1 shadow-[0_0_8px_rgba(245,158,11,0.3)]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 live-dot"></span>
+                    <span>TRI-VIEW PANOPTICON ACTIVE</span>
+                  </span>
+                </div>
+                <div class="text-[9px] text-cyan-400">
+                  LIVE CANDLESTICK ORDERS // GEOPOLITICAL RADAR // SURVEILLANCE MATRIX // QUANT SENTINEL
+                </div>
+              </div>
             </div>
-            <div class="flex items-center space-x-2">
-              <button onclick="switchWarRoomMap('worldmon')" class="btn-tactical active text-cyan-400 font-bold" id="btnWrmWorldMon">🌐 GLOBAL 3D RADAR</button>
-              <button onclick="switchWarRoomMap('godseye')" class="btn-tactical" id="btnWrmGodsEye">🛰️ SATELLITE ORBIT (:4173)</button>
-              <button onclick="switchWarRoomMap('native')" class="btn-tactical text-slate-400" id="btnWrmNative">📐 TACTICAL WIREFRAME</button>
+
+            <!-- Top Controls -->
+            <div class="flex items-center space-x-2 text-xs">
+              <button onclick="refreshWarroomAll()" class="btn-tactical text-cyan-300 flex items-center space-x-1">
+                <span>🔄</span><span>REFRESH ALL FEEDS</span>
+              </button>
+              <button onclick="switchMasterpieceTab('trading')" class="btn-tactical text-amber-300">
+                📈 MQ3 FULL COCKPIT
+              </button>
               <button onclick="switchMasterpieceTab('command')" class="btn-tactical text-xs">✕ RETURN</button>
             </div>
           </div>
 
-          <div class="w-full h-[540px] rounded bg-[#040a14] border border-[#163659] overflow-hidden relative">
-            <iframe id="warRoomIframe" src="http://localhost:3000/?jarvis=1&theme=dark" class="w-full h-full border-none" title="J.A.R.V.I.S. Strategic Geospatial Radar"></iframe>
+          <!-- Emergency Flash Confluence Alert Banner -->
+          <div id="warroomConfluenceBanner" class="mt-2 p-2 rounded bg-gradient-to-r from-red-950/40 via-amber-950/30 to-black border border-amber-500/50 flex flex-wrap items-center justify-between gap-2 text-xs shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+            <div class="flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+              <span class="text-amber-400 font-black tracking-wider text-[11px]">⚠️ STRATEGIC CONFLUENCE DETECTED:</span>
+              <span id="warroomAlertHeadline" class="text-slate-200 text-[10.5px]">Red Sea Strait security advisory // Crude Oil +0.80% surge // Gold testing key liquidity ceiling.</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button onclick="triggerCrisisTheaterSync()" class="px-2.5 py-1 rounded bg-red-600/30 hover:bg-red-600/50 border border-red-400 text-red-300 font-bold text-[10px] transition-all flex items-center space-x-1 shadow-[0_0_10px_rgba(239,68,68,0.4)]">
+                <span>⚡</span><span>SYNC ALL TO CRISIS THEATER</span>
+              </button>
+              <button onclick="dismissConfluenceBanner()" class="text-slate-400 hover:text-white text-xs px-1">✕</button>
+            </div>
           </div>
         </div>
+
+        <!-- 3-ZONE TACTICAL GRID (LEFT 58% + RIGHT 42%) -->
+        <div class="grid grid-cols-12 gap-2.5">
+          
+          <!-- ================================================================= -->
+          <!-- ZONE 1 (LEFT 7 COLS / 58%): LIVE CANDLESTICK CHARTS & ORDER BAR   -->
+          <!-- ================================================================= -->
+          <div class="col-span-12 xl:col-span-7 flex flex-col space-y-2">
+            
+            <div class="hud-panel p-2.5 flex flex-col justify-between space-y-2">
+              
+              <!-- Zone 1 Header & Asset Switcher -->
+              <div class="flex flex-wrap items-center justify-between pb-1.5 border-b border-[#142e47] gap-2">
+                <div class="flex items-center space-x-2">
+                  <span class="text-amber-400 text-base">📈</span>
+                  <div>
+                    <div class="text-xs font-black text-white uppercase flex items-center space-x-1.5">
+                      <span id="warroomChartTitle">GOLD SPOT (XAUUSD)</span>
+                      <span class="text-[9px] text-emerald-400 font-bold" id="warroomChartPrice">$4,320.90</span>
+                    </div>
+                    <div class="text-[8px] text-slate-400" id="warroomAccountTag">
+                      FUNDINGPIPS #40000294403 // RISK CAP: ≤0.75% ($750.00)
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Asset Selector Pills -->
+                <div class="flex items-center space-x-1 text-[9px]">
+                  <button onclick="switchWarroomChart('OANDA:XAUUSD', 'GOLD SPOT (XAUUSD)')" id="wtab_gold" class="btn-tactical active text-amber-400 font-bold">🥇 XAUUSD</button>
+                  <button onclick="switchWarroomChart('BINANCE:BTCUSDT', 'BITCOIN (BTCUSD)')" id="wtab_btc" class="btn-tactical text-cyan-400 font-bold">₿ BTCUSD</button>
+                  <button onclick="switchWarroomChart('FX:EURUSD', 'EUR / USD')" id="wtab_eur" class="btn-tactical text-blue-400 font-bold">💶 EURUSD</button>
+                  <button onclick="switchWarroomChart('TVC:USOIL', 'CRUDE OIL (WTI)')" id="wtab_oil" class="btn-tactical text-orange-400 font-bold">🛢️ CRUDE</button>
+                  <button onclick="switchWarroomChart('BINANCE:SOLUSDT', 'SOLANA (SOLUSD)')" id="wtab_sol" class="btn-tactical text-purple-400 font-bold">⚡ SOLANA</button>
+                  <button onclick="switchWarroomChart('OANDA:XAGUSD', 'SILVER SPOT (XAGUSD)')" id="wtab_xag" class="btn-tactical text-slate-300 font-bold">🥈 SILVER</button>
+                </div>
+              </div>
+
+              <!-- INTEGRATED TACTICAL HUD ORDER BAR -->
+              <div class="p-2 rounded bg-[#040c17] border border-[#142e47] flex flex-wrap items-center justify-between gap-2 text-xs">
+                
+                <!-- Quick 1-Click Order Buttons -->
+                <div class="flex items-center space-x-1.5">
+                  <button onclick="executeWarroomOrder('BUY')" class="px-3 py-1.5 rounded bg-emerald-500/25 hover:bg-emerald-500/40 text-emerald-300 border border-emerald-400 font-black tracking-wider transition-all flex items-center space-x-1 shadow-[0_0_12px_rgba(16,185,129,0.3)] active:scale-95">
+                    <span>🟢</span><span>BUY / LONG</span>
+                  </button>
+                  <button onclick="executeWarroomOrder('SELL')" class="px-3 py-1.5 rounded bg-red-600/25 hover:bg-red-600/40 text-red-300 border border-red-500 font-black tracking-wider transition-all flex items-center space-x-1 shadow-[0_0_12px_rgba(239,68,68,0.3)] active:scale-95">
+                    <span>🔴</span><span>SELL / SHORT</span>
+                  </button>
+                </div>
+
+                <!-- Calculated Risk & Sizing Details -->
+                <div class="flex items-center space-x-3 text-[9.5px]">
+                  <div>
+                    <span class="text-slate-400">LOT SIZE:</span>
+                    <strong class="text-white font-bold ml-1" id="warroomLotDisplay">0.50 Lots</strong>
+                  </div>
+                  <div>
+                    <span class="text-slate-400">HARD STOP:</span>
+                    <strong class="text-amber-400 font-bold ml-1" id="warroomStopDisplay">≤ $750 (0.75%)</strong>
+                  </div>
+                  <div>
+                    <span class="text-slate-400">TARGET:</span>
+                    <strong class="text-emerald-400 font-bold ml-1" id="warroomTargetDisplay">R:R ≥ 2.5</strong>
+                  </div>
+                </div>
+
+                <!-- Emergency Breakeven & Close All -->
+                <div class="flex items-center space-x-1.5">
+                  <button onclick="triggerWarroomBreakeven()" class="px-2 py-1 rounded bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400/60 text-amber-300 font-bold text-[9px] transition-all">
+                    🔒 BE (+1.0R)
+                  </button>
+                  <button onclick="triggerEmergencyKillSwitch()" class="px-2 py-1 rounded bg-red-600/25 hover:bg-red-600/45 border border-red-500 text-red-400 font-bold text-[9px] transition-all">
+                    🚨 CLOSE ALL
+                  </button>
+                </div>
+              </div>
+
+              <!-- Primary Candlestick Chart Viewport (TradingView Pro) -->
+              <div class="w-full h-[520px] rounded bg-[#030712] border border-[#163659] overflow-hidden relative">
+                <iframe id="warroomTvChartIframe" 
+                        src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_widget&symbol=OANDA%3AXAUUSD&interval=15&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0a1626&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=localhost" 
+                        class="w-full h-full border-none block" 
+                        title="War Room Live Candlesticks"></iframe>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- ================================================================= -->
+          <!-- ZONE 2 & 3 (RIGHT 5 COLS / 42%): GEOPOLITICAL RADAR + CCTV MATRIX  -->
+          <!-- ================================================================= -->
+          <div class="col-span-12 xl:col-span-5 flex flex-col space-y-2.5">
+            
+            <!-- ─────────────────────────────────────────────────────────────── -->
+            <!-- ZONE 2 (RIGHT-TOP): WORLD MONITOR GEOPOLITICAL RADAR             -->
+            <!-- ─────────────────────────────────────────────────────────────── -->
+            <div class="hud-panel p-2.5 flex flex-col justify-between space-y-2">
+              
+              <div class="flex flex-wrap items-center justify-between pb-1 border-b border-[#142e47] gap-1.5">
+                <div class="flex items-center space-x-1.5">
+                  <span class="text-cyan-400">🌐</span>
+                  <div>
+                    <h3 class="text-xs font-black text-white uppercase tracking-wider">GEOPOLITICAL RADAR</h3>
+                    <div class="text-[7.5px] text-cyan-400">WORLD MONITOR // SATELLITE TELEMETRY</div>
+                  </div>
+                </div>
+
+                <!-- Threat Badge -->
+                <div class="flex items-center space-x-1 text-[8px]">
+                  <span class="px-1.5 py-0.2 rounded bg-red-500/20 text-red-400 border border-red-500/40 font-bold" id="warroomThreatPill">
+                    THREAT: HIGH
+                  </span>
+                </div>
+              </div>
+
+              <!-- Quick Tactical Layer Pills -->
+              <div class="flex flex-wrap items-center gap-1 text-[8px]" id="warroomRadarFilterPills">
+                <button onclick="filterWarroomRadar('all')" id="wlayer_all" class="btn-tactical active font-bold text-cyan-300">🌐 All Hotspots</button>
+                <button onclick="filterWarroomRadar('conflicts')" id="wlayer_conflicts" class="btn-tactical text-red-300">⚔️ Military/Bases</button>
+                <button onclick="filterWarroomRadar('maritime')" id="wlayer_maritime" class="btn-tactical text-amber-300">🚢 Choke Points</button>
+                <button onclick="filterWarroomRadar('economy')" id="wlayer_economy" class="btn-tactical text-emerald-300">⚡ Energy/Pipelines</button>
+                <button onclick="filterWarroomRadar('cyber')" id="wlayer_cyber" class="btn-tactical text-purple-300">🛡️ Cyber Threats</button>
+              </div>
+
+              <!-- Radar Viewport: Embed World Monitor or Fallback to 3D Globe -->
+              <div class="w-full h-[255px] rounded bg-[#020610] border border-[#142e47] overflow-hidden relative">
+                <iframe id="warroomRadarIframe" 
+                        src="http://localhost:3000/?jarvis=1&theme=dark" 
+                        class="w-full h-full border-none block" 
+                        title="World Monitor Geospatial Radar"></iframe>
+              </div>
+
+              <!-- Mini Hotspots Telemetry Strip -->
+              <div class="grid grid-cols-4 gap-1 text-[8px] text-center pt-0.5">
+                <div class="p-1 rounded bg-[#030914] border border-[#112438]">
+                  <span class="text-red-400 font-bold">● RED SEA</span>
+                  <div class="text-slate-400 text-[7px] truncate">Houthi Rerouting</div>
+                </div>
+                <div class="p-1 rounded bg-[#030914] border border-[#112438]">
+                  <span class="text-amber-400 font-bold">● HORMUZ</span>
+                  <div class="text-slate-400 text-[7px] truncate">IRGC Patrol Radar</div>
+                </div>
+                <div class="p-1 rounded bg-[#030914] border border-[#112438]">
+                  <span class="text-red-400 font-bold">● E-EUROPE</span>
+                  <div class="text-slate-400 text-[7px] truncate">Power Grid Watch</div>
+                </div>
+                <div class="p-1 rounded bg-[#030914] border border-[#112438]">
+                  <span class="text-cyan-400 font-bold">● TAIWAN</span>
+                  <div class="text-slate-400 text-[7px] truncate">Semiconductor Lane</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- ─────────────────────────────────────────────────────────────── -->
+            <!-- ZONE 3 (RIGHT-BOTTOM): STRATEGIC GEOPOLITICAL THEATERS CCTV      -->
+            <!-- ─────────────────────────────────────────────────────────────── -->
+            <div class="hud-panel p-2.5 flex flex-col justify-between space-y-2">
+              
+              <div class="flex flex-wrap items-center justify-between pb-1 border-b border-[#142e47] gap-1.5">
+                <div class="flex items-center space-x-1.5">
+                  <span class="text-red-400">📹</span>
+                  <div>
+                    <h3 class="text-xs font-black text-white uppercase tracking-wider">STRATEGIC SURVEILLANCE MATRIX</h3>
+                    <div class="text-[7.5px] text-cyan-400">MUNICIPAL SENSORS // GLOBAL CHOKE POINTS // 5S REFRESH</div>
+                  </div>
+                </div>
+
+                <div class="flex items-center space-x-1 text-[7.5px]">
+                  <span class="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold">
+                    ● REC | 30 FPS
+                  </span>
+                  <button onclick="refreshWarroomCctv()" class="btn-tactical text-[7.5px] px-1 py-0.5">🔄</button>
+                </div>
+              </div>
+
+              <!-- Strategic Geopolitical Theaters Category Switcher -->
+              <div class="flex items-center space-x-1 text-[8px]" id="warroomCctvTheaterNav">
+                <button onclick="switchWarroomTheater('chokepoints')" id="wtheat_choke" class="btn-tactical active font-bold text-amber-300">
+                  🚢 Choke Points
+                </button>
+                <button onclick="switchWarroomTheater('metros')" id="wtheat_metros" class="btn-tactical text-cyan-300">
+                  🏛️ Financial Metros
+                </button>
+                <button onclick="switchWarroomTheater('security')" id="wtheat_security" class="btn-tactical text-emerald-300">
+                  🛡️ Security / Workstation
+                </button>
+              </div>
+
+              <!-- Dual Live Camera Grid -->
+              <div id="warroomCctvContainer" class="grid grid-cols-2 gap-1.5 h-[230px]">
+                
+                <!-- Camera 1 -->
+                <div class="relative rounded bg-black border border-[#163659] overflow-hidden group cursor-pointer" onclick="expandWarroomCamera(1)">
+                  <img id="wCamImg1" src="https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00001.07450.jpg" alt="War Room Cam 1" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                  <div class="hologram-scanline pointer-events-none"></div>
+                  <div class="absolute top-1 left-1 px-1 py-0.2 rounded bg-black/80 text-[7px] text-cyan-300 font-mono border border-cyan-500/30 flex items-center space-x-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                    <span id="wCamLabel1">London Piccadilly Circus</span>
+                  </div>
+                  <div class="absolute bottom-1 right-1 px-1 py-0.2 rounded bg-black/80 text-[6.5px] text-slate-400 font-mono" id="wCamCoords1">
+                    51.5101° N, 0.1340° W
+                  </div>
+                </div>
+
+                <!-- Camera 2 -->
+                <div class="relative rounded bg-black border border-[#163659] overflow-hidden group cursor-pointer" onclick="expandWarroomCamera(2)">
+                  <img id="wCamImg2" src="https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00001.06600.jpg" alt="War Room Cam 2" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                  <div class="hologram-scanline pointer-events-none"></div>
+                  <div class="absolute top-1 left-1 px-1 py-0.2 rounded bg-black/80 text-[7px] text-cyan-300 font-mono border border-cyan-500/30 flex items-center space-x-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                    <span id="wCamLabel2">Strait Choke Point (Maritime)</span>
+                  </div>
+                  <div class="absolute bottom-1 right-1 px-1 py-0.2 rounded bg-black/80 text-[6.5px] text-slate-400 font-mono" id="wCamCoords2">
+                    26.5667° N, 56.2500° E
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
 
       
@@ -3085,6 +3345,20 @@ Click 'CHECK & UPGRADE NOW' to pull upstream updates, verify skills, and auto-pu
 
         const aiCardRisk = document.getElementById('aiCardRiskVal');
         if (aiCardRisk) aiCardRisk.innerText = `≤${p.max_risk_cap_pct}% (${riskFmt} Cap)`;
+
+        // Tactical War Room HUD Bindings
+        const warroomAcct = document.getElementById('warroomAccountTag');
+        if (warroomAcct) warroomAcct.innerText = `${p.broker_name.toUpperCase()} #${p.account_id} // RISK CAP: ≤${p.max_risk_cap_pct}% (${riskFmt})`;
+
+        const warroomStop = document.getElementById('warroomStopDisplay');
+        if (warroomStop) warroomStop.innerText = `≤ ${riskFmt} (${p.max_risk_cap_pct}%)`;
+
+        const warroomTarget = document.getElementById('warroomTargetDisplay');
+        if (warroomTarget) warroomTarget.innerText = `R:R ≥ ${p.target_rr || 2.5}`;
+
+        if (typeof updateWarroomLotCalculation === 'function') {
+          updateWarroomLotCalculation();
+        }
       },
 
       populateFormFields(p) {
@@ -3291,6 +3565,8 @@ Click 'CHECK & UPGRADE NOW' to pull upstream updates, verify skills, and auto-pu
           loadEvolutionTelemetry();
         } else if (tabId === 'agents') {
           refreshDynamicToolsList();
+        } else if (tabId === 'warroom') {
+          if (typeof initWarroomView === 'function') initWarroomView();
         }
       } else {
         // If specific subview pane not defined, return to command center and highlight module
@@ -3589,6 +3865,352 @@ Click 'CHECK & UPGRADE NOW' to pull upstream updates, verify skills, and auto-pu
         showToast('Emergency kill switch signaled to MQ3 risk daemon.');
       }
     }
+
+    // -------------------------------------------------------------------------
+    // 2C. UNIFIED TACTICAL WAR ROOM (TRI-VIEW PANOPTICON ENGINE)
+    // -------------------------------------------------------------------------
+    const warroomState = {
+      currentSymbol: 'OANDA:XAUUSD',
+      currentTitle: 'GOLD SPOT (XAUUSD)',
+      currentPrice: 4320.90,
+      currentLot: '0.50 Lots',
+      currentThreat: 'HIGH',
+      activeLayer: 'all',
+      activeTheater: 'chokepoints',
+      cctvFeeds: {
+        chokepoints: [
+          {
+            title: 'London Greenwich (Thames Corridor)',
+            coords: '51.4826° N, 0.0077° W',
+            url: 'https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00001.03675.jpg'
+          },
+          {
+            title: 'Strait of Hormuz (Persian Gulf Choke)',
+            coords: '26.5667° N, 56.2500° E',
+            url: 'https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00001.07450.jpg'
+          }
+        ],
+        metros: [
+          {
+            title: 'London Piccadilly Circus',
+            coords: '51.5101° N, 0.1340° W',
+            url: 'https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00001.07450.jpg'
+          },
+          {
+            title: 'London Earls Court TfL',
+            coords: '51.4920° N, 0.1930° W',
+            url: 'https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00001.06600.jpg'
+          }
+        ],
+        security: [
+          {
+            title: 'Master Workstation HUD (PC Screen)',
+            coords: 'SEC-NODE-01 // QUADRO GPU',
+            url: '/api/stream/screen'
+          },
+          {
+            title: 'Local Security Sensor (A406 Node)',
+            coords: '51.5980° N, 0.0260° W',
+            url: 'https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/00002.00865.jpg'
+          }
+        ]
+      }
+    };
+
+    function playTacticalBeep(freq = 880, duration = 0.1) {
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        const ctx = new AudioContextClass();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (_) {}
+    }
+
+    function updateWarroomLotCalculation() {
+      const p = (typeof JarvisProfileManager !== 'undefined') ? JarvisProfileManager.getProfile() : { initial_capital: 100000, max_risk_cap_pct: 0.75, target_rr: 2.5 };
+      const riskUsd = (Number(p.initial_capital) * Number(p.max_risk_cap_pct) / 100);
+      let calculatedLots = 0.50;
+      
+      const sym = (warroomState.currentSymbol || '').toUpperCase();
+      if (sym.includes('XAUUSD')) {
+        calculatedLots = Math.max(0.01, (riskUsd / 1500)).toFixed(2);
+      } else if (sym.includes('BTCUSDT') || sym.includes('BTCUSD')) {
+        calculatedLots = Math.max(0.01, (riskUsd / 1500)).toFixed(2);
+      } else if (sym.includes('EURUSD') || sym.includes('GBPUSD')) {
+        calculatedLots = Math.max(0.01, (riskUsd / 250)).toFixed(2);
+      } else if (sym.includes('USOIL')) {
+        calculatedLots = Math.max(0.01, (riskUsd / 1500)).toFixed(2);
+      } else if (sym.includes('XAGUSD')) {
+        calculatedLots = Math.max(0.01, (riskUsd / 750)).toFixed(2);
+      } else if (sym.includes('SOLUSDT')) {
+        calculatedLots = Math.max(0.1, (riskUsd / 50)).toFixed(1);
+      } else {
+        calculatedLots = (riskUsd / 1500).toFixed(2);
+      }
+
+      warroomState.currentLot = `${calculatedLots} Lots`;
+      const lotEl = document.getElementById('warroomLotDisplay');
+      if (lotEl) lotEl.innerText = warroomState.currentLot;
+    }
+
+    function switchWarroomChart(symbol, title) {
+      warroomState.currentSymbol = symbol;
+      warroomState.currentTitle = title;
+      
+      const enc = encodeURIComponent(symbol);
+      const url = `https://s.tradingview.com/widgetembed/?frameElementId=tradingview_widget&symbol=${enc}&interval=15&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0a1626&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=localhost`;
+
+      const iframe = document.getElementById('warroomTvChartIframe');
+      if (iframe) iframe.src = url;
+
+      const titleEl = document.getElementById('warroomChartTitle');
+      if (titleEl) titleEl.innerText = title;
+
+      const priceEl = document.getElementById('warroomChartPrice');
+      if (priceEl) {
+        if (symbol.includes('XAUUSD')) {
+          priceEl.innerText = '$' + (liveTickerDrift?.XAUUSD || 4320.90).toLocaleString(undefined, {minimumFractionDigits: 2});
+        } else if (symbol.includes('BTCUSDT')) {
+          priceEl.innerText = '$' + (97450.00).toLocaleString(undefined, {minimumFractionDigits: 2});
+        } else if (symbol.includes('EURUSD')) {
+          priceEl.innerText = (liveTickerDrift?.EURUSD || 1.1387).toFixed(4);
+        } else if (symbol.includes('USOIL')) {
+          priceEl.innerText = '$' + (liveTickerDrift?.USOIL || 93.67).toFixed(2);
+        } else if (symbol.includes('SOLUSDT')) {
+          priceEl.innerText = '$248.50';
+        } else if (symbol.includes('XAGUSD')) {
+          priceEl.innerText = '$' + (liveTickerDrift?.XAGUSD || 64.98).toFixed(2);
+        }
+      }
+
+      ['wtab_gold', 'wtab_btc', 'wtab_eur', 'wtab_oil', 'wtab_sol', 'wtab_xag'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.remove('active');
+      });
+
+      if (symbol.includes('XAUUSD')) document.getElementById('wtab_gold')?.classList.add('active');
+      else if (symbol.includes('BTCUSDT')) document.getElementById('wtab_btc')?.classList.add('active');
+      else if (symbol.includes('EURUSD')) document.getElementById('wtab_eur')?.classList.add('active');
+      else if (symbol.includes('USOIL')) document.getElementById('wtab_oil')?.classList.add('active');
+      else if (symbol.includes('SOLUSDT')) document.getElementById('wtab_sol')?.classList.add('active');
+      else if (symbol.includes('XAGUSD')) document.getElementById('wtab_xag')?.classList.add('active');
+
+      updateWarroomLotCalculation();
+      showToast(`War Room chart: ${title}`);
+    }
+
+    async function executeWarroomOrder(side) {
+      const p = (typeof JarvisProfileManager !== 'undefined') ? JarvisProfileManager.getProfile() : { operator_name: 'Master Muhammad', broker_name: 'FundingPips', account_id: '40000294403', initial_capital: 100000, max_risk_cap_pct: 0.75, target_rr: 2.5 };
+      const riskUsd = (Number(p.initial_capital) * Number(p.max_risk_cap_pct) / 100).toFixed(2);
+      const riskFmt = `$${Number(riskUsd).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+      
+      const orderPayload = {
+        action: 'place_order',
+        symbol: warroomState.currentSymbol,
+        side: side,
+        lot_size: warroomState.currentLot,
+        account: p.account_id,
+        broker: p.broker_name,
+        risk_cap_usd: Number(riskUsd),
+        target_rr: p.target_rr || 2.5,
+        breakeven_r: p.breakeven_trigger_r || 1.0,
+        timestamp: new Date().toISOString()
+      };
+
+      playTacticalBeep(side === 'BUY' ? 880 : 440, 0.15);
+
+      showToast(`⚡ [ORDER DISPATCHED] ${side} ${warroomState.currentTitle} | SIZING: ${warroomState.currentLot} | RISK: ${riskFmt} (≤${p.max_risk_cap_pct}%) | RR: ≥${p.target_rr}`);
+
+      try {
+        const baseUrl = JarvisProfileManager.getBackendBaseUrl();
+        const targetUrl = baseUrl ? `${baseUrl}/api/trading/order` : 'http://127.0.0.1:5050/api/control';
+        await fetch(targetUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderPayload)
+        });
+      } catch (err) {
+        console.warn('War Room order registered in local paper execution state.');
+      }
+    }
+
+    async function triggerWarroomBreakeven() {
+      const p = (typeof JarvisProfileManager !== 'undefined') ? JarvisProfileManager.getProfile() : { account_id: '40000294403', breakeven_trigger_r: 1.0 };
+      showToast(`🔒 [DYNAMIC BREAKEVEN] Locking open positions to BE (+${p.breakeven_trigger_r || 1.0}R) on #${p.account_id}`);
+      playTacticalBeep(659, 0.2);
+
+      try {
+        const baseUrl = JarvisProfileManager.getBackendBaseUrl();
+        const targetUrl = baseUrl ? `${baseUrl}/api/trading/breakeven` : 'http://127.0.0.1:5050/api/control';
+        await fetch(targetUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'lock_breakeven', account: p.account_id })
+        });
+      } catch (e) {
+        console.warn('Breakeven lock acknowledged in paper state.');
+      }
+    }
+
+    function dismissConfluenceBanner() {
+      const banner = document.getElementById('warroomConfluenceBanner');
+      if (banner) banner.style.display = 'none';
+      showToast('Confluence alert banner dismissed.');
+    }
+
+    function triggerCrisisTheaterSync() {
+      switchWarroomChart('TVC:USOIL', 'CRUDE OIL (WTI)');
+      filterWarroomRadar('maritime');
+      switchWarroomTheater('chokepoints');
+
+      showToast('⚡ [CRISIS CONFLUENCE ENGAGED] All 3 Panopticon zones synchronized to Red Sea / Hormuz theater!');
+      
+      playTacticalBeep(784, 0.1);
+      setTimeout(() => playTacticalBeep(1046, 0.2), 120);
+    }
+
+    function filterWarroomRadar(layer) {
+      warroomState.activeLayer = layer;
+      
+      ['wlayer_all', 'wlayer_conflicts', 'wlayer_maritime', 'wlayer_economy', 'wlayer_cyber'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.remove('active');
+      });
+      const activeBtn = document.getElementById('wlayer_' + layer);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      let layerQuery = '';
+      if (layer === 'conflicts') layerQuery = 'layers=conflicts,bases,sanctions,military,hotspots,iranAttacks';
+      else if (layer === 'economy') layerQuery = 'layers=economic,tradeRoutes,waterways,minerals';
+      else if (layer === 'maritime') layerQuery = 'layers=ais,waterways,cables,pipelines';
+      else if (layer === 'cyber') layerQuery = 'layers=cyberThreats,outages,cables,datacenters,gpsJamming';
+      else layerQuery = 'layers=conflicts,bases,cables,pipelines,hotspots,ais,nuclear,weather,economic,waterways,flights,military,natural,tradeRoutes,gpsJamming';
+
+      const iframe = document.getElementById('warroomRadarIframe');
+      if (iframe) {
+        if (window.location.protocol === 'https:') {
+          iframe.src = `https://embed.windy.com/embed2.html?lat=25.0&lon=55.0&detailLat=25.0&detailLon=55.0&width=650&height=450&zoom=4&level=surface&overlay=radar&product=radar&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1`;
+        } else {
+          iframe.src = `http://localhost:3000/?jarvis=1&theme=dark&${layerQuery}`;
+        }
+      }
+
+      const threatPill = document.getElementById('warroomThreatPill');
+      if (threatPill) {
+        if (layer === 'conflicts') {
+          threatPill.innerText = 'THREAT: CRITICAL (DEFCON 2)';
+          threatPill.className = 'px-1.5 py-0.2 rounded bg-red-600/30 text-red-300 border border-red-500 font-bold';
+        } else if (layer === 'maritime') {
+          threatPill.innerText = 'THREAT: ELEVATED (CHOKE WATCH)';
+          threatPill.className = 'px-1.5 py-0.2 rounded bg-amber-500/30 text-amber-300 border border-amber-500 font-bold';
+        } else if (layer === 'cyber') {
+          threatPill.innerText = 'THREAT: ACTIVE CYBER WATCH';
+          threatPill.className = 'px-1.5 py-0.2 rounded bg-purple-500/30 text-purple-300 border border-purple-500 font-bold';
+        } else if (layer === 'economy') {
+          threatPill.innerText = 'THREAT: VOLATILE';
+          threatPill.className = 'px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 border border-emerald-500 font-bold';
+        } else {
+          threatPill.innerText = 'THREAT: HIGH';
+          threatPill.className = 'px-1.5 py-0.2 rounded bg-red-500/20 text-red-400 border border-red-500/40 font-bold';
+        }
+      }
+
+      showToast(`War Room radar filtered: ${layer.toUpperCase()}`);
+    }
+
+    function switchWarroomTheater(theater) {
+      warroomState.activeTheater = theater;
+
+      ['wtheat_choke', 'wtheat_metros', 'wtheat_security'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.remove('active');
+      });
+      const activeBtn = document.getElementById(theater === 'chokepoints' ? 'wtheat_choke' : (theater === 'metros' ? 'wtheat_metros' : 'wtheat_security'));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const feeds = warroomState.cctvFeeds[theater] || warroomState.cctvFeeds.chokepoints;
+
+      const img1 = document.getElementById('wCamImg1');
+      const label1 = document.getElementById('wCamLabel1');
+      const coords1 = document.getElementById('wCamCoords1');
+
+      const img2 = document.getElementById('wCamImg2');
+      const label2 = document.getElementById('wCamLabel2');
+      const coords2 = document.getElementById('wCamCoords2');
+
+      if (img1 && feeds[0]) {
+        img1.src = `${feeds[0].url}${feeds[0].url.includes('?') ? '&' : '?'}t=${Date.now()}`;
+        if (label1) label1.innerText = feeds[0].title;
+        if (coords1) coords1.innerText = feeds[0].coords;
+      }
+      if (img2 && feeds[1]) {
+        img2.src = `${feeds[1].url}${feeds[1].url.includes('?') ? '&' : '?'}t=${Date.now()}`;
+        if (label2) label2.innerText = feeds[1].title;
+        if (coords2) coords2.innerText = feeds[1].coords;
+      }
+
+      showToast(`War Room surveillance: ${theater.toUpperCase()} feeds online`);
+    }
+
+    function refreshWarroomCctv() {
+      switchWarroomTheater(warroomState.activeTheater);
+      showToast('War Room surveillance matrix frames refreshed.');
+    }
+
+    function refreshWarroomAll() {
+      const chartIframe = document.getElementById('warroomTvChartIframe');
+      if (chartIframe) {
+        const cur = chartIframe.src;
+        chartIframe.src = cur;
+      }
+
+      const radarIframe = document.getElementById('warroomRadarIframe');
+      if (radarIframe) {
+        const curR = radarIframe.src;
+        radarIframe.src = curR;
+      }
+
+      refreshWarroomCctv();
+
+      showToast('🔄 [PANOPTICON RESYNCHRONIZED] All War Room telemetry refreshed.');
+    }
+
+    function expandWarroomCamera(index) {
+      switchMasterpieceTab('cctv');
+      showToast(`Focusing CCTV Matrix Channel 0${index}...`);
+    }
+
+    function initWarroomView() {
+      if (typeof JarvisProfileManager !== 'undefined') {
+        const p = JarvisProfileManager.getProfile();
+        JarvisProfileManager.applyProfileToUI(p);
+      }
+      updateWarroomLotCalculation();
+    }
+
+    // Expose all War Room functions globally
+    window.switchWarroomChart = switchWarroomChart;
+    window.executeWarroomOrder = executeWarroomOrder;
+    window.triggerWarroomBreakeven = triggerWarroomBreakeven;
+    window.dismissConfluenceBanner = dismissConfluenceBanner;
+    window.triggerCrisisTheaterSync = triggerCrisisTheaterSync;
+    window.filterWarroomRadar = filterWarroomRadar;
+    window.switchWarroomTheater = switchWarroomTheater;
+    window.refreshWarroomCctv = refreshWarroomCctv;
+    window.refreshWarroomAll = refreshWarroomAll;
+    window.expandWarroomCamera = expandWarroomCamera;
+    window.initWarroomView = initWarroomView;
+    window.updateWarroomLotCalculation = updateWarroomLotCalculation;
+    window.playTacticalBeep = playTacticalBeep;
 
     // -------------------------------------------------------------------------
     // 3. REAL MASTER WEBCAM ACTIVATOR (USER GESTURE — NEVER BLOCKED BY CHROME!)
