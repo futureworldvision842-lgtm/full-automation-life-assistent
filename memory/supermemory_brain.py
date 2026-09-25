@@ -399,6 +399,186 @@ class SupermemoryBrain:
             return [dict(r) for r in rows]
 
 
+    def learn_from_interaction(
+        self,
+        text: str,
+        role: str = "master",
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Cognitive Ingestion: Automatically parses natural language interactions,
+        extracts entity relationship triples, and registers persistent vector memories.
+        Handles both English and Roman Urdu patterns.
+        """
+        if not text or len(text.strip()) < 3:
+            return {"ok": False, "reason": "empty_text"}
+
+        meta = metadata or {}
+        now = time.time()
+        extracted_triples: List[Tuple[str, str, str]] = []
+
+        # 1. Pattern Extraction for Subject-Predicate-Object
+        # Invariants & Preferences
+        pref_match = re.search(r"(?:remember that|note that|hamesha|yaad rakhna)\s+([^,.]+?)\s+(?:is|ko|par|has|must be|chahiye)\s+([^,.]+)", text, re.IGNORECASE)
+        if pref_match:
+            s, o = pref_match.group(1).strip(), pref_match.group(2).strip()
+            extracted_triples.append((s, "preference", o))
+
+        # Risk & Account constraints
+        risk_match = re.search(r"(?:risk|cap|ceiling|limit)\s+(?:is|hai|set to|capped at)\s+([0-9.]+%?|\$[0-9,.]+)", text, re.IGNORECASE)
+        if risk_match:
+            val = risk_match.group(1)
+            extracted_triples.append(("RiskGovernor", "enforces_limit", val))
+
+        # Symbol / Asset directives
+        sym_match = re.search(r"\b(XAUUSD|BTCUSD|EURUSD|GBPUSD|USDJPY|SOLUSD|USOIL)\b", text, re.IGNORECASE)
+        if sym_match:
+            sym = sym_match.group(1).upper()
+            action_match = re.search(r"\b(buy|sell|long|short|bullish|bearish|scalp)\b", text, re.IGNORECASE)
+            act = action_match.group(1).lower() if action_match else "monitored"
+            extracted_triples.append((sym, "operator_bias", act))
+
+        # Mobile & PC unification assertions
+        if any(w in text.lower() for w in ["mobile", "phone", "apk", "android"]):
+            extracted_triples.append(("MobileCompanion", "linked_to", "MasterWorkstation"))
+
+        # 2. Persist Vector Memory
+        category = meta.get("category", "operator_directive" if role == "master" else "dialogue_memory")
+        tags = [role, "conversation"]
+        if sym_match:
+            tags.append(sym_match.group(1).upper())
+        if "risk" in text.lower():
+            tags.append("risk")
+
+        mem_id = self.remember(
+            content=text,
+            category=category,
+            metadata={**meta, "role": role, "timestamp": now},
+            tags=tags,
+        )
+
+        # 3. Persist Knowledge Triples
+        triple_ids = []
+        for s, p, o in extracted_triples:
+            tid = self.add_knowledge_triple(s, p, o, confidence=0.92, source_id=mem_id)
+            triple_ids.append(tid)
+
+        return {
+            "ok": True,
+            "memory_id": mem_id,
+            "category": category,
+            "triples_extracted": len(triple_ids),
+            "triples": [{"subject": s, "predicate": p, "object": o} for s, p, o in extracted_triples],
+            "stored_at": now,
+        }
+
+    def auto_ingest_trade_execution(self, trade_data: Dict[str, Any]) -> str:
+        """
+        Automatically ingests trade dispatches or closed orders into cognitive memory,
+        updating lessons and the knowledge graph in real-time.
+        """
+        symbol = str(trade_data.get("symbol", "UNKNOWN")).upper()
+        pnl = float(trade_data.get("pnl", 0.0))
+        outcome = "WIN" if pnl >= 0 else "LOSS"
+        order_type = trade_data.get("order_type", trade_data.get("type", "BUY")).upper()
+        lots = trade_data.get("lots", trade_data.get("volume", 0.1))
+        rr = trade_data.get("rr", 2.5)
+        account = trade_data.get("account_id", "FundingPips #40000294403")
+
+        desc = f"Executed {order_type} on {symbol} ({lots} lots) under {account}. R:R: {rr}. PnL: ${pnl:+.2f}."
+        rule = trade_data.get("rule", "Enforce dynamic +1.0R breakeven and strictly cap risk <= 0.75%")
+
+        lesson_id = self.record_market_lesson(
+            symbol=symbol,
+            lesson_type="AUTOMATED_EXECUTION",
+            description=desc,
+            outcome=outcome,
+            rule_deduced=rule,
+        )
+
+        # Connect account to symbol in KG
+        self.add_knowledge_triple(str(account), "traded_asset", symbol, confidence=1.0, source_id=lesson_id)
+        self.add_knowledge_triple(symbol, "latest_outcome", f"{outcome} (${pnl:+.2f})", confidence=1.0, source_id=lesson_id)
+
+        return lesson_id
+
+    def get_knowledge_graph_d3(self, limit: int = 80) -> Dict[str, Any]:
+        """
+        Exports the knowledge graph in D3 / Three.js node-link format:
+        {'nodes': [{'id': '...', 'name': '...', 'group': '...'}], 'links': [{'source': '...', 'target': '...', 'label': '...'}]}
+        """
+        with self._get_connection() as conn:
+            cur = conn.execute(
+                "SELECT subject, predicate, object, confidence FROM knowledge_graph ORDER BY id DESC LIMIT ?",
+                (limit,)
+            )
+            rows = cur.fetchall()
+
+        nodes_dict: Dict[str, Dict[str, Any]] = {}
+        links: List[Dict[str, Any]] = []
+
+        def _infer_group(name: str) -> str:
+            lower = name.lower()
+            if "qureshi" in lower or "master" in lower:
+                return "Master"
+            elif any(s in lower for s in ["xauusd", "btcusd", "eurusd", "gbpusd", "solusd", "fundingpips", "ftmo"]):
+                return "Trading"
+            elif "risk" in lower or "limit" in lower or "cap" in lower:
+                return "RiskGovernor"
+            elif "mobile" in lower or "phone" in lower or "apk" in lower:
+                return "MobileDevice"
+            elif "jarvis" in lower or "agent" in lower or "brain" in lower:
+                return "JarvisCore"
+            return "General"
+
+        for r in rows:
+            s, p, o, conf = r["subject"], r["predicate"], r["object"], r["confidence"]
+            if s not in nodes_dict:
+                nodes_dict[s] = {"id": s, "name": s, "group": _infer_group(s), "val": 12}
+            else:
+                nodes_dict[s]["val"] += 2
+
+            if o not in nodes_dict:
+                nodes_dict[o] = {"id": o, "name": o, "group": _infer_group(o), "val": 8}
+            else:
+                nodes_dict[o]["val"] += 1
+
+            links.append({
+                "source": s,
+                "target": o,
+                "label": p,
+                "confidence": conf,
+            })
+
+        return {
+            "nodes": list(nodes_dict.values()),
+            "links": links,
+            "total_nodes": len(nodes_dict),
+            "total_edges": len(links),
+        }
+
+    def expand_entity_neighborhood(self, entity_name: str, depth: int = 2) -> Dict[str, Any]:
+        """Expands 1-hop and 2-hop graph neighborhood around a query entity."""
+        triples_1 = self.query_knowledge_graph(subject=entity_name) + self.query_knowledge_graph(object_=entity_name)
+        connected_entities = set()
+        for t in triples_1:
+            connected_entities.add(t.subject)
+            connected_entities.add(t.object)
+
+        triples_2 = []
+        if depth >= 2:
+            for ent in list(connected_entities)[:10]:
+                if ent != entity_name:
+                    triples_2.extend(self.query_knowledge_graph(subject=ent))
+
+        all_triples = {f"{t.subject}|{t.predicate}|{t.object}": t for t in (triples_1 + triples_2)}.values()
+        return {
+            "entity": entity_name,
+            "triples": [t.to_dict() for t in all_triples],
+            "total_relations": len(all_triples),
+        }
+
+
 _global_brain: Optional[SupermemoryBrain] = None
 
 def get_supermemory_brain() -> SupermemoryBrain:
@@ -406,3 +586,4 @@ def get_supermemory_brain() -> SupermemoryBrain:
     if _global_brain is None:
         _global_brain = SupermemoryBrain()
     return _global_brain
+

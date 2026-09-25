@@ -1593,6 +1593,97 @@
 
           </div>
 
+          <!-- Row 2.5: UNIVERSAL MULTI-BROKER & PROP ACCOUNT AUTO-PILOT ONBOARDING -->
+          <div class="mt-2.5 p-3 rounded bg-[#06101c] border-2 border-cyan-500/50 font-mono text-[9.5px] shadow-[0_0_20px_rgba(0,240,255,0.12)]">
+            <div class="flex flex-wrap justify-between items-center pb-2 mb-2 border-b border-[#142e47] gap-2">
+              <div class="flex items-center space-x-2">
+                <span class="text-base text-cyan-400">⚡</span>
+                <div>
+                  <span class="text-white font-bold text-xs uppercase tracking-wider">UNIVERSAL MULTI-BROKER &amp; PROP FIRM AUTO-PILOT ONBOARDING</span>
+                  <div class="text-[8.5px] text-cyan-400">SUBMIT ANY ACCOUNT // AUTO-PILOT MT5 INSTANCE ALLOCATION // ANTI-BAN SHIELD</div>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[8.5px] font-bold border border-emerald-500/40" id="fleetCountBadge">13 ACCOUNTS MANAGED</span>
+                <button onclick="loadFleetAccountsData()" class="btn-tactical text-[9px] py-0.5 px-2">🔄 REFRESH FLEET</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+              <!-- Left: 1-Click Interactive Onboarding Form -->
+              <div class="lg:col-span-6 p-2.5 rounded bg-[#040a15] border border-[#142e47] space-y-2">
+                <div class="text-white font-bold text-[10px] pb-1 border-b border-[#142e47] flex justify-between">
+                  <span>➕ ONBOARD NEW ACCOUNT / BROKER</span>
+                  <span class="text-emerald-400 text-[8.5px]">ZERO SECRETS LEAKED // ISOLATED MT5</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-[9px]">
+                  <div>
+                    <label class="text-slate-400 block mb-0.5">Account ID / Login ID *</label>
+                    <input id="onboardLoginId" type="text" placeholder="e.g. 4000088912" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 focus:outline-none focus:border-cyan-400" />
+                  </div>
+                  <div>
+                    <label class="text-slate-400 block mb-0.5">Account Label / Client Name</label>
+                    <input id="onboardAccName" type="text" placeholder="e.g. Client Personal MT5" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 focus:outline-none focus:border-cyan-400" />
+                  </div>
+                  <div>
+                    <label class="text-slate-400 block mb-0.5">Broker Server *</label>
+                    <input id="onboardBrokerServer" type="text" placeholder="e.g. FundingPips-Server, FTMO-Server" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 focus:outline-none focus:border-cyan-400" />
+                  </div>
+                  <div>
+                    <label class="text-slate-400 block mb-0.5">Trader Password</label>
+                    <input id="onboardPassword" type="password" placeholder="••••••••" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 focus:outline-none focus:border-cyan-400" />
+                  </div>
+                  <div>
+                    <label class="text-slate-400 block mb-0.5">Account Balance ($ USD) *</label>
+                    <input id="onboardBalance" type="number" placeholder="100000" value="100000" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 focus:outline-none focus:border-cyan-400" />
+                  </div>
+                  <div>
+                    <label class="text-slate-400 block mb-0.5">Firm Preset &amp; Rules</label>
+                    <select id="onboardPreset" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 focus:outline-none focus:border-cyan-400">
+                      <option value="FundingPips">FundingPips (0.75% / $750 cap, BE +1.0R)</option>
+                      <option value="FTMO">FTMO Institutional (0.50% / $500 cap)</option>
+                      <option value="Topstep">Topstep Futures ($50k-$150k)</option>
+                      <option value="PersonalBroker">Personal MT5 Broker (0.75% dynamic)</option>
+                      <option value="Exness">Exness Pro Forex &amp; Crypto</option>
+                      <option value="Binance">Binance Spot / Perp Algorithm</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center pt-1 border-t border-[#142e47]">
+                  <span class="text-[8px] text-slate-400">Layer 1-5 Anti-Ban &bull; SOCKS5 Proxy &bull; Auto-BE</span>
+                  <button id="btnLaunchAutoPilot" onclick="submitOnboardAccount()" class="py-1 px-3 rounded bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-bold text-[9.5px] shadow-[0_0_12px_rgba(0,240,255,0.3)] transition-all">
+                    🚀 LAUNCH AUTONOMOUS AUTO-PILOT
+                  </button>
+                </div>
+                <div id="onboardResultFeedback" class="hidden p-1.5 rounded bg-[#020611] text-[8.5px] border border-cyan-800"></div>
+              </div>
+
+              <!-- Right: Active Fleet Accounts List -->
+              <div class="lg:col-span-6 p-2.5 rounded bg-[#040a15] border border-[#142e47] flex flex-col justify-between">
+                <div>
+                  <div class="text-white font-bold text-[10px] pb-1 border-b border-[#142e47] flex justify-between">
+                    <span>🏢 REGISTERED FLEET &amp; MULTI-TENANT ACCOUNTS</span>
+                    <span class="text-cyan-400 text-[8.5px]">CLICK TO ACTIVATE IN COCKPIT</span>
+                  </div>
+                  <div id="fleetAccountsTable" class="mt-1 space-y-1 max-h-[145px] overflow-y-auto pr-1 text-[8.5px]">
+                    <div class="p-1.5 rounded bg-[#071526] border border-cyan-500/40 flex justify-between items-center">
+                      <div>
+                        <span class="text-white font-bold">FundingPips #40000294403</span>
+                        <span class="text-slate-400 ml-1">($100,981.80)</span>
+                        <div class="text-[7.5px] text-emerald-400">ACTIVE COCKPIT • RISK &le; 0.75% • PROXY: AE</div>
+                      </div>
+                      <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[7.5px] font-bold">LIVE</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="pt-1 border-t border-[#142e47] text-[8px] text-slate-400 flex justify-between">
+                  <span>Anti-Correlation: Centroid24 &amp; OneZero Protected</span>
+                  <span class="text-emerald-400 font-bold" id="fleetTotalAum">AUM: $1,151,000.00 USD</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Row 3: Dedicated Solana Meme Coin Alpha Radar & 3D Depth / CVD Absorption Matrix -->
           <div class="mt-2.5 p-3 rounded bg-[#06101c] border border-cyan-500/40 font-mono text-[9.5px]">
             <div class="flex flex-wrap justify-between items-center pb-1.5 mb-2 border-b border-[#142e47] gap-2">
@@ -2337,18 +2428,58 @@
           </div>
 
           <div class="grid grid-cols-12 gap-3.5 p-2">
-            <!-- Left: Interactive Mobile Emulator Frame -->
+            <!-- Left: Interactive Mobile Emulator Frame & Live Screen Mirror -->
             <div class="col-span-12 lg:col-span-5 flex flex-col items-center justify-center">
-              <div class="w-[330px] h-[570px] rounded-[36px] bg-black border-4 border-[#1f4a7a] p-2 flex flex-col justify-between shadow-[0_0_35px_rgba(0,229,255,0.35)] relative overflow-hidden">
+              <div class="w-[330px] h-[585px] rounded-[36px] bg-black border-4 border-[#1f4a7a] p-2 flex flex-col justify-between shadow-[0_0_35px_rgba(0,229,255,0.35)] relative overflow-hidden">
                 <!-- Phone Speaker / Camera Notch -->
                 <div class="w-24 h-4 bg-[#11263d] rounded-full mx-auto mb-1 flex items-center justify-center space-x-2 z-20">
                   <div class="w-2 h-2 rounded-full bg-slate-900 border border-slate-700"></div>
                   <div class="w-10 h-1 bg-slate-800 rounded-full"></div>
                 </div>
-                <!-- Mobile App Embed -->
+
+                <!-- Display Mode Toggle -->
+                <div class="flex justify-between items-center px-1 mb-1 text-[8.5px] z-20">
+                  <div class="flex space-x-1">
+                    <button id="btnMobileModeCompanion" onclick="setMobileScreenMode('companion')" class="btn-tactical py-0.5 px-2 active text-cyan-300">📱 COMPANION</button>
+                    <button id="btnMobileModeMirror" onclick="setMobileScreenMode('mirror')" class="btn-tactical py-0.5 px-2 text-emerald-300">📺 LIVE MIRROR</button>
+                  </div>
+                  <span id="mobileStreamFps" class="text-[7.5px] text-emerald-400 font-mono">30 FPS LIVE</span>
+                </div>
+
+                <!-- Mode 1: Mobile App Embed -->
                 <iframe id="expandedMobileIframe" src="/mobile" class="w-full flex-1 border-none rounded-2xl bg-[#071320]" title="Mobile Companion App"></iframe>
-                <!-- Phone Home Bar -->
-                <div class="w-32 h-1 bg-slate-600 rounded-full mx-auto mt-1 z-20"></div>
+
+                <!-- Mode 2: Live Phone Screen Mirror (ADB / WebSocket) with Click-to-Tap -->
+                <div id="expandedMobileLiveMirror" class="w-full flex-1 rounded-2xl bg-[#030914] relative hidden overflow-hidden flex flex-col items-center justify-center cursor-crosshair border border-[#143d66]" onclick="handleMobileScreenClick(event)">
+                  <img id="mobileLiveScreenImg" src="/api/mobile/screen/live" class="w-full h-full object-contain select-none" alt="Live Mobile Screen Frame" />
+                  <div class="absolute bottom-1.5 left-2 right-2 text-center text-[7.5px] text-cyan-300 bg-black/75 py-0.5 rounded backdrop-blur pointer-events-none">
+                    🎯 Click screen to tap &bull; Real-time ADB / Gateway mirror
+                  </div>
+                </div>
+
+                <!-- Android Physical Navigation Bar -->
+                <div class="flex items-center justify-around py-1 mt-1 bg-[#091b2e] rounded-xl border border-[#143d66] z-20 text-[10px]">
+                  <button onclick="sendMobileHardwareKey('back')" title="Back" class="hover:text-cyan-300 transition-colors">◀</button>
+                  <button onclick="sendMobileHardwareKey('home')" title="Home" class="hover:text-emerald-400 transition-colors">⚪</button>
+                  <button onclick="sendMobileHardwareKey('menu')" title="App Switcher" class="hover:text-amber-300 transition-colors">⏹</button>
+                  <button onclick="sendMobileHardwareKey('volume_down')" title="Vol -" class="text-[8px] hover:text-slate-200">🔉</button>
+                  <button onclick="sendMobileHardwareKey('volume_up')" title="Vol +" class="text-[8px] hover:text-slate-200">🔊</button>
+                  <button onclick="sendMobileHardwareKey('power')" title="Power / Screen" class="text-[8px] text-red-400 hover:text-red-300">⚡</button>
+                </div>
+              </div>
+
+              <!-- Quick App Matrix Below Phone -->
+              <div class="w-[330px] mt-2 p-2 rounded bg-[#050d18] border border-[#142e47] text-[8.5px]">
+                <div class="text-slate-400 mb-1 flex justify-between">
+                  <span>📱 LAUNCH ON PHONE:</span>
+                  <span class="text-cyan-400">1-Tap Intent</span>
+                </div>
+                <div class="grid grid-cols-4 gap-1 text-center font-mono">
+                  <button onclick="launchAppOnPhone('whatsapp')" class="p-1 rounded bg-[#0b2133] hover:bg-emerald-950 border border-[#17456d] text-emerald-300">💬 WhatsApp</button>
+                  <button onclick="launchAppOnPhone('mt5')" class="p-1 rounded bg-[#0b2133] hover:bg-cyan-950 border border-[#17456d] text-cyan-300">📈 MT5</button>
+                  <button onclick="launchAppOnPhone('chrome')" class="p-1 rounded bg-[#0b2133] hover:bg-amber-950 border border-[#17456d] text-amber-300">🌐 Chrome</button>
+                  <button onclick="launchAppOnPhone('camera')" class="p-1 rounded bg-[#0b2133] hover:bg-red-950 border border-[#17456d] text-red-300">📷 Camera</button>
+                </div>
               </div>
             </div>
 
@@ -3525,6 +3656,34 @@ Listening on local event bus: http://localhost:8770/api/n8n/webhook</pre>
               </div>
             </div>
             <pre id="gaicsSyncOutput" class="h-16 overflow-y-auto p-2 bg-[#020611] rounded border border-[#142e47] text-[10px] text-emerald-400 whitespace-pre-wrap leading-relaxed hidden"></pre>
+
+            <!-- GAIGS LIVE PEER SITE INTERACTIVE VIEWPORT -->
+            <div class="mt-2.5 p-2 rounded bg-[#030814] border border-emerald-500/40 space-y-2">
+              <div class="flex flex-wrap items-center justify-between gap-2 pb-1.5 border-b border-[#142e47]">
+                <div class="flex items-center space-x-2">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
+                  <span class="text-white font-bold text-xs uppercase">LIVE DECENTRALIZED PEER SITE &amp; dAPP VIEWPORT</span>
+                  <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[8px] font-bold" id="gaigsLivePeerTag">PEER ONLINE // 14.2ms</span>
+                </div>
+                <div class="flex items-center space-x-1.5 text-[9px]">
+                  <button onclick="switchGaigsLiveView('landing')" id="btnGaigsLanding" class="btn-tactical active text-emerald-300 font-bold">
+                    🌍 HUMANITY OS LANDING
+                  </button>
+                  <button onclick="switchGaigsLiveView('dapp')" id="btnGaigsDapp" class="btn-tactical text-cyan-300">
+                    🏛️ GAIGS dAPP &amp; DAO
+                  </button>
+                  <a id="gaigsLiveOpenLink" href="/gaigs/live/index.html" target="_blank" class="btn-tactical text-amber-300 no-underline font-bold">
+                    ↗ OPEN IN NEW TAB
+                  </a>
+                  <button onclick="reloadGaigsIframe()" class="btn-tactical text-slate-300">
+                    🔄 RELOAD PEER
+                  </button>
+                </div>
+              </div>
+              <div class="w-full h-[520px] rounded bg-[#020610] border border-[#142e47] overflow-hidden relative">
+                <iframe id="gaigsLivePeerIframe" src="/gaigs/live/index.html" class="w-full h-full border-none" title="GAIGS Live Peer Site"></iframe>
+              </div>
+            </div>
           </div>
 
           <!-- Row 4: J.A.R.V.I.S. Core Autonomous Upgrader & Auto-Sync Engine -->
@@ -7626,5 +7785,265 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
   <script src="/js/WorkstationDigitalTwin3D.js"></script>
   <script src="/js/CognitiveExecutionTheater.js"></script>
   <script src="/js/TradingAlphaRadar3D.js"></script>
+
+  <script>
+    // =========================================================================
+    // 1. GAIGS DECENTRALIZED PEER SITE CONTROLLER
+    // =========================================================================
+    function switchGaigsLiveView(mode) {
+      const iframe = document.getElementById('gaigsLivePeerIframe');
+      const btnLanding = document.getElementById('btnGaigsLanding');
+      const btnDapp = document.getElementById('btnGaigsDapp');
+      const openLink = document.getElementById('gaigsLiveOpenLink');
+      if (mode === 'landing') {
+        if (iframe) iframe.src = '/gaigs/live/index.html';
+        if (openLink) openLink.href = '/gaigs/live/index.html';
+        if (btnLanding) btnLanding.classList.add('active');
+        if (btnDapp) btnDapp.classList.remove('active');
+        showToast('Loaded GAIGS Humanity OS Peer Landing Site');
+      } else if (mode === 'dapp') {
+        if (iframe) iframe.src = '/gaigs/live/gaigs/index.html';
+        if (openLink) openLink.href = '/gaigs/live/gaigs/index.html';
+        if (btnDapp) btnDapp.classList.add('active');
+        if (btnLanding) btnLanding.classList.remove('active');
+        showToast('Loaded GAIGS Decentralized Governance dApp');
+      }
+    }
+
+    function reloadGaigsIframe() {
+      const iframe = document.getElementById('gaigsLivePeerIframe');
+      if (iframe) {
+        iframe.src = iframe.src;
+        showToast('Reloading GAIGS live peer stream...');
+      }
+    }
+
+    async function initGaigsPeerMonitor() {
+      try {
+        const res = await fetch('/api/gaigs/peer-status');
+        if (!res.ok) return;
+        const d = await res.json();
+        const tag = document.getElementById('gaigsLivePeerTag');
+        if (tag) {
+          tag.innerText = `PEER ${d.peer_status} // ${d.peer_latency_ms}ms // ${d.contracts_count} CONTRACTS`;
+        }
+      } catch (e) {
+        console.warn('GAIGS peer check note:', e);
+      }
+    }
+
+    // =========================================================================
+    // 2. BI-DIRECTIONAL MOBILE PANOPTICON & LIVE SCREEN MIRROR CONTROLLER
+    // =========================================================================
+    let mobileScreenMode = 'companion';
+    let mobileScreenRefreshTimer = null;
+
+    function setMobileScreenMode(mode) {
+      mobileScreenMode = mode;
+      const companionFrame = document.getElementById('expandedMobileIframe');
+      const mirrorDiv = document.getElementById('expandedMobileLiveMirror');
+      const btnComp = document.getElementById('btnMobileModeCompanion');
+      const btnMirr = document.getElementById('btnMobileModeMirror');
+
+      if (mode === 'companion') {
+        if (companionFrame) companionFrame.classList.remove('hidden');
+        if (mirrorDiv) mirrorDiv.classList.add('hidden');
+        if (btnComp) btnComp.classList.add('active');
+        if (btnMirr) btnMirr.classList.remove('active');
+        if (mobileScreenRefreshTimer) {
+          clearInterval(mobileScreenRefreshTimer);
+          mobileScreenRefreshTimer = null;
+        }
+        showToast('Mobile: Companion App View');
+      } else {
+        if (companionFrame) companionFrame.classList.add('hidden');
+        if (mirrorDiv) mirrorDiv.classList.remove('hidden');
+        if (btnMirr) btnMirr.classList.add('active');
+        if (btnComp) btnComp.classList.remove('active');
+        refreshLiveMobileScreen();
+        if (!mobileScreenRefreshTimer) {
+          mobileScreenRefreshTimer = setInterval(refreshLiveMobileScreen, 2000);
+        }
+        showToast('Mobile: Live Screen Mirror (ADB / Stream)');
+      }
+    }
+
+    function refreshLiveMobileScreen() {
+      const img = document.getElementById('mobileLiveScreenImg');
+      if (img && mobileScreenMode === 'mirror') {
+        img.src = '/api/mobile/screen/live?t=' + Date.now();
+      }
+    }
+
+    async function handleMobileScreenClick(event) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const clickY = event.clientY - rect.top;
+      const phoneX = Math.round((clickX / rect.width) * 1080);
+      const phoneY = Math.round((clickY / rect.height) * 2400);
+
+      try {
+        const res = await fetch('/api/mobile/tap', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ x: phoneX, y: phoneY })
+        });
+        showToast(`Tapped phone at (${phoneX}, ${phoneY})`);
+        setTimeout(refreshLiveMobileScreen, 400);
+      } catch (e) {
+        console.error('Tap failed:', e);
+      }
+    }
+
+    async function sendMobileHardwareKey(key) {
+      try {
+        const res = await fetch('/api/mobile/key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: key })
+        });
+        showToast(`Key event: ${key.toUpperCase()}`);
+        setTimeout(refreshLiveMobileScreen, 500);
+      } catch (e) {
+        showToast(`Key error: ${e.message}`);
+      }
+    }
+
+    async function launchAppOnPhone(app) {
+      try {
+        const res = await fetch('/api/mobile/launch-app', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ app: app })
+        });
+        showToast(`Launching ${app.toUpperCase()} on phone...`);
+        setTimeout(refreshLiveMobileScreen, 1200);
+      } catch (e) {
+        showToast(`Launch error: ${e.message}`);
+      }
+    }
+
+    // =========================================================================
+    // 3. UNIVERSAL MULTI-BROKER FLEET & AUTO-PILOT ONBOARDING CONTROLLER
+    // =========================================================================
+    async function loadFleetAccountsData() {
+      try {
+        const res = await fetch('/api/accounts/fleet');
+        if (!res.ok) return;
+        const data = await res.json();
+        const table = document.getElementById('fleetAccountsTable');
+        const badge = document.getElementById('fleetCountBadge');
+        const aum = document.getElementById('fleetTotalAum');
+
+        if (badge && data.total_accounts_registered !== undefined) {
+          badge.innerText = `${data.total_accounts_registered} ACCOUNTS MANAGED`;
+        }
+        if (aum && data.total_aum_usd !== undefined) {
+          aum.innerText = `AUM: $${data.total_aum_usd.toLocaleString('en-US', {minimumFractionDigits: 2})} USD`;
+        }
+
+        if (table && data.accounts) {
+          const items = Object.entries(data.accounts);
+          table.innerHTML = items.map(([key, acc]) => {
+            const isFundingPips = acc.firm_name === 'FundingPips';
+            const isLive = acc.is_active;
+            const bal = acc.balance ? `$${acc.balance.toLocaleString('en-US')}` : '$100,000';
+            return `
+              <div class="p-1.5 rounded bg-[#071526] border ${isFundingPips ? 'border-cyan-500/40' : 'border-[#142e47]'} flex justify-between items-center hover:bg-[#0c223a] transition-all cursor-pointer" onclick="activateFleetAccount('${acc.account_id}', '${acc.firm_name}', '${acc.account_name}')">
+                <div>
+                  <span class="text-white font-bold">${acc.firm_name} #${acc.account_id}</span>
+                  <span class="text-slate-400 ml-1">(${bal})</span>
+                  <div class="text-[7.5px] ${isFundingPips ? 'text-emerald-400' : 'text-cyan-400'}">
+                    ${acc.account_name} • CAP &le; ${acc.max_risk_pct}% ($${acc.max_risk_usd_cap}) • PROXY: ${acc.proxy_country || 'DIRECT'}
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="px-1.5 py-0.5 rounded ${isLive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-300'} text-[7.5px] font-bold">
+                    ${isLive ? 'ONLINE' : 'STANDBY'}
+                  </span>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        console.warn('Fleet load failed:', err);
+      }
+    }
+
+    async function submitOnboardAccount() {
+      const loginId = document.getElementById('onboardLoginId').value.trim();
+      const accName = document.getElementById('onboardAccName').value.trim() || 'Client Account';
+      const brokerServer = document.getElementById('onboardBrokerServer').value.trim() || 'FundingPips-Server';
+      const password = document.getElementById('onboardPassword').value;
+      const balance = parseFloat(document.getElementById('onboardBalance').value) || 100000;
+      const preset = document.getElementById('onboardPreset').value;
+      const feedback = document.getElementById('onboardResultFeedback');
+      const btn = document.getElementById('btnLaunchAutoPilot');
+
+      if (!loginId) {
+        showToast('Please enter an Account ID / Login ID');
+        return;
+      }
+
+      if (btn) btn.innerText = 'ALLOCATING MT5 & ANTI-BAN SHIELD... ⏳';
+      showToast(`Onboarding ${preset} #${loginId} with Layer 1-5 Anti-Ban...`);
+
+      try {
+        const res = await fetch('/api/accounts/onboard', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            login_id: loginId,
+            account_name: accName,
+            broker_server: brokerServer,
+            password: password,
+            balance: balance,
+            preset: preset,
+            account_type: 'Prop Firm Challenge',
+            target_country: 'AE'
+          })
+        });
+        const d = await res.json();
+        if (feedback) {
+          feedback.classList.remove('hidden');
+          if (d.status === 'success' || d.ok !== false) {
+            feedback.className = 'p-1.5 rounded bg-emerald-950/60 text-emerald-300 text-[8.5px] border border-emerald-500/50 mt-1';
+            feedback.innerHTML = `<strong>✅ AUTO-PILOT ONBOARDED:</strong> ${preset} #${loginId} allocated to isolated MT5 instance with SOCKS5 Proxy (${d.anti_detection_profile?.proxy?.country || 'AE'}) and randomized jitter.`;
+            showToast(`✅ ${preset} Account #${loginId} is now under J.A.R.V.I.S. Auto-Pilot!`);
+            loadFleetAccountsData();
+          } else {
+            feedback.className = 'p-1.5 rounded bg-red-950/60 text-red-300 text-[8.5px] border border-red-500/50 mt-1';
+            feedback.innerText = `Error: ${d.message || 'Onboarding failed'}`;
+          }
+        }
+      } catch (err) {
+        if (feedback) {
+          feedback.classList.remove('hidden');
+          feedback.className = 'p-1.5 rounded bg-red-950/60 text-red-300 text-[8.5px] border border-red-500/50 mt-1';
+          feedback.innerText = `Failed: ${err.message}`;
+        }
+        showToast(`Onboarding error: ${err.message}`);
+      } finally {
+        if (btn) btn.innerText = '🚀 LAUNCH AUTONOMOUS AUTO-PILOT';
+      }
+    }
+
+    function activateFleetAccount(accId, firm, name) {
+      showToast(`Active Cockpit switched to ${firm} #${accId} (${name})`);
+      const tag = document.getElementById('propTableAccountTag');
+      if (tag) tag.innerText = `ACCOUNT #${accId}`;
+      const subtitle = document.getElementById('propCockpitSubtitle');
+      if (subtitle) {
+        subtitle.innerText = `${firm.toUpperCase()} ACCOUNT #${accId} // HARD RISK CAP ENFORCED // R:R >= 2.5 // BREAKEVEN +1.0R`;
+      }
+    }
+
+    // Auto-init on page ready
+    document.addEventListener('DOMContentLoaded', () => {
+      initGaigsPeerMonitor();
+      loadFleetAccountsData();
+    });
+  </script>
 </body>
 </html>
