@@ -260,10 +260,12 @@ class TelemetrySampler:
             raw_name = gpu.get("name", "NVIDIA Quadro K2100M")
             if "NVIDIA" not in raw_name and "Quadro" in raw_name:
                 raw_name = f"NVIDIA {raw_name}"
+            temp = gpu.get("temperature_c", 65)
             return {
                 "name": raw_name,
                 "util_pct": gpu.get("gpu_util_pct", 28),
-                "temperature_c": gpu.get("temperature_c", 65),
+                "temperature_c": temp,
+                "temp_c": temp,
                 "vram_used_mb": gpu.get("used_vram_mb", 458),
                 "vram_total_mb": gpu.get("total_vram_mb", 2048),
             }
@@ -272,6 +274,7 @@ class TelemetrySampler:
                 "name": "NVIDIA Quadro K2100M",
                 "util_pct": 28,
                 "temperature_c": 65,
+                "temp_c": 65,
                 "vram_used_mb": 458,
                 "vram_total_mb": 2048,
             }

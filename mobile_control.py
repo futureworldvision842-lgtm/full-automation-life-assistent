@@ -112,7 +112,7 @@ def get_screen_frame_bytes(scale: float = 0.55, quality: int = 60) -> bytes:
 
 
 class ScreenStreamBroadcaster:
-    """Asynchronous background loop updating a pre-encoded JPEG buffer at <=33ms intervals (30+ FPS)."""
+    """Asynchronous background loop updating a pre-encoded JPEG buffer at safe 20 FPS intervals (~50ms) to eliminate GPU/DirectX TDR kernel contention."""
     def __init__(self):
         self.latest_frame: bytes = b""
         self.running: bool = False
@@ -122,41 +122,92 @@ class ScreenStreamBroadcaster:
         self._client_lock = threading.Lock()
 
     def start(self):
-        if self.running:
-            return
-        self.running = True
-        self.latest_frame = get_screen_frame_bytes(scale=0.55, quality=60)
-        self.thread = threading.Thread(target=self._run_loop, daemon=True, name="JarvisScreenBroadcaster")
-        self.thread.start()
+        with self._client_lock:
+            if self.running and self.thread and self.thread.is_alive():
+                return
+            self.running = True
+            self.thread = threading.Thread(target=self._run_loop, daemon=True, name="JarvisScreenBroadcaster")
+            self.thread.start()
 
     def stop(self):
-        self.running = False
+        with self._client_lock:
+            self.running = False
 
     def add_client(self):
         with self._client_lock:
             self._clients += 1
-            if not self.running:
-                self.start()
+            if not self.running or not self.thread or not self.thread.is_alive():
+                self.running = True
+                self.thread = threading.Thread(target=self._run_loop, daemon=True, name="JarvisScreenBroadcaster")
+                self.thread.start()
 
     def remove_client(self):
         with self._client_lock:
             self._clients = max(0, self._clients - 1)
+            if self._clients == 0:
+                self.running = False
 
     def get_latest_frame(self) -> bytes:
         with self._lock:
             return self.latest_frame
 
     def _run_loop(self):
-        target_interval = 0.033  # <=33ms intervals (30+ FPS)
-        while self.running:
-            t0 = time.perf_counter()
-            frame = get_screen_frame_bytes(scale=0.55, quality=60)
-            if frame:
-                with self._lock:
-                    self.latest_frame = frame
-            elapsed = time.perf_counter() - t0
-            sleep_time = max(0.005, target_interval - elapsed)
-            time.sleep(sleep_time)
+        target_interval = 0.050  # 20 FPS safe cadence (~50ms) - silky smooth, zero GPU TDR pressure
+        try:
+            import mss
+            import cv2
+            import numpy as np
+            has_mss = True
+        except ImportError:
+            has_mss = False
+
+        sct = None
+        if has_mss and os.getenv('JARVIS_SCREENSHOT_ENABLED', '1') == '1':
+            try:
+                sct = mss.mss()
+            except Exception:
+                sct = None
+
+        try:
+            while self.running:
+                with self._client_lock:
+                    if self._clients <= 0:
+                        self.running = False
+                        break
+
+                t0 = time.perf_counter()
+                frame = b""
+                if sct is not None:
+                    try:
+                        mon = sct.monitors[1] if len(sct.monitors) > 1 else sct.monitors[0]
+                        sct_img = sct.grab(mon)
+                        img = np.array(sct_img)
+                        h, w = img.shape[:2]
+                        target_w = max(1, int(w * 0.55))
+                        target_h = max(1, int(h * 0.55))
+                        scaled = cv2.resize(img, (target_w, target_h), interpolation=cv2.INTER_AREA)
+                        if scaled.shape[2] == 4:
+                            scaled = cv2.cvtColor(scaled, cv2.COLOR_BGRA2BGR)
+                        _, jpeg = cv2.imencode('.jpg', scaled, [cv2.IMWRITE_JPEG_QUALITY, 55])
+                        frame = jpeg.tobytes()
+                    except Exception:
+                        frame = get_screen_frame_bytes(scale=0.55, quality=55)
+                else:
+                    frame = get_screen_frame_bytes(scale=0.55, quality=55)
+
+                if frame:
+                    with self._lock:
+                        self.latest_frame = frame
+
+                elapsed = time.perf_counter() - t0
+                sleep_time = max(0.010, target_interval - elapsed)
+                time.sleep(sleep_time)
+        finally:
+            if sct is not None:
+                try:
+                    sct.close()
+                except Exception:
+                    pass
 
 screen_broadcaster = ScreenStreamBroadcaster()
 
@@ -1869,7 +1920,7 @@ async def mobile_owner_ingress(req: Request, call_next):
         req.state.tenant = tenant_session
         token_valid = True
 
-    if req.url.path.startswith("/api/") and req.url.path not in {"/api/health", "/api/download/apk", "/api/client/pair"}:
+    if req.url.path.startswith("/api/") and req.url.path not in {"/api/health", "/api/download/apk", "/api/download/gaigs-apk", "/api/client/pair"}:
         origin = req.headers.get("origin")
         same_origin = not origin or origin.rstrip("/") == str(req.base_url).rstrip("/")
         is_cross_site = req.headers.get("sec-fetch-site") == "cross-site"
@@ -1921,6 +1972,7 @@ def download_android_apk():
     apk_candidates = [
         BASE / "mobile" / "jarvis-companion" / "dist" / "jarvis-companion-debug.apk",
         BASE / "mobile_app" / "dist" / "jarvis-companion-debug.apk",
+        BASE / "repos" / "Global-Ai-Decentralize-Governance-System" / "GAIGS.apk",
         BASE / "mobile" / "jarvis-companion" / "android" / "app" / "build" / "outputs" / "apk" / "debug" / "app-debug.apk",
         BASE / "mobile_app" / "dist" / "gods-eye-view-debug.apk",
         BASE / "apps" / "android-gods-eye-view" / "Android" / "app" / "build" / "outputs" / "apk" / "debug" / "app-debug.apk",
@@ -1937,6 +1989,25 @@ def download_android_apk():
             )
     return JSONResponse(
         {"ok": False, "error": "apk_not_built_yet", "message": "Run mobile/jarvis-companion/build_apk.py to build the companion APK."},
+        status_code=404
+    )
+
+
+@app.get("/api/download/gaigs-apk")
+def download_gaigs_apk():
+    """Serves the standalone GAIGS Android APK directly from the sovereign repository."""
+    gaigs_apk = BASE / "repos" / "Global-Ai-Decentralize-Governance-System" / "GAIGS.apk"
+    if gaigs_apk.exists():
+        return FileResponse(
+            path=str(gaigs_apk),
+            filename="GAIGS.apk",
+            media_type="application/vnd.android.package-archive",
+            headers={
+                "Content-Disposition": 'attachment; filename="GAIGS.apk"'
+            }
+        )
+    return JSONResponse(
+        {"ok": False, "error": "gaigs_apk_not_found", "message": "GAIGS.apk not found in repos/Global-Ai-Decentralize-Governance-System."},
         status_code=404
     )
 
@@ -2114,7 +2185,7 @@ async def api_screen_stream(req: Request):
                     frame = await asyncio.to_thread(get_screen_frame_bytes, scale=0.55, quality=60)
                 if frame:
                     yield b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + frame + b'\r\n'
-                await asyncio.sleep(0.033)  # <=33ms intervals (30+ FPS)
+                await asyncio.sleep(0.050)  # 20 FPS safe cadence (~50ms) - silky smooth, zero GPU TDR pressure
         finally:
             screen_broadcaster.remove_client()
     return StreamingResponse(frame_gen(), media_type="multipart/x-mixed-replace; boundary=frame")

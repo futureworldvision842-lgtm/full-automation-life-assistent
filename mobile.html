@@ -371,12 +371,15 @@ input:focus, textarea:focus {
 </div>
 
 <!-- Standalone Native Android App Banner -->
-<div class="card" style="background: linear-gradient(135deg, rgba(0,240,255,0.15), rgba(179,102,255,0.15)); border: 1.5px solid var(--pri); padding: 9px 12px; margin-bottom: 8px; display:flex; justify-content:space-between; align-items:center;">
-  <div>
-    <div style="font-weight:900; color:#fff; font-size:11.5px;">📲 J.A.R.V.I.S. NATIVE ANDROID APP</div>
-    <div style="font-size:9px; color:#a2e4ff;">Install standalone APK directly on phone · Full background OS access (No browser required)</div>
+<div class="card" style="background: linear-gradient(135deg, rgba(0,240,255,0.15), rgba(179,102,255,0.15)); border: 1.5px solid var(--pri); padding: 9px 12px; margin-bottom: 8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+  <div style="flex:1; min-width:180px;">
+    <div style="font-weight:900; color:#fff; font-size:11.5px;">📲 SOVEREIGN ANDROID APPS (STANDALONE)</div>
+    <div style="font-size:9px; color:#a2e4ff;">Direct background execution on phone · Full OS access · No browser required</div>
   </div>
-  <button class="gold" style="padding:7px 12px; font-size:10.5px; font-weight:900; flex-shrink:0;" onclick="window.location.href='/api/download/apk'">⬇️ GET APK</button>
+  <div style="display:flex; gap:6px; flex-shrink:0;">
+    <button class="gold" style="padding:6px 10px; font-size:10px; font-weight:900;" onclick="window.location.href='/api/download/apk'">⬇️ COMPANION APK</button>
+    <button class="pri" style="padding:6px 10px; font-size:10px; font-weight:900;" onclick="window.location.href='/api/download/gaigs-apk'">🏛️ GAIGS.APK (15MB)</button>
+  </div>
 </div>
 
 <!-- Top Carousel Navigation -->

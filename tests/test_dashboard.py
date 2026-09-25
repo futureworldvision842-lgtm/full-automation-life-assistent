@@ -93,6 +93,24 @@ class TestDashboard(unittest.TestCase):
         self.assertGreaterEqual(len(tasks_data["autonomous_tasks"]), 6)
         self.assertIn("active_window", tasks_data)
 
+    def test_api_governance_gaics_schema(self):
+        gaics_data = self.dash.api_governance_gaics()
+        self.assertIsInstance(gaics_data, dict)
+        self.assertTrue(gaics_data.get("ok"))
+        self.assertTrue(gaics_data.get("exists"))
+        self.assertEqual(gaics_data.get("apk_filename"), "GAIGS.apk")
+        self.assertGreater(gaics_data.get("apk_size_bytes", 0), 10_000_000)
+        self.assertGreaterEqual(gaics_data.get("contracts_count", 0), 9)
+
+    def test_api_trading_pump_radar(self):
+        radar_data = self.dash.api_trading_pump_radar()
+        self.assertIsInstance(radar_data, dict)
+        self.assertTrue(radar_data.get("ok"))
+        self.assertEqual(radar_data.get("chain"), "solana")
+        self.assertGreaterEqual(radar_data.get("total_tracked", 0), 3)
+        self.assertIn("tokens", radar_data)
+
 
 if __name__ == "__main__":
     unittest.main()
+
