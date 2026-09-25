@@ -66,6 +66,14 @@ app.include_router(gaigs_media_router)
 from core.repo_api_router import repo_router, task_panopticon_router
 app.include_router(repo_router)
 app.include_router(task_panopticon_router)
+from core.human_alert_router import alert_router
+app.include_router(alert_router)
+from core.sentinel_api_router import sentinel_router
+app.include_router(sentinel_router)
+from core.vibe_coder import vibe_router
+app.include_router(vibe_router)
+from core.screen_mirror_router import screen_mirror_router
+app.include_router(screen_mirror_router)
 app.mount('/command-center-assets', StaticFiles(directory=str(BASE / 'web' / 'command_center')), name='command-center-assets')
 js_assets_dir = BASE / 'web' / 'js'
 js_assets_dir.mkdir(parents=True, exist_ok=True)
@@ -127,7 +135,7 @@ async def owner_ingress(request: Request, call_next):
         "/api/media/channels", "/api/media/scripts",
         "/api/media/scripts/generate", "/api/media/scripts/approve"
     }
-    is_exempt = request.url.path in exempt_paths or request.url.path.startswith("/api/repos/") or request.url.path.startswith("/api/tasks/") or request.url.path.startswith("/api/gaigs/") or request.url.path.startswith("/api/media/")
+    is_exempt = request.url.path in exempt_paths or request.url.path.startswith("/api/repos/") or request.url.path.startswith("/api/tasks/") or request.url.path.startswith("/api/gaigs/") or request.url.path.startswith("/api/media/") or request.url.path.startswith("/api/alerts/") or request.url.path.startswith("/api/sentinel/") or request.url.path.startswith("/api/vibe/") or request.url.path.startswith("/api/screen/")
     if request.url.path.startswith("/api/") and not is_exempt:
         supplied = (
             request.headers.get("X-Jarvis-Internal-Token", "")

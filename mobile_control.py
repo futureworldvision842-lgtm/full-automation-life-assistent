@@ -1924,7 +1924,7 @@ async def mobile_owner_ingress(req: Request, call_next):
         token_valid = True
 
     exempt_paths = {"/api/health", "/api/download/apk", "/api/download/gaigs-apk", "/api/client/pair"}
-    is_exempt = req.url.path in exempt_paths or req.url.path.startswith("/api/gaigs/") or req.url.path.startswith("/api/media/") or req.url.path.startswith("/api/repos/") or req.url.path.startswith("/api/tasks/")
+    is_exempt = req.url.path in exempt_paths or req.url.path.startswith("/api/gaigs/") or req.url.path.startswith("/api/media/") or req.url.path.startswith("/api/repos/") or req.url.path.startswith("/api/tasks/") or req.url.path.startswith("/api/alerts/") or req.url.path.startswith("/api/sentinel/") or req.url.path.startswith("/api/vibe/") or req.url.path.startswith("/api/screen/")
     if req.url.path.startswith("/api/") and not is_exempt:
         origin = req.headers.get("origin")
         same_origin = not origin or origin.rstrip("/") == str(req.base_url).rstrip("/")
@@ -3580,6 +3580,14 @@ try:
     from core.repo_api_router import repo_router, task_panopticon_router
     app.include_router(repo_router)
     app.include_router(task_panopticon_router)
+    from core.human_alert_router import alert_router
+    app.include_router(alert_router)
+    from core.sentinel_api_router import sentinel_router
+    app.include_router(sentinel_router)
+    from core.vibe_coder import vibe_router
+    app.include_router(vibe_router)
+    from core.screen_mirror_router import screen_mirror_router
+    app.include_router(screen_mirror_router)
 except Exception as _gaigs_router_err:
     pass
 
