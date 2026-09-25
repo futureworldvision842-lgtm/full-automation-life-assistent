@@ -83,7 +83,9 @@ async def owner_ingress(request: Request, call_next):
         "/api/download/apk", "/api/download/gaigs-apk", "/api/client/pair",
         "/api/governance/gaics", "/api/governance/gaics/sync",
         "/api/assimilator/tree", "/api/self-healing/log",
-        "/api/keys/catalog", "/api/whatsapp/status", "/api/whatsapp/qr"
+        "/api/keys/catalog", "/api/whatsapp/status", "/api/whatsapp/qr",
+        "/api/evolution/status", "/api/evolution/discover", "/api/evolution/synthesize",
+        "/api/evolution/prompt-engineer"
     }
     if request.url.path.startswith("/api/") and request.url.path not in exempt_paths:
         supplied = (
@@ -1750,8 +1752,70 @@ def api_governance_gaics_sync():
 
 
 # ==============================================================================
-# MILESTONE M7: SELF-EVOLUTION DIAGNOSTICS & 1-CLICK API INGESTION
+# MILESTONE M7: SELF-EVOLUTION DIAGNOSTICS, GITHUB HARVESTING & PROMPT ENGINEERING
 # ==============================================================================
+
+@app.get("/api/evolution/status")
+def api_evolution_status():
+    """Returns overview of active assimilated skills, tool catalog, and suggested capabilities."""
+    from core.autonomous_skill_engine import get_skill_engine
+    return get_skill_engine().get_status_overview()
+
+
+@app.post("/api/evolution/discover")
+async def api_evolution_discover(req: Request):
+    """Searches GitHub for top open-source tools matching a requested need or keyword."""
+    try:
+        body = await req.json()
+    except Exception:
+        body = {}
+    query = str(body.get("query") or body.get("topic") or "automation").strip()
+    from core.autonomous_skill_engine import get_skill_engine
+    results = get_skill_engine().search_github_repositories(query)
+    return {"ok": True, "query": query, "repositories": results}
+
+
+@app.post("/api/evolution/synthesize")
+async def api_evolution_synthesize(req: Request):
+    """Synthesizes and hot-reloads a new skill using the autonomous prompt engineering loop."""
+    try:
+        body = await req.json()
+    except Exception:
+        body = {}
+    skill_id = str(body.get("skill_id") or f"skill_{int(time.time())}").strip()
+    name = str(body.get("name") or "Autonomous Skill").strip()
+    category = str(body.get("category") or "System Utility").strip()
+    intent = str(body.get("intent") or "Execute system automation").strip()
+    source_repo = str(body.get("source_repo") or "").strip()
+
+    from core.autonomous_skill_engine import get_skill_engine
+    engine = get_skill_engine()
+    res = await engine.assimilate_or_synthesize_skill(
+        skill_id=skill_id,
+        name=name,
+        category=category,
+        intent_description=intent,
+        source_repo=source_repo
+    )
+    return res
+
+
+@app.post("/api/evolution/prompt-engineer")
+async def api_evolution_prompt_engineer(req: Request):
+    """Compiles and tests an engineered meta-prompt with domain inception and CoT steps."""
+    try:
+        body = await req.json()
+    except Exception:
+        body = {}
+    task = str(body.get("task") or "Synthesize high-performance utility").strip()
+    style_str = str(body.get("style") or "autonomous_code_synthesis").strip()
+    domain = str(body.get("domain") or "General").strip()
+
+    from core.prompt_engineer import get_prompt_engineer, PromptOptimizationStyle
+    eng = get_prompt_engineer()
+    style_enum = getattr(PromptOptimizationStyle, style_str.upper(), PromptOptimizationStyle.AUTONOMOUS_CODE_SYNTHESIS)
+    compiled = eng.compile_master_prompt(task_description=task, style=style_enum, domain=domain)
+    return {"ok": True, "compiled": compiled}
 
 @app.get("/api/assimilator/tree")
 def api_assimilator_tree():
