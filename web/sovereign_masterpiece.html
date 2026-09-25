@@ -287,6 +287,17 @@
     <!-- Far Right: Direct Switch to Main 8770 + Date/Time + Master Profile -->
     <div class="flex items-center space-x-3 ml-4">
       
+      <!-- Human Assistance Alert Badge (Pulsing Amber/Red on Pending Challenge) -->
+      <button id="headerAlertBtn" onclick="openHumanAlertsModal()" class="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/60 text-amber-300 text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-[0_0_12px_rgba(245,158,11,0.3)]" title="Pending Human Assistance & Alerts">
+        <span id="headerAlertIcon" class="animate-pulse">⚠️</span>
+        <span id="headerAlertCount">0 ALERTS</span>
+      </button>
+
+      <!-- Self-Healing Sentinel & Vibe Coder Quick Trigger -->
+      <button onclick="openSentinelModal()" class="px-2 py-1 rounded bg-purple-500/20 hover:bg-purple-500/40 border border-purple-400/60 text-purple-300 text-xs font-mono font-bold flex items-center space-x-1 transition-all shadow-[0_0_10px_rgba(179,102,255,0.3)]" title="Self-Healing Sentinel & Vibe Coder Console">
+        <span>🛡️</span><span>SENTINEL</span>
+      </button>
+
       <!-- Connect Mobile Phone Button -->
       <button onclick="openMobilePairModal()" class="px-2.5 py-1 rounded bg-cyan-500/20 hover:bg-cyan-500/35 border border-cyan-400/60 text-[#00e5ff] text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-[0_0_12px_rgba(0,229,255,0.3)]">
         <span>📱</span><span>CONNECT MOBILE</span>
@@ -9310,6 +9321,279 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
     </div>
   </div>
 
+  <!-- ========================================================================= -->
+  <!-- MODAL / DRAWER: HUMAN ASSISTANCE & CAPTCHA/2FA PANOPTICON                 -->
+  <!-- ========================================================================= -->
+  <div id="humanAlertsModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden font-mono">
+    <div class="w-full max-w-5xl max-h-[92vh] overflow-y-auto rounded-2xl bg-[#06101c] border-2 border-amber-500/70 shadow-[0_0_50px_rgba(245,158,11,0.4)] p-5 space-y-4">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-2 border-b border-[#142e47]">
+        <div class="flex items-center space-x-2.5">
+          <span class="text-2xl text-amber-400 animate-pulse">⚠️</span>
+          <div>
+            <h3 class="text-base font-black text-white tracking-wider uppercase flex items-center gap-2">
+              <span>HUMAN INTERVENTION &amp; ASSISTANCE PANOPTICON</span>
+              <span id="alertsModalCountBadge" class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-bold border border-amber-500/40">0 PENDING</span>
+            </h3>
+            <div class="text-[10px] text-amber-300/80">SOVEREIGN MASTER MUHAMMAD (+923468053268) // CAPTCHA · 2FA · KEYS · TRADE APPROVALS // TASK PRESERVATION GUARANTEED</div>
+          </div>
+        </div>
+        <button onclick="closeHumanAlertsModal()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm font-bold">
+          ✕
+        </button>
+      </div>
+
+      <!-- Main Layout: 2 Columns -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        
+        <!-- Left: Active Challenge Focus (Col 7) -->
+        <div class="lg:col-span-7 space-y-3">
+          <div id="activeAlertCard" class="p-4 rounded-xl bg-[#040c17] border border-[#142e47] space-y-3">
+            <div class="flex items-center justify-between">
+              <span id="alertTypeBadge" class="px-2.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px] font-bold border border-red-500/40">CAPTCHA_CHALLENGE</span>
+              <span id="alertIdTag" class="text-[10px] text-cyan-400 font-bold">REQ-NONE</span>
+            </div>
+
+            <div class="text-white font-black text-sm" id="alertTitleText">No Active Intervention Pending</div>
+            
+            <!-- Roman Urdu Explanation Box -->
+            <div class="p-3 rounded-lg bg-amber-950/30 border border-amber-500/30 space-y-1">
+              <div class="text-[9px] text-amber-400 font-bold flex items-center gap-1">
+                <span>🎙️</span><span>ROMAN URDU DIRECTIVE FOR MASTER MUHAMMAD:</span>
+              </div>
+              <div id="alertUrduText" class="text-xs text-amber-200 leading-relaxed font-sans font-medium">
+                "Sir, poora system normal chal raha hai. Koi block ya pending challenge maujood nahi hai."
+              </div>
+            </div>
+
+            <!-- Technical Details Grid -->
+            <div class="grid grid-cols-2 gap-2 text-[9.5px]">
+              <div class="p-2 rounded bg-[#020710] border border-[#163659]">
+                <span class="text-slate-400">Target Service:</span>
+                <div class="text-white font-bold truncate" id="alertServiceText">All Services Running</div>
+              </div>
+              <div class="p-2 rounded bg-[#020710] border border-[#163659]">
+                <span class="text-slate-400">Blocked Operation:</span>
+                <div class="text-white font-bold truncate" id="alertBlockedText">None (Standby)</div>
+              </div>
+            </div>
+
+            <div class="p-2 rounded bg-[#020710] border border-[#163659] text-[9.5px]">
+              <span class="text-slate-400">Issue / Reason:</span>
+              <div class="text-slate-200" id="alertReasonText">Diagnostics healthy.</div>
+            </div>
+
+            <!-- Portal URL Link & Open on PC Button -->
+            <div id="alertPortalRow" class="flex items-center justify-between p-2 rounded bg-[#020710] border border-[#163659] text-[10px]">
+              <div class="truncate max-w-[280px]">
+                <span class="text-slate-400">Portal: </span>
+                <a id="alertPortalLink" href="#" target="_blank" class="text-cyan-400 hover:underline">https://app.fundingpips.com</a>
+              </div>
+              <button onclick="openTargetOnPc()" class="px-2 py-1 rounded bg-cyan-500/20 hover:bg-cyan-500/40 text-cyan-300 font-bold border border-cyan-400/50 flex items-center gap-1 text-[9px]">
+                <span>🖥️</span><span>OPEN ON PC SCREEN</span>
+              </button>
+            </div>
+
+            <!-- Resolution Value Input (OTP Code or API Key) -->
+            <div id="alertValueInputRow" class="space-y-1">
+              <label class="text-[10px] text-slate-400 flex justify-between">
+                <span>Enter Code / API Key / Notes:</span>
+                <span class="text-amber-400 text-[9px]">(Optional for 1-click solve)</span>
+              </label>
+              <input id="alertValueInput" type="text" placeholder="e.g. 123456 or sk-... or 'solved manually'" 
+                     class="w-full bg-[#020710] border border-[#163659] rounded px-3 py-2 text-cyan-300 font-mono text-xs focus:border-amber-400 outline-none" />
+            </div>
+
+            <!-- 1-Click Action Resolution Buttons -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
+              <button onclick="resolveActiveAlert('SOLVED')" class="py-2 px-2 rounded bg-emerald-500/25 hover:bg-emerald-500/45 border border-emerald-400 text-emerald-300 text-[10px] font-bold flex items-center justify-center gap-1">
+                <span>✅</span><span>SOLVED</span>
+              </button>
+              <button onclick="resolveActiveAlert('KEY_SUBMIT')" class="py-2 px-2 rounded bg-cyan-500/25 hover:bg-cyan-500/45 border border-cyan-400 text-cyan-300 text-[10px] font-bold flex items-center justify-center gap-1">
+                <span>🔑</span><span>SUBMIT CODE</span>
+              </button>
+              <button onclick="resolveActiveAlert('FREE_MODE')" class="py-2 px-2 rounded bg-amber-500/25 hover:bg-amber-500/45 border border-amber-400 text-amber-300 text-[10px] font-bold flex items-center justify-center gap-1" title="Bypass paid key and switch to 100% Free Mode">
+                <span>🟢</span><span>FREE MODE</span>
+              </button>
+              <button onclick="resolveActiveAlert('CANCEL')" class="py-2 px-2 rounded bg-red-500/25 hover:bg-red-500/45 border border-red-400 text-red-300 text-[10px] font-bold flex items-center justify-center gap-1">
+                <span>⏹️</span><span>CANCEL</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Live PC Screenshot Preview & Pending Ledger (Col 5) -->
+        <div class="lg:col-span-5 space-y-3">
+          <!-- Screenshot Preview Card -->
+          <div class="p-3 rounded-xl bg-[#040c17] border border-[#142e47] space-y-2">
+            <div class="flex justify-between items-center text-[10px]">
+              <span class="text-white font-bold flex items-center gap-1">
+                <span>📸</span><span>LIVE WORKSTATION SCREENSHOT</span>
+              </span>
+              <button onclick="fetchFreshScreenshot()" class="text-cyan-400 hover:text-white text-[9px]">🔄 REFRESH</button>
+            </div>
+            <div class="w-full h-44 bg-[#010409] rounded-lg border border-[#12253b] overflow-hidden flex items-center justify-center relative group">
+              <img id="alertScreenshotImg" src="/api/screen/pc/latest" alt="PC Screenshot" class="w-full h-full object-contain" />
+              <div class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/70 text-[8px] text-cyan-400">WIN32 GDI FEED</div>
+            </div>
+          </div>
+
+          <!-- Pending Alerts Ledger Queue -->
+          <div class="p-3 rounded-xl bg-[#040c17] border border-[#142e47] space-y-2">
+            <div class="flex justify-between items-center text-[10px]">
+              <span class="text-slate-300 font-bold uppercase">📋 ALL PENDING CHALLENGES</span>
+              <span id="alertsQueueCount" class="text-cyan-400 font-bold">0 Active</span>
+            </div>
+            <div id="alertsQueueList" class="space-y-1.5 max-h-40 overflow-y-auto">
+              <div class="text-[9px] text-slate-500 text-center py-4">No pending alerts. All autonomous pipelines active.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="flex justify-between items-center pt-2 border-t border-[#142e47] text-xs">
+        <div class="text-slate-400 text-[10px]">
+          Self-Healing Watchdog: <span class="text-emerald-400 font-bold">ACTIVE</span> · WhatsApp Non-Blocking Dispatch: <span class="text-emerald-400 font-bold">+923468053268</span>
+        </div>
+        <button onclick="closeHumanAlertsModal()" class="btn-tactical text-white">
+          ✕ Close Panopticon
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: SELF-HEALING SENTINEL & AUTONOMOUS VIBE CODING CONSOLE             -->
+  <!-- ========================================================================= -->
+  <div id="sentinelSelfHealingModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden font-mono">
+    <div class="w-full max-w-5xl max-h-[92vh] overflow-y-auto rounded-2xl bg-[#06101c] border-2 border-purple-500/70 shadow-[0_0_50px_rgba(179,102,255,0.35)] p-5 space-y-4">
+      <!-- Header -->
+      <div class="flex items-center justify-between pb-2 border-b border-[#142e47]">
+        <div class="flex items-center space-x-2.5">
+          <span class="text-2xl text-purple-400">🛡️</span>
+          <div>
+            <h3 class="text-base font-black text-white tracking-wider uppercase flex items-center gap-2">
+              <span>SELF-HEALING SENTINEL &amp; VIBE CODER CONSOLE</span>
+              <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 text-[9px] font-bold border border-purple-500/40">AUTONOMOUS REPAIR</span>
+            </h3>
+            <div class="text-[10px] text-purple-300/80">DIAGNOSE MICROSERVICES // THERMAL &lt;82°C GOVERNOR // VIBE CODE HOT-DEPLOY // FREE FALLBACK AUTOMATION</div>
+          </div>
+        </div>
+        <button onclick="closeSentinelModal()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm font-bold">
+          ✕
+        </button>
+      </div>
+
+      <!-- 2 Columns: Left Sentinel Watchdog, Right Vibe Coder -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        
+        <!-- Left: Diagnostic Sentinel (Col 6) -->
+        <div class="lg:col-span-6 space-y-3">
+          <div class="p-3.5 rounded-xl bg-[#040a15] border border-[#142e47] space-y-2.5">
+            <div class="flex justify-between items-center">
+              <span class="text-white font-bold text-xs flex items-center gap-1.5">
+                <span>⚡</span><span>HARDWARE &amp; MICROSERVICES VITALS</span>
+              </span>
+              <button onclick="refreshSentinelDiagnostics()" class="text-cyan-400 hover:text-white text-[9px]">🔄 RE-SCAN</button>
+            </div>
+
+            <!-- Vitals Grid -->
+            <div class="grid grid-cols-3 gap-2 text-[9.5px]">
+              <div class="p-2 rounded bg-[#020710] border border-[#163659]">
+                <div class="text-slate-400">CPU Thermal:</div>
+                <div id="sentinelCpuTemp" class="text-emerald-400 font-bold text-sm">62.0°C</div>
+                <div class="text-[7.5px] text-slate-500">Cap: &lt;82°C Haswell</div>
+              </div>
+              <div class="p-2 rounded bg-[#020710] border border-[#163659]">
+                <div class="text-slate-400">RAM Usage:</div>
+                <div id="sentinelRamPct" class="text-cyan-400 font-bold text-sm">52.4%</div>
+                <div class="text-[7.5px] text-slate-500" id="sentinelRamGb">8.3 / 15.9 GB</div>
+              </div>
+              <div class="p-2 rounded bg-[#020710] border border-[#163659]">
+                <div class="text-slate-400">Held Tasks:</div>
+                <div id="sentinelHeldTasks" class="text-amber-400 font-bold text-sm">0 Pending</div>
+                <div class="text-[7.5px] text-slate-500">Safe Preservation</div>
+              </div>
+            </div>
+
+            <!-- Microservices Status Table -->
+            <div class="space-y-1">
+              <div class="text-[9px] text-slate-400 uppercase font-bold">Daemon Grid (8 Endpoints):</div>
+              <div id="sentinelDaemonsGrid" class="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto text-[8.5px]">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+
+            <!-- 1-Click Trigger Auto-Heal -->
+            <button onclick="triggerAutoHeal()" id="btnAutoHeal" class="w-full py-2.5 rounded-lg bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 hover:from-emerald-500/50 hover:to-cyan-500/50 border border-emerald-400 text-emerald-300 font-bold text-xs transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+              ⚡ TRIGGER AUTONOMOUS SELF-REPAIR NOW
+            </button>
+            <div id="sentinelHealResult" class="text-[9px] text-slate-300 p-2 rounded bg-[#020710] border border-[#163659] hidden">
+              Standing by for repair trigger...
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Vibe Coding Console (Col 6) -->
+        <div class="lg:col-span-6 space-y-3">
+          <div class="p-3.5 rounded-xl bg-[#040a15] border border-[#142e47] space-y-2.5">
+            <div class="flex justify-between items-center">
+              <span class="text-white font-bold text-xs flex items-center gap-1.5">
+                <span>💻</span><span>AUTONOMOUS VIBE CODING ENGINE</span>
+              </span>
+              <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[8.5px] font-bold">HOT-DEPLOY (AST SAFE)</span>
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-[9.5px] text-slate-400">Feature Prompt (Roman Urdu or English):</label>
+              <textarea id="vibePromptInput" rows="2" class="w-full bg-[#020710] border border-[#163659] rounded p-2 text-cyan-300 text-xs font-mono focus:border-purple-400 outline-none" placeholder="e.g. 'banao ek solana meme coin whale tracker tool' or 'create a news sentiment arbitrage scanner'"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-[9.5px]">
+              <div>
+                <label class="text-slate-400">Skill / Tool Name:</label>
+                <input id="vibeSkillInput" type="text" value="solana_whale_tracker" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-white font-mono text-xs focus:border-purple-400 outline-none" />
+              </div>
+              <div class="flex items-end">
+                <button onclick="triggerVibeCoder()" id="btnVibeGenerate" class="w-full py-1.5 rounded bg-purple-500/30 hover:bg-purple-500/50 border border-purple-400 text-purple-200 font-bold text-xs transition-all shadow-[0_0_12px_rgba(179,102,255,0.3)]">
+                  🚀 VIBE CODE &amp; DEPLOY
+                </button>
+              </div>
+            </div>
+
+            <!-- Generated Code Snippet Preview -->
+            <div class="space-y-1">
+              <div class="flex justify-between items-center text-[9px]">
+                <span class="text-slate-400">Synthesized Module Preview:</span>
+                <span id="vibeAstBadge" class="text-emerald-400 font-bold">AST VERIFIED</span>
+              </div>
+              <pre id="vibeCodePreview" class="w-full h-32 bg-[#010409] border border-[#142e47] rounded p-2 text-[8.5px] text-slate-300 overflow-auto font-mono"># Autonomous Vibe Coder ready. Type prompt above and click Deploy.</pre>
+            </div>
+
+            <!-- Active Synthesized Skills List -->
+            <div class="space-y-1">
+              <div class="text-[9px] text-slate-400 font-bold uppercase">Deployed Vibe Skills:</div>
+              <div id="vibeDeployedList" class="flex flex-wrap gap-1 max-h-16 overflow-y-auto">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="flex justify-between items-center pt-2 border-t border-[#142e47] text-xs">
+        <div class="text-slate-400 text-[10px]">
+          Hot-Deploy Registry: <span class="text-cyan-400 font-bold">ACTIVE</span> · Zero-Restart In-Memory Loader
+        </div>
+        <button onclick="closeSentinelModal()" class="btn-tactical text-white">
+          ✕ Close Console
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- 3D Spatial Visualizers, Digital Twins & Cognitive Engines (Milestones M1, M2, M3, M5) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="/js/PlanetaryCommandSphere.js"></script>
@@ -10364,39 +10648,355 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
       `).join('');
     }
 
-    async function runGaigsEthicsAuditNow() {
-      const text = document.getElementById('gaigsEthicsInput').value.trim();
-      if (!text) {
-        showToast('Please enter text/proposal for Islamic Ethics audit.');
+    // =========================================================================
+    // 4. HUMAN ASSISTANCE & ALERT PANOPTICON CONTROLLER
+    // =========================================================================
+    let currentActiveAlert = null;
+    let lastKnownPendingCount = 0;
+
+    function playAlertChime() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.35);
+      } catch (e) {}
+    }
+
+    function openHumanAlertsModal() {
+      const modal = document.getElementById('humanAlertsModal');
+      if (modal) modal.classList.remove('hidden');
+      loadPendingAlertsData();
+    }
+
+    function closeHumanAlertsModal() {
+      const modal = document.getElementById('humanAlertsModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    async function loadPendingAlertsData() {
+      try {
+        const res = await fetch('/api/alerts/pending');
+        if (!res.ok) return;
+        const data = await res.json();
+        const countBadge = document.getElementById('alertsModalCountBadge');
+        const qCount = document.getElementById('alertsQueueCount');
+        const count = data.count || 0;
+
+        if (countBadge) countBadge.innerText = `${count} PENDING`;
+        if (qCount) qCount.innerText = `${count} Active`;
+
+        const alerts = data.alerts || [];
+        if (alerts.length > 0) {
+          renderActiveAlert(alerts[0]);
+          renderAlertsQueue(alerts);
+        } else {
+          resetActiveAlertCard();
+          renderAlertsQueue([]);
+        }
+      } catch (e) {
+        console.warn('Error fetching alerts:', e);
+      }
+    }
+
+    function renderActiveAlert(alert) {
+      currentActiveAlert = alert;
+      const typeBadge = document.getElementById('alertTypeBadge');
+      const idTag = document.getElementById('alertIdTag');
+      const title = document.getElementById('alertTitleText');
+      const urdu = document.getElementById('alertUrduText');
+      const svc = document.getElementById('alertServiceText');
+      const blocked = document.getElementById('alertBlockedText');
+      const reason = document.getElementById('alertReasonText');
+      const portalLink = document.getElementById('alertPortalLink');
+      const valInput = document.getElementById('alertValueInput');
+
+      if (typeBadge) {
+        typeBadge.innerText = alert.request_type || 'ALERT';
+        typeBadge.className = 'px-2.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px] font-bold border border-red-500/40';
+      }
+      if (idTag) idTag.innerText = alert.request_id || '';
+      if (title) title.innerText = alert.title || 'Human Assistance Needed';
+      if (urdu) urdu.innerText = `"${alert.explanation_ur || 'Sir, screen par check karein aur action confirm karein.'}"`;
+      if (svc) svc.innerText = alert.target_service || 'Workstation Service';
+      if (blocked) blocked.innerText = alert.action_blocked || 'Automated flow';
+      if (reason) reason.innerText = alert.reason_technical || 'Verification required';
+
+      if (portalLink) {
+        portalLink.href = alert.portal_url || '#';
+        portalLink.innerText = alert.portal_url || 'Target Application Window';
+      }
+      if (valInput) {
+        valInput.value = '';
+        valInput.placeholder = alert.request_type === 'TWO_FACTOR_AUTH' ? 'Enter 6-digit OTP code...' : (alert.request_type === 'MISSING_API_KEY' ? 'Paste API Key (sk-...) here...' : 'Optional solution note...');
+      }
+
+      fetchFreshScreenshot();
+    }
+
+    function resetActiveAlertCard() {
+      currentActiveAlert = null;
+      const typeBadge = document.getElementById('alertTypeBadge');
+      const idTag = document.getElementById('alertIdTag');
+      const title = document.getElementById('alertTitleText');
+      const urdu = document.getElementById('alertUrduText');
+      const svc = document.getElementById('alertServiceText');
+      const blocked = document.getElementById('alertBlockedText');
+      const reason = document.getElementById('alertReasonText');
+
+      if (typeBadge) {
+        typeBadge.innerText = 'NORMAL';
+        typeBadge.className = 'px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/40';
+      }
+      if (idTag) idTag.innerText = 'REQ-CLEAN';
+      if (title) title.innerText = 'No Active Intervention Pending';
+      if (urdu) urdu.innerText = '"Sir, poora system normal chal raha hai. Koi block ya pending challenge maujood nahi hai."';
+      if (svc) svc.innerText = 'All Services Running';
+      if (blocked) blocked.innerText = 'None (Standby)';
+      if (reason) reason.innerText = 'Diagnostics healthy.';
+    }
+
+    function renderAlertsQueue(alerts) {
+      const container = document.getElementById('alertsQueueList');
+      if (!container) return;
+      if (alerts.length === 0) {
+        container.innerHTML = '<div class="text-[9px] text-slate-500 text-center py-4">No pending alerts. All autonomous pipelines active.</div>';
+        return;
+      }
+      container.innerHTML = alerts.map((a, i) => `
+        <div onclick='renderActiveAlert(${JSON.stringify(a)})' class="p-2 rounded bg-[#020710] border border-[#163659] hover:border-amber-400 cursor-pointer transition-all flex justify-between items-center text-[9px]">
+          <div>
+            <div class="text-white font-bold">${a.title}</div>
+            <div class="text-[8px] text-amber-300 font-mono">${a.request_id} • ${a.target_service}</div>
+          </div>
+          <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[8px] font-bold">INSPECT</span>
+        </div>
+      `).join('');
+    }
+
+    async function resolveActiveAlert(action) {
+      const val = (document.getElementById('alertValueInput')?.value || '').trim();
+      const reqId = currentActiveAlert ? currentActiveAlert.request_id : '';
+
+      try {
+        const res = await fetch('/api/alerts/resolve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            request_id: reqId,
+            action: action,
+            value: val
+          })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast(`✅ Alert ${reqId || ''} marked: ${action}!`);
+          loadPendingAlertsData();
+          pollHumanAlertsStatus();
+        } else {
+          showToast('Resolution error: ' + (data.detail || 'Failed'));
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message);
+      }
+    }
+
+    async function openTargetOnPc() {
+      if (!currentActiveAlert) return;
+      try {
+        const res = await fetch('/api/alerts/open-target', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            portal_url: currentActiveAlert.portal_url || '',
+            window_title: currentActiveAlert.window_title || '',
+            prompt_text: currentActiveAlert.title || 'Manual verification'
+          })
+        });
+        const data = await res.json();
+        showToast(data.message || 'Window brought to front on PC.');
+        setTimeout(fetchFreshScreenshot, 800);
+      } catch (e) {
+        showToast('Error opening window: ' + e.message);
+      }
+    }
+
+    function fetchFreshScreenshot() {
+      const img = document.getElementById('alertScreenshotImg');
+      if (img) {
+        img.src = '/api/screen/pc/latest?t=' + Date.now();
+      }
+    }
+
+    async function pollHumanAlertsStatus() {
+      try {
+        const res = await fetch('/api/alerts/status');
+        if (!res.ok) return;
+        const d = await res.json();
+        const count = d.pending_count || 0;
+        const countEl = document.getElementById('headerAlertCount');
+        const btn = document.getElementById('headerAlertBtn');
+        const icon = document.getElementById('headerAlertIcon');
+
+        if (countEl) countEl.innerText = `${count} ALERTS`;
+
+        if (count > 0) {
+          if (btn) {
+            btn.className = 'px-2.5 py-1 rounded bg-red-500/30 hover:bg-red-500/50 border border-red-400 text-red-200 text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-[0_0_15px_rgba(239,68,68,0.5)]';
+          }
+          if (icon) icon.className = 'animate-ping text-red-400';
+
+          // Play chime if new alert arrived
+          if (count > lastKnownPendingCount) {
+            playAlertChime();
+            showToast(`⚠️ [JARVIS ALERT]: ${d.latest ? d.latest.title : 'Action Required on PC'}`);
+          }
+        } else {
+          if (btn) {
+            btn.className = 'px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/60 text-amber-300 text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-[0_0_12px_rgba(245,158,11,0.3)]';
+          }
+          if (icon) icon.className = 'animate-pulse text-amber-300';
+        }
+        lastKnownPendingCount = count;
+      } catch (e) {}
+    }
+
+    // =========================================================================
+    // 5. SELF-HEALING SENTINEL & AUTONOMOUS VIBE CODER CONTROLLER
+    // =========================================================================
+    function openSentinelModal() {
+      const m = document.getElementById('sentinelSelfHealingModal');
+      if (m) m.classList.remove('hidden');
+      refreshSentinelDiagnostics();
+      loadVibeDeployedList();
+    }
+
+    function closeSentinelModal() {
+      const m = document.getElementById('sentinelSelfHealingModal');
+      if (m) m.classList.add('hidden');
+    }
+
+    async function refreshSentinelDiagnostics() {
+      try {
+        const res = await fetch('/api/sentinel/diagnose');
+        if (!res.ok) return;
+        const d = await res.json();
+        
+        const hw = d.hardware || {};
+        const cpuEl = document.getElementById('sentinelCpuTemp');
+        const ramEl = document.getElementById('sentinelRamPct');
+        const ramGbEl = document.getElementById('sentinelRamGb');
+        const heldEl = document.getElementById('sentinelHeldTasks');
+
+        if (cpuEl) {
+          cpuEl.innerText = `${hw.cpu_temp_c || 62.0}°C`;
+          cpuEl.className = (hw.cpu_temp_c || 62) > 80 ? 'text-red-400 font-bold text-sm' : 'text-emerald-400 font-bold text-sm';
+        }
+        if (ramEl) ramEl.innerText = `${hw.ram_percent || 52}%`;
+        if (ramGbEl) ramGbEl.innerText = `${hw.ram_used_gb || 8.3} / ${hw.ram_total_gb || 15.9} GB`;
+        if (heldEl) heldEl.innerText = `${d.held_tasks_count || 0} Pending`;
+
+        const dGrid = document.getElementById('sentinelDaemonsGrid');
+        if (dGrid && d.daemons) {
+          dGrid.innerHTML = Object.entries(d.daemons).map(([k, v]) => `
+            <div class="p-1.5 rounded bg-[#020710] border border-[#163659] flex justify-between items-center">
+              <span class="text-slate-300 font-bold truncate">${k}</span>
+              <span class="px-1 py-0.2 rounded ${v.alive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'} font-bold">
+                ${v.alive ? 'ONLINE' : 'STOPPED'}
+              </span>
+            </div>
+          `).join('');
+        }
+      } catch (e) {
+        console.warn('Diagnostics fetch failed:', e);
+      }
+    }
+
+    async function triggerAutoHeal() {
+      const btn = document.getElementById('btnAutoHeal');
+      const resBox = document.getElementById('sentinelHealResult');
+      if (btn) btn.innerText = 'RUNNING DIAGNOSTIC SELF-HEAL... ⏳';
+
+      try {
+        const res = await fetch('/api/sentinel/heal', { method: 'POST' });
+        const d = await res.json();
+        if (resBox) {
+          resBox.classList.remove('hidden');
+          resBox.innerHTML = `<strong>✅ AUTO-HEAL REPORT:</strong> ${d.message}<br>Actions executed: ${d.auto_healed_actions?.join(', ') || 'System optimal.'}`;
+        }
+        showToast('🛡️ Autonomous Sentinel Self-Repair Finished!');
+        refreshSentinelDiagnostics();
+      } catch (e) {
+        showToast('Self-repair error: ' + e.message);
+      } finally {
+        if (btn) btn.innerText = '⚡ TRIGGER AUTONOMOUS SELF-REPAIR NOW';
+      }
+    }
+
+    async function triggerVibeCoder() {
+      const prompt = document.getElementById('vibePromptInput')?.value.trim();
+      const name = document.getElementById('vibeSkillInput')?.value.trim() || 'vibe_tool';
+      const btn = document.getElementById('btnVibeGenerate');
+      const codeBox = document.getElementById('vibeCodePreview');
+      const astBadge = document.getElementById('vibeAstBadge');
+
+      if (!prompt) {
+        showToast('Please type a feature prompt in Roman Urdu or English.');
         return;
       }
 
+      if (btn) btn.innerText = 'SYNTHESIZING... ⏳';
       try {
-        const resp = await fetch('/api/gaigs/ethics/evaluate', {
+        const res = await fetch('/api/vibe/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ proposal_text: text })
+          body: JSON.stringify({
+            prompt: prompt,
+            skill_name: name,
+            auto_deploy: true
+          })
         });
-        const data = await resp.json();
-        if (data.ok && data.evaluation) {
-          const ev = data.evaluation;
-          document.getElementById('gaigsAuditScore').innerText = `${ev.composite_score} / 100`;
-          const verdictEl = document.getElementById('gaigsAuditVerdict');
-          verdictEl.innerText = ev.verdict;
-          if (ev.verdict === 'ETHICAL_APPROVED') {
-            verdictEl.className = 'px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold';
-          } else {
-            verdictEl.className = 'px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold';
+        const d = await res.json();
+        if (d.ok && d.code) {
+          if (codeBox) codeBox.innerText = d.code;
+          if (astBadge) {
+            astBadge.innerText = 'AST VERIFIED & HOT-DEPLOYED';
+            astBadge.className = 'text-emerald-400 font-bold';
           }
-          document.getElementById('gaigsAuditNotes').innerText = 
-            `Tawhid: ${ev.breakdown.tawhid} | Adl: ${ev.breakdown.adl} | Shura: ${ev.breakdown.shura} | Amanah: ${ev.breakdown.amanah} | Rahmah: ${ev.breakdown.rahmah}. ${ev.notes || ''}`;
-          showToast(`Ethics Audit: ${ev.verdict} (${ev.composite_score}/100)`);
+          showToast(`🚀 Vibe Code '${name}' Synthesized & Hot-Deployed!`);
+          loadVibeDeployedList();
         } else {
-          showToast('Audit failed: ' + (data.detail || 'Error'));
+          showToast('Synthesis failed: ' + (d.detail || 'Error'));
         }
-      } catch (err) {
-        showToast('Ethics audit error: ' + err.message);
+      } catch (e) {
+        showToast('Vibe Coder error: ' + e.message);
+      } finally {
+        if (btn) btn.innerText = '🚀 VIBE CODE & DEPLOY';
       }
+    }
+
+    async function loadVibeDeployedList() {
+      try {
+        const res = await fetch('/api/vibe/list');
+        if (!res.ok) return;
+        const d = await res.json();
+        const list = document.getElementById('vibeDeployedList');
+        if (list && d.skills) {
+          list.innerHTML = d.skills.map(s => `
+            <span class="px-2 py-0.5 rounded bg-purple-950/70 text-purple-300 border border-purple-500/40 text-[9px] font-mono">
+              ${s}
+            </span>
+          `).join('');
+        }
+      } catch (e) {}
     }
 
     // Auto-init on page ready
@@ -10405,6 +11005,8 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
       loadFleetAccountsData();
       loadMediaStudioData();
       loadGaigsCivOverview();
+      pollHumanAlertsStatus();
+      setInterval(pollHumanAlertsStatus, 4000);
     });
   </script>
 </body>

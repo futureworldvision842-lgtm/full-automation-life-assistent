@@ -358,6 +358,31 @@ input:focus, textarea:focus {
   </div>
 </header>
 
+<!-- Real-Time Human Assistance & Action Alert Banner (Sticky Mobile Top) -->
+<div id="mobileAlertBanner" style="display:none; background: linear-gradient(135deg, rgba(255,184,0,0.25), rgba(255,51,102,0.25)); border: 1.5px solid var(--amb); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; box-shadow: 0 0 20px rgba(255,184,0,0.35);">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+    <div style="font-weight:900; color:var(--amb); font-size:12px; display:flex; align-items:center; gap:6px;">
+      <span style="font-size:16px;">⚠️</span>
+      <span id="mobAlertTitle">HUMAN INTERVENTION REQUIRED</span>
+    </div>
+    <span id="mobAlertBadge" style="background:var(--red); color:#fff; font-size:9px; font-weight:bold; padding:2px 6px; border-radius:10px;">PENDING</span>
+  </div>
+  <div id="mobAlertDesc" style="font-size:11px; color:#fff; margin-bottom:8px; line-height:1.4;">
+    CAPTCHA challenge or 2FA code required on PC workstation.
+  </div>
+  <div style="display:flex; gap:6px; flex-wrap:wrap;">
+    <button class="gold" style="flex:1; padding:8px; font-size:11px; font-weight:900;" onclick="openMobileAlertDetails()">
+      🔍 RESOLVE ALERT
+    </button>
+    <button class="pri" style="flex:1; padding:8px; font-size:11px; font-weight:900;" onclick="quickResolveMobileAlert('SOLVED')">
+      ✅ SOLVED
+    </button>
+    <button class="grn" style="flex:1; padding:8px; font-size:11px; font-weight:900;" onclick="quickResolveMobileAlert('FREE_MODE')">
+      🟢 FREE MODE
+    </button>
+  </div>
+</div>
+
 <!-- Sovereign 1-Tap Verification Gate -->
 <div class="approval-gate">
   <div style="display:flex; justify-content:space-between; align-items:center; font-size:9.5px; font-weight:900; color:var(--gold); margin-bottom:5px;">
@@ -811,6 +836,40 @@ input:focus, textarea:focus {
       </div>
     </div>
   </div>
+
+  <!-- 🛡️ SELF-HEALING SENTINEL & AUTONOMOUS REPAIR (MOBILE) -->
+  <div class="card" style="border:1px solid var(--grn); background:rgba(0,255,136,0.04);">
+    <div class="card-header" style="color:var(--grn); border-color:rgba(0,255,136,0.3);">
+      <span>🛡️ SELF-HEALING SENTINEL WATCHDOG</span>
+      <span class="metric-val green" id="mobSentinelStatus">AUTONOMOUS</span>
+    </div>
+    <div style="background:#030913; border:1px solid #132f4c; border-radius:8px; padding:8px; margin-bottom:6px;">
+      <div class="metric-row"><span>CPU Thermal Ceiling:</span><span class="metric-val green" id="mobCpuTemp">&lt;82°C (Haswell Safe)</span></div>
+      <div class="metric-row"><span>RAM Footprint:</span><span class="metric-val cyan" id="mobRamUsage">Optimal (&lt;60%)</span></div>
+      <div class="metric-row"><span>Held Interventions:</span><span class="metric-val amber" id="mobHeldCount">0 Tasks Preserved</span></div>
+    </div>
+    <button class="grn" style="width:100%; padding:10px; font-size:11px; font-weight:900;" onclick="runMobileSentinelAutoHeal()" id="mobBtnAutoHeal">
+      ⚡ TRIGGER AUTONOMOUS SELF-REPAIR NOW
+    </button>
+    <div id="mobSentinelHealResult" style="font-size:9.5px; color:var(--txt); background:#02050a; border:1px solid #0d2238; border-radius:6px; padding:6px; margin-top:5px; display:none;"></div>
+  </div>
+
+  <!-- 💻 AUTONOMOUS VIBE CODING STUDIO (MOBILE) -->
+  <div class="card" style="border:1.5px solid var(--purple); background:rgba(179,102,255,0.05);">
+    <div class="card-header" style="color:var(--purple); border-color:rgba(179,102,255,0.3);">
+      <span>💻 1-TAP VIBE CODING STUDIO</span>
+      <span class="metric-val purple">AST HOT-DEPLOY</span>
+    </div>
+    <div style="font-size:9.5px; color:var(--dim); margin-bottom:4px;">PROMPT IN ENGLISH OR ROMAN URDU:</div>
+    <textarea id="mobVibePrompt" rows="2" placeholder="e.g. 'banao ek crypto arbitrage scanner' or 'create solana whale tracker'" style="font-size:11px; margin-bottom:5px;"></textarea>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:6px;">
+      <input id="mobVibeSkillName" placeholder="Skill name" value="mobile_vibe_skill" style="margin-bottom:0; font-size:10px;" />
+      <button class="purple" style="padding:8px; font-size:11px; font-weight:900;" onclick="runMobileVibeCoder()" id="mobBtnVibe">
+        🚀 VIBE CODE NOW
+      </button>
+    </div>
+    <div id="mobVibeResultBox" style="font-size:9px; color:var(--txt); background:#02050a; border:1px solid #0d2238; border-radius:6px; padding:6px; display:none; max-height:100px; overflow-y:auto; font-family:Consolas,monospace;"></div>
+  </div>
 </div>
 
 <!-- ========================================================================= -->
@@ -975,6 +1034,79 @@ Select a script from the queue below or tap "GENERATE VIRAL SCRIPT".
     <span>GAIGS</span>
   </div>
 </nav>
+
+<!-- Mobile Human Assistance & Intervention Modal -->
+<div id="mobileAlertModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:3000; padding:12px; overflow-y:auto; backdrop-filter:blur(10px);">
+  <div style="background:var(--pan); border:2px solid var(--amb); border-radius:14px; padding:14px; max-width:480px; margin:20px auto; box-shadow:0 0 30px rgba(255,184,0,0.4);">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--bd); padding-bottom:8px; margin-bottom:10px;">
+      <div style="font-weight:900; color:var(--amb); font-size:13px; display:flex; align-items:center; gap:6px;">
+        <span>⚠️</span><span>HUMAN ASSISTANCE REQUIRED</span>
+      </div>
+      <button style="background:transparent; border:none; color:#fff; font-size:16px; cursor:pointer;" onclick="closeMobileAlertModal()">✕</button>
+    </div>
+
+    <!-- Alert Title & Type -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <span id="mobModalType" style="font-size:9.5px; font-weight:bold; background:rgba(255,51,102,0.2); color:var(--red); padding:2px 8px; border-radius:6px; border:1px solid var(--red);">CAPTCHA_CHALLENGE</span>
+      <span id="mobModalId" style="font-size:9.5px; color:var(--pri); font-family:monospace; font-weight:bold;">REQ-NONE</span>
+    </div>
+    <div id="mobModalTitle" style="font-size:13px; font-weight:900; color:#fff; margin-bottom:8px;">Challenge Title</div>
+
+    <!-- Roman Urdu Directive -->
+    <div style="background:rgba(255,184,0,0.12); border:1px solid rgba(255,184,0,0.35); border-radius:8px; padding:10px; margin-bottom:10px;">
+      <div style="font-size:9px; font-weight:900; color:var(--gold); margin-bottom:3px;">🎙️ ROMAN URDU INSTRUCTION:</div>
+      <div id="mobModalUrdu" style="font-size:11.5px; color:var(--txt); line-height:1.4;">"Sir, instructions appear here..."</div>
+    </div>
+
+    <!-- Target Service & Blocked -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px; font-size:10px;">
+      <div style="background:#030a14; padding:6px; border-radius:6px; border:1px solid var(--bd);">
+        <span style="color:var(--dim);">Service:</span>
+        <div id="mobModalService" style="font-weight:bold; color:#fff; truncate;">FundingPips</div>
+      </div>
+      <div style="background:#030a14; padding:6px; border-radius:6px; border:1px solid var(--bd);">
+        <span style="color:var(--dim);">Blocked:</span>
+        <div id="mobModalBlocked" style="font-weight:bold; color:#fff; truncate;">Risk limit sync</div>
+      </div>
+    </div>
+
+    <!-- PC Live Screenshot Preview -->
+    <div style="margin-bottom:10px;">
+      <div style="font-size:9.5px; font-weight:bold; color:var(--dim); margin-bottom:4px; display:flex; justify-content:space-between;">
+        <span>📸 PC WORKSTATION SCREEN:</span>
+        <span style="color:var(--pri); cursor:pointer;" onclick="refreshMobileAlertScreenshot()">🔄 REFRESH</span>
+      </div>
+      <div style="width:100%; height:160px; background:#010409; border:1px solid var(--bd); border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+        <img id="mobAlertScreenshot" src="/api/screen/pc/latest" style="max-width:100%; max-height:100%; object-fit:contain;" />
+      </div>
+    </div>
+
+    <!-- Code / Key / Solution Input -->
+    <div style="margin-bottom:10px;">
+      <label style="font-size:10px; color:var(--dim); display:block; margin-bottom:4px;">Enter OTP Code / API Key / Note:</label>
+      <input id="mobAlertValInput" placeholder="e.g. 123456 or sk-... or 'Done on PC'" style="margin-bottom:0;" />
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:8px;">
+      <button class="grn" style="padding:10px; font-size:11px; font-weight:900;" onclick="submitMobileAlertAction('SOLVED')">
+        ✅ SOLVED &amp; RESUME
+      </button>
+      <button class="pri" style="padding:10px; font-size:11px; font-weight:900;" onclick="submitMobileAlertAction('OTP_SUBMIT')">
+        🔑 SUBMIT CODE/KEY
+      </button>
+      <button class="gold" style="padding:10px; font-size:11px; font-weight:900;" onclick="openAlertTargetOnPcMobile()">
+        🖥️ OPEN ON PC
+      </button>
+      <button class="amb" style="padding:10px; font-size:11px; font-weight:900;" onclick="submitMobileAlertAction('FREE_MODE')">
+        🟢 100% FREE MODE
+      </button>
+    </div>
+    <button class="red" style="width:100%; padding:9px; font-size:11px; font-weight:bold;" onclick="submitMobileAlertAction('CANCEL')">
+      ⏹️ CANCEL ALERT
+    </button>
+  </div>
+</div>
 
 <!-- Toast -->
 <div id="mobileToast"></div>
@@ -2075,6 +2207,278 @@ async function loadMobileTaskPanopticon() {
   }
 }
 
+// =========================================================================
+// 10. REAL-TIME HUMAN ASSISTANCE, DUAL SCREEN VISION & SENTINEL (MOBILE)
+// =========================================================================
+let currentMobAlert = null;
+let lastKnownMobPendingCount = 0;
+
+function playMobileChime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.35);
+  } catch (e) {}
+}
+
+async function pollMobileAlertStatus() {
+  try {
+    const res = await fetch(`${state.backend}/api/alerts/status`);
+    if (!res.ok) return;
+    const d = await res.json();
+    const banner = document.getElementById('mobileAlertBanner');
+    const titleEl = document.getElementById('mobAlertTitle');
+    const descEl = document.getElementById('mobAlertDesc');
+    const badgeEl = document.getElementById('mobAlertBadge');
+
+    const count = d.pending_count || 0;
+    if (count > 0 && d.latest) {
+      if (banner) banner.style.display = 'block';
+      if (titleEl) titleEl.innerText = d.latest.title || 'HUMAN INTERVENTION REQUIRED';
+      if (descEl) descEl.innerText = d.latest.explanation_ur || d.latest.reason_technical || 'Action paused pending verification.';
+      if (badgeEl) badgeEl.innerText = `${count} PENDING`;
+
+      if (count > lastKnownMobPendingCount) {
+        playMobileChime();
+        if (navigator.vibrate) {
+          try { navigator.vibrate([100, 50, 100]); } catch (ve) {}
+        }
+        showToast(`⚠️ [JARVIS ALERT]: ${d.latest.title}`);
+      }
+    } else {
+      if (banner) banner.style.display = 'none';
+    }
+    lastKnownMobPendingCount = count;
+  } catch (e) {}
+}
+
+async function openMobileAlertDetails() {
+  try {
+    const res = await fetch(`${state.backend}/api/alerts/pending`);
+    if (!res.ok) return;
+    const d = await res.json();
+    const alerts = d.alerts || [];
+    if (alerts.length > 0) {
+      currentMobAlert = alerts[0];
+      const modal = document.getElementById('mobileAlertModal');
+      const typeEl = document.getElementById('mobModalType');
+      const idEl = document.getElementById('mobModalId');
+      const titleEl = document.getElementById('mobModalTitle');
+      const urduEl = document.getElementById('mobModalUrdu');
+      const svcEl = document.getElementById('mobModalService');
+      const blkEl = document.getElementById('mobModalBlocked');
+      const valInput = document.getElementById('mobAlertValInput');
+
+      if (modal) modal.style.display = 'block';
+      if (typeEl) typeEl.innerText = currentMobAlert.request_type || 'ALERT';
+      if (idEl) idEl.innerText = currentMobAlert.request_id || '';
+      if (titleEl) titleEl.innerText = currentMobAlert.title || 'Verification Required';
+      if (urduEl) urduEl.innerText = `"${currentMobAlert.explanation_ur || 'Screen par check karein.'}"`;
+      if (svcEl) svcEl.innerText = currentMobAlert.target_service || 'Workstation Service';
+      if (blkEl) blkEl.innerText = currentMobAlert.action_blocked || 'Automated flow';
+      if (valInput) {
+        valInput.value = '';
+        valInput.placeholder = currentMobAlert.request_type === 'TWO_FACTOR_AUTH' ? 'Enter 6-digit OTP code...' : 'e.g. key or done';
+      }
+      refreshMobileAlertScreenshot();
+    } else {
+      showToast('No pending alerts at this time.');
+    }
+  } catch (e) {
+    showToast('Error: ' + e.message);
+  }
+}
+
+function closeMobileAlertModal() {
+  const modal = document.getElementById('mobileAlertModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function refreshMobileAlertScreenshot() {
+  const img = document.getElementById('mobAlertScreenshot');
+  if (img) img.src = `${state.backend}/api/screen/pc/latest?t=` + Date.now();
+}
+
+async function submitMobileAlertAction(action) {
+  const val = (document.getElementById('mobAlertValInput')?.value || '').trim();
+  const reqId = currentMobAlert ? currentMobAlert.request_id : '';
+
+  try {
+    const res = await fetch(`${state.backend}/api/alerts/resolve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        request_id: reqId,
+        action: action,
+        value: val
+      })
+    });
+    const d = await res.json();
+    if (d.ok) {
+      showToast(`✅ Alert ${action}: Resolved!`);
+      closeMobileAlertModal();
+      pollMobileAlertStatus();
+    } else {
+      showToast('Resolution error: ' + (d.detail || 'Failed'));
+    }
+  } catch (e) {
+    showToast('Error: ' + e.message);
+  }
+}
+
+async function quickResolveMobileAlert(action) {
+  try {
+    const res = await fetch(`${state.backend}/api/alerts/resolve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        request_id: '',
+        action: action,
+        value: ''
+      })
+    });
+    const d = await res.json();
+    if (d.ok) {
+      showToast(`✅ Alert marked: ${action}!`);
+      pollMobileAlertStatus();
+    }
+  } catch (e) {
+    showToast('Error: ' + e.message);
+  }
+}
+
+async function openAlertTargetOnPcMobile() {
+  if (!currentMobAlert) return;
+  try {
+    const res = await fetch(`${state.backend}/api/alerts/open-target`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        portal_url: currentMobAlert.portal_url || '',
+        window_title: currentMobAlert.window_title || '',
+        prompt_text: currentMobAlert.title || 'Verification'
+      })
+    });
+    const d = await res.json();
+    showToast(d.message || 'Window opened on PC.');
+    setTimeout(refreshMobileAlertScreenshot, 1000);
+  } catch (e) {
+    showToast('Error: ' + e.message);
+  }
+}
+
+async function sendMobileHeartbeat() {
+  try {
+    let batteryPct = 88;
+    let charging = false;
+    if (navigator.getBattery) {
+      try {
+        const b = await navigator.getBattery();
+        batteryPct = Math.round(b.level * 100);
+        charging = b.charging;
+      } catch (be) {}
+    }
+
+    await fetch(`${state.backend}/api/screen/mobile/heartbeat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        device_name: 'Master Muhammad Sovereign Mobile',
+        active_tab: state.currentSymbol || 'tabPc',
+        battery_pct: batteryPct,
+        charging: charging,
+        orientation: window.innerWidth > window.innerHeight ? 'landscape' : 'portrait',
+        resolution: `${window.innerWidth}x${window.innerHeight}`
+      })
+    });
+  } catch (e) {}
+}
+
+async function runMobileSentinelAutoHeal() {
+  const btn = document.getElementById('mobBtnAutoHeal');
+  const resEl = document.getElementById('mobSentinelHealResult');
+  if (btn) btn.innerText = 'SELF-REPAIRING... ⏳';
+
+  try {
+    const res = await fetch(`${state.backend}/api/sentinel/heal`, { method: 'POST' });
+    const d = await res.json();
+    if (resEl) {
+      resEl.style.display = 'block';
+      resEl.innerHTML = `<strong>✅ AUTO-HEAL:</strong> ${d.message}`;
+    }
+    showToast('🛡️ Autonomous Sentinel Self-Repair Finished!');
+    pollMobileSentinelDiagnostics();
+  } catch (e) {
+    showToast('Repair failed: ' + e.message);
+  } finally {
+    if (btn) btn.innerText = '⚡ TRIGGER AUTONOMOUS SELF-REPAIR NOW';
+  }
+}
+
+async function pollMobileSentinelDiagnostics() {
+  try {
+    const res = await fetch(`${state.backend}/api/sentinel/diagnose`);
+    if (!res.ok) return;
+    const d = await res.json();
+    const hw = d.hardware || {};
+    const tEl = document.getElementById('mobCpuTemp');
+    const rEl = document.getElementById('mobRamUsage');
+    const hEl = document.getElementById('mobHeldCount');
+
+    if (tEl) tEl.innerText = `${hw.cpu_temp_c || 62.0}°C (<82°C Haswell Safe)`;
+    if (rEl) rEl.innerText = `${hw.ram_percent || 52}% (${hw.ram_used_gb || 8.3} / ${hw.ram_total_gb || 15.9} GB)`;
+    if (hEl) hEl.innerText = `${d.held_tasks_count || 0} Tasks Preserved`;
+  } catch (e) {}
+}
+
+async function runMobileVibeCoder() {
+  const prompt = document.getElementById('mobVibePrompt')?.value.trim();
+  const name = document.getElementById('mobVibeSkillName')?.value.trim() || 'mobile_vibe_skill';
+  const btn = document.getElementById('mobBtnVibe');
+  const resEl = document.getElementById('mobVibeResultBox');
+
+  if (!prompt) {
+    showToast('Please type a prompt in Urdu or English.');
+    return;
+  }
+  if (btn) btn.innerText = 'CODING... ⏳';
+
+  try {
+    const res = await fetch(`${state.backend}/api/vibe/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: prompt,
+        skill_name: name,
+        auto_deploy: true
+      })
+    });
+    const d = await res.json();
+    if (d.ok && d.code) {
+      if (resEl) {
+        resEl.style.display = 'block';
+        resEl.innerText = `[HOT-DEPLOYED: ${name}]\n${d.code.slice(0, 300)}...`;
+      }
+      showToast(`🚀 Vibe Code '${name}' Deployed!`);
+    } else {
+      showToast('Vibe coding failed: ' + (d.detail || 'Error'));
+    }
+  } catch (e) {
+    showToast('Error: ' + e.message);
+  } finally {
+    if (btn) btn.innerText = '🚀 VIBE CODE NOW';
+  }
+}
+
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', () => {
   pollPcVitals();
@@ -2085,8 +2489,14 @@ window.addEventListener('DOMContentLoaded', () => {
   loadMobileGaigsData();
   loadMobileReposData();
   loadMobileTaskPanopticon();
+  pollMobileAlertStatus();
+  pollMobileSentinelDiagnostics();
+  sendMobileHeartbeat();
   setInterval(pollPcVitals, 3000);
   setInterval(pollLiveMarkets, 3500);
+  setInterval(pollMobileAlertStatus, 4000);
+  setInterval(sendMobileHeartbeat, 10000);
+  setInterval(pollMobileSentinelDiagnostics, 8000);
 });
 </script>
 </body>
