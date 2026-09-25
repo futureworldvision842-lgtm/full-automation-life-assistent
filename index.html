@@ -696,6 +696,27 @@
                   <div class="flex justify-between border-t border-[#12283e] pt-1"><span>FundingPips #40000294403:</span><span class="text-emerald-400 font-bold">$100,981.80</span></div>
                 </div>
               </div>
+
+              <!-- TACTILE FLOATING 3D GLOBE NAVIGATION CLUSTER -->
+              <div class="absolute bottom-3 right-3 z-30 flex flex-col space-y-1.5 p-2 rounded-lg bg-[#040c1a]/90 backdrop-blur-md border border-cyan-500/40 shadow-[0_0_20px_rgba(0,229,255,0.35)] font-mono text-[9px]">
+                <div class="text-[7.5px] font-bold text-cyan-300 tracking-wider flex items-center justify-between pb-1 border-b border-cyan-500/30">
+                  <span>🕹️ 3D TACTICAL CONTROLS</span>
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
+                </div>
+                <div class="grid grid-cols-2 gap-1">
+                  <button onclick="adjustGlobeZoom(0.2)" class="px-2 py-1 rounded bg-[#07192d] hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold transition-all">🔍 ZOOM +</button>
+                  <button onclick="adjustGlobeZoom(-0.2)" class="px-2 py-1 rounded bg-[#07192d] hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold transition-all">🔎 ZOOM -</button>
+                </div>
+                <div class="grid grid-cols-2 gap-1">
+                  <button onclick="toggleGlobeOrbit()" id="btnGlobeOrbit" class="px-2 py-1 rounded bg-[#07192d] hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 font-bold transition-all">🔄 360° ORBIT</button>
+                  <button onclick="setGlobePresetView('global')" class="px-2 py-1 rounded bg-[#07192d] hover:bg-cyan-500/30 text-white border border-[#142e47] font-bold transition-all">🌐 GLOBAL</button>
+                </div>
+                <div class="grid grid-cols-3 gap-1 pt-1 border-t border-[#12283e] text-[8px]">
+                  <button onclick="focusStrategicChokepoint('hormuz')" class="px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">Hormuz</button>
+                  <button onclick="focusStrategicChokepoint('mandeb')" class="px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">Mandeb</button>
+                  <button onclick="focusStrategicChokepoint('asia')" class="px-1 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold">Asia/PK</button>
+                </div>
+              </div>
             </div>
 
             <!-- Unified JARVIS Tactical Control Bar -->
@@ -757,6 +778,25 @@
                   <div class="text-[7.5px] text-slate-400">STORAGE F:</div>
                   <div class="text-xs font-black text-white" id="pcVitalsDisk">157GB</div>
                   <div class="text-[7px] text-emerald-400 font-bold">Vault Free</div>
+                </div>
+              </div>
+
+              <!-- TONY STARK HOLOGRAPHIC ARC REACTOR AUDIO FREQUENCY SPECTRUM -->
+              <div class="p-2 rounded bg-[#050e1a] border border-cyan-500/30 flex items-center justify-between font-mono my-1.5 shadow-[0_0_15px_rgba(0,229,255,0.15)] relative overflow-hidden">
+                <canvas id="desktopArcReactorCanvas" width="70" height="70" class="flex-shrink-0 rounded-full shadow-[0_0_15px_rgba(0,229,255,0.4)]"></canvas>
+                <div class="flex-1 px-2.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[9px] font-bold text-cyan-300 flex items-center gap-1.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
+                      ARC REACTOR COGNITIVE CORE
+                    </span>
+                    <span class="text-[7.5px] font-bold text-emerald-400 px-1.5 py-0.2 rounded bg-emerald-500/20 border border-emerald-500/40" id="desktopVoiceState">ACTIVE</span>
+                  </div>
+                  <div class="text-[7.5px] text-slate-400 mt-0.5">Continuous Bilingual NLP · Roman Urdu / English Synthesis</div>
+                  <!-- Oscillating Frequency Waves -->
+                  <div class="flex items-center space-x-0.5 mt-1.5 h-3" id="desktopSpectrumBars">
+                    <!-- 20 mini reactive equalizer bars -->
+                  </div>
                 </div>
               </div>
 
@@ -6626,6 +6666,139 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
         await fetch('/api/system/balance_load', { method: 'POST' });
       } catch (e) {}
       showToast('Memory purged. System priority 0x4000 verified.');
+    }
+
+    /* ========================================================================= */
+    /* 3D TACTICAL GLOBE ORBIT & ZOOM CONTROLLERS                                */
+    /* ========================================================================= */
+    function adjustGlobeZoom(delta) {
+      let z = parseFloat(currentGlobeZoom) || 1.0;
+      z = Math.max(0.5, Math.min(8.0, z + delta));
+      currentGlobeZoom = z.toFixed(2);
+      currentGlobeView = z > 1.2 ? 'custom' : 'global';
+      updateGlobeIframe();
+      showToast(`🔍 3D Globe Zoom: ${currentGlobeZoom}x`);
+    }
+
+    let globeOrbitTimer = null;
+    function toggleGlobeOrbit() {
+      const btn = document.getElementById('btnGlobeOrbit');
+      if (globeOrbitTimer) {
+        clearInterval(globeOrbitTimer);
+        globeOrbitTimer = null;
+        if (btn) btn.classList.remove('bg-emerald-500/40', 'text-white');
+        showToast('⏹️ 3D Globe Orbit Paused');
+      } else {
+        const presets = ['global', 'middle_east', 'taiwan'];
+        let idx = 0;
+        globeOrbitTimer = setInterval(() => {
+          idx = (idx + 1) % presets.length;
+          setGlobePresetView(presets[idx]);
+        }, 12000);
+        if (btn) btn.classList.add('bg-emerald-500/40', 'text-white');
+        showToast('🔄 3D Autonomous Continuous Orbit Active');
+      }
+    }
+
+    function focusStrategicChokepoint(point) {
+      if (point === 'hormuz') {
+        currentGlobeZoom = '4.50';
+        currentGlobeView = 'custom';
+        showToast('🌊 Focus: Strait of Hormuz (Oil Transit Chokepoint)');
+      } else if (point === 'mandeb') {
+        currentGlobeZoom = '4.20';
+        currentGlobeView = 'custom';
+        showToast('🚢 Focus: Bab el-Mandeb (Red Sea Corridor)');
+      } else if (point === 'asia') {
+        currentGlobeZoom = '3.00';
+        currentGlobeView = 'custom';
+        showToast('🎯 Focus: Pakistan & South-Central Asia');
+      }
+      updateGlobeIframe();
+    }
+
+    /* ========================================================================= */
+    /* TONY STARK HOLOGRAPHIC ARC REACTOR AUDIO FREQUENCY ANIMATOR               */
+    /* ========================================================================= */
+    function initDesktopArcReactor() {
+      const canvas = document.getElementById('desktopArcReactorCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let angle = 0;
+
+      function render() {
+        const w = canvas.width, h = canvas.height;
+        const cx = w / 2, cy = h / 2;
+        ctx.clearRect(0, 0, w, h);
+
+        // Outer cyan ring
+        ctx.beginPath();
+        ctx.arc(cx, cy, 31, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(0, 229, 255, 0.4)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Forward spinning triangle segments
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+        for (let i = 0; i < 8; i++) {
+          const a = (i * Math.PI * 2) / 8;
+          ctx.beginPath();
+          ctx.arc(0, 0, 24, a, a + 0.45);
+          ctx.strokeStyle = '#00e5ff';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Reverse spinning gold ring
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(-angle * 1.8);
+        for (let i = 0; i < 4; i++) {
+          const a = (i * Math.PI * 2) / 4;
+          ctx.beginPath();
+          ctx.arc(0, 0, 16, a, a + 0.8);
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Core white-cyan plasma flare
+        const grad = ctx.createRadialGradient(cx, cy, 2, cx, cy, 10);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.6, '#00e5ff');
+        grad.addColorStop(1, 'rgba(0, 229, 255, 0)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        angle += 0.035;
+        requestAnimationFrame(render);
+      }
+      render();
+
+      // Equalizer Spectrum bars
+      const barCont = document.getElementById('desktopSpectrumBars');
+      if (barCont) {
+        barCont.innerHTML = Array.from({ length: 18 }).map(() => '<div class="eq-bar flex-1 bg-cyan-400 rounded-sm mx-0.5"></div>').join('');
+        setInterval(() => {
+          barCont.querySelectorAll('.eq-bar').forEach(b => {
+            const h = Math.floor(Math.random() * 12) + 2;
+            b.style.height = `${h}px`;
+          });
+        }, 120);
+      }
+    }
+
+    // Auto-initialize Arc Reactor
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initDesktopArcReactor);
+    } else {
+      initDesktopArcReactor();
     }
 
   </script>
