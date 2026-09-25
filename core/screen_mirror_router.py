@@ -58,19 +58,31 @@ async def get_pc_screen_latest():
     if "pytest" in sys.modules or os.environ.get("PYTEST_CURRENT_TEST"):
         return Response(content=transparent_png, media_type="image/png")
 
-    if not screen_path.exists() or time.time() - screen_path.stat().st_mtime > 3:
+    if screen_path.exists() and (time.time() - screen_path.stat().st_mtime < 5):
         try:
-            from perception.screen_capture import get_screen_engine
-            get_screen_engine().capture_display(save_path=str(screen_path))
+            return Response(content=screen_path.read_bytes(), media_type="image/png")
         except Exception:
             pass
 
-    if screen_path.exists():
-        data = screen_path.read_bytes()
+    try:
+        from PIL import ImageGrab
+        import io
+        shot = ImageGrab.grab(all_screens=False)
+        shot.thumbnail((1280, 720))
+        buf = io.BytesIO()
+        shot.save(buf, format="PNG")
+        data = buf.getvalue()
+        screen_path.write_bytes(data)
         return Response(content=data, media_type="image/png")
-    
-    # Return 1x1 transparent PNG fallback if capture not available
-    transparent_png = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=")
+    except Exception:
+        pass
+
+    if screen_path.exists():
+        try:
+            return Response(content=screen_path.read_bytes(), media_type="image/png")
+        except Exception:
+            pass
+
     return Response(content=transparent_png, media_type="image/png")
 
 
