@@ -84,6 +84,15 @@ class TestDashboard(unittest.TestCase):
         self.assertIn("world_monitor", integrations)
         self.assertIn("whatsapp_qr", integrations)
 
+    def test_api_system_tasks_schema(self):
+        tasks_data = self.dash.api_system_tasks()
+        self.assertIsInstance(tasks_data, dict)
+        self.assertTrue(tasks_data.get("ok"))
+        self.assertIn("total_tasks", tasks_data)
+        self.assertIn("autonomous_tasks", tasks_data)
+        self.assertGreaterEqual(len(tasks_data["autonomous_tasks"]), 6)
+        self.assertIn("active_window", tasks_data)
+
 
 if __name__ == "__main__":
     unittest.main()
