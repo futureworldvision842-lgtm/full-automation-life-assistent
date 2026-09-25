@@ -54,6 +54,12 @@ from core.cua_api_router import router as cua_api_router
 app.include_router(cua_api_router)
 from core.sovereign_api_router import router as sovereign_api_router
 app.include_router(sovereign_api_router)
+from core.research_api_router import router as research_api_router
+app.include_router(research_api_router)
+from core.trading.explainable_ai_engine import router as explainable_ai_router
+app.include_router(explainable_ai_router)
+from core.trading.custom_strategy_engine import router as custom_strategy_router
+app.include_router(custom_strategy_router)
 app.mount('/command-center-assets', StaticFiles(directory=str(BASE / 'web' / 'command_center')), name='command-center-assets')
 js_assets_dir = BASE / 'web' / 'js'
 js_assets_dir.mkdir(parents=True, exist_ok=True)
@@ -95,7 +101,18 @@ async def owner_ingress(request: Request, call_next):
         "/api/assimilator/registry", "/api/assimilator/assimilate",
         "/api/keys/catalog", "/api/whatsapp/status", "/api/whatsapp/qr",
         "/api/evolution/status", "/api/evolution/discover", "/api/evolution/synthesize",
-        "/api/evolution/prompt-engineer"
+        "/api/evolution/prompt-engineer",
+        "/api/research/forex/macro", "/api/research/crypto/memes",
+        "/api/research/crypto/gems", "/api/research/health",
+        "/api/research/macro/contagion", "/api/research/macro/hotspots",
+        "/api/research/macro/catalysts", "/api/research/macro/simulate-shock",
+        "/api/trading/explain",
+        "/api/trading/client_strategy/parse", "/api/trading/client_strategy/build",
+        "/api/trading/client_strategy/consensus", "/api/trading/client_strategy/execute",
+        "/api/trading/client_strategy/presets", "/api/trading/client_strategy/health",
+        "/api/strategy/custom/parse", "/api/strategy/custom/build",
+        "/api/strategy/custom/consensus", "/api/strategy/custom/execute",
+        "/api/strategy/custom/presets", "/api/strategy/custom/health"
     }
     if request.url.path.startswith("/api/") and request.url.path not in exempt_paths:
         supplied = (

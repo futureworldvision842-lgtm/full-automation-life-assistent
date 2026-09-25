@@ -1005,6 +1005,9 @@ class ChartEngine {
     }
 
     _notifyCrosshair(param) {
+        if (this.stateBridge && typeof this.stateBridge.setCrosshair === 'function') {
+            this.stateBridge.setCrosshair(param);
+        }
         for (const cb of this.crosshairCallbacks) {
             try { cb(param); } catch (e) { console.error(e); }
         }
@@ -1027,6 +1030,47 @@ class ChartEngine {
         this.timeframe = newTimeframe.toUpperCase();
         this.aggregator.setTimeframe(TIMEFRAME_SECONDS[this.timeframe] || 900);
         return this.loadCandles(this.symbol, this.timeframe);
+    }
+
+    getCandles() {
+        return this.candles || [];
+    }
+
+    attachStateBridge(bridge) {
+        this.stateBridge = bridge;
+        if (bridge && typeof bridge.subscribe === 'function') {
+            bridge.subscribe((changeType, payload) => {
+                if (changeType === 'symbol' && payload && payload.symbol && payload.symbol !== this.symbol) {
+                    this.setSymbol(payload.symbol);
+                } else if (changeType === 'timeframe' && payload && payload.timeframe && payload.timeframe !== this.timeframe) {
+                    this.setTimeframe(payload.timeframe);
+                }
+            });
+        }
+    }
+
+    attachSMCOverlays(smcOverlayInstance) {
+        this.smcOverlays = smcOverlayInstance;
+        return this.smcOverlays;
+    }
+
+    getState() {
+        return {
+            symbol: this.symbol,
+            timeframe: this.timeframe,
+            visibleRange: this.getVisibleRange(),
+            lastPrice: this.candles && this.candles.length > 0 ? this.candles[this.candles.length - 1].close : null
+        };
+    }
+
+    restoreState(state) {
+        if (!state) return;
+        if (state.symbol && state.symbol !== this.symbol) {
+            this.setSymbol(state.symbol);
+        }
+        if (state.timeframe && state.timeframe !== this.timeframe) {
+            this.setTimeframe(state.timeframe);
+        }
     }
 
     resize() {

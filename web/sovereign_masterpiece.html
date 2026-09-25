@@ -292,6 +292,11 @@
         <span>📱</span><span>CONNECT MOBILE</span>
       </button>
 
+      <!-- Custom Client Strategy Engine Drawer Button -->
+      <button onclick="openCustomStrategyDrawer()" class="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400/60 text-amber-300 text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-[0_0_12px_rgba(245,158,11,0.3)]" title="Open Custom Client Strategy Engine (Urdu/English NLP & Visual Builder)">
+        <span>⚡</span><span>CUSTOM STRATEGY</span>
+      </button>
+
       <!-- Download Standalone APK Directly to Phone (No Browser Required) -->
       <a href="/api/download/apk" download class="px-2.5 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/60 text-emerald-400 text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-[0_0_12px_rgba(16,185,129,0.3)] no-underline" title="Download Standalone J.A.R.V.I.S. Android APK (No Browser Needed)">
         <span>📦</span><span>GET ANDROID APK</span>
@@ -1684,6 +1689,262 @@
             </div>
           </div>
 
+          <!-- Row 2.6: DUAL-MODE CUSTOM CLIENT STRATEGY ENGINE (ENGLISH & ROMAN URDU // VISUAL RULE BUILDER) -->
+          <div class="mt-2.5 p-3 rounded bg-[#06101c] border-2 border-amber-500/50 font-mono text-[9.5px] shadow-[0_0_20px_rgba(245,158,11,0.15)]" id="customStrategyPanel">
+            <div class="flex flex-wrap justify-between items-center pb-2 mb-2 border-b border-[#142e47] gap-2">
+              <div class="flex items-center space-x-2">
+                <span class="text-base text-amber-400">⚡</span>
+                <div>
+                  <span class="text-white font-bold text-xs uppercase tracking-wider">DUAL-MODE CUSTOM CLIENT STRATEGY ENGINE</span>
+                  <div class="text-[8.5px] text-amber-300">ENGLISH &amp; ROMAN URDU NLP PARSER // VISUAL RULE BUILDER // RISK &le; 0.75% // R:R &ge; 2.50</div>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="flex rounded bg-[#040a15] p-0.5 border border-[#142e47] text-[8.5px]">
+                  <button id="btnTabModeA" onclick="switchStrategyEngineMode('modeA')" class="px-2.5 py-0.5 rounded bg-amber-500/30 text-amber-300 font-bold transition-all">
+                    🎙️ MODE A: NLP INTERPRETER
+                  </button>
+                  <button id="btnTabModeB" onclick="switchStrategyEngineMode('modeB')" class="px-2.5 py-0.5 rounded text-slate-400 hover:text-white transition-all">
+                    🧩 MODE B: VISUAL BUILDER
+                  </button>
+                </div>
+                <button onclick="openCustomStrategyDrawer()" class="btn-tactical text-[9px] py-0.5 px-2 text-cyan-300" title="Expand Full Drawer">
+                  ↗ EXPAND DRAWER
+                </button>
+              </div>
+            </div>
+
+            <!-- MODE A: Natural Language Prompt Interpreter -->
+            <div id="strategyModeAPanel" class="space-y-2">
+              <div class="p-2 rounded bg-[#040a15] border border-[#142e47] space-y-2">
+                <div class="flex flex-wrap justify-between items-center text-[9px]">
+                  <span class="text-slate-300 font-bold flex items-center gap-1">
+                    <span>💬</span><span>ENTER STRATEGY DIRECTIVE (ENGLISH YA PURE ROMAN URDU):</span>
+                  </span>
+                  <div class="flex gap-1.5 text-[8px]">
+                    <span class="text-slate-400">Quick Presets:</span>
+                    <button type="button" onclick="loadStrategyPromptPreset('xau_sweep')" class="text-amber-400 hover:underline">Gold Sweep (Urdu)</button>
+                    <span>&bull;</span>
+                    <button type="button" onclick="loadStrategyPromptPreset('eur_fvg')" class="text-cyan-400 hover:underline">EURUSD FVG (English)</button>
+                    <span>&bull;</span>
+                    <button type="button" onclick="loadStrategyPromptPreset('btc_cvd')" class="text-emerald-400 hover:underline">BTC Momentum (Urdu)</button>
+                  </div>
+                </div>
+
+                <div class="relative">
+                  <textarea id="nlpStrategyPromptInput" rows="2" class="w-full bg-[#020710] border border-[#163659] rounded p-2 text-cyan-300 font-mono text-[9.5px] focus:outline-none focus:border-amber-400" placeholder="e.g. M15 timeframe par Gold buy karo jab London session low sweep ho aur bullish Order Block hit ho, 0.5% risk aur 1:3 TP rakho"></textarea>
+                </div>
+
+                <div class="flex flex-wrap justify-between items-center pt-1 border-t border-[#142e47] gap-2">
+                  <div class="flex items-center space-x-2 text-[8px] text-slate-400">
+                    <span class="text-amber-400 font-bold">🛡️ DETERMINISTIC GATES:</span>
+                    <span>FundingPips Cap &le; 0.75% ($750)</span>
+                    <span>&bull;</span>
+                    <span>Min R:R &ge; 2.50</span>
+                    <span>&bull;</span>
+                    <span>BE Lock +1.0R</span>
+                    <span>&bull;</span>
+                    <span>15m News Blackout</span>
+                  </div>
+                  <div class="flex gap-2">
+                    <button id="btnParseStrategyPrompt" onclick="parseNaturalLanguageStrategy()" class="py-1 px-3 rounded bg-gradient-to-r from-amber-600 to-cyan-600 hover:from-amber-500 hover:to-cyan-500 text-white font-bold text-[9px] shadow-[0_0_12px_rgba(245,158,11,0.3)] transition-all">
+                      ⚡ PARSE &amp; VALIDATE DIRECTIVES
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Parsed Strategy Execution Card (Dynamically Filled) -->
+              <div id="nlpParsedResultCard" class="hidden p-2.5 rounded bg-[#030914] border border-cyan-500/40 space-y-2">
+                <div class="flex flex-wrap justify-between items-center pb-1 border-b border-[#12283e] text-[9px]">
+                  <div class="flex items-center space-x-2">
+                    <span id="nlpParsedActionBadge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">BUY</span>
+                    <span id="nlpParsedSymbolBadge" class="text-white font-black text-[11px]">XAUUSD</span>
+                    <span id="nlpParsedTfBadge" class="px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-bold">M15</span>
+                    <span id="nlpParsedLangBadge" class="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-bold">URDU</span>
+                  </div>
+                  <div class="flex items-center space-x-3 text-[8.5px]">
+                    <div>Risk Cap: <strong id="nlpParsedRiskVal" class="text-amber-300">0.50% ($500.00)</strong></div>
+                    <div>Target R:R: <strong id="nlpParsedRrVal" class="text-emerald-400">1:3.00</strong></div>
+                    <div>SL / TP: <strong id="nlpParsedSlTpVal" class="text-slate-300">15.0p / 45.0p</strong></div>
+                  </div>
+                </div>
+
+                <!-- Explanation Narrative -->
+                <div class="p-2 rounded bg-[#020610] border border-[#142e47] text-[9px] text-slate-200 leading-relaxed font-sans" id="nlpParsedNarrative">
+                  Thesis narrative will appear here in pure Roman Urdu or English...
+                </div>
+
+                <div class="flex flex-wrap justify-between items-center pt-1 border-t border-[#12283e] gap-2">
+                  <div class="flex items-center space-x-1.5 text-[8px] text-slate-400">
+                    <span class="text-emerald-400">● 5-Layer Anti-Ban Armed</span>
+                    <span>&bull;</span>
+                    <span class="text-cyan-400">● Dynamic +1.0R Breakeven Active</span>
+                  </div>
+                  <div class="flex gap-2">
+                    <button id="btnDebateCurrentStrategy" onclick="debateActiveStrategy()" class="py-1 px-2.5 rounded bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400 text-purple-300 font-bold text-[8.5px] transition-all">
+                      ⚖️ RUN CONSENSUS DEBATE
+                    </button>
+                    <button id="btnExecuteCurrentStrategy" onclick="executeActiveStrategyAcrossFleet()" class="py-1 px-3 rounded bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-bold text-[9px] shadow-[0_0_12px_rgba(0,229,255,0.3)] transition-all">
+                      🚀 DISPATCH TO FLEET (ANTI-BAN)
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- MODE B: Interactive Visual Rule Builder -->
+            <div id="strategyModeBPanel" class="hidden space-y-2">
+              <div class="p-2.5 rounded bg-[#040a15] border border-[#142e47] space-y-2.5">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-2 text-[9px]">
+                  <div>
+                    <label class="text-slate-400 block mb-0.5">Asset / Symbol</label>
+                    <select id="vrbSymbol" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 focus:border-amber-400 outline-none">
+                      <option value="XAUUSD">Gold (XAUUSD)</option>
+                      <option value="EURUSD">Euro (EURUSD)</option>
+                      <option value="GBPUSD">Pound (GBPUSD)</option>
+                      <option value="USDJPY">Yen (USDJPY)</option>
+                      <option value="BTCUSD">Bitcoin (BTCUSD)</option>
+                      <option value="SOLUSD">Solana (SOLUSD)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-slate-400 block mb-0.5">Execution Side</label>
+                    <select id="vrbAction" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-emerald-400 font-bold focus:border-amber-400 outline-none">
+                      <option value="BUY">BUY / LONG</option>
+                      <option value="SELL">SELL / SHORT</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-slate-400 block mb-0.5">Timeframe</label>
+                    <select id="vrbTimeframe" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 focus:border-amber-400 outline-none">
+                      <option value="M15">M15 (15 Minutes) - Execution</option>
+                      <option value="H1">H1 (1 Hour) - Trend</option>
+                      <option value="H4">H4 (4 Hours) - Structural Bias</option>
+                      <option value="M5">M5 (5 Minutes) - Scalp</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-slate-400 block mb-0.5">Target Accounts</label>
+                    <select id="vrbTargetFleet" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 focus:border-amber-400 outline-none">
+                      <option value="all">Entire Fleet (FundingPips + FTMO + MT5)</option>
+                      <option value="fundingpips_100k">FundingPips #40000294403 Only</option>
+                      <option value="ftmo_100k">FTMO Institutional Only</option>
+                      <option value="vebson_personal_1k">Personal Broker MT5 Only</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Condition Row -->
+                <div class="p-2 rounded bg-[#020610] border border-[#142e47] space-y-1.5">
+                  <div class="text-[9px] text-amber-300 font-bold flex justify-between">
+                    <span>🧩 ADD TECHNICAL INDICATOR CONDITION:</span>
+                    <span class="text-[8px] text-slate-400">Institutional SMC &bull; Momentum &bull; Volume Delta</span>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-4 gap-2 text-[9px]">
+                    <div>
+                      <select id="vrbIndicator" class="w-full bg-[#050f1d] border border-[#163659] rounded px-2 py-1 text-white">
+                        <option value="SMC_ORDER_BLOCK">SMC Order Block</option>
+                        <option value="FVG_50_CE">Fair Value Gap (FVG 50% CE)</option>
+                        <option value="LIQUIDITY_SWEEP">Liquidity Sweep / Stop Hunt</option>
+                        <option value="RSI">RSI Multi-Timeframe</option>
+                        <option value="CVD_DELTA">Cumulative Volume Delta (CVD)</option>
+                        <option value="VWAP">Multi-Band Anchored VWAP</option>
+                        <option value="BOS">Break of Structure (BOS)</option>
+                        <option value="EMA_CROSS">EMA 20/50 Golden Cross</option>
+                      </select>
+                    </div>
+                    <div>
+                      <select id="vrbOperator" class="w-full bg-[#050f1d] border border-[#163659] rounded px-2 py-1 text-cyan-300">
+                        <option value="RETESTS">Retests Level</option>
+                        <option value="MITIGATES_50_PCT">Mitigates 50% CE</option>
+                        <option value="SWEEPS_EXTREMUM">Sweeps Session Extremum</option>
+                        <option value="LESS_THAN">Less Than (&lt;)</option>
+                        <option value="GREATER_THAN">Greater Than (&gt;)</option>
+                        <option value="CROSSES_ABOVE">Crosses Above</option>
+                        <option value="CROSSES_BELOW">Crosses Below</option>
+                        <option value="ABSORBS_VOLUME">Absorbs Volume</option>
+                      </select>
+                    </div>
+                    <div>
+                      <input id="vrbThreshold" type="text" value="BULLISH_OB" class="w-full bg-[#050f1d] border border-[#163659] rounded px-2 py-1 text-slate-200" placeholder="Threshold / Zone" />
+                    </div>
+                    <div>
+                      <button type="button" onclick="addVisualConditionToBuilder()" class="w-full py-1 rounded bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400 text-amber-300 font-bold transition-all">
+                        ➕ ADD CONDITION
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Active Conditions Container -->
+                  <div id="vrbConditionsList" class="flex flex-wrap gap-1.5 pt-1">
+                    <span class="px-2 py-0.5 rounded bg-cyan-950/70 text-cyan-300 border border-cyan-500/40 text-[8px] flex items-center gap-1">
+                      <span>SMC_ORDER_BLOCK RETESTS BULLISH_OB (M15)</span>
+                      <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-200 font-bold">✕</button>
+                    </span>
+                    <span class="px-2 py-0.5 rounded bg-cyan-950/70 text-cyan-300 border border-cyan-500/40 text-[8px] flex items-center gap-1">
+                      <span>RSI LESS_THAN 35.0 (M15)</span>
+                      <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-200 font-bold">✕</button>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Risk Sliders Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1 text-[9px]">
+                  <div class="p-2 rounded bg-[#020710] border border-[#163659] space-y-1">
+                    <div class="flex justify-between">
+                      <span class="text-slate-400">Risk Per Trade (%):</span>
+                      <span id="vrbRiskPctDisplay" class="text-amber-400 font-bold">0.50% ($500)</span>
+                    </div>
+                    <input id="vrbRiskSlider" type="range" min="0.10" max="0.75" step="0.05" value="0.50" oninput="updateVisualRiskSlider(this.value)" class="w-full accent-amber-400 cursor-pointer" />
+                    <div class="flex justify-between text-[7.5px] text-slate-500">
+                      <span>0.10% (Min)</span>
+                      <span class="text-amber-400 font-bold">0.75% / $750 (HARD CAP)</span>
+                    </div>
+                  </div>
+
+                  <div class="p-2 rounded bg-[#020710] border border-[#163659] space-y-1">
+                    <div class="flex justify-between">
+                      <span class="text-slate-400">Target Risk-to-Reward:</span>
+                      <span id="vrbRrDisplay" class="text-emerald-400 font-bold">1:3.00 R:R</span>
+                    </div>
+                    <input id="vrbRrSlider" type="range" min="2.5" max="5.0" step="0.1" value="3.0" oninput="updateVisualRrSlider(this.value)" class="w-full accent-emerald-400 cursor-pointer" />
+                    <div class="flex justify-between text-[7.5px] text-slate-500">
+                      <span class="text-emerald-400 font-bold">2.50 (MIN FLOOR)</span>
+                      <span>5.00 (Max Runner)</span>
+                    </div>
+                  </div>
+
+                  <div class="p-2 rounded bg-[#020710] border border-[#163659] space-y-1">
+                    <div class="flex justify-between">
+                      <span class="text-slate-400">Dynamic Breakeven Lock:</span>
+                      <span class="text-cyan-400 font-bold">+1.0R (Net $0.00 DD)</span>
+                    </div>
+                    <div class="flex items-center space-x-1.5 text-[8px] text-slate-300 pt-1">
+                      <span>🔒 Enforces entry + spread + commission at +1.0R gain.</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-1 border-t border-[#142e47]">
+                  <span class="text-[8px] text-slate-400">5-Layer Anti-Ban Shield Active &bull; SOCKS5 Routing &bull; Jitter 350-1800ms</span>
+                  <button onclick="buildVisualStrategyFromForm()" class="py-1 px-3 rounded bg-gradient-to-r from-amber-600 to-cyan-600 hover:from-amber-500 hover:to-cyan-500 text-white font-bold text-[9px] shadow-[0_0_12px_rgba(245,158,11,0.3)] transition-all">
+                    ⚡ SERIALIZE &amp; VERIFY VISUAL RULE
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Consensus Debate & Execution Log Console -->
+            <div id="strategyExecutionLogCard" class="hidden mt-2 p-2 rounded bg-[#020710] border border-[#142e47] text-[8.5px] space-y-1">
+              <div class="flex justify-between items-center pb-0.5 border-b border-[#12283e] text-[9px] font-bold text-slate-300">
+                <span id="strategyLogTitle">📡 STRATEGY EXECUTION &amp; CONSENSUS STREAM</span>
+                <button onclick="document.getElementById('strategyExecutionLogCard').classList.add('hidden')" class="text-slate-500 hover:text-white">✕</button>
+              </div>
+              <div id="strategyLogContent" class="space-y-0.5 max-h-[90px] overflow-y-auto text-slate-300 font-mono"></div>
+            </div>
+          </div>
+
           <!-- Row 3: Dedicated Solana Meme Coin Alpha Radar & 3D Depth / CVD Absorption Matrix -->
           <div class="mt-2.5 p-3 rounded bg-[#06101c] border border-cyan-500/40 font-mono text-[9.5px]">
             <div class="flex flex-wrap justify-between items-center pb-1.5 mb-2 border-b border-[#142e47] gap-2">
@@ -1803,6 +2064,88 @@
                 <div class="pt-1 border-t border-[#12283e] text-[8px] text-red-400 font-bold text-center">
                   🛑 REJECTED • DEV DUMP
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 4: Deep Institutional Market Research Hub (Forex Macro Surveillance & Spot Crypto Gems) -->
+          <div class="mt-2.5 grid grid-cols-1 lg:grid-cols-2 gap-2.5 font-mono text-[9.5px]">
+            <!-- Forex Macro Surveillance Panel -->
+            <div class="p-3 rounded bg-[#06101c] border border-cyan-500/40">
+              <div class="flex flex-wrap justify-between items-center pb-1.5 mb-2 border-b border-[#142e47] gap-2">
+                <div class="flex items-center space-x-2">
+                  <span class="text-base text-cyan-400">🌐</span>
+                  <span class="text-white font-bold text-xs uppercase">INSTITUTIONAL FOREX MACRO SURVEILLANCE</span>
+                  <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[8px] font-bold border border-cyan-500/40">28-PAIR CSM &amp; RATE MATRIX</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span id="forexMacroBlackoutBadge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[8.5px] font-bold border border-emerald-500/40">🟢 CIRCUIT BREAKER: CLEAR</span>
+                  <button onclick="loadForexMacroData()" class="btn-tactical text-[9px] py-0.5 px-2">🔄 SYNC MACRO</button>
+                </div>
+              </div>
+
+              <!-- Currency Strength Meter (CSM) -->
+              <div class="space-y-1.5 mb-2.5">
+                <div class="flex justify-between items-center text-[9px]">
+                  <span class="text-slate-300 font-bold uppercase tracking-wider">CURRENCY STRENGTH METER (CSM 0-10)</span>
+                  <span id="csmStrongestWeakest" class="text-cyan-300 font-bold">Strongest: USD (8.4) • Weakest: JPY (1.5)</span>
+                </div>
+                <div id="csmGrid" class="grid grid-cols-4 md:grid-cols-8 gap-1.5 text-center">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+
+              <!-- Central Bank Policy Rate Differentials Matrix -->
+              <div class="space-y-1.5 pt-2 border-t border-[#142e47]">
+                <div class="flex justify-between items-center text-[9px]">
+                  <span class="text-slate-300 font-bold uppercase tracking-wider">CENTRAL BANK RATE DIFFERENTIALS (FED / ECB / BOE / BOJ)</span>
+                  <span class="text-amber-300 text-[8px] font-bold">CARRY TRADE SPREADS</span>
+                </div>
+                <div id="rateDiffMatrix" class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+
+              <!-- Economic News Blackout Status & Upcoming Releases -->
+              <div class="mt-2.5 pt-2 border-t border-[#142e47] space-y-1">
+                <div class="flex justify-between items-center text-[8.5px]">
+                  <span class="text-slate-300 font-bold uppercase">15-MIN PRE/POST NEWS CIRCUIT BREAKER STATUS:</span>
+                  <span id="macroBlackoutStatusText" class="text-emerald-400 font-bold">CLEAR — NO ACTIVE BLACKOUT</span>
+                </div>
+                <div id="macroUpcomingNews" class="text-[8px] text-slate-400 space-y-0.5">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Spot Crypto Blue-Chips & Gems Fundamental Dossiers Panel -->
+            <div class="p-3 rounded bg-[#06101c] border border-cyan-500/40">
+              <div class="flex flex-wrap justify-between items-center pb-1.5 mb-2 border-b border-[#142e47] gap-2">
+                <div class="flex items-center space-x-2">
+                  <span class="text-base text-cyan-400">💎</span>
+                  <span class="text-white font-bold text-xs uppercase">SPOT CRYPTO &amp; FUTURE BLUE-CHIP DOSSIERS</span>
+                  <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[8px] font-bold border border-emerald-500/40">QUANTITATIVE VALUATION</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <select id="spotGemSelector" onchange="renderSelectedGem(this.value)" class="bg-[#030914] text-cyan-300 border border-cyan-500/40 text-[9px] rounded px-1.5 py-0.5 outline-none">
+                    <option value="SOL">SOL (Solana)</option>
+                    <option value="BTC">BTC (Bitcoin)</option>
+                    <option value="ETH">ETH (Ethereum)</option>
+                    <option value="NEAR">NEAR (Near Protocol)</option>
+                    <option value="SUI">SUI (Sui Network)</option>
+                    <option value="RENDER">RENDER (Render Network)</option>
+                    <option value="TAO">TAO (Bittensor)</option>
+                    <option value="INJ">INJ (Injective)</option>
+                    <option value="LINK">LINK (Chainlink)</option>
+                    <option value="AAVE">AAVE (Aave)</option>
+                  </select>
+                  <button onclick="loadSpotCryptoGemsData()" class="btn-tactical text-[9px] py-0.5 px-2">🔄 SYNC GEMS</button>
+                </div>
+              </div>
+
+              <!-- Selected Asset Fundamental Dossier -->
+              <div id="spotGemDossierContainer" class="space-y-2">
+                <!-- Populated dynamically -->
               </div>
             </div>
           </div>
@@ -6793,17 +7136,224 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
 
     async function loadPumpRadarData() {
       try {
-        const resp = await fetch('/api/trading/pump_radar');
+        let resp = await fetch('/api/research/crypto/memes');
+        if (!resp.ok) {
+          resp = await fetch('/api/trading/pump_radar');
+        }
         const data = await resp.json();
-        if (data.ok && data.tokens) {
+        if (data && data.tokens) {
           const metrics = document.getElementById('pumpRadarMetrics');
           if (metrics) {
-            metrics.innerText = `${data.total_tracked} Tracked • ${data.high_conviction_count} High Conviction • SOL $${data.sol_price_usd.toFixed(2)}`;
+            const solPrice = data.sol_price_usd ? data.sol_price_usd.toFixed(2) : '154.20';
+            metrics.innerText = `${data.total_tracked || data.tokens.length} Tracked • ${data.high_conviction_count || 0} High Conviction • SOL $${solPrice}`;
+          }
+          const grid = document.getElementById('pumpRadarGrid');
+          if (grid && data.tokens.length > 0) {
+            grid.innerHTML = data.tokens.slice(0, 10).map(t => {
+              const score = t.composite_conviction_score !== undefined ? t.composite_conviction_score : (t.alpha_conviction_score || 0);
+              const isHigh = score >= 80;
+              const isGrad = (t.bonding_curve_pct || 0) >= 80;
+              const badgeClass = isHigh ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : (score < 50 ? 'bg-red-500/20 text-red-400 border-red-500/40' : 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40');
+              const barClass = isGrad ? 'bg-amber-400' : (score < 50 ? 'bg-red-500' : 'bg-cyan-400');
+              const devDump = t.dev_audit?.dev_dump_detected || t.dev_dump_detected;
+              const devHold = t.dev_audit?.dev_holding_pct !== undefined ? t.dev_audit.dev_holding_pct : (t.dev_holding_pct || 0);
+              const safetyScore = t.safety_score !== undefined ? t.safety_score : 85;
+              const volAccel = t.volume_acceleration !== undefined ? t.volume_acceleration : (t.vol_accel || 1.0);
+              const buyPress = t.buy_pressure !== undefined ? t.buy_pressure : 1.0;
+              const whaleIdx = t.whale_accumulation_index !== undefined ? t.whale_accumulation_index : (t.whale_accumulation_score || 0);
+              const verdict = devDump ? '🛑 REJECTED • DEV DUMP' : (isGrad ? '🚀 IMMINENT RAYDIUM GRADUATION' : (isHigh ? '⚡ HIGH CONVICTION ENTRY' : '📈 ACCUMULATE SCALED'));
+              return `
+                <div class="p-2 rounded bg-[#030914] border ${isHigh ? 'border-emerald-500/40' : (score < 50 ? 'border-red-500/40 opacity-75' : 'border-cyan-500/40')} space-y-1">
+                  <div class="flex justify-between items-center">
+                    <span class="text-white font-black text-[11px]">${t.symbol}</span>
+                    <span class="px-1.5 py-0.2 rounded ${badgeClass} text-[8px] font-bold border">${score}/100</span>
+                  </div>
+                  <div class="text-[8.5px] text-slate-400 truncate" title="${t.address || t.mint}">${t.name} • SOL</div>
+                  <div class="space-y-0.5 pt-1 text-[8px]">
+                    <div class="flex justify-between"><span>Bonding Curve:</span><strong class="${isGrad ? 'text-amber-400' : 'text-cyan-300'}">${Number(t.bonding_curve_pct || 0).toFixed(1)}%</strong></div>
+                    <div class="w-full bg-[#0a1829] h-1.5 rounded-full overflow-hidden">
+                      <div class="${barClass} h-full rounded-full" style="width: ${Math.min(100, Math.max(3, t.bonding_curve_pct || 0))}%"></div>
+                    </div>
+                    <div class="flex justify-between"><span>Vol Accel:</span><strong class="${volAccel >= 1.8 ? 'text-emerald-400' : 'text-slate-300'}">${Number(volAccel).toFixed(2)}x</strong></div>
+                    <div class="flex justify-between"><span>Buy Pressure:</span><strong class="${buyPress >= 1.5 ? 'text-emerald-400' : 'text-slate-300'}">${Number(buyPress).toFixed(2)}x</strong></div>
+                    <div class="flex justify-between"><span>Whale Ingestion:</span><strong class="text-amber-300">${Number(whaleIdx).toFixed(1)} / 100</strong></div>
+                    <div class="flex justify-between"><span>Dev Audit:</span><strong class="${devDump ? 'text-red-400' : 'text-emerald-400'}">${Number(devHold).toFixed(1)}% (${safetyScore}/100)</strong></div>
+                  </div>
+                  <div class="pt-1 border-t border-[#12283e] text-[8px] ${isHigh ? 'text-emerald-400' : (score < 50 ? 'text-red-400' : 'text-cyan-300')} font-bold text-center">
+                    ${verdict}
+                  </div>
+                </div>
+              `;
+            }).join('');
           }
         }
       } catch (e) {
         console.debug('Pump radar non-blocking error:', e);
       }
+    }
+
+    async function loadForexMacroData() {
+      try {
+        const resp = await fetch('/api/research/forex/macro');
+        const data = await resp.json();
+        if (data && data.ok) {
+          // 1. Currency Strength Meter
+          const csmGrid = document.getElementById('csmGrid');
+          if (csmGrid && data.currency_strength) {
+            const ranked = data.rankings || Object.entries(data.currency_strength).map(([c, s]) => ({ currency: c, score: s })).sort((a,b) => b.score - a.score);
+            csmGrid.innerHTML = ranked.map(item => {
+              const s = item.score;
+              const col = s >= 7.0 ? 'text-emerald-400' : (s <= 3.0 ? 'text-red-400' : 'text-cyan-300');
+              const barCol = s >= 7.0 ? 'bg-emerald-400' : (s <= 3.0 ? 'bg-red-400' : 'bg-cyan-400');
+              return `
+                <div class="p-1.5 rounded bg-[#030914] border border-[#142e47]">
+                  <div class="font-bold text-[9px] text-white">${item.currency}</div>
+                  <div class="text-[10px] font-black ${col}">${Number(s).toFixed(1)}</div>
+                  <div class="w-full bg-[#0a1829] h-1 rounded-full mt-1 overflow-hidden">
+                    <div class="${barCol} h-full rounded-full" style="width: ${s * 10}%"></div>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+
+          if (data.strongest && data.weakest) {
+            const swEl = document.getElementById('csmStrongestWeakest');
+            if (swEl) {
+              swEl.innerText = `Strongest: ${data.strongest.currency} (${Number(data.strongest.score).toFixed(1)}) • Weakest: ${data.weakest.currency} (${Number(data.weakest.score).toFixed(1)})`;
+            }
+          }
+
+          // 2. Central Bank Differentials
+          const rateDiffEl = document.getElementById('rateDiffMatrix');
+          if (rateDiffEl && data.pair_carry_matrix) {
+            const topPairs = ["USD/JPY", "EUR/USD", "GBP/USD", "EUR/JPY"];
+            rateDiffEl.innerHTML = topPairs.map(p => {
+              const info = data.pair_carry_matrix[p];
+              if (!info) return '';
+              const spread = info.spread_pct;
+              const col = spread > 0 ? 'text-emerald-400' : (spread < 0 ? 'text-amber-400' : 'text-slate-300');
+              return `
+                <div class="p-1 rounded bg-[#030914] border border-[#142e47] text-center">
+                  <div class="text-[8px] text-slate-400">${p}</div>
+                  <div class="text-[9.5px] font-bold ${col}">${spread > 0 ? '+' : ''}${Number(spread).toFixed(2)}%</div>
+                  <div class="text-[7.5px] text-cyan-300 truncate">${(info.carry_bias || '').replace(/_/g, ' ')}</div>
+                </div>
+              `;
+            }).join('');
+          }
+
+          // 3. News Blackout Status
+          const badge = document.getElementById('forexMacroBlackoutBadge');
+          const textEl = document.getElementById('macroBlackoutStatusText');
+          if (data.blackout_active) {
+            if (badge) {
+              badge.className = 'px-2 py-0.5 rounded bg-red-500/20 text-red-400 text-[8.5px] font-bold border border-red-500/40 animate-pulse';
+              badge.innerText = `🛑 CIRCUIT BREAKER: ${data.minutes_remaining || 15}M LOCKOUT`;
+            }
+            if (textEl) {
+              textEl.className = 'text-red-400 font-bold';
+              textEl.innerText = data.blackout_reason || 'ACTIVE HIGH-IMPACT NEWS BLACKOUT BUFFER';
+            }
+          } else {
+            if (badge) {
+              badge.className = 'px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[8.5px] font-bold border border-emerald-500/40';
+              badge.innerText = '🟢 CIRCUIT BREAKER: CLEAR';
+            }
+            if (textEl) {
+              textEl.className = 'text-emerald-400 font-bold';
+              textEl.innerText = 'CLEAR — 15-MIN PRE/POST WINDOWS UNLOCKED';
+            }
+          }
+
+          const upNews = document.getElementById('macroUpcomingNews');
+          if (upNews && data.upcoming_events) {
+            upNews.innerHTML = data.upcoming_events.slice(0, 3).map(ev => `
+              <div class="flex justify-between items-center">
+                <span class="truncate text-slate-300">• [${ev.currency}] ${ev.title}</span>
+                <span class="text-amber-300 font-mono ml-2">in ${ev.minutes_until ? ev.minutes_until + 'm' : 'upcoming'}</span>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (e) {
+        console.debug('Forex macro non-blocking error:', e);
+      }
+    }
+
+    window._cachedGemsData = [];
+    async function loadSpotCryptoGemsData() {
+      try {
+        const resp = await fetch('/api/research/crypto/gems');
+        const data = await resp.json();
+        if (data && data.gems) {
+          window._cachedGemsData = data.gems;
+          const selector = document.getElementById('spotGemSelector');
+          const selVal = selector ? selector.value : 'SOL';
+          renderSelectedGem(selVal);
+        }
+      } catch (e) {
+        console.debug('Spot crypto gems non-blocking error:', e);
+      }
+    }
+
+    function renderSelectedGem(symbol) {
+      const container = document.getElementById('spotGemDossierContainer');
+      if (!container || !window._cachedGemsData || window._cachedGemsData.length === 0) return;
+      const gem = window._cachedGemsData.find(g => g.symbol === symbol) || window._cachedGemsData[0];
+      if (!gem) return;
+
+      const dd = gem.drawdowns || {};
+      const tok = gem.tokenomics || {};
+      const dev = gem.commits || {};
+      const stk = gem.staking_telemetry || {};
+      const val = gem.valuation || {};
+      const score = val.composite_fundamental_score || gem.valuation_percentile || 85;
+
+      container.innerHTML = `
+        <div class="p-2 rounded bg-[#030914] border border-cyan-500/30 space-y-1.5">
+          <div class="flex justify-between items-center border-b border-[#142e47] pb-1">
+            <div>
+              <span class="text-white font-black text-xs">${gem.name} ($${gem.symbol})</span>
+              <span class="text-[8px] text-cyan-400 ml-1.5">${gem.category}</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="text-emerald-400 font-bold text-[10px]">$${Number(gem.price_usd).toLocaleString()}</span>
+              <span class="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 text-[8px]">SCORE: ${score}/100</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[8px]">
+            <div class="p-1 rounded bg-[#061220] border border-[#142e47]">
+              <div class="text-slate-400">ATH Drawdown:</div>
+              <div class="font-bold text-red-400">${dd.drawdown_from_ath_pct ? dd.drawdown_from_ath_pct + '%' : 'N/A'}</div>
+              <div class="text-[7px] text-slate-400">Cycle Recov: ${dd.current_cycle_recovery_pct || 0}%</div>
+            </div>
+            <div class="p-1 rounded bg-[#061220] border border-[#142e47]">
+              <div class="text-slate-400">Circulating Supply:</div>
+              <div class="font-bold text-cyan-300">${tok.circulating_pct ? tok.circulating_pct + '%' : 'N/A'}</div>
+              <div class="text-[7px] text-slate-400">Inflation: ${tok.annual_inflation_rate_pct || 0}%</div>
+            </div>
+            <div class="p-1 rounded bg-[#061220] border border-[#142e47]">
+              <div class="text-slate-400">Dev Activity (30d):</div>
+              <div class="font-bold text-emerald-400">${dev.github_commits_30d || 0} commits</div>
+              <div class="text-[7px] text-slate-400">Rank: #${dev.developer_ecosystem_rank || 'N/A'}</div>
+            </div>
+            <div class="p-1 rounded bg-[#061220] border border-[#142e47]">
+              <div class="text-slate-400">Staking APY / Real:</div>
+              <div class="font-bold text-amber-300">${gem.staking_yield || 0}% / ${stk.real_yield_pct !== undefined ? stk.real_yield_pct + '%' : 'N/A'}</div>
+              <div class="text-[7px] text-slate-400">Bonded: ${stk.network_staking_ratio_pct || 0}%</div>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center pt-1 border-t border-[#142e47] text-[7.5px] text-slate-400">
+            <span>FDV/TVL: <strong class="text-cyan-300">${val.fdv_to_tvl_ratio || 'N/A'}x</strong></span>
+            <span>P/F Percentile: <strong class="text-emerald-400">${val.price_to_fees_percentile || 'N/A'}th</strong></span>
+            <span>Metcalfe Index: <strong class="text-purple-300">${val.metcalfe_adoption_index || 'N/A'}</strong></span>
+            <span class="text-cyan-400 font-bold">${val.institutional_conviction || 'BUY_ACCUMULATE'}</span>
+          </div>
+        </div>
+      `;
     }
 
     function toggleWarroomRadarMode(mode) {
@@ -6852,6 +7402,8 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
       loadEvolutionTelemetry();
       loadGaicsTelemetry();
       loadPumpRadarData();
+      loadForexMacroData();
+      loadSpotCryptoGemsData();
     }, 1500);
 
     function clearWebTerminal() {
@@ -7779,6 +8331,292 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
     </div>
   </div>
 
+  <!-- ========================================================================= -->
+  <!-- MODAL / DRAWER: DUAL-MODE CUSTOM CLIENT STRATEGY ENGINE & RISK SENTINEL    -->
+  <!-- ========================================================================= -->
+  <div id="customStrategyDrawer" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden font-mono">
+    <div class="w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-2xl bg-[#06101c] border-2 border-amber-500/60 shadow-[0_0_50px_rgba(245,158,11,0.35)] p-5 space-y-4">
+      <!-- Header -->
+      <div class="flex items-center justify-between pb-2 border-b border-[#142e47]">
+        <div class="flex items-center space-x-2.5">
+          <span class="text-2xl text-amber-400">⚡</span>
+          <div>
+            <h3 class="text-base font-black text-white tracking-wider uppercase flex items-center gap-2">
+              <span>CUSTOM CLIENT STRATEGY ENGINE</span>
+              <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-bold border border-amber-500/40">DUAL-MODE OPERATIONAL</span>
+            </h3>
+            <div class="text-[10px] text-amber-300">ENGLISH &amp; PURE ROMAN URDU NLP // INTERACTIVE VISUAL BUILDER // DETERMINISTIC &le; 0.75% RISK // R:R &ge; 2.50</div>
+          </div>
+        </div>
+        <button onclick="closeCustomStrategyDrawer()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm font-bold">
+          ✕
+        </button>
+      </div>
+
+      <!-- Mode Selector Pills -->
+      <div class="flex justify-between items-center p-2 rounded bg-[#040c17] border border-[#142e47]">
+        <div class="flex space-x-2 text-xs font-mono">
+          <button id="drawerBtnModeA" onclick="switchDrawerStrategyMode('modeA')" class="btn-tactical active text-amber-300">
+            🎙️ MODE A: NATURAL LANGUAGE INTERPRETER (URDU / EN)
+          </button>
+          <button id="drawerBtnModeB" onclick="switchDrawerStrategyMode('modeB')" class="btn-tactical text-cyan-300">
+            🧩 MODE B: INTERACTIVE VISUAL RULE BUILDER
+          </button>
+        </div>
+        <div class="text-[9px] text-slate-400 hidden sm:block">
+          Sovereign Owner: <strong class="text-white">Master Muhammad Qureshi</strong> (Cap: &le; $750)
+        </div>
+      </div>
+
+      <!-- Drawer Content: Mode A -->
+      <div id="drawerModeAPanel" class="space-y-3">
+        <div class="p-3 rounded-xl bg-[#040a15] border border-[#142e47] space-y-2.5">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-white font-bold flex items-center gap-1.5">
+              <span>💬</span><span>STRATEGY PROMPT DIRECTIVE:</span>
+            </span>
+            <div class="flex items-center space-x-2 text-[10px]">
+              <span class="text-slate-400">Language Mode:</span>
+              <select id="drawerNlpLangSelect" class="bg-[#020710] border border-[#163659] rounded px-2 py-0.5 text-cyan-300 outline-none">
+                <option value="auto">Auto-Detect</option>
+                <option value="ur">Pure Roman Urdu</option>
+                <option value="en">English (Institutional)</option>
+              </select>
+            </div>
+          </div>
+
+          <textarea id="drawerNlpPromptInput" rows="3" class="w-full bg-[#020710] border border-[#163659] rounded-lg p-3 text-cyan-300 font-mono text-xs focus:outline-none focus:border-amber-400 leading-relaxed" placeholder="Type prompt in English or Roman Urdu... e.g. 'M15 timeframe par Gold buy karo jab London session low sweep ho aur bullish Order Block hit ho, 0.5% risk aur 1:3 TP rakho'"></textarea>
+
+          <div class="flex flex-wrap gap-2 text-xs">
+            <span class="text-slate-400 text-[10px] self-center">Presets:</span>
+            <button type="button" onclick="loadDrawerPromptPreset('xau_sweep')" class="px-2 py-1 rounded bg-[#071526] hover:bg-amber-500/20 text-amber-300 text-[10px] border border-amber-500/30">
+              🥇 Gold M15 London Sweep (Urdu)
+            </button>
+            <button type="button" onclick="loadDrawerPromptPreset('eur_fvg')" class="px-2 py-1 rounded bg-[#071526] hover:bg-cyan-500/20 text-cyan-300 text-[10px] border border-cyan-500/30">
+              💶 EURUSD H1 FVG 50% CE (English)
+            </button>
+            <button type="button" onclick="loadDrawerPromptPreset('btc_cvd')" class="px-2 py-1 rounded bg-[#071526] hover:bg-emerald-500/20 text-emerald-300 text-[10px] border border-emerald-500/30">
+              ₿ BTCUSD M15 CVD Absorption (Urdu)
+            </button>
+          </div>
+
+          <div class="flex justify-between items-center pt-2 border-t border-[#142e47]">
+            <div class="text-[10px] text-slate-400 flex items-center gap-2">
+              <span class="text-amber-400 font-bold">● Clamps:</span>
+              <span>Risk &le; 0.75% ($750)</span>
+              <span>&bull;</span>
+              <span>R:R &ge; 2.50</span>
+              <span>&bull;</span>
+              <span>BE +1.0R</span>
+              <span>&bull;</span>
+              <span>15m News Blackout</span>
+            </div>
+            <button onclick="parseDrawerPrompt()" class="py-2 px-4 rounded bg-gradient-to-r from-amber-600 to-cyan-600 hover:from-amber-500 hover:to-cyan-500 text-white font-bold text-xs shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">
+              ⚡ PARSE &amp; VALIDATE STRATEGY
+            </button>
+          </div>
+        </div>
+
+        <!-- Mode A Parsed Output -->
+        <div id="drawerParsedResultCard" class="hidden p-3.5 rounded-xl bg-[#030914] border-2 border-cyan-500/40 space-y-3">
+          <div class="flex flex-wrap justify-between items-center pb-2 border-b border-[#12283e] text-xs">
+            <div class="flex items-center space-x-2">
+              <span id="drawerActionBadge" class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 font-bold text-xs">BUY</span>
+              <span id="drawerSymbolBadge" class="text-white font-black text-sm">XAUUSD</span>
+              <span id="drawerTfBadge" class="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 font-bold text-[10px]">M15</span>
+              <span id="drawerLangBadge" class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-bold text-[10px]">URDU</span>
+            </div>
+            <div class="flex items-center space-x-3 text-xs">
+              <div>Risk: <strong id="drawerRiskVal" class="text-amber-300">0.50% ($500.00)</strong></div>
+              <div>R:R: <strong id="drawerRrVal" class="text-emerald-400">1:3.00</strong></div>
+              <div>SL/TP: <strong id="drawerSlTpVal" class="text-slate-300">15.0p / 45.0p</strong></div>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-lg bg-[#020610] border border-[#142e47] text-xs text-slate-200 leading-relaxed font-sans" id="drawerNarrative">
+            Narrative thesis...
+          </div>
+
+          <div class="flex flex-wrap justify-between items-center pt-2 border-t border-[#12283e] gap-2">
+            <div class="text-[10px] text-slate-400 flex items-center gap-2">
+              <span class="text-emerald-400 font-bold">✓ 5-Layer Anti-Ban Protected</span>
+              <span>&bull;</span>
+              <span class="text-cyan-400 font-bold">✓ Dynamic +1.0R Breakeven Lock</span>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="debateDrawerActiveStrategy()" class="py-1.5 px-3 rounded bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400 text-purple-300 font-bold text-xs transition-all">
+                ⚖️ RUN CONSENSUS DEBATE
+              </button>
+              <button onclick="executeDrawerActiveStrategy()" class="py-1.5 px-4 rounded bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-bold text-xs shadow-[0_0_15px_rgba(0,229,255,0.3)] transition-all">
+                🚀 DISPATCH TO FLEET (ANTI-BAN)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drawer Content: Mode B (Visual Rule Builder) -->
+      <div id="drawerModeBPanel" class="hidden space-y-3">
+        <div class="p-3.5 rounded-xl bg-[#040a15] border border-[#142e47] space-y-3 text-xs">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-2.5">
+            <div>
+              <label class="text-slate-400 block mb-1">Asset / Symbol</label>
+              <select id="drawerVrbSymbol" class="w-full bg-[#020710] border border-[#163659] rounded px-2.5 py-1.5 text-cyan-300 focus:border-amber-400 outline-none">
+                <option value="XAUUSD">Gold (XAUUSD)</option>
+                <option value="EURUSD">Euro (EURUSD)</option>
+                <option value="GBPUSD">Pound (GBPUSD)</option>
+                <option value="USDJPY">Yen (USDJPY)</option>
+                <option value="BTCUSD">Bitcoin (BTCUSD)</option>
+                <option value="SOLUSD">Solana (SOLUSD)</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Execution Side</label>
+              <select id="drawerVrbAction" class="w-full bg-[#020710] border border-[#163659] rounded px-2.5 py-1.5 text-emerald-400 font-bold focus:border-amber-400 outline-none">
+                <option value="BUY">BUY / LONG</option>
+                <option value="SELL">SELL / SHORT</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Timeframe</label>
+              <select id="drawerVrbTimeframe" class="w-full bg-[#020710] border border-[#163659] rounded px-2.5 py-1.5 text-cyan-300 focus:border-amber-400 outline-none">
+                <option value="M15">M15 (15 Minutes) - Execution</option>
+                <option value="H1">H1 (1 Hour) - Trend</option>
+                <option value="H4">H4 (4 Hours) - Structural Bias</option>
+                <option value="M5">M5 (5 Minutes) - Scalp</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Target Fleet</label>
+              <select id="drawerVrbFleet" class="w-full bg-[#020710] border border-[#163659] rounded px-2.5 py-1.5 text-cyan-300 focus:border-amber-400 outline-none">
+                <option value="all">Entire Fleet (FundingPips + FTMO + MT5)</option>
+                <option value="fundingpips_100k">FundingPips #40000294403 Only</option>
+                <option value="ftmo_100k">FTMO Institutional Only</option>
+                <option value="vebson_personal_1k">Personal Broker MT5 Only</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Add Condition Container -->
+          <div class="p-2.5 rounded-lg bg-[#020610] border border-[#142e47] space-y-2">
+            <div class="text-amber-300 font-bold flex justify-between items-center text-xs">
+              <span>🧩 ADD TECHNICAL INDICATOR CONDITION:</span>
+              <span class="text-[10px] text-slate-400">SMC &bull; Momentum &bull; Volume Delta</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+              <div>
+                <select id="drawerVrbIndicator" class="w-full bg-[#050f1d] border border-[#163659] rounded px-2 py-1.5 text-white text-xs">
+                  <option value="SMC_ORDER_BLOCK">SMC Order Block</option>
+                  <option value="FVG_50_CE">Fair Value Gap (FVG 50% CE)</option>
+                  <option value="LIQUIDITY_SWEEP">Liquidity Sweep / Stop Hunt</option>
+                  <option value="RSI">RSI Multi-Timeframe</option>
+                  <option value="CVD_DELTA">Cumulative Volume Delta (CVD)</option>
+                  <option value="VWAP">Multi-Band Anchored VWAP</option>
+                  <option value="BOS">Break of Structure (BOS)</option>
+                  <option value="EMA_CROSS">EMA 20/50 Golden Cross</option>
+                </select>
+              </div>
+              <div>
+                <select id="drawerVrbOperator" class="w-full bg-[#050f1d] border border-[#163659] rounded px-2 py-1.5 text-cyan-300 text-xs">
+                  <option value="RETESTS">Retests Level</option>
+                  <option value="MITIGATES_50_PCT">Mitigates 50% CE</option>
+                  <option value="SWEEPS_EXTREMUM">Sweeps Session Extremum</option>
+                  <option value="LESS_THAN">Less Than (&lt;)</option>
+                  <option value="GREATER_THAN">Greater Than (&gt;)</option>
+                  <option value="CROSSES_ABOVE">Crosses Above</option>
+                  <option value="CROSSES_BELOW">Crosses Below</option>
+                  <option value="ABSORBS_VOLUME">Absorbs Volume</option>
+                </select>
+              </div>
+              <div>
+                <input id="drawerVrbThreshold" type="text" value="BULLISH_OB" class="w-full bg-[#050f1d] border border-[#163659] rounded px-2 py-1.5 text-slate-200 text-xs" placeholder="Threshold" />
+              </div>
+              <div>
+                <button type="button" onclick="addDrawerVisualCondition()" class="w-full py-1.5 rounded bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400 text-amber-300 font-bold text-xs transition-all">
+                  ➕ ADD CONDITION
+                </button>
+              </div>
+            </div>
+
+            <div id="drawerVrbConditionsList" class="flex flex-wrap gap-2 pt-1 text-xs">
+              <span class="px-2.5 py-1 rounded bg-cyan-950/70 text-cyan-300 border border-cyan-500/40 text-[10px] flex items-center gap-1.5">
+                <span>SMC_ORDER_BLOCK RETESTS BULLISH_OB (M15)</span>
+                <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-200 font-bold">✕</button>
+              </span>
+              <span class="px-2.5 py-1 rounded bg-cyan-950/70 text-cyan-300 border border-cyan-500/40 text-[10px] flex items-center gap-1.5">
+                <span>RSI LESS_THAN 35.0 (M15)</span>
+                <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-200 font-bold">✕</button>
+              </span>
+            </div>
+          </div>
+
+          <!-- Risk Sliders Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1 text-xs">
+            <div class="p-2.5 rounded-lg bg-[#020710] border border-[#163659] space-y-1.5">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Risk Per Trade:</span>
+                <span id="drawerVrbRiskDisplay" class="text-amber-400 font-bold">0.50% ($500.00)</span>
+              </div>
+              <input id="drawerVrbRiskSlider" type="range" min="0.10" max="0.75" step="0.05" value="0.50" oninput="updateDrawerRiskSlider(this.value)" class="w-full accent-amber-400 cursor-pointer" />
+              <div class="flex justify-between text-[9px] text-slate-500">
+                <span>0.10% (Min)</span>
+                <span class="text-amber-400 font-bold">0.75% / $750 (HARD CAP)</span>
+              </div>
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-[#020710] border border-[#163659] space-y-1.5">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Target Risk-to-Reward:</span>
+                <span id="drawerVrbRrDisplay" class="text-emerald-400 font-bold">1:3.00 R:R</span>
+              </div>
+              <input id="drawerVrbRrSlider" type="range" min="2.5" max="5.0" step="0.1" value="3.0" oninput="updateDrawerRrSlider(this.value)" class="w-full accent-emerald-400 cursor-pointer" />
+              <div class="flex justify-between text-[9px] text-slate-500">
+                <span class="text-emerald-400 font-bold">2.50 (MIN FLOOR)</span>
+                <span>5.00 (Max Runner)</span>
+              </div>
+            </div>
+
+            <div class="p-2.5 rounded-lg bg-[#020710] border border-[#163659] space-y-1.5">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Dynamic Breakeven:</span>
+                <span class="text-cyan-400 font-bold">+1.0R Trigger</span>
+              </div>
+              <div class="text-[10px] text-slate-300 pt-1">
+                🔒 Net $0.00 max drawdown floor locked upon reaching +1.0R gain.
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center pt-2 border-t border-[#142e47]">
+            <span class="text-[10px] text-slate-400">5-Layer Anti-Ban Enabled &bull; SOCKS5 Isolation &bull; Random Jitter</span>
+            <button onclick="buildDrawerVisualStrategy()" class="py-2 px-4 rounded bg-gradient-to-r from-amber-600 to-cyan-600 hover:from-amber-500 hover:to-cyan-500 text-white font-bold text-xs shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">
+              ⚡ SERIALIZE &amp; VERIFY VISUAL RULE
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drawer Execution / Debate Log -->
+      <div id="drawerExecutionLogCard" class="hidden p-3 rounded-xl bg-[#020710] border border-[#142e47] text-xs space-y-1.5">
+        <div class="flex justify-between items-center pb-1 border-b border-[#12283e] font-bold text-slate-300">
+          <span id="drawerLogTitle">📡 STRATEGY EXECUTION &amp; CONSENSUS STREAM</span>
+          <button onclick="document.getElementById('drawerExecutionLogCard').classList.add('hidden')" class="text-slate-500 hover:text-white">✕</button>
+        </div>
+        <div id="drawerLogContent" class="space-y-1 max-h-[140px] overflow-y-auto text-slate-300 font-mono text-[10px]"></div>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="flex justify-between items-center pt-2 border-t border-[#142e47] text-xs">
+        <div class="text-slate-400 text-[10px]">
+          Multi-Account Fleet: <span class="text-emerald-400 font-bold">FundingPips, FTMO, Topstep, Exness, MT5</span>
+        </div>
+        <button onclick="closeCustomStrategyDrawer()" class="btn-tactical text-white">
+          ✕ Close Drawer
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- 3D Spatial Visualizers, Digital Twins & Cognitive Engines (Milestones M1, M2, M3, M5) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="/js/PlanetaryCommandSphere.js"></script>
@@ -8036,6 +8874,431 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
       const subtitle = document.getElementById('propCockpitSubtitle');
       if (subtitle) {
         subtitle.innerText = `${firm.toUpperCase()} ACCOUNT #${accId} // HARD RISK CAP ENFORCED // R:R >= 2.5 // BREAKEVEN +1.0R`;
+      }
+    }
+
+    // =========================================================================
+    // 3. DUAL-MODE CUSTOM CLIENT STRATEGY ENGINE & RISK SENTINEL CONTROLLER
+    // =========================================================================
+    let activeClientStrategy = null;
+
+    function openCustomStrategyDrawer() {
+      const drawer = document.getElementById('customStrategyDrawer');
+      if (drawer) drawer.classList.remove('hidden');
+    }
+
+    function closeCustomStrategyDrawer() {
+      const drawer = document.getElementById('customStrategyDrawer');
+      if (drawer) drawer.classList.add('hidden');
+    }
+
+    function switchStrategyEngineMode(mode) {
+      const modeAPanel = document.getElementById('strategyModeAPanel');
+      const modeBPanel = document.getElementById('strategyModeBPanel');
+      const btnA = document.getElementById('btnTabModeA');
+      const btnB = document.getElementById('btnTabModeB');
+      if (mode === 'modeA') {
+        if (modeAPanel) modeAPanel.classList.remove('hidden');
+        if (modeBPanel) modeBPanel.classList.add('hidden');
+        if (btnA) { btnA.className = 'px-2.5 py-0.5 rounded bg-amber-500/30 text-amber-300 font-bold transition-all'; }
+        if (btnB) { btnB.className = 'px-2.5 py-0.5 rounded text-slate-400 hover:text-white transition-all'; }
+      } else {
+        if (modeAPanel) modeAPanel.classList.add('hidden');
+        if (modeBPanel) modeBPanel.classList.remove('hidden');
+        if (btnB) { btnB.className = 'px-2.5 py-0.5 rounded bg-amber-500/30 text-amber-300 font-bold transition-all'; }
+        if (btnA) { btnA.className = 'px-2.5 py-0.5 rounded text-slate-400 hover:text-white transition-all'; }
+      }
+    }
+
+    function switchDrawerStrategyMode(mode) {
+      const modeAPanel = document.getElementById('drawerModeAPanel');
+      const modeBPanel = document.getElementById('drawerModeBPanel');
+      const btnA = document.getElementById('drawerBtnModeA');
+      const btnB = document.getElementById('drawerBtnModeB');
+      if (mode === 'modeA') {
+        if (modeAPanel) modeAPanel.classList.remove('hidden');
+        if (modeBPanel) modeBPanel.classList.add('hidden');
+        if (btnA) btnA.classList.add('active');
+        if (btnB) btnB.classList.remove('active');
+      } else {
+        if (modeAPanel) modeAPanel.classList.add('hidden');
+        if (modeBPanel) modeBPanel.classList.remove('hidden');
+        if (btnB) btnB.classList.add('active');
+        if (btnA) btnA.classList.remove('active');
+      }
+    }
+
+    function loadStrategyPromptPreset(key) {
+      const input = document.getElementById('nlpStrategyPromptInput');
+      const presets = {
+        'xau_sweep': 'M15 timeframe par Gold buy karo jab London session low sweep ho aur bullish Order Block hit ho, 0.5% risk aur 1:3 TP rakho',
+        'eur_fvg': 'Sell EURUSD on H1 when price mitigates 50% CE Fair Value Gap with closed bar break of structure, risk 0.5%, 1:3 RR',
+        'btc_cvd': 'M15 par Bitcoin buy karo jab positive CVD volume absorption VWAP se ooper nikle, 0.75% risk aur 1:3 TP rakho'
+      };
+      if (input && presets[key]) {
+        input.value = presets[key];
+        showToast(`Loaded ${key.toUpperCase()} preset prompt`);
+      }
+    }
+
+    function loadDrawerPromptPreset(key) {
+      const input = document.getElementById('drawerNlpPromptInput');
+      const presets = {
+        'xau_sweep': 'M15 timeframe par Gold buy karo jab London session low sweep ho aur bullish Order Block hit ho, 0.5% risk aur 1:3 TP rakho',
+        'eur_fvg': 'Sell EURUSD on H1 when price mitigates 50% CE Fair Value Gap with closed bar break of structure, risk 0.5%, 1:3 RR',
+        'btc_cvd': 'M15 par Bitcoin buy karo jab positive CVD volume absorption VWAP se ooper nikle, 0.75% risk aur 1:3 TP rakho'
+      };
+      if (input && presets[key]) {
+        input.value = presets[key];
+        showToast(`Loaded ${key.toUpperCase()} drawer preset`);
+      }
+    }
+
+    function updateVisualRiskSlider(val) {
+      const disp = document.getElementById('vrbRiskPctDisplay');
+      const num = parseFloat(val);
+      const dollars = (100000 * (num / 100)).toFixed(2);
+      if (disp) disp.innerText = `${num.toFixed(2)}% ($${dollars})`;
+    }
+
+    function updateDrawerRiskSlider(val) {
+      const disp = document.getElementById('drawerVrbRiskDisplay');
+      const num = parseFloat(val);
+      const dollars = (100000 * (num / 100)).toFixed(2);
+      if (disp) disp.innerText = `${num.toFixed(2)}% ($${dollars})`;
+    }
+
+    function updateVisualRrSlider(val) {
+      const disp = document.getElementById('vrbRrDisplay');
+      const num = parseFloat(val);
+      if (disp) disp.innerText = `1:${num.toFixed(2)} R:R`;
+    }
+
+    function updateDrawerRrSlider(val) {
+      const disp = document.getElementById('drawerVrbRrDisplay');
+      const num = parseFloat(val);
+      if (disp) disp.innerText = `1:${num.toFixed(2)} R:R`;
+    }
+
+    function addVisualConditionToBuilder() {
+      const ind = document.getElementById('vrbIndicator').value;
+      const op = document.getElementById('vrbOperator').value;
+      const th = document.getElementById('vrbThreshold').value.trim() || 'LEVEL';
+      const container = document.getElementById('vrbConditionsList');
+      if (container) {
+        const chip = document.createElement('span');
+        chip.className = 'px-2 py-0.5 rounded bg-cyan-950/70 text-cyan-300 border border-cyan-500/40 text-[8px] flex items-center gap-1';
+        chip.innerHTML = `<span>${ind} ${op} ${th} (M15)</span><button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-200 font-bold">✕</button>`;
+        container.appendChild(chip);
+        showToast(`Added ${ind} condition`);
+      }
+    }
+
+    function addDrawerVisualCondition() {
+      const ind = document.getElementById('drawerVrbIndicator').value;
+      const op = document.getElementById('drawerVrbOperator').value;
+      const th = document.getElementById('drawerVrbThreshold').value.trim() || 'LEVEL';
+      const container = document.getElementById('drawerVrbConditionsList');
+      if (container) {
+        const chip = document.createElement('span');
+        chip.className = 'px-2.5 py-1 rounded bg-cyan-950/70 text-cyan-300 border border-cyan-500/40 text-[10px] flex items-center gap-1.5';
+        chip.innerHTML = `<span>${ind} ${op} ${th} (M15)</span><button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-200 font-bold">✕</button>`;
+        container.appendChild(chip);
+        showToast(`Added ${ind} condition`);
+      }
+    }
+
+    async function parseNaturalLanguageStrategy() {
+      const prompt = document.getElementById('nlpStrategyPromptInput').value.trim();
+      const btn = document.getElementById('btnParseStrategyPrompt');
+      if (!prompt) {
+        showToast('Please enter a natural language strategy prompt.');
+        return;
+      }
+      if (btn) btn.innerText = 'PARSING DIRECTIVES... ⏳';
+
+      try {
+        const res = await fetch('/api/trading/client_strategy/parse', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: prompt, lang: 'auto', balance: 100000 })
+        });
+        const data = await res.json();
+        if (data.ok && data.strategy) {
+          activeClientStrategy = data.strategy;
+          renderParsedStrategyCard(data);
+          showToast(`✅ Strategy parsed: ${data.strategy.symbol} ${data.strategy.action} (Risk: ${data.risk_pct}%)`);
+        } else {
+          showToast(`Parse error: ${data.detail || 'Invalid response'}`);
+        }
+      } catch (err) {
+        console.warn('NLP parse note:', err);
+        showToast(`Strategy parse error: ${err.message}`);
+      } finally {
+        if (btn) btn.innerText = '⚡ PARSE & VALIDATE DIRECTIVES';
+      }
+    }
+
+    async function parseDrawerPrompt() {
+      const prompt = document.getElementById('drawerNlpPromptInput').value.trim();
+      const lang = document.getElementById('drawerNlpLangSelect').value;
+      if (!prompt) {
+        showToast('Please enter a strategy prompt.');
+        return;
+      }
+      try {
+        const res = await fetch('/api/trading/client_strategy/parse', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: prompt, lang: lang, balance: 100000 })
+        });
+        const data = await res.json();
+        if (data.ok && data.strategy) {
+          activeClientStrategy = data.strategy;
+          renderDrawerParsedCard(data);
+          showToast(`✅ Strategy Parsed: ${data.strategy.symbol} (R:R ${data.target_rr})`);
+        } else {
+          showToast(`Parse error: ${data.detail || 'Failed'}`);
+        }
+      } catch (err) {
+        showToast(`Error: ${err.message}`);
+      }
+    }
+
+    function renderParsedStrategyCard(data) {
+      const card = document.getElementById('nlpParsedResultCard');
+      if (!card) return;
+      card.classList.remove('hidden');
+      const strat = data.strategy;
+
+      const actBadge = document.getElementById('nlpParsedActionBadge');
+      if (actBadge) {
+        actBadge.innerText = strat.action;
+        actBadge.className = `px-2 py-0.5 rounded ${strat.action === 'BUY' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'} font-bold`;
+      }
+      const symBadge = document.getElementById('nlpParsedSymbolBadge');
+      if (symBadge) symBadge.innerText = strat.symbol;
+      const tfBadge = document.getElementById('nlpParsedTfBadge');
+      if (tfBadge) tfBadge.innerText = strat.timeframe;
+      const langBadge = document.getElementById('nlpParsedLangBadge');
+      if (langBadge) langBadge.innerText = (data.language || 'en').toUpperCase();
+
+      const riskVal = document.getElementById('nlpParsedRiskVal');
+      if (riskVal) riskVal.innerText = `${strat.risk_pct.toFixed(2)}% ($${strat.dollar_risk_cap.toFixed(2)})`;
+      const rrVal = document.getElementById('nlpParsedRrVal');
+      if (rrVal) rrVal.innerText = `1:${strat.target_rr.toFixed(2)}`;
+      const slTpVal = document.getElementById('nlpParsedSlTpVal');
+      if (slTpVal) slTpVal.innerText = `${strat.sl_pips}p / ${strat.tp_pips}p`;
+
+      const narrativeBox = document.getElementById('nlpParsedNarrative');
+      if (narrativeBox) narrativeBox.innerText = data.confirmation_narrative || strat.confirmation_narrative;
+    }
+
+    function renderDrawerParsedCard(data) {
+      const card = document.getElementById('drawerParsedResultCard');
+      if (!card) return;
+      card.classList.remove('hidden');
+      const strat = data.strategy;
+
+      const actBadge = document.getElementById('drawerActionBadge');
+      if (actBadge) {
+        actBadge.innerText = strat.action;
+        actBadge.className = `px-2.5 py-1 rounded ${strat.action === 'BUY' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'} font-bold text-xs`;
+      }
+      const symBadge = document.getElementById('drawerSymbolBadge');
+      if (symBadge) symBadge.innerText = strat.symbol;
+      const tfBadge = document.getElementById('drawerTfBadge');
+      if (tfBadge) tfBadge.innerText = strat.timeframe;
+      const langBadge = document.getElementById('drawerLangBadge');
+      if (langBadge) langBadge.innerText = (data.language || 'en').toUpperCase();
+
+      const riskVal = document.getElementById('drawerRiskVal');
+      if (riskVal) riskVal.innerText = `${strat.risk_pct.toFixed(2)}% ($${strat.dollar_risk_cap.toFixed(2)})`;
+      const rrVal = document.getElementById('drawerRrVal');
+      if (rrVal) rrVal.innerText = `1:${strat.target_rr.toFixed(2)}`;
+      const slTpVal = document.getElementById('drawerSlTpVal');
+      if (slTpVal) slTpVal.innerText = `${strat.sl_pips}p / ${strat.tp_pips}p`;
+
+      const narrativeBox = document.getElementById('drawerNarrative');
+      if (narrativeBox) narrativeBox.innerText = data.confirmation_narrative || strat.confirmation_narrative;
+    }
+
+    async function buildVisualStrategyFromForm() {
+      const sym = document.getElementById('vrbSymbol').value;
+      const act = document.getElementById('vrbAction').value;
+      const tf = document.getElementById('vrbTimeframe').value;
+      const risk = parseFloat(document.getElementById('vrbRiskSlider').value) || 0.50;
+      const rr = parseFloat(document.getElementById('vrbRrSlider').value) || 3.0;
+      const slPips = 15.0;
+      const tpPips = slPips * rr;
+
+      const payload = {
+        name: `${sym} ${act} ${tf} Visual Strategy`,
+        symbol: sym,
+        action: act,
+        timeframe: tf,
+        risk_pct: risk,
+        sl_pips: slPips,
+        tp_pips: tpPips,
+        target_rr: rr,
+        conditions: [
+          { indicator: "SMC_ORDER_BLOCK", operator: "RETESTS", threshold: act === 'BUY' ? 'BULLISH_OB' : 'BEARISH_OB', timeframe: tf },
+          { indicator: "RSI", operator: act === 'BUY' ? 'LESS_THAN' : 'GREATER_THAN', threshold: act === 'BUY' ? 35.0 : 65.0, timeframe: tf }
+        ],
+        target_accounts: ["fundingpips_100k", "ftmo_100k", "vebson_personal_1k"]
+      };
+
+      try {
+        const res = await fetch('/api/trading/client_strategy/build', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.ok && data.strategy) {
+          activeClientStrategy = data.strategy;
+          showToast(`✅ Visual Rule Serialized: ${sym} ${act} (R:R ${data.strategy.target_rr})`);
+          logStrategyEvent(`Visual Strategy Serialized: ${sym} ${act} | Risk: ${data.strategy.risk_pct}% ($${data.strategy.dollar_risk_cap}) | R:R ${data.strategy.target_rr}`);
+        } else {
+          showToast(`Validation error: ${JSON.stringify(data.detail)}`);
+        }
+      } catch (err) {
+        showToast(`Rule build error: ${err.message}`);
+      }
+    }
+
+    async function buildDrawerVisualStrategy() {
+      const sym = document.getElementById('drawerVrbSymbol').value;
+      const act = document.getElementById('drawerVrbAction').value;
+      const tf = document.getElementById('drawerVrbTimeframe').value;
+      const risk = parseFloat(document.getElementById('drawerVrbRiskSlider').value) || 0.50;
+      const rr = parseFloat(document.getElementById('drawerVrbRrSlider').value) || 3.0;
+
+      const payload = {
+        name: `${sym} ${act} ${tf} Drawer Strategy`,
+        symbol: sym,
+        action: act,
+        timeframe: tf,
+        risk_pct: risk,
+        sl_pips: 15.0,
+        tp_pips: 15.0 * rr,
+        target_rr: rr,
+        conditions: [
+          { indicator: "SMC_ORDER_BLOCK", operator: "RETESTS", threshold: act === 'BUY' ? 'BULLISH_OB' : 'BEARISH_OB', timeframe: tf }
+        ],
+        target_accounts: ["fundingpips_100k", "ftmo_100k"]
+      };
+
+      try {
+        const res = await fetch('/api/trading/client_strategy/build', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.ok && data.strategy) {
+          activeClientStrategy = data.strategy;
+          renderDrawerParsedCard(data);
+          showToast(`✅ Drawer Visual Strategy Verified!`);
+        } else {
+          showToast(`Validation error: ${JSON.stringify(data.detail)}`);
+        }
+      } catch (err) {
+        showToast(`Error: ${err.message}`);
+      }
+    }
+
+    async function debateActiveStrategy() {
+      if (!activeClientStrategy) {
+        showToast('No active strategy to debate. Parse or build a strategy first.');
+        return;
+      }
+      showToast(`Running Consensus Debate on ${activeClientStrategy.symbol}... ⚖️`);
+      logStrategyEvent(`Initiating Consensus Chamber Debate: ${activeClientStrategy.symbol} ${activeClientStrategy.action}...`);
+
+      try {
+        const res = await fetch('/api/trading/client_strategy/consensus', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            strategy: activeClientStrategy,
+            market_context: { upcoming_news_minutes: 60.0 }
+          })
+        });
+        const data = await res.json();
+        if (data.ok && data.debate_result) {
+          const deb = data.debate_result;
+          const statusTxt = deb.approved ? 'APPROVED_HIGH_CONVICTION' : (deb.status || 'REJECTED');
+          logStrategyEvent(`Consensus Result: [${statusTxt}] Score: ${deb.consensus_score}% | Veto: ${deb.veto_reason || 'None'}`);
+          showToast(`Consensus: ${statusTxt} (${deb.consensus_score}%)`);
+        } else {
+          showToast(`Debate failed: ${data.detail || 'Error'}`);
+        }
+      } catch (err) {
+        showToast(`Debate error: ${err.message}`);
+      }
+    }
+
+    async function debateDrawerActiveStrategy() {
+      await debateActiveStrategy();
+      const logCard = document.getElementById('drawerExecutionLogCard');
+      if (logCard) logCard.classList.remove('hidden');
+    }
+
+    async function executeActiveStrategyAcrossFleet() {
+      if (!activeClientStrategy) {
+        showToast('No active strategy ready. Parse or build first.');
+        return;
+      }
+      showToast(`Dispatching ${activeClientStrategy.symbol} with 5-Layer Anti-Ban Shield... 🚀`);
+      logStrategyEvent(`Executing Multi-Account Dispatch across Fleet with 5-Layer Anti-Ban...`);
+
+      try {
+        const res = await fetch('/api/trading/client_strategy/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            strategy: activeClientStrategy,
+            current_price: 2650.0,
+            simulation: true
+          })
+        });
+        const data = await res.json();
+        if (data.ok && data.dispatches) {
+          const total = data.total_accounts || Object.keys(data.dispatches).length;
+          const admitted = data.admitted_accounts || Object.keys(data.dispatches).length;
+          logStrategyEvent(`✅ Fleet Dispatch Complete: ${admitted}/${total} Accounts Admitted. Jitter (350-1800ms) & Micro-Tick SL/TP Applied.`);
+          showToast(`✅ Dispatched to ${admitted} Accounts under Anti-Ban Shield!`);
+        } else {
+          showToast(`Dispatch error: ${data.detail || 'Failed'}`);
+        }
+      } catch (err) {
+        showToast(`Execution error: ${err.message}`);
+      }
+    }
+
+    async function executeDrawerActiveStrategy() {
+      await executeActiveStrategyAcrossFleet();
+      const logCard = document.getElementById('drawerExecutionLogCard');
+      if (logCard) logCard.classList.remove('hidden');
+    }
+
+    function logStrategyEvent(msg) {
+      const panelLog = document.getElementById('strategyExecutionLogCard');
+      const panelContent = document.getElementById('strategyLogContent');
+      const drawerContent = document.getElementById('drawerLogContent');
+
+      const timeStr = new Date().toLocaleTimeString();
+      const line = `<div><span class="text-slate-500">[${timeStr}]</span> ${msg}</div>`;
+
+      if (panelLog) panelLog.classList.remove('hidden');
+      if (panelContent) {
+        panelContent.innerHTML += line;
+        panelContent.scrollTop = panelContent.scrollHeight;
+      }
+      if (drawerContent) {
+        drawerContent.innerHTML += line;
+        drawerContent.scrollTop = drawerContent.scrollHeight;
       }
     }
 
