@@ -60,6 +60,9 @@ from core.trading.explainable_ai_engine import router as explainable_ai_router
 app.include_router(explainable_ai_router)
 from core.trading.custom_strategy_engine import router as custom_strategy_router
 app.include_router(custom_strategy_router)
+from core.gaigs.gaigs_api_router import router as gaigs_civilization_router, media_router as gaigs_media_router
+app.include_router(gaigs_civilization_router)
+app.include_router(gaigs_media_router)
 app.mount('/command-center-assets', StaticFiles(directory=str(BASE / 'web' / 'command_center')), name='command-center-assets')
 js_assets_dir = BASE / 'web' / 'js'
 js_assets_dir.mkdir(parents=True, exist_ok=True)
@@ -112,7 +115,14 @@ async def owner_ingress(request: Request, call_next):
         "/api/trading/client_strategy/presets", "/api/trading/client_strategy/health",
         "/api/strategy/custom/parse", "/api/strategy/custom/build",
         "/api/strategy/custom/consensus", "/api/strategy/custom/execute",
-        "/api/strategy/custom/presets", "/api/strategy/custom/health"
+        "/api/strategy/custom/presets", "/api/strategy/custom/health",
+        "/api/gaigs/overview", "/api/gaigs/democracy/proposals",
+        "/api/gaigs/democracy/vote", "/api/gaigs/hubs",
+        "/api/gaigs/transparency/ledger", "/api/gaigs/transparency/expenditure",
+        "/api/gaigs/gamification/challenges", "/api/gaigs/gamification/solve",
+        "/api/gaigs/ethics/evaluate",
+        "/api/media/channels", "/api/media/scripts",
+        "/api/media/scripts/generate", "/api/media/scripts/approve"
     }
     if request.url.path.startswith("/api/") and request.url.path not in exempt_paths:
         supplied = (
