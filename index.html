@@ -1987,11 +1987,11 @@
               </div>
             </div>
             <div class="flex items-center space-x-2">
-              <button onclick="openMobilePairModal()" class="btn-tactical text-xs text-cyan-300 font-bold border-cyan-400/50">
-                📲 SCAN PAIRING QR
+              <button onclick="window.open('mobile.html','_blank')" class="btn-tactical text-xs text-cyan-300 font-bold border-cyan-400/50">
+                📱 OPEN MOBILE APP
               </button>
               <button onclick="window.open('http://192.168.100.3:8765/?token=wHUfdgY-AdHQZMb93xK5ZB-uNeYoXrQ_0p7RgTgnAhE','_blank')" class="btn-tactical text-xs text-emerald-400">
-                ↗ OPEN IN BROWSER
+                ↗ WI-FI GATEWAY
               </button>
               <button onclick="switchMasterpieceTab('command')" class="btn-tactical text-xs">✕ RETURN</button>
             </div>
@@ -2007,7 +2007,7 @@
                   <div class="w-10 h-1 bg-slate-800 rounded-full"></div>
                 </div>
                 <!-- Mobile App Embed -->
-                <iframe id="expandedMobileIframe" src="http://localhost:8765/?token=wHUfdgY-AdHQZMb93xK5ZB-uNeYoXrQ_0p7RgTgnAhE" class="w-full flex-1 border-none rounded-2xl bg-[#071320]" title="Mobile Companion App"></iframe>
+                <iframe id="expandedMobileIframe" src="mobile.html" class="w-full flex-1 border-none rounded-2xl bg-[#071320]" title="Mobile Companion App"></iframe>
                 <!-- Phone Home Bar -->
                 <div class="w-32 h-1 bg-slate-600 rounded-full mx-auto mt-1 z-20"></div>
               </div>
