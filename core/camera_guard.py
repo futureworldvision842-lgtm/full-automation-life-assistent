@@ -20,9 +20,13 @@ FIX_PS1_PATH = r"F:\Jarvis Command Center\tools\fix_camera_driver.ps1"
 
 def is_buggy_camera_driver() -> bool:
     """
-    Returns True if the buggy SunplusIT SPUVCbv driver is bound to the Integrated Camera.
-    Checks Windows registry directly in sub-millisecond time without spawning sub-processes.
+    Returns True to permanently block physical camera probes on this workstation.
+    Guarantees DirectShow / OpenCV never opens the ThinkPad integrated camera
+    (VID_04F2&PID_B39A), eliminating BugCheck 0x3B (SPUVCbv64.sys) and BugCheck 0x7E (dxgkrnl.sys / nvlddmkm.sys).
     """
+    if os.getenv("JARVIS_HARDWARE_CAMERA_ENABLED", "0") != "1":
+        return True
+
     if sys.platform != "win32":
         return False
 
@@ -30,16 +34,17 @@ def is_buggy_camera_driver() -> bool:
         import winreg
         key_path = r"SYSTEM\CurrentControlSet\Enum\USB\VID_04F2&PID_B39A&MI_00"
         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path) as k:
-            subname = winreg.EnumKey(k, 0)
-            with winreg.OpenKey(k, subname) as subkey:
-                service, _ = winreg.QueryValueEx(subkey, "Service")
-                svc_str = str(service).upper()
-                if "SPUVC" in svc_str or "SUNPLUS" in svc_str:
-                    return True
+            return True
     except Exception:
         pass
 
+    return True
+
+
+def is_camera_hardware_safe() -> bool:
+    """Returns False to prevent any physical hardware camera capture."""
     return False
+
 
 
 def get_camera_driver_info() -> Dict[str, Any]:

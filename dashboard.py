@@ -3123,33 +3123,34 @@ def api_camera_frame():
     """Captures live frame from laptop optical camera with OpenCV / HUD fallback."""
     # Hardware Crash Guard: prevent kernel BSOD 0x3B if SunplusIT SPUVCbv64.sys is active
     try:
-        from core.camera_guard import is_buggy_camera_driver, generate_camera_guard_card
-        if is_buggy_camera_driver():
+        from core.camera_guard import is_buggy_camera_driver, generate_camera_guard_card, is_camera_hardware_safe
+        if is_buggy_camera_driver() or not is_camera_hardware_safe():
             card = generate_camera_guard_card()
             if card:
                 return Response(content=card, media_type="image/jpeg")
     except Exception:
         pass
 
-    try:
-        import cv2
-        cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) if sys.platform == "win32" else cv2.VideoCapture(0)
-        if cap.isOpened():
-            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-            ret, frame = cap.read()
-            cap.release()
-            if ret and frame is not None:
-                h, w, _ = frame.shape
-                # Overlay Cyberpunk HUD Crosshairs
-                cv2.circle(frame, (w//2, h//2), 32, (0, 240, 255), 1)
-                cv2.line(frame, (w//2 - 45, h//2), (w//2 + 45, h//2), (0, 240, 255), 1)
-                cv2.line(frame, (w//2, h//2 - 45), (w//2, h//2 + 45), (0, 240, 255), 1)
-                cv2.putText(frame, "JARVIS OPTICAL SENSOR // ONLINE", (15, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 240, 255), 1)
-                _, buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
-                return Response(content=buf.tobytes(), media_type="image/jpeg")
-    except Exception:
-        pass
+    # Physical camera access is strictly guarded. Only probe if explicitly opted in via environment variable
+    if os.getenv("JARVIS_HARDWARE_CAMERA_ENABLED", "0") == "1":
+        try:
+            import cv2
+            cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) if sys.platform == "win32" else cv2.VideoCapture(0)
+            if cap.isOpened():
+                cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+                cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+                ret, frame = cap.read()
+                cap.release()
+                if ret and frame is not None:
+                    h, w, _ = frame.shape
+                    cv2.circle(frame, (w//2, h//2), 32, (0, 240, 255), 1)
+                    cv2.line(frame, (w//2 - 45, h//2), (w//2 + 45, h//2), (0, 240, 255), 1)
+                    cv2.line(frame, (w//2, h//2 - 45), (w//2, h//2 + 45), (0, 240, 255), 1)
+                    cv2.putText(frame, "JARVIS OPTICAL SENSOR // ONLINE", (15, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 240, 255), 1)
+                    _, buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+                    return Response(content=buf.tobytes(), media_type="image/jpeg")
+        except Exception:
+            pass
     
     # Fallback Cyberpunk HUD Graphic
     try:

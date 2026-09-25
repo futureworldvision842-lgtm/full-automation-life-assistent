@@ -68,13 +68,17 @@ class OpticalMotionDetector:
             self.is_camera_available = False
             return False
         try:
-            from core.camera_guard import is_buggy_camera_driver
-            if is_buggy_camera_driver():
-                logger.warning("Camera probe skipped by Crash Guard: SunplusIT driver SPUVCbv causes kernel BSOD 0x3B.")
+            from core.camera_guard import is_buggy_camera_driver, is_camera_hardware_safe
+            if is_buggy_camera_driver() or not is_camera_hardware_safe():
+                logger.warning("Camera probe skipped by Crash Guard: DirectShow hardware probe disabled to prevent BSOD.")
                 self.is_camera_available = False
                 return False
         except Exception:
-            pass
+            self.is_camera_available = False
+            return False
+        if os.getenv("JARVIS_HARDWARE_CAMERA_ENABLED", "0") != "1":
+            self.is_camera_available = False
+            return False
         try:
             backend = cv2.CAP_DSHOW if sys.platform == "win32" else cv2.CAP_ANY
             cap = cv2.VideoCapture(self.camera_index, backend)
@@ -101,13 +105,19 @@ class OpticalMotionDetector:
         dest.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            from core.camera_guard import is_buggy_camera_driver, generate_camera_guard_card
-            if is_buggy_camera_driver():
+            from core.camera_guard import is_buggy_camera_driver, generate_camera_guard_card, is_camera_hardware_safe
+            if is_buggy_camera_driver() or not is_camera_hardware_safe():
                 card = generate_camera_guard_card()
                 dest.write_bytes(card)
                 return False, card, str(dest)
         except Exception:
             pass
+
+        if os.getenv("JARVIS_HARDWARE_CAMERA_ENABLED", "0") != "1":
+            from core.camera_guard import generate_camera_guard_card
+            card = generate_camera_guard_card()
+            dest.write_bytes(card)
+            return False, card, str(dest)
 
         if _CV2_AVAILABLE:
             try:
@@ -170,21 +180,34 @@ class OpticalMotionDetector:
             }
 
         try:
-            from core.camera_guard import is_buggy_camera_driver
-            if is_buggy_camera_driver():
-                fallback_bytes = self._generate_fallback_frame("CAMERA GUARD // DRIVER FIX REQUIRED")
+            from core.camera_guard import is_buggy_camera_driver, is_camera_hardware_safe
+            if is_buggy_camera_driver() or not is_camera_hardware_safe():
+                fallback_bytes = self._generate_fallback_frame("CAMERA GUARD // HARDWARE PROBE DISABLED")
                 SNAPSHOT_PATH.write_bytes(fallback_bytes)
                 return {
                     "ok": True,
                     "motion_detected": False,
                     "virtual_sensor": True,
                     "guard_active": True,
-                    "message": "Hardware camera disabled: SunplusIT driver SPUVCbv causes kernel BSOD. Run FIX_CAMERA_CRASH.bat.",
+                    "message": "Hardware camera disabled: Crash Guard active to protect Windows kernel stability.",
                     "motion_ratio_pct": 0.0,
                     "snapshot_saved": str(SNAPSHOT_PATH)
                 }
         except Exception:
             pass
+
+        if os.getenv("JARVIS_HARDWARE_CAMERA_ENABLED", "0") != "1":
+            fallback_bytes = self._generate_fallback_frame("CAMERA GUARD // HARDWARE PROBE DISABLED")
+            SNAPSHOT_PATH.write_bytes(fallback_bytes)
+            return {
+                "ok": True,
+                "motion_detected": False,
+                "virtual_sensor": True,
+                "guard_active": True,
+                "message": "Hardware camera disabled: Crash Guard active to protect Windows kernel stability.",
+                "motion_ratio_pct": 0.0,
+                "snapshot_saved": str(SNAPSHOT_PATH)
+            }
 
         backend = cv2.CAP_DSHOW if sys.platform == "win32" else cv2.CAP_ANY
         cap = cv2.VideoCapture(self.camera_index, backend)

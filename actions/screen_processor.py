@@ -98,14 +98,17 @@ def _get_camera_index() -> int:
     except Exception:
         pass
 
-    print("[Camera] No camera index in config. Auto-detecting...")
+    print("[Camera] Checking camera hardware safety guard...")
     try:
-        from core.camera_guard import is_buggy_camera_driver
-        if is_buggy_camera_driver():
-            print("[Camera] Buggy SunplusIT SPUVCbv64.sys driver detected. Skipping hardware probe to prevent BSOD.")
+        from core.camera_guard import is_buggy_camera_driver, is_camera_hardware_safe
+        if is_buggy_camera_driver() or not is_camera_hardware_safe():
+            print("[Camera] Hardware camera access guarded to prevent BSOD. Returning index 0.")
             return 0
     except Exception:
-        pass
+        return 0
+
+    if os.getenv("JARVIS_HARDWARE_CAMERA_ENABLED", "0") != "1":
+        return 0
 
     best_index = 0
 
@@ -166,12 +169,16 @@ def _capture_screenshot() -> bytes:
 
 def _capture_camera() -> bytes:
     try:
-        from core.camera_guard import is_buggy_camera_driver, generate_camera_guard_card
-        if is_buggy_camera_driver():
-            print("[Camera] Hardware camera access blocked: SPUVCbv64.sys is active. Returning guard card.")
+        from core.camera_guard import is_buggy_camera_driver, generate_camera_guard_card, is_camera_hardware_safe
+        if is_buggy_camera_driver() or not is_camera_hardware_safe():
+            print("[Camera] Hardware camera access guarded to prevent BSOD. Returning guard card.")
             return generate_camera_guard_card()
     except Exception:
         pass
+
+    if os.getenv("JARVIS_HARDWARE_CAMERA_ENABLED", "0") != "1":
+        from core.camera_guard import generate_camera_guard_card
+        return generate_camera_guard_card()
 
     if not _CV2_OK:
         raise RuntimeError("OpenCV cv2 is required for camera capture.")
