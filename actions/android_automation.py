@@ -53,11 +53,13 @@ def get_adb_path() -> str:
     for c in candidates:
         if c.exists():
             return str(c)
-    return "adb"
+    return ""
 
 def list_connected_devices() -> List[str]:
     """Returns list of connected Android devices via ADB."""
     adb = get_adb_path()
+    if not adb:
+        return []
     try:
         res = subprocess.run([adb, "devices"], capture_output=True, text=True, timeout=5)
         lines = res.stdout.strip().split("\n")[1:]
