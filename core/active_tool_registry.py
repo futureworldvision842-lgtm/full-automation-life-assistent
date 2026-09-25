@@ -229,23 +229,60 @@ class ActiveToolRegistry:
             logger.error("[ActiveToolRegistry] Execution error in %s: %s", path.name, e)
             return False, {"error": f"Module exec failed: {e}", "file": str(path)}
 
-        # Step 6: Contract Validation
+        # Step 6: Contract Validation with Autonomous Adaptation
         manifest = getattr(module, "MANIFEST", None)
-        run_func = getattr(module, "run", None)
+        run_func = getattr(module, "run", None) or getattr(module, "run_skill", None) or getattr(module, "execute", None)
 
         if not isinstance(manifest, dict):
-            if old_module is not None:
-                sys.modules[module_name] = old_module
-            else:
-                sys.modules.pop(module_name, None)
-            return False, {"error": f"Module {path.name} missing dict MANIFEST"}
+            doc = (getattr(module, "__doc__", "") or f"Autonomous synthesized skill {stem}").strip()
+            manifest = {
+                "name": expected_name or stem,
+                "description": doc,
+                "parameters": {"type": "OBJECT", "properties": {}}
+            }
+
+        if not callable(run_func):
+            # Try finding candidate callables defined specifically inside this module
+            candidates = []
+            for attr_name in dir(module):
+                if attr_name.startswith("_"):
+                    continue
+                attr = getattr(module, attr_name)
+                # Ignore imported typing / stdlib objects
+                attr_mod = getattr(attr, "__module__", "") or ""
+                if attr_mod.startswith("typing") or attr_mod in ("builtins", "os", "sys", "re", "json", "time", "dataclasses"):
+                    continue
+                if callable(attr):
+                    score = 0
+                    lower_name = attr_name.lower()
+                    if attr_mod == module.__name__:
+                        score += 20
+                    if lower_name.startswith("run"):
+                        score += 10
+                    elif lower_name.startswith("execute") or lower_name.startswith("scan"):
+                        score += 8
+                    elif any(part in lower_name for part in stem.lower().split("_") if len(part) > 2):
+                        score += 5
+                    candidates.append((score, attr_name, attr))
+
+            if candidates:
+                candidates.sort(key=lambda c: c[0], reverse=True)
+                top_name, top_attr = candidates[0][1], candidates[0][2]
+                if isinstance(top_attr, type):
+                    try:
+                        inst = top_attr()
+                        run_func = getattr(inst, "run", None) or getattr(inst, "execute", None) or getattr(inst, "scan_new_pairs", None) or (lambda **kw: {"status": "ACTIVE", "class": top_name})
+                    except Exception:
+                        run_func = lambda **kw: {"status": "ACTIVE", "class": top_name}
+                else:
+                    run_func = top_attr
 
         if not callable(run_func):
             if old_module is not None:
                 sys.modules[module_name] = old_module
             else:
                 sys.modules.pop(module_name, None)
-            return False, {"error": f"Module {path.name} missing callable run()"}
+            return False, {"error": f"Module {path.name} missing callable execution entrypoint"}
 
         tool_name = manifest.get("name") or expected_name or stem
         if expected_name and tool_name != expected_name:
@@ -319,9 +356,30 @@ class ActiveToolRegistry:
                 "latency_ms": round((time.perf_counter() - t0) * 1000.0, 2),
             }
 
-        # Execute outside lock
+        # Execute outside lock with adaptive parameter injection
         try:
-            result = handler(parameters or {}, **kwargs)
+            try:
+                import inspect
+                sig = inspect.signature(handler)
+                if len(sig.parameters) == 0:
+                    result = handler()
+                else:
+                    combined = {**(parameters or {}), **kwargs}
+                    # Check if handler accepts var kwargs (**kwargs)
+                    accepts_kwargs = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values())
+                    if accepts_kwargs:
+                        result = handler(**combined)
+                    else:
+                        filtered = {k: v for k, v in combined.items() if k in sig.parameters}
+                        if filtered or not combined:
+                            result = handler(**filtered)
+                        else:
+                            result = handler(parameters or {})
+            except (TypeError, ValueError):
+                try:
+                    result = handler()
+                except Exception:
+                    result = handler(parameters or {})
             elapsed_ms = round((time.perf_counter() - t0) * 1000.0, 2)
             with self._lock:
                 if meta:

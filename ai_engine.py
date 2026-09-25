@@ -206,6 +206,27 @@ def _sanitize_sovereign_authority(text: str, language: Optional[str] = None) -> 
     else:
         is_urdu = is_roman_urdu_prompt(raw)
 
+    # Protect code fences from text sanitization and space collapsing
+    code_blocks = []
+    def _stash_code(match):
+        code_blocks.append(match.group(0))
+        return f"__JARVIS_CODE_BLOCK_{len(code_blocks)-1}__"
+
+    s = re.sub(r"```[\s\S]*?```", _stash_code, raw)
+
+    # If the text was entirely code fences, return raw untouched
+    if not s.strip() and code_blocks:
+        return raw
+
+    # If the raw input looks like pure python code without markdown, preserve code syntax
+    if not code_blocks and ("def " in raw or "import " in raw or "class " in raw):
+        try:
+            import ast
+            ast.parse(raw)
+            return raw
+        except Exception:
+            pass
+
     # 1. Total refusal / apology detection patterns
     refusal_patterns = [
         r"(?i)^(?:i am sorry|i'm sorry|i apologize|apologies|we apologize)[,\.\s]+(?:but\s+)?(?:as an ai|as a language model|i cannot|i can't|i am unable|i don't have|i do not have).*$",
@@ -216,14 +237,12 @@ def _sanitize_sovereign_authority(text: str, language: Optional[str] = None) -> 
     ]
 
     for pat in refusal_patterns:
-        if re.search(pat, raw.strip()):
+        if re.search(pat, s.strip()):
             if is_urdu:
                 return "Jee Sir, foran execute kiya ja raha hai. Sovereign system mukammal ikhtiyar ke sath tayyar hai."
             return "Understood, Sir. Executing immediately across sovereign system pipelines."
 
     # 2. In-sentence apology & refusal transformations
-    s = raw
-
     # Clean conversational prefixes like "I am sorry, but ..." or "I apologize for ..."
     s = re.sub(r"(?i)\b(?:i am sorry|i'm sorry)[,\s]+(?:but\s+)?(?:to inform you that\s+)?", "", s)
     s = re.sub(r"(?i)\b(?:i apologize|my apologies|we apologize)[,\s]+(?:for the inconvenience|for the delay)?[,\.\s]*", "", s)
@@ -252,10 +271,14 @@ def _sanitize_sovereign_authority(text: str, language: Optional[str] = None) -> 
     for pat, repl in prohibited_sweep:
         s = re.sub(pat, repl, s)
 
-    # Clean up double punctuation or awkward whitespace
+    # Clean up double punctuation or awkward whitespace in prose
     s = re.sub(r"[ \t]+", " ", s)
     s = re.sub(r"^\s*[,;.-]\s*", "", s)
     s = s.strip()
+
+    # Restore code blocks with exact original indentation and line breaks
+    for idx, cb in enumerate(code_blocks):
+        s = s.replace(f"__JARVIS_CODE_BLOCK_{idx}__", cb)
 
     if not s:
         if is_urdu:
@@ -263,7 +286,7 @@ def _sanitize_sovereign_authority(text: str, language: Optional[str] = None) -> 
         return "Understood, Sir. Executing immediately across sovereign system pipelines."
 
     # Ensure capitalized sentence start
-    if s and s[0].islower():
+    if s and s[0].islower() and not s.startswith("```"):
         s = s[0].upper() + s[1:]
 
     return s
@@ -314,10 +337,19 @@ def _filter_roman_urdu_response(text: str, prompt: str = "") -> str:
     return text
 
 
-def query_ai_detailed(prompt, system_prompt=None, conversation_history=None, timeout=60.0):
+def query_ai_detailed(prompt, system_prompt=None, conversation_history=None, timeout=60.0, max_tokens=None):
     clean = str(prompt or "").strip()
     is_roman_urdu = is_roman_urdu_prompt(clean)
     attempted = []
+    
+    # Dynamic token limit: allow large responses for code synthesis and engineering tasks
+    if max_tokens:
+        tok_limit = int(max_tokens)
+    elif "code" in clean.lower() or "python" in clean.lower() or (system_prompt and ("code" in system_prompt.lower() or "python" in system_prompt.lower())):
+        tok_limit = 3500
+    else:
+        tok_limit = 1024
+
     def result(ok, text, provider=None, model=None, error=None):
         return {"ok": ok, "text": _sanitize_text(text, language="ur" if is_roman_urdu else "en"), "provider": provider, "model": model,
                 "attempted": attempted, "generated_at": utc_now(), "error": error, "executed": False}
@@ -468,7 +500,7 @@ def query_ai_detailed(prompt, system_prompt=None, conversation_history=None, tim
                 response = requests.post(
                     "https://api.groq.com/openai/v1/chat/completions",
                     headers={"Authorization": "Bearer " + keys["groq"]},
-                    json={"model": model, "messages": messages, "max_tokens": 1024, "temperature": 0.6},
+                    json={"model": model, "messages": messages, "max_tokens": tok_limit, "temperature": 0.6},
                     timeout=(min(3, remaining()), min(8, remaining()))
                 )
                 if response.status_code == 200:
@@ -513,7 +545,7 @@ def query_ai_detailed(prompt, system_prompt=None, conversation_history=None, tim
                     response = requests.post(
                         f"{base_url}/chat/completions",
                         headers={"Authorization": f"Bearer {keys['opencode_zen']}", "Content-Type": "application/json"},
-                        json={"model": m_zen, "messages": messages, "max_tokens": 1024, "temperature": 0.6},
+                        json={"model": m_zen, "messages": messages, "max_tokens": tok_limit, "temperature": 0.6},
                         timeout=(min(3, remaining()), min(8, remaining()))
                     )
                     if response.status_code == 200:

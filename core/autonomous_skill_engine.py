@@ -68,9 +68,22 @@ class AutonomousSkillEngine:
         if REGISTRY_FILE.exists():
             try:
                 data = json.loads(REGISTRY_FILE.read_text(encoding="utf-8"))
+                registry = get_active_tool_registry()
                 for item in data:
                     skill = AssimilatedSkill(**item)
                     self.skills[skill.id] = skill
+                    # Hot-reload into in-memory ActiveToolRegistry if file exists on disk
+                    p = Path(skill.file_path)
+                    if p.exists():
+                        try:
+                            registry.hot_reload_file(
+                                file_path=p,
+                                expected_name=skill.id,
+                                source_repo=skill.source_repo,
+                                category=skill.category
+                            )
+                        except Exception as h_err:
+                            logger.debug("Startup hot-reload of %s: %s", skill.id, h_err)
             except Exception as e:
                 logger.warning("Could not read assimilated skills registry: %s", e)
 
@@ -87,6 +100,7 @@ class AutonomousSkillEngine:
         """
         active_tools = get_active_tool_registry().list_tools()
         active_names = {t["name"] for t in active_tools}
+        assimilated_ids = set(self.skills.keys())
 
         candidate_needs = [
             {
@@ -95,7 +109,7 @@ class AutonomousSkillEngine:
                 "category": "Quantitative Trading",
                 "repo_search": "solana raydium pumpfun volume dex scanner",
                 "description": "High-frequency scanner for real-time Solana token liquidity additions and volume velocity.",
-                "needed": "solana_scanner" not in active_names
+                "needed": "skill_solana_dex_scanner" not in assimilated_ids and "solana_scanner" not in active_names
             },
             {
                 "id": "skill_advanced_web_scraper",
@@ -103,7 +117,7 @@ class AutonomousSkillEngine:
                 "category": "Intelligence & Scraping",
                 "repo_search": "python playwright headless scraping automation",
                 "description": "Extracts structured tables, articles, and financial filings with anti-bot evasion.",
-                "needed": "web_scraper" not in active_names
+                "needed": "skill_advanced_web_scraper" not in assimilated_ids and "web_scraper" not in active_names
             },
             {
                 "id": "skill_smart_contract_auditor",
@@ -111,7 +125,7 @@ class AutonomousSkillEngine:
                 "category": "Governance & Security",
                 "repo_search": "solidity slither security audit AST analyzer",
                 "description": "Audits GAIGS smart contracts for reentrancy, integer overflow, and ownership exploits.",
-                "needed": "contract_auditor" not in active_names
+                "needed": "skill_smart_contract_auditor" not in assimilated_ids and "contract_auditor" not in active_names
             },
             {
                 "id": "skill_audio_whisper_cortex",
@@ -119,7 +133,7 @@ class AutonomousSkillEngine:
                 "category": "Voice & Cognition",
                 "repo_search": "faster-whisper real-time speech python",
                 "description": "Zero-latency local multilingual speech-to-text supporting Roman Urdu and English.",
-                "needed": "audio_whisper" not in active_names
+                "needed": "skill_audio_whisper_cortex" not in assimilated_ids and "audio_whisper" not in active_names
             },
             {
                 "id": "skill_workstation_auto_governor",
@@ -127,7 +141,7 @@ class AutonomousSkillEngine:
                 "category": "Systems & Hardware",
                 "repo_search": "python psutil hardware thermal throttle governor",
                 "description": "Automatically throttles background threads during intensive tasks to maintain <78°C.",
-                "needed": "thermal_governor" not in active_names
+                "needed": "skill_workstation_auto_governor" not in assimilated_ids and "thermal_governor" not in active_names
             }
         ]
 
@@ -227,12 +241,11 @@ class AutonomousSkillEngine:
 
         # Hot-reload into ActiveToolRegistry
         registry = get_active_tool_registry()
-        module_name = f"skills.{sub_dir.name}.{skill_id}"
-        reg_ok, reg_meta = registry.register_tool_file(
+        reg_ok, reg_meta = registry.hot_reload_file(
             file_path=target_path,
-            tool_name=skill_id,
-            module_name=module_name,
-            source_repo=source_repo or "Synthesized via J.A.R.V.I.S. Prompt Engineer"
+            expected_name=skill_id,
+            source_repo=source_repo or "Synthesized via J.A.R.V.I.S. Prompt Engineer",
+            category=category
         )
 
         record = AssimilatedSkill(
@@ -254,7 +267,7 @@ class AutonomousSkillEngine:
             "skill_id": skill_id,
             "file_path": str(target_path),
             "status": "HOT_RELOADED_ACTIVE" if reg_ok else "SAVED_PENDING",
-            "metadata": reg_meta.to_dict() if reg_meta else {},
+            "metadata": reg_meta if isinstance(reg_meta, dict) else (reg_meta.to_dict() if hasattr(reg_meta, "to_dict") else {}),
             "provider": res.get("provider"),
             "attempts": res.get("attempts", 1),
             "duration_ms": res.get("duration_ms", 0)

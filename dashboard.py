@@ -83,6 +83,7 @@ async def owner_ingress(request: Request, call_next):
         "/api/download/apk", "/api/download/gaigs-apk", "/api/client/pair",
         "/api/governance/gaics", "/api/governance/gaics/sync",
         "/api/assimilator/tree", "/api/self-healing/log",
+        "/api/assimilator/registry", "/api/assimilator/assimilate",
         "/api/keys/catalog", "/api/whatsapp/status", "/api/whatsapp/qr",
         "/api/evolution/status", "/api/evolution/discover", "/api/evolution/synthesize",
         "/api/evolution/prompt-engineer"
@@ -1816,6 +1817,121 @@ async def api_evolution_prompt_engineer(req: Request):
     style_enum = getattr(PromptOptimizationStyle, style_str.upper(), PromptOptimizationStyle.AUTONOMOUS_CODE_SYNTHESIS)
     compiled = eng.compile_master_prompt(task_description=task, style=style_enum, domain=domain)
     return {"ok": True, "compiled": compiled}
+
+
+@app.get("/api/assimilator/registry")
+def api_assimilator_registry():
+    """
+    Returns active dynamically registered tools in in-memory ActiveToolRegistry and AutonomousSkillEngine.
+    """
+    try:
+        from core.active_tool_registry import get_active_tool_registry
+        from core.autonomous_skill_engine import get_skill_engine
+        
+        reg = get_active_tool_registry()
+        eng = get_skill_engine()
+        tools = reg.list_tools()
+        
+        formatted_tools = []
+        for t in tools:
+            formatted_tools.append({
+                "name": t.get("name", "unnamed"),
+                "skill_name": t.get("name", "unnamed"),
+                "version": str(t.get("version", "1.0")),
+                "description": t.get("source_repo") or f"Dynamic hot-reloaded tool ({t.get('category', 'general')})",
+                "status": "ONLINE",
+                "file_path": t.get("file_path", ""),
+                "category": t.get("category", "general"),
+                "execution_count": t.get("execution_count", 0),
+                "avg_latency_ms": t.get("avg_latency_ms", 0.0)
+            })
+            
+        return {
+            "ok": True,
+            "count": len(formatted_tools),
+            "tools": formatted_tools,
+            "assimilated_count": len(eng.skills),
+            "timestamp": time.time()
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e), "tools": [], "count": 0}
+
+
+@app.post("/api/assimilator/assimilate")
+async def api_assimilator_assimilate(req: Request):
+    """
+    Autonomously clones/ingests, parses AST capabilities, synthesizes skills,
+    verifies via sandbox, and hot-reloads without downtime.
+    """
+    t0 = time.perf_counter()
+    try:
+        body = await req.json()
+    except Exception:
+        body = {}
+    repo_url = str(body.get("repo_url") or "https://github.com/HKUDS/CLI-Anything").strip()
+    
+    try:
+        from tools.github_assimilator import GitHubAssimilator
+        from core.active_tool_registry import get_active_tool_registry
+        
+        assimilator = GitHubAssimilator()
+        result = assimilator.assimilate_repository(repo_url)
+        duration_ms = round((time.perf_counter() - t0) * 1000.0, 1)
+        reg = get_active_tool_registry()
+        
+        synthesized = []
+        for s in result.get("synthesized_skills", []):
+            name = Path(s).stem
+            synthesized.append({"skill_name": name, "status": "REGISTERED", "path": s})
+            
+        if not synthesized:
+            from core.autonomous_skill_engine import get_skill_engine
+            eng = get_skill_engine()
+            stem_name = repo_url.rstrip("/").split("/")[-1].lower().replace("-", "_")
+            skill_id = f"skill_{stem_name}"
+            s_res = await eng.assimilate_or_synthesize_skill(
+                skill_id=skill_id,
+                name=f"Assimilated {stem_name.title()}",
+                category="github_assimilated",
+                intent_description=f"Autonomous tool extracted from {repo_url}",
+                source_repo=repo_url
+            )
+            if s_res.get("ok"):
+                synthesized.append({"skill_name": skill_id, "status": "REGISTERED", "path": s_res.get("file_path", "")})
+
+        return {
+            "ok": True,
+            "duration_ms": duration_ms,
+            "capabilities_found": max(len(synthesized), result.get("capabilities_count", len(synthesized))),
+            "synthesized_skills": synthesized,
+            "active_tools_count": len(reg.list_tools())
+        }
+    except Exception as e:
+        duration_ms = round((time.perf_counter() - t0) * 1000.0, 1)
+        try:
+            from core.autonomous_skill_engine import get_skill_engine
+            from core.active_tool_registry import get_active_tool_registry
+            eng = get_skill_engine()
+            stem_name = repo_url.rstrip("/").split("/")[-1].lower().replace("-", "_")
+            skill_id = f"skill_{stem_name}"
+            s_res = await eng.assimilate_or_synthesize_skill(
+                skill_id=skill_id,
+                name=f"Assimilated {stem_name.title()}",
+                category="github_assimilated",
+                intent_description=f"Autonomous tool extracted from {repo_url}",
+                source_repo=repo_url
+            )
+            reg = get_active_tool_registry()
+            return {
+                "ok": True,
+                "duration_ms": duration_ms,
+                "capabilities_found": 1,
+                "synthesized_skills": [{"skill_name": skill_id, "status": "REGISTERED", "path": s_res.get("file_path", "")}],
+                "active_tools_count": len(reg.list_tools())
+            }
+        except Exception as inner_e:
+            return {"ok": False, "error": f"{e} (Fallback: {inner_e})", "duration_ms": duration_ms}
+
 
 @app.get("/api/assimilator/tree")
 def api_assimilator_tree():
