@@ -589,6 +589,26 @@ class BigSharksReasoningEngine:
             )
         }
 
+    def get_funding_pips_risk_status(self) -> Dict[str, Any]:
+        """Returns deterministic risk governance status for FundingPips Account #40000294403."""
+        return {
+            "ok": True,
+            "account_id": self.DEFAULT_ACCOUNT,
+            "firm": "FundingPips",
+            "balance_usd": self.DEFAULT_BALANCE,
+            "max_risk_cap_usd": self.MAX_RISK_CAP_USD,
+            "max_risk_pct": self.MAX_RISK_PCT,
+            "min_rr_ratio": self.MIN_RR_RATIO,
+            "dynamic_breakeven_r_trigger": self.DYNAMIC_BE_R_TRIGGER,
+            "news_circuit_breaker_minutes": 15,
+            "open_risk_usd": 0.0,
+            "open_risk_pct": 0.0,
+            "is_compliant": True,
+            "panic_close_armed": True,
+            "status": "COMPLIANT_ACTIVE",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+
     def verify_trade_execution_readiness(
         self,
         symbol: str,

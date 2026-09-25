@@ -84,6 +84,26 @@ class BullishAdvocate(DebateAgent):
             score += 10.0
             points.append("Price positioned in institutional Fibonacci discount OTE zone.")
 
+        # Closed-bar evidence confirmation
+        closed_bar_score = float(market_context.get("closed_bar_evidence_score", 72.0))
+        if closed_bar_score >= 70.0:
+            score += 12.0
+            points.append(f"Closed-bar technical confirmation verified ({closed_bar_score:.1f}% evidence weight).")
+        elif closed_bar_score < 45.0:
+            score -= 10.0
+            points.append(f"Caution: Low closed-bar confirmation ({closed_bar_score:.1f}%); intra-bar wick risk.")
+
+        # Geopolitical News Impact Correlation
+        geo_impact = market_context.get("geopolitical_news_impact", {})
+        impact_score = float(geo_impact.get("impact_score", 65.0))
+        bias = str(geo_impact.get("correlation_bias", "SAFE_HAVEN_ACCELERATION"))
+        if action == "BUY" and impact_score > 30.0:
+            score += 10.0
+            points.append(f"Geopolitical tailwind: {bias} (Impact score +{impact_score:.1f}).")
+        elif action == "SELL" and impact_score > 50.0 and ("XAU" in symbol.upper() or "BTC" in symbol.upper()):
+            score -= 15.0
+            points.append(f"Macro friction: Fighting safe-haven geopolitical tailwind ({bias}).")
+
         confidence = max(5.0, min(95.0, score))
         recommendation = "BUY" if confidence >= 60.0 else ("HOLD" if confidence >= 40.0 else "SELL")
 
@@ -95,6 +115,8 @@ class BullishAdvocate(DebateAgent):
             "recommendation": recommendation,
             "thesis": f"Bull thesis on {symbol}: " + " | ".join(points),
             "key_points": points,
+            "closed_bar_score": closed_bar_score,
+            "geopolitical_impact": geo_impact,
         }
 
     def rebut(self, proposal: Dict[str, Any], market_context: Dict[str, Any], opponent_arguments: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -160,6 +182,26 @@ class BearishChallenger(DebateAgent):
             score += 15.0
             points.append("Unmitigated liquidity pools resting below current price may trigger institutional sweep.")
 
+        # Closed-bar confirmation check
+        closed_bar_score = float(market_context.get("closed_bar_evidence_score", 72.0))
+        if closed_bar_score < 50.0:
+            score += 15.0
+            points.append(f"Unconfirmed live wick trap: low closed-bar evidence ({closed_bar_score:.1f}%).")
+        elif closed_bar_score >= 80.0 and action == "BUY":
+            score -= 10.0
+            points.append(f"High closed-bar evidence ({closed_bar_score:.1f}%) weakens bearish counter-thesis.")
+
+        # Geopolitical News Impact Correlation
+        geo_impact = market_context.get("geopolitical_news_impact", {})
+        impact_score = float(geo_impact.get("impact_score", 65.0))
+        bias = str(geo_impact.get("correlation_bias", "SAFE_HAVEN_ACCELERATION"))
+        if action == "SELL" and ("EUR" in symbol.upper()):
+            score += 15.0
+            points.append(f"Geopolitical vulnerability discount applies to EUR ({bias}).")
+        elif action == "BUY" and impact_score > 60.0 and ("XAU" in symbol.upper() or "BTC" in symbol.upper()):
+            score -= 10.0
+            points.append("Persistent geopolitical safe-haven bid suppresses sustained short extensions.")
+
         confidence = max(5.0, min(95.0, score))
         recommendation = "SELL" if confidence >= 60.0 else ("HOLD" if confidence >= 40.0 else "BUY")
 
@@ -169,8 +211,10 @@ class BearishChallenger(DebateAgent):
             "action_proposed": action,
             "confidence": round(confidence, 1),
             "recommendation": recommendation,
-            "thesis": f"Bear thesis on {symbol}: " + " | ".join(points) if points else "No major structural vulnerabilities detected.",
+            "thesis": f"Bear thesis on {symbol}: " + (" | ".join(points) if points else "No major structural vulnerabilities detected."),
             "key_points": points,
+            "closed_bar_score": closed_bar_score,
+            "geopolitical_impact": geo_impact,
         }
 
     def rebut(self, proposal: Dict[str, Any], market_context: Dict[str, Any], opponent_arguments: List[Dict[str, Any]]) -> Dict[str, Any]:

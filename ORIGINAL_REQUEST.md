@@ -905,3 +905,127 @@ Integrity mode: `development`
 ### Recursive Self-Evolution
 - [ ] Self-evolution module autonomously detects tool bottlenecks, generates an enhanced wrapper, tests it, and hot-swaps it into runtime.
 - [ ] Automated regression checks verify that safety constraints, identity rules, and financial risk caps remain strictly intact throughout all self-updates.
+
+## Follow-up — 2026-09-25T10:37:38Z
+
+# Teamwork Project Prompt — J.A.R.V.I.S. 3D Omniscient Visualizer, Holographic PC Digital Twin & Sovereign Multi-Tenant Ecosystem
+
+> Status: Launched — Teamwork Multi-Agent Swarm Active  
+> Goal: Transform J.A.R.V.I.S. into an omniscient, live 3D animated interactive command empire: fusing World Monitor with God's Eye orbital powers, rendering a live 3D PC hardware digital twin (clickable CPU cores, RAM, GPU), continuous cognitive & browser execution visualizer, autonomous quantitative trading & meme coin alpha radar, self-evolution diagnostics with 1-click API ingestion cards, zero-apology Tony Stark conversational authority, native standalone Android APK distribution, and multi-tenant WhatsApp/device onboarding.  
+> Requested team: Full multi-agent swarm of 3D WebGL/Three.js spatial graphics engineers, quantitative streaming architects, systems telemetry specialists, mobile Android app engineers, and multi-tenant security architects.
+
+Equip J.A.R.V.I.S. with an omniscient, live moving 3D cybernetic visualizer across all subsystems:
+1. **3D Geospatial World Monitor & God's Eye Orbital Fusion**: Live rotating 3D globe with customizable layers (22+ geopolitical and infrastructure feeds), clickable hotspot dossiers, satellite orbital tracking, and an integrated directory of required external APIs with direct registration links.
+2. **Interactive 3D Hardware Digital Twin**: Live animated 3D workstation model (Intel Core i7 per-core load, thermal gradients, RAM silicon memory blocks, NVIDIA Quadro K2100M pipeline) where every component is clickable for deep telemetry inspection.
+3. **Live Cognitive Brain, CUA Browser & Execution Inspector**: Real-time visual stream displaying active CUA headless browser viewports, background code execution DAGs, subagent communications, and live task pipelines.
+4. **Tony Stark Sovereign Conversational Voice Core**: Authentic J.A.R.V.I.S. persona in Roman Urdu and English. Absolute elimination of all false refusals and "I am sorry" apologies. Decisive, crisp command execution across Windows Win32, Ubuntu Linux, and Android with full system powers.
+5. **Autonomous Trading, Macro Strategy & Meme Coin Alpha Radar**: Multi-asset orderbook depth, liquidity heatmaps, meme coin / DEX surge scanner (Solana, Raydium, Pump.fun), whale accumulation signals, geopolitical news sentiment impact, and multi-agent consensus debate under the deterministic risk cap (<= 0.75% / $750 on FundingPips #40000294403).
+6. **Native Standalone Android APK Companion**: Standalone mobile application (/api/download/apk) running directly on Master Muhammad's phone with full OS background execution, eliminating the need for a web browser.
+7. **Self-Evolution Diagnostics & 1-Click API Ingestion**: Live assimilation tree displaying ingested GitHub repositories, error root causes, tried solutions, and 1-click interactive cards for missing API keys with instant hot-reload.
+8. **Multi-Tenant Sovereign Client Onboarding**: Production-grade client linking allowing external users to connect their WhatsApp, mobile companion, and PC workstations with role-based access control.
+
+Working directory: F:\Jarvis Command Center  
+Integrity mode: development
+
+---
+
+## Identity, Safety & Security Constraints
+
+1. **Owner**: Master Muhammad Qureshi (Phone: +923468053268, Email: futureworldvision842@gmail.com).
+2. **Strict Identity Rule**: Absolute ZERO mentions or use of prohibited identifiers anywhere in code, comments, configs, or logs.
+3. **Private Key & Credential Isolation**: Solana and EVM hot wallet private keys must strictly be ingested via environment variables (SOLANA_PRIVATE_KEY, EVM_PRIVATE_KEY). Zero plaintext disk leaks.
+4. **Deterministic Risk Cap**: FundingPips #40000294403 ($100,000 balance) hard-capped at <= 0.75% ($750 limit), R:R >= 2.5, dynamic +1.0R breakeven trigger, and 15-minute news blackout.
+5. **Hardware Stability & Thermal Governor**: Maintain 95% CPU throttle cap, memory caching guards, and asynchronous sub-process sandboxing to prevent thermal throttling (>82°C) or system hangs.
+
+---
+
+## Requirements
+
+### R1. 3D Geospatial World Monitor & God's Eye Orbital Fusion
+1. Customize and unify World Monitor (:3000) and God's Eye Satellite Earth (:4173) into a single 3D rotating planetary command sphere:
+   - Full 3D interactive globe with smooth 60 FPS orbit, pan, tilt, and continuous rotation controls.
+   - Clickable entity inspector: clicking any conflict zone, military base, nuclear facility, undersea cable, pipeline, flight radar ADS-B icon, or maritime AIS ship opens a detailed tactical modal displaying real-time metadata, coordinates, threat level, and source intelligence.
+   - God's Eye satellite imagery and orbital pass tracking overlay with day/night terminator lines and cloud cover telemetry.
+   - External Data Sources & API Ingestion Directory: provide a transparent HUD modal listing all premium and open intelligence APIs (e.g. USGS Earthquakes, OpenSky Network, MarineTraffic AIS, Sentinel Copernicus, Liveuamap, NASA FIRMS) with direct clickable registration links so Master Muhammad can easily obtain and insert keys.
+
+### R2. Interactive 3D Workstation Hardware Digital Twin
+1. Build an interactive 3D WebGL / Three.js digital twin of the Master Workstation hardware:
+   - Animated 3D motherboard rendering Intel Core i7-4810MQ socket, 4 physical / 8 logical cores with live heat gradient colors (cool cyan to hot crimson based on ACPI thermals), RAM memory sticks with animated data pulses, and NVIDIA Quadro K2100M GPU pipeline.
+   - Clickable hardware inspection:
+     * Clicking the CPU opens per-core thread utilization, clock speeds, and active processes (explorer.exe, python.exe, chrome.exe).
+     * Clicking RAM opens physical vs cached memory blocks, paging pool, and memory leak sentinels.
+     * Clicking Storage opens SSD partitions (C: and F: vault) with IOPS telemetry and free space gauges.
+   - Real-time telemetry feed from /api/pc/vitals driving the 3D model at <= 100ms latency.
+
+### R3. Live Cognitive Brain, CUA Browser & Task Execution Inspector
+1. Deliver a live glassmorphism execution theater visualizing J.A.R.V.I.S.'s internal cognitive workflows:
+   - CUA / CDP Visual Browser Monitor: live viewport displaying headless Chrome browsing activities, target DOM elements, and visual search extractions.
+   - Animated 5-Stage Execution DAG: [01 Directives Ingest] -> [02 NLP Parse] -> [03 Multi-Agent Consensus] -> [04 Sandbox Execution] -> [05 Voice Synthesis] updating live with execution state.
+   - Real-time subagent communication bus and background task watcher with sub-second execution logs.
+
+### R4. Tony Stark Sovereign Voice Core (Zero Apologies, Full Authority)
+1. Eliminate all false LLM refusals, canned disclaimers, and "I am sorry" apologies from the voice and text conversational pipeline:
+   - Configure the cognitive core (ai_engine.py) with an authoritative, loyal J.A.R.V.I.S. system prompt that acknowledges commands with decisive clarity.
+   - Direct execution routing: map operator natural language commands (e.g. locking PC, executing scripts, trading, checking balances, launching applications, controlling audio) directly to Win32/Linux/Android pipelines without hesitation or assistant disclaimers.
+
+### R5. Autonomous Trading, Macro Strategy & Meme Coin Alpha Radar
+1. Upgrade the quantitative trading and market surveillance engine:
+   - Interactive 3D orderbook depth, CVD absorption, and liquidity heatmap for Forex (Gold/XAUUSD, EURUSD) and Crypto (BTC, SOL).
+   - Dedicated Meme Coin & Early Alpha Radar: automated scanner monitoring Solana (Raydium, Pump.fun), DEX volume surges, liquidity locks, whale accumulation signals, and social velocity.
+   - AI-Trader Consensus Stream: transparent multi-agent debate between Bullish Advocate, Bearish Challenger, and Aladdin Risk Officer with closed-bar evidence score and geopolitical news impact correlation.
+   - Strict risk enforcement: FundingPips #40000294403 deterministic limit (<= 0.75% / $750), dynamic +1.0R breakeven auto-lock, and 1-tap emergency panic close-all.
+
+### R6. Native Standalone Android APK Companion
+1. Build and distribute a standalone native Android application package (jarvis-companion-debug.apk):
+   - Served directly via GET /api/download/apk with prominent download buttons on mobile and desktop dashboards.
+   - Runs natively on Master Muhammad's smartphone with full background OS persistence, device telemetry, direct PC touchpad/keyboard control, and speech synthesis without requiring an open web browser.
+
+### R7. Self-Evolution Diagnostics & 1-Click Interactive API Ingestion
+1. Provide a comprehensive self-evolution and repository assimilation control center:
+   - Visual Git assimilation tree: displays newly ingested tools from GitHub repositories, dependency status, runtime errors, and exact root-cause diagnostics.
+   - Self-healing action log: documents what automated solutions J.A.R.V.I.S. attempted (e.g. dependency install, fallback wrapper, test pass/fail).
+   - 1-Click Interactive API Ingestion Card: whenever a feature requires an external API key (e.g. OpenCode, OpenAI, Twitter/X, NewsAPI, Solana RPC), render an intuitive input modal with the exact sign-up link. When Master Muhammad pastes the key, J.A.R.V.I.S. immediately ingests it into .env / config/api_keys.json, tests the connection, and hot-reloads the capability without server restart.
+
+### R8. Multi-Tenant Sovereign Client Onboarding & Device Linking
+1. Deliver multi-tenant client deployment and pairing capabilities:
+   - Interactive WhatsApp Gateway QR Onboarding: new users or clients can link their WhatsApp number via Baileys QR scan directly from the UI.
+   - Sovereign Multi-Device Access Gateway: clients can pair their own mobile phones (:8765) and PC workstations with role-based access control (Observer, Trader, Sovereign Master).
+   - Comprehensive audit trail ensuring client data isolation and zero cross-tenant contamination.
+
+---
+
+## Acceptance Criteria
+
+### 3D World Monitor & God's Eye Fusion
+- [ ] 3D planetary sphere renders smoothly at 60 FPS with full orbit, pan, tilt, and 22+ active intelligence layers.
+- [ ] Clicking any layer entity (conflict, military base, vessel, cable, nuclear site) opens a tactical modal with verified coordinates and intelligence summary.
+- [ ] HUD modal provides verified external API registration links (USGS, OpenSky, MarineTraffic, Copernicus, Liveuamap).
+
+### 3D Hardware Digital Twin
+- [ ] 3D motherboard model renders live CPU per-core loads, RAM memory blocks, and GPU thermals.
+- [ ] Clicking CPU, RAM, or storage elements opens deep diagnostic modals with real-time process and IOPS data.
+
+### Cognitive, Browser & Execution Inspector
+- [ ] CUA visual browser feed displays active headless browsing viewports and scrape targets.
+- [ ] 5-Stage Execution DAG animates synchronously with background tasks and user commands.
+
+### Conversational Voice Core & Authority
+- [ ] AI query responses exhibit zero occurrences of "I am sorry" or canned language model disclaimers.
+- [ ] Commands in Roman Urdu and English execute directly through Win32 and system APIs with crisp affirmative confirmation.
+
+### Autonomous Trading & Meme Coin Radar
+- [ ] Live orderbook depth and liquidity heatmaps render for Gold, BTC, and Solana.
+- [ ] Meme Coin Alpha Radar streams new DEX liquidity pairs and volume spikes from Solana/Raydium/Pump.fun.
+- [ ] Multi-agent debate displays real-time rationales; FundingPips #40000294403 adheres strictly to <= 0.75% risk cap.
+
+### Native Android APK
+- [ ] GET /api/download/apk returns verified jarvis-companion-debug.apk with HTTP 200.
+- [ ] Standalone app connects to workstation backend on port :8765 and executes PC commands without requiring a mobile browser.
+
+### Self-Evolution & 1-Click API Ingestion
+- [ ] Assimilation diagnostic tree displays tool status, root-cause error logs, and attempted self-healing steps.
+- [ ] Entering an API key in the 1-Click modal persists the key securely and hot-reloads the module without dropping connections.
+
+### Multi-Tenant Client Onboarding
+- [ ] WhatsApp QR pairing modal links new client numbers with Baileys gateway.
+- [ ] Multi-device gateway authenticates client mobile companion sessions with isolated credentials.

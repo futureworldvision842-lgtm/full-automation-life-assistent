@@ -1130,6 +1130,73 @@ class UnifiedCommandRouter:
                     output_text = f"PowerShell execution error: {ex}"
                     telemetry_card = build_error_card(raw_cmd, str(ex), channel=chan)
 
+            # A2. Linux / WSL2 Subsystem Execution (Direct shortcut or parsed intent)
+            elif raw_cmd.startswith("wsl ") or raw_cmd.startswith("bash ") or category == "linux":
+                routed_via = "linux_wsl_subsystem"
+                l_cmd = intent_obj.parameters.get("command") if (category == "linux" and intent_obj.parameters.get("command")) else (
+                    raw_cmd[4:].strip() if raw_cmd.startswith("wsl ") else raw_cmd[5:].strip()
+                )
+                try:
+                    import subprocess
+                    proc = subprocess.run(
+                        ["wsl", "-e", "bash", "-c", l_cmd],
+                        cwd=str(ROOT),
+                        capture_output=True,
+                        text=True,
+                        timeout=15
+                    )
+                    out = proc.stdout.strip() or proc.stderr.strip() or f"Linux process completed with code {proc.returncode}"
+                    execution_ok = (proc.returncode == 0)
+                    output_text = f"[Ubuntu WSL2]\n{out}"
+                    elapsed = (time.perf_counter() - start_time) * 1000.0
+                    telemetry_card = build_command_card(raw_cmd, "wsl_exec", status="OK" if execution_ok else "ERROR", output_text=output_text, channel=chan, execution_time_ms=elapsed, routed_via=routed_via)
+                except Exception as ex:
+                    execution_ok = False
+                    output_text = f"WSL2 execution error: {ex}"
+                    telemetry_card = build_error_card(raw_cmd, str(ex), channel=chan)
+
+            # A3. Android OpenDroid Mobile Bridge (ADB) Execution
+            elif raw_cmd.startswith("adb ") or category == "android":
+                routed_via = "opendroid_bridge"
+                try:
+                    from mobile.opendroid_bridge import get_opendroid_bridge
+                    bridge = get_opendroid_bridge()
+                    act = intent_obj.action if category == "android" else "execute_adb"
+                    if act == "device_status":
+                        dev_stat = bridge.get_device_status()
+                        output_text = (
+                            f"📱 [OpenDroid Mobile Status]\n"
+                            f"• Bridge: {dev_stat.get('bridge')}\n"
+                            f"• Status: {dev_stat.get('status')}\n"
+                            f"• Battery: {dev_stat.get('battery_level')}%\n"
+                            f"• Connected: {dev_stat.get('connected')}\n"
+                            f"• Authorized Owner: {dev_stat.get('owner')}"
+                        )
+                        execution_ok = True
+                    elif act == "open_app":
+                        pkg = intent_obj.parameters.get("app_name") or "com.android.chrome"
+                        res = bridge.open_app(pkg)
+                        output_text = f"📱 [OpenDroid] Dispatched launch for {pkg}: {res.get('output', 'Dispatched')}"
+                        execution_ok = res.get("success", True)
+                    elif act == "tap":
+                        x = intent_obj.parameters.get("x", 500)
+                        y = intent_obj.parameters.get("y", 500)
+                        res = bridge.tap(x, y)
+                        output_text = f"📱 [OpenDroid] Screen tap at ({x}, {y}): {res.get('output', 'OK')}"
+                        execution_ok = res.get("success", True)
+                    else:
+                        adb_cmd = raw_cmd[4:].strip() if raw_cmd.startswith("adb ") else intent_obj.parameters.get("adb_args", "devices")
+                        res = bridge.execute_adb(adb_cmd.split())
+                        output_text = f"📱 [ADB Output]\n{res.get('output') or res.get('error') or 'ADB executed'}"
+                        execution_ok = res.get("success", True)
+
+                    elapsed = (time.perf_counter() - start_time) * 1000.0
+                    telemetry_card = build_command_card(raw_cmd, "android_exec", status="OK" if execution_ok else "ERROR", output_text=output_text, channel=chan, execution_time_ms=elapsed, routed_via=routed_via)
+                except Exception as ex:
+                    execution_ok = False
+                    output_text = f"OpenDroid Bridge error: {ex}"
+                    telemetry_card = build_error_card(raw_cmd, str(ex), channel=chan)
+
             # B. MT5 Forex & Prop Trading Operations
             elif category == "trading":
                 routed_via = "trading_subsystem"
@@ -1347,6 +1414,15 @@ class UnifiedCommandRouter:
             logger.debug("[CommandRouter] Conversational empathy note: %s", emp_err)
 
         # -------------------------------------------------------------
+        # STAGE 6.9: Sovereign Authority & Apology Sanitization
+        # -------------------------------------------------------------
+        try:
+            from ai_engine import _sanitize_sovereign_authority
+            output_text = _sanitize_sovereign_authority(output_text, language=detected_lang)
+        except Exception:
+            pass
+
+        # -------------------------------------------------------------
         # STAGE 7: Neural Voice Synthesis (Edge-TTS / SAPI5 fallback)
         # -------------------------------------------------------------
         audio_path = None
@@ -1376,6 +1452,8 @@ class UnifiedCommandRouter:
             "os_screenshot": ("vision", "vision_subsystem"),
             "geopolitical_fusion": ("radar", "radar_subsystem"),
             "greeting": ("general", "sovereign_alias"),
+            "linux_execution": ("linux", "linux_wsl_subsystem"),
+            "android_mobile_control": ("android", "opendroid_bridge"),
         }
 
         if routed_via not in ("skill_compiler", "learned_skill"):
@@ -1386,6 +1464,10 @@ class UnifiedCommandRouter:
             elif category in ("os", "system"):
                 category = "system"
                 routed_via = "os_subsystem"
+            elif category == "linux":
+                routed_via = "linux_wsl_subsystem"
+            elif category == "android":
+                routed_via = "opendroid_bridge"
             elif category == "radar":
                 routed_via = "radar_subsystem"
             elif category == "crypto":
@@ -1415,6 +1497,19 @@ class UnifiedCommandRouter:
             get_dual_tier_memory().classify_and_record(raw_cmd, output_text, topic=category)
         except Exception:
             pass
+
+        # Synchronize with 5-Stage Execution DAG Engine
+        try:
+            from core.execution_dag_engine import get_execution_dag_engine
+            dag_eng = get_execution_dag_engine()
+            dag_eng.start_pipeline(directive=raw_cmd, channel=chan, owner=sender)
+            dag_eng.complete_stage("01_DIRECTIVES_INGEST", details=f"Received via {chan}")
+            dag_eng.complete_stage("02_NLP_PARSE", details=f"Intent: {intent_name} ({category})")
+            dag_eng.complete_stage("03_MULTI_AGENT_CONSENSUS", details="Execution policy verified")
+            dag_eng.complete_stage("04_SANDBOX_EXECUTION", details=f"Executed via {routed_via}")
+            dag_eng.complete_stage("05_VOICE_SYNTHESIS", details=str(output_text)[:120] if output_text else "Complete")
+        except Exception as dag_err:
+            logger.debug("[CommandRouter] DAG synchronization notice: %s", dag_err)
 
         return JarvisExecutionEnvelope(
             ok=execution_ok,

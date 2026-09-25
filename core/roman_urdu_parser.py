@@ -237,6 +237,12 @@ class BilingualIntent:
     def is_crypto(self) -> bool:
         return self.category == "crypto"
 
+    def is_linux(self) -> bool:
+        return self.category == "linux"
+
+    def is_android(self) -> bool:
+        return self.category == "android"
+
 
 # ==============================================================================
 # BILINGUAL PARSER ENGINE
@@ -602,6 +608,76 @@ class RomanUrduParser:
                 raw_text=raw_clean,
                 normalized_text=norm,
                 translated_intent=f"Execute learned dynamic skill '{s_name}'"
+            )
+
+        # -------------------------------------------------------------
+        # 2A. Linux / WSL2 Subsystem Operations
+        # -------------------------------------------------------------
+        if (norm.startswith("wsl ") or norm.startswith("bash ") or 
+            any(k in norm for k in [
+                "run linux", "ubuntu command", "linux command", "wsl command",
+                "ubuntu mein chalao", "linux pe chalao", "run wsl", "run bash",
+                "linux terminal", "ubuntu terminal"
+            ])):
+            linux_cmd = raw_clean
+            for pfx in [
+                "run linux command", "run linux", "linux command", "ubuntu command",
+                "wsl command", "run wsl", "run bash", "ubuntu mein chalao",
+                "linux pe chalao", "wsl", "bash"
+            ]:
+                if linux_cmd.lower().startswith(pfx):
+                    linux_cmd = linux_cmd[len(pfx):].strip(" :")
+                    break
+
+            return BilingualIntent(
+                intent="linux_execution",
+                category="linux",
+                language=lang,
+                action="execute_wsl",
+                target="wsl_ubuntu",
+                parameters={"command": linux_cmd or "uname -a", "subsystem": "WSL2"},
+                confidence=0.97,
+                raw_text=raw_clean,
+                normalized_text=norm,
+                translated_intent=f"Execute command inside Linux/WSL environment: {linux_cmd or 'uname -a'}"
+            )
+
+        # -------------------------------------------------------------
+        # 2B. Android / OpenDroid Mobile Bridge (ADB)
+        # -------------------------------------------------------------
+        if (norm.startswith("adb ") or any(k in norm for k in [
+            "adb devices", "adb shell", "android phone", "mobile phone", "phone status",
+            "mobile status", "mobile battery", "phone battery", "open mobile app",
+            "phone pe app", "mobile pe app", "android tap", "phone screen", "yeh dabao"
+        ])):
+            if "device" in norm or "status" in norm or "battery" in norm:
+                m_action = "device_status"
+            elif "tap" in norm:
+                m_action = "tap"
+            elif "swipe" in norm:
+                m_action = "swipe"
+            elif any(w in norm for w in ["open", "kholo", "launch"]):
+                m_action = "open_app"
+            else:
+                m_action = "execute_adb"
+
+            adb_args = raw_clean
+            for pfx in ["adb shell", "adb"]:
+                if adb_args.lower().startswith(pfx):
+                    adb_args = adb_args[len(pfx):].strip()
+                    break
+
+            return BilingualIntent(
+                intent="android_mobile_control",
+                category="android",
+                language=lang,
+                action=m_action,
+                target="opendroid_bridge",
+                parameters={"raw_command": raw_clean, "adb_args": adb_args, "subsystem": "OpenDroidBridge"},
+                confidence=0.96,
+                raw_text=raw_clean,
+                normalized_text=norm,
+                translated_intent=f"Dispatch OpenDroid mobile control directive ({m_action})"
             )
 
         # -------------------------------------------------------------
