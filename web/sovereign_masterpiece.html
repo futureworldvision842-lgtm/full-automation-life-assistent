@@ -3162,6 +3162,133 @@
             </div>
           </div>
         </div>
+      
+          <!-- ========================================================================= -->
+          <!-- VIRAL SOCIAL MEDIA & CONTENT STUDIO (GAIGS HUMANITY 3.0)                   -->
+          <!-- ========================================================================= -->
+          <div class="hud-panel p-3 mt-3">
+            <div class="flex justify-between items-center pb-2 mb-2 border-b border-[#142e47]">
+              <div class="flex items-center space-x-2">
+                <span class="text-xl">🎬</span>
+                <div>
+                  <h2 class="text-base font-black tracking-wider text-white font-mono uppercase">
+                    VIRAL SOCIAL MEDIA AUTOMATION &amp; SCRIPT STUDIO
+                  </h2>
+                  <div class="text-[9px] font-mono text-cyan-400">
+                    MASTER MUHAMMAD QURESHI // 5 YOUTUBE CHANNELS + X // HIGH-RETENTION URDU &amp; TIER-1 CPM SCRIPTS
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button onclick="loadMediaStudioData()" class="btn-tactical text-xs text-cyan-300">🔄 REFRESH STUDIO</button>
+                <button onclick="generateViralScriptNow()" class="btn-tactical text-xs text-emerald-400 font-bold">⚡ GENERATE SCRIPT</button>
+              </div>
+            </div>
+
+            <!-- Channels Directory Ribbon -->
+            <div class="mb-3">
+              <div class="text-[10px] text-slate-400 font-mono mb-1 flex items-center justify-between">
+                <span>ACTIVE BROADCAST CHANNELS &amp; OUTLETS:</span>
+                <span class="text-cyan-400 font-bold" id="mediaChannelsCount">7 Channels Online</span>
+              </div>
+              <div id="mediaChannelsContainer" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 font-mono text-xs">
+                <!-- Dynamically populated or seeded cards -->
+              </div>
+            </div>
+
+            <!-- Main Studio Split Grid: Script Generator & Staging Queue -->
+            <div class="grid grid-cols-12 gap-3 font-mono text-xs">
+              <!-- Left: Viral Script Generator Form -->
+              <div class="col-span-12 lg:col-span-5 p-3 rounded bg-[#061221] border border-cyan-500/40 space-y-2.5">
+                <div class="text-white font-bold pb-1 border-b border-[#142e47] flex justify-between items-center">
+                  <span>⚡ SCRIPT GENERATOR</span>
+                  <span class="text-[9px] text-cyan-400">Urdu Nastaliq + English</span>
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-400 block mb-0.5">TARGET CHANNEL:</label>
+                  <select id="mediaTargetChannel" class="w-full bg-[#030914] border border-[#173859] rounded px-2.5 py-1 text-xs text-cyan-300 focus:outline-none focus:border-cyan-400">
+                    <option value="@HistoryOS-1">YouTube: @HistoryOS-1 (Historical Mysteries &amp; Empire Falls)</option>
+                    <option value="@TheTimelineReset">YouTube: @TheTimelineReset (Alternate Timelines &amp; Reset Points)</option>
+                    <option value="@Afkaar-Urdu">YouTube: @Afkaar-Urdu (Intellectual Discourse &amp; Philosophy)</option>
+                    <option value="@Fikr-o-Nizam">YouTube: @Fikr-o-Nizam (Islamic Ethics &amp; Governance)</option>
+                    <option value="@tafkeereafkaar">YouTube: @tafkeereafkaar (Civilizational Analysis)</option>
+                    <option value="@TimelinReset">X: @TimelinReset (Geopolitics &amp; Timeline Alerts)</option>
+                    <option value="@fikronizam">X: @fikronizam (Islamic Governance &amp; Ethics)</option>
+                  </select>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="text-[10px] text-slate-400 block mb-0.5">LANGUAGE &amp; STYLE:</label>
+                    <select id="mediaScriptLang" class="w-full bg-[#030914] border border-[#173859] rounded px-2.5 py-1 text-xs text-emerald-300 focus:outline-none focus:border-emerald-400">
+                      <option value="urdu">Urdu Nastaliq (45-60s Short)</option>
+                      <option value="english">Global Tier-1 English (High CPM)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-[10px] text-slate-400 block mb-0.5">CONTENT HOOK STYLE:</label>
+                    <select id="mediaHookStyle" class="w-full bg-[#030914] border border-[#173859] rounded px-2.5 py-1 text-xs text-amber-300 focus:outline-none focus:border-amber-400">
+                      <option value="historical_mystery">Historical Mystery / Fall of Empire</option>
+                      <option value="shocking_twist">Shocking Paradox / On This Day</option>
+                      <option value="islamic_golden_age">Islamic Golden Age Science &amp; Ethics</option>
+                      <option value="geopolitical_crisis">Geopolitical Reset &amp; Future Prediction</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-400 block mb-0.5">TOPIC / HISTORICAL EVENT / PROMPT:</label>
+                  <textarea id="mediaTopicInput" rows="3" placeholder="Enter topic, event, or leave blank for automated 'On This Day' viral hook..." class="w-full bg-[#030914] border border-[#173859] rounded p-2 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono"></textarea>
+                </div>
+                <div class="flex items-center justify-between pt-1">
+                  <label class="flex items-center space-x-2 text-[10px] text-slate-300 cursor-pointer">
+                    <input type="checkbox" id="mediaOnThisDayCheck" checked class="rounded bg-[#030914] border-[#173859] text-cyan-500 focus:ring-0">
+                    <span>Include 'On This Day' Real Context</span>
+                  </label>
+                  <button onclick="generateViralScriptNow()" id="btnGenerateScript" class="px-4 py-1.5 rounded bg-emerald-500/25 hover:bg-emerald-500/40 border border-emerald-400 text-emerald-300 font-bold text-xs flex items-center space-x-1.5 transition-all shadow-[0_0_12px_rgba(16,185,129,0.3)]">
+                    <span>⚡</span><span>GENERATE SCRIPT</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Center & Right: Script Preview & Staging Queue -->
+              <div class="col-span-12 lg:col-span-7 space-y-3">
+                <!-- Live Teleprompter Script Preview Card -->
+                <div class="p-3 rounded bg-[#061221] border border-[#163659] space-y-2">
+                  <div class="flex items-center justify-between pb-1 border-b border-[#142e47]">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-amber-400">📜</span>
+                      <span class="text-white font-bold text-xs" id="scriptPreviewTitle">SCRIPT PREVIEW &amp; TELEPROMPTER</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-[9px]">
+                      <button onclick="copyCurrentScriptText()" class="btn-tactical text-cyan-300">📋 COPY TEXT</button>
+                      <button onclick="approveCurrentScriptYehDabao()" id="btnYehDabaoScript" class="btn-tactical text-emerald-400 font-bold border-emerald-500/50 bg-emerald-500/10">✅ YEH DABAO (APPROVE)</button>
+                    </div>
+                  </div>
+                  <div id="scriptPreviewContent" class="h-44 overflow-y-auto p-2.5 rounded bg-[#020610] border border-[#0d2238] text-xs text-slate-200 leading-relaxed font-mono whitespace-pre-wrap select-text">
+                    <span class="text-slate-500">Select a script from the staging queue below or click 'GENERATE SCRIPT' to create a new high-retention script.</span>
+                  </div>
+                  <div class="flex items-center justify-between text-[9px] text-slate-400 px-1 font-mono">
+                    <span id="scriptPreviewMeta">Words: 0 | Duration: ~0s</span>
+                    <span id="scriptPreviewChannel" class="text-cyan-400 font-bold">@HistoryOS-1</span>
+                  </div>
+                </div>
+
+                <!-- Staged Scripts Queue -->
+                <div class="p-3 rounded bg-[#061221] border border-[#163659] space-y-2">
+                  <div class="flex items-center justify-between pb-1 border-b border-[#142e47]">
+                    <div class="flex items-center space-x-1.5">
+                      <span class="text-cyan-400 font-bold">📋 STAGED VIRAL SCRIPTS QUEUE</span>
+                      <span class="px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-300 text-[9px] font-bold" id="stagedScriptsCount">0</span>
+                    </div>
+                    <button onclick="loadMediaStudioData()" class="btn-tactical text-[9px]">🔄 REFRESH QUEUE</button>
+                  </div>
+                  <div id="stagedScriptsList" class="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+                    <!-- Script items -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
       </div>
 
       <!-- ===================================================================== -->
@@ -4027,6 +4154,162 @@ Listening on local event bus: http://localhost:8770/api/n8n/webhook</pre>
                 <iframe id="gaigsLivePeerIframe" src="/gaigs/live/index.html" class="w-full h-full border-none" title="GAIGS Live Peer Site"></iframe>
               </div>
             </div>
+
+          <!-- ========================================================================= -->
+          <!-- GAIGS 5-PILLAR LIVE CIVIC & ETHICS CONTROLLER                             -->
+          <!-- ========================================================================= -->
+          <div class="mt-3 p-3 rounded bg-[#081220] border-2 border-emerald-500/40 space-y-3 font-mono text-xs shadow-[0_0_25px_rgba(16,185,129,0.15)]">
+            <div class="flex flex-wrap items-center justify-between pb-2 border-b border-[#142e47] gap-2">
+              <div class="flex items-center space-x-2">
+                <span class="text-xl">🕌</span>
+                <div>
+                  <h3 class="text-sm font-black tracking-wider text-white uppercase flex items-center space-x-2">
+                    <span>GAIGS 5-PILLAR CIVILIZATION ENGINE (HUMANITY 3.0)</span>
+                    <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[8px] font-bold border border-emerald-500/40">MASTER MUHAMMAD QURESHI</span>
+                  </h3>
+                  <div class="text-[9px] text-emerald-400">
+                    MASJID-E-NABAWI MODEL &bull; DIRECT DEMOCRACY &bull; BLOCKCHAIN TRANSPARENCY &bull; SCIENTIFIC GAMIFICATION &bull; ISLAMIC ETHICS
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button onclick="loadGaigsCivOverview()" class="btn-tactical text-xs text-emerald-300 font-bold">🔄 REFRESH GAIGS</button>
+                <a href="/gaigs/live/science-world.html" target="_blank" class="btn-tactical text-xs text-amber-300 no-underline font-bold">🎮 PLAY SCIENCE GAME</a>
+              </div>
+            </div>
+
+            <!-- 5 Pillar KPI Status Ribbon -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-center text-xs">
+              <div class="p-2 rounded bg-[#040a14] border border-cyan-500/40">
+                <div class="text-[9px] text-slate-400">1. DIRECT DEMOCRACY</div>
+                <div class="text-lg font-black text-cyan-300 mt-0.5" id="gaigsPropCount">3 Active</div>
+                <div class="text-[8px] text-cyan-400/80">Sha-256 Voting</div>
+              </div>
+              <div class="p-2 rounded bg-[#040a14] border border-emerald-500/40">
+                <div class="text-[9px] text-slate-400">2. UNITY HUBS</div>
+                <div class="text-lg font-black text-emerald-300 mt-0.5" id="gaigsHubCount">2 Hubs</div>
+                <div class="text-[8px] text-emerald-400/80">Masjid-e-Nabawi Model</div>
+              </div>
+              <div class="p-2 rounded bg-[#040a14] border border-purple-500/40">
+                <div class="text-[9px] text-slate-400">3. BLOCKCHAIN AUDIT</div>
+                <div class="text-lg font-black text-purple-300 mt-0.5" id="gaigsSpendingCount">3 Ledgers</div>
+                <div class="text-[8px] text-purple-400/80">Zero Corruption</div>
+              </div>
+              <div class="p-2 rounded bg-[#040a14] border border-amber-500/40">
+                <div class="text-[9px] text-slate-400">4. SCIENTIFIC GAMES</div>
+                <div class="text-lg font-black text-amber-300 mt-0.5" id="gaigsChallengeCount">2 Quests</div>
+                <div class="text-[8px] text-amber-400/80">Planetary Challenges</div>
+              </div>
+              <div class="p-2 rounded bg-[#040a14] border border-red-500/40">
+                <div class="text-[9px] text-slate-400">5. ISLAMIC ETHICS AI</div>
+                <div class="text-lg font-black text-emerald-400 mt-0.5" id="gaigsEthicsScore">94/100</div>
+                <div class="text-[8px] text-emerald-400 font-bold">APPROVED (ADL &amp; SHURA)</div>
+              </div>
+            </div>
+
+            <!-- Section A: Proposals & Direct Voting -->
+            <div id="gaigsSecProposals" class="space-y-2">
+              <div class="flex items-center justify-between pb-1 border-b border-[#142e47]">
+                <div class="text-white font-bold text-xs flex items-center space-x-2">
+                  <span>🗳️ ACTIVE PROPOSALS &amp; "YEH DABAO" DIRECT VOTING</span>
+                  <span class="text-[9px] text-slate-400 font-normal">SHA-256 Immutable Audit</span>
+                </div>
+                <span class="text-[9px] text-cyan-400 font-mono">1 Person = 1 Cryptographic Vote</span>
+              </div>
+              <div id="gaigsProposalsList" class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                <!-- Proposal cards will be rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Section B: Public Spending Ledger & Anti-Corruption Telemetry -->
+            <div id="gaigsSecSpending" class="space-y-2 pt-2 border-t border-[#142e47]">
+              <div class="flex items-center justify-between pb-1">
+                <div class="text-white font-bold text-xs flex items-center space-x-2">
+                  <span>⛓️ BLOCKCHAIN TRANSPARENCY: PUBLIC SPENDING LEDGER</span>
+                  <span class="px-2 py-0.2 rounded bg-emerald-500/20 text-emerald-400 text-[8px] font-bold border border-emerald-500/40">ZERO CORRUPTION SENTINEL</span>
+                </div>
+                <span class="text-[9px] text-slate-400">All disbursements cryptographically verified</span>
+              </div>
+              <div class="overflow-x-auto rounded bg-[#030914] border border-[#142e47]">
+                <table class="w-full text-left text-[10px] font-mono">
+                  <thead class="bg-[#051120] text-slate-400 border-b border-[#142e47]">
+                    <tr>
+                      <th class="p-2">TX RECEIPT</th>
+                      <th class="p-2">CATEGORY</th>
+                      <th class="p-2">AMOUNT</th>
+                      <th class="p-2">VENDOR / RECIPIENT</th>
+                      <th class="p-2">STATUS</th>
+                      <th class="p-2">SHA-256 PROOF</th>
+                    </tr>
+                  </thead>
+                  <tbody id="gaigsSpendingTableBody" class="divide-y divide-[#142e47]/40 text-slate-200">
+                    <!-- Spending records will be rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Section C: Community Unity Hubs & Scientific Gamification -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-[#142e47]">
+              <!-- Community Unity Hubs -->
+              <div class="p-3 rounded bg-[#040a14] border border-[#142e47] space-y-2">
+                <div class="flex items-center justify-between pb-1 border-b border-[#142e47]">
+                  <span class="text-white font-bold text-xs">🕌 COMMUNITY UNITY HUBS (MASJID-E-NABAWI MODEL)</span>
+                  <span class="text-[9px] text-emerald-400">Zero Polarization</span>
+                </div>
+                <div id="gaigsHubsList" class="space-y-2">
+                  <!-- Hub cards rendered dynamically -->
+                </div>
+              </div>
+
+              <!-- Scientific Gamification Challenges -->
+              <div class="p-3 rounded bg-[#040a14] border border-[#142e47] space-y-2">
+                <div class="flex items-center justify-between pb-1 border-b border-[#142e47]">
+                  <span class="text-white font-bold text-xs">🔬 SCIENTIFIC GAMIFICATION CHALLENGES</span>
+                  <span class="text-[9px] text-amber-400">Meritocratic Bounties</span>
+                </div>
+                <div id="gaigsChallengesList" class="space-y-2">
+                  <!-- Challenge cards rendered dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Section D: Islamic Ethics AI Evaluation Sandbox -->
+            <div class="p-3 rounded bg-[#040a14] border border-cyan-500/40 space-y-2.5 pt-2">
+              <div class="flex items-center justify-between pb-1 border-b border-[#142e47]">
+                <div class="flex items-center space-x-2">
+                  <span class="text-emerald-400">⚖️</span>
+                  <span class="text-white font-bold text-xs">ISLAMIC ETHICS AI ADVISORY SANDBOX</span>
+                </div>
+                <span class="text-[9px] text-cyan-400 font-mono">5 Pillars: Tawhid &bull; Adl &bull; Shura &bull; Amanah &bull; Rahmah</span>
+              </div>
+              <div class="grid grid-cols-12 gap-3">
+                <div class="col-span-12 lg:col-span-7 space-y-2">
+                  <textarea id="gaigsEthicsInput" rows="3" class="w-full bg-[#020611] border border-[#173859] rounded p-2 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono" placeholder="Test any civic proposal, economic policy, or trade algorithm against the 5 Islamic Ethics pillars... (e.g. 'Zero-interest micro-finance pool for local agrarian co-ops with community shura governance')"></textarea>
+                  <div class="flex justify-between items-center">
+                    <span class="text-[9px] text-slate-400">Strictly rejects interest (riba), fraud (gharar), or unilateral monopoly.</span>
+                    <button onclick="runGaigsEthicsAuditNow()" class="px-3 py-1 rounded bg-cyan-500/25 hover:bg-cyan-500/40 border border-cyan-400 text-cyan-300 font-bold text-xs transition-all shadow-[0_0_10px_rgba(0,229,255,0.2)]">
+                      ⚖️ AUDIT ETHICAL CONFORMANCE
+                    </button>
+                  </div>
+                </div>
+                <div class="col-span-12 lg:col-span-5 p-2.5 rounded bg-[#020611] border border-[#142e47] space-y-1.5" id="gaigsEthicsResultCard">
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400">COMPOSITE SCORE:</span>
+                    <span class="text-emerald-400 font-bold text-sm" id="gaigsAuditScore">94.0 / 100</span>
+                  </div>
+                  <div class="flex justify-between items-center text-[10px]">
+                    <span class="text-slate-400">VERDICT:</span>
+                    <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold" id="gaigsAuditVerdict">ETHICAL_APPROVED</span>
+                  </div>
+                  <div class="text-[9px] text-slate-300 pt-1 border-t border-[#142e47]/60 leading-relaxed font-mono" id="gaigsAuditNotes">
+                    Adl (Justice) +25 | Shura (Consultation) +20 | Amanah (Trust) +20 | Rahmah (Compassion) +15. High ethical alignment with Islamic civilizational principles.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           </div>
 
           <!-- Row 4: J.A.R.V.I.S. Core Autonomous Upgrader & Auto-Sync Engine -->
@@ -4589,8 +4872,10 @@ Click 'CHECK & UPGRADE NOW' to pull upstream updates, verify skills, and auto-pu
           initSupermemoryGraph();
         } else if (tabId === 'content') {
           initManimCanvas();
+          loadMediaStudioData();
         } else if (tabId === 'governance') {
           loadEvolutionTelemetry();
+          loadGaigsCivOverview();
         } else if (tabId === 'agents') {
           refreshDynamicToolsList();
         } else if (tabId === 'warroom') {
@@ -9302,10 +9587,416 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
       }
     }
 
+
+    // =========================================================================
+    // VIRAL SOCIAL MEDIA & CONTENT STUDIO JAVASCRIPT LOGIC
+    // =========================================================================
+    let activeMediaScripts = [];
+    let currentPreviewScript = null;
+
+    async function loadMediaStudioData() {
+      try {
+        const [chResp, scResp] = await Promise.all([
+          fetch('/api/media/channels'),
+          fetch('/api/media/scripts')
+        ]);
+        if (chResp.ok) {
+          const chData = await chResp.json();
+          renderMediaChannels(chData.channels || []);
+        }
+        if (scResp.ok) {
+          const scData = await scResp.json();
+          activeMediaScripts = scData.scripts || [];
+          renderStagedScripts(activeMediaScripts);
+          if (activeMediaScripts.length > 0 && !currentPreviewScript) {
+            selectMediaScriptForPreview(activeMediaScripts[0].id);
+          }
+        }
+      } catch (err) {
+        console.error('Error loading media studio data:', err);
+      }
+    }
+
+    function renderMediaChannels(channels) {
+      const container = document.getElementById('mediaChannelsContainer');
+      const countEl = document.getElementById('mediaChannelsCount');
+      if (countEl) countEl.innerText = `${channels.length} Channels Online`;
+      if (!container) return;
+
+      container.innerHTML = channels.map(ch => {
+        const isYT = ch.platform === 'YouTube';
+        return `
+          <div class="p-2 rounded bg-[#040a14] border border-[#142e47] hover:border-cyan-400/60 transition-all flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[9px] font-bold ${isYT ? 'text-red-400' : 'text-blue-400'}">${isYT ? '▶ YT' : '𝕏 X'}</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
+              </div>
+              <div class="text-[11px] font-bold text-white truncate" title="${ch.handle}">${ch.handle}</div>
+              <div class="text-[8px] text-slate-400 truncate mt-0.5">${ch.niche || ''}</div>
+            </div>
+            <div class="mt-2 pt-1 border-t border-[#142e47]/40 flex justify-between items-center text-[8px]">
+              <span class="text-cyan-400 font-bold">${ch.subscribers || ch.followers || 'Live'}</span>
+              <a href="${ch.url}" target="_blank" class="text-amber-300 hover:underline">VISIT ↗</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderStagedScripts(scripts) {
+      const listEl = document.getElementById('stagedScriptsList');
+      const countEl = document.getElementById('stagedScriptsCount');
+      if (countEl) countEl.innerText = scripts.length;
+      if (!listEl) return;
+
+      if (scripts.length === 0) {
+        listEl.innerHTML = '<div class="p-2 text-slate-500 text-center text-[10px]">No scripts in staging queue. Click "GENERATE SCRIPT" above.</div>';
+        return;
+      }
+
+      listEl.innerHTML = scripts.map(s => {
+        const isApproved = s.status === 'APPROVED_YEH_DABAO';
+        return `
+          <div class="p-2 rounded bg-[#030914] border ${isApproved ? 'border-emerald-500/40' : 'border-[#142e47]'} hover:border-cyan-400/60 transition-all flex items-center justify-between cursor-pointer" onclick="selectMediaScriptForPreview('${s.id}')">
+            <div class="flex-1 min-w-0 pr-2">
+              <div class="flex items-center space-x-1.5">
+                <span class="text-[8px] font-bold px-1.5 py-0.2 rounded ${s.language === 'urdu' ? 'bg-purple-900/60 text-purple-300' : 'bg-blue-900/60 text-blue-300'}">${s.language.toUpperCase()}</span>
+                <span class="text-[10px] font-bold text-white truncate">${s.channel}</span>
+                <span class="text-[8px] text-slate-400">(${s.word_count || 0} words)</span>
+              </div>
+              <div class="text-[9px] text-slate-300 truncate mt-0.5">${s.hook || s.content.slice(0, 60)}</div>
+            </div>
+            <div class="flex items-center space-x-1.5 flex-shrink-0">
+              <span class="px-1.5 py-0.5 rounded text-[8px] font-bold ${isApproved ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-300'}">${isApproved ? '✅ APPROVED' : '⏳ STAGED'}</span>
+              <button onclick="event.stopPropagation(); approveScriptDirectly('${s.id}')" class="btn-tactical text-[8px] ${isApproved ? 'opacity-50' : 'text-emerald-400 font-bold'}">YEH DABAO</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectMediaScriptForPreview(scriptId) {
+      const script = activeMediaScripts.find(s => s.id === scriptId);
+      if (!script) return;
+      currentPreviewScript = script;
+
+      const titleEl = document.getElementById('scriptPreviewTitle');
+      const contentEl = document.getElementById('scriptPreviewContent');
+      const metaEl = document.getElementById('scriptPreviewMeta');
+      const chanEl = document.getElementById('scriptPreviewChannel');
+      const btnApprove = document.getElementById('btnYehDabaoScript');
+
+      if (titleEl) titleEl.innerText = `SCRIPT: ${script.channel} [${script.language.toUpperCase()}]`;
+      if (contentEl) contentEl.innerText = script.content;
+      if (metaEl) metaEl.innerText = `Words: ${script.word_count || 0} | Est Duration: ~${script.duration_seconds || 55}s | ID: ${script.id}`;
+      if (chanEl) chanEl.innerText = script.channel;
+      if (btnApprove) {
+        if (script.status === 'APPROVED_YEH_DABAO') {
+          btnApprove.innerText = '✅ APPROVED';
+          btnApprove.disabled = true;
+          btnApprove.className = 'btn-tactical text-emerald-400 font-bold border-emerald-500/50 bg-emerald-500/20 opacity-70';
+        } else {
+          btnApprove.innerText = '✅ YEH DABAO (APPROVE)';
+          btnApprove.disabled = false;
+          btnApprove.className = 'btn-tactical text-emerald-400 font-bold border-emerald-500/50 bg-emerald-500/10';
+        }
+      }
+    }
+
+    async function generateViralScriptNow() {
+      const channel = document.getElementById('mediaTargetChannel').value;
+      const language = document.getElementById('mediaScriptLang').value;
+      const hookStyle = document.getElementById('mediaHookStyle').value;
+      const topic = document.getElementById('mediaTopicInput').value.trim();
+      const onThisDay = document.getElementById('mediaOnThisDayCheck').checked;
+
+      const btn = document.getElementById('btnGenerateScript');
+      if (btn) btn.innerHTML = '<span>⏳</span><span>GENERATING...</span>';
+
+      try {
+        const resp = await fetch('/api/media/generate_script', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            channel,
+            language,
+            hook_style: hookStyle,
+            topic: topic || undefined,
+            on_this_day: onThisDay
+          })
+        });
+        const data = await resp.json();
+        if (data.ok && data.script) {
+          showToast(`Viral script generated for ${channel}!`);
+          await loadMediaStudioData();
+          selectMediaScriptForPreview(data.script.id);
+        } else {
+          showToast('Failed to generate script: ' + (data.detail || 'Error'));
+        }
+      } catch (err) {
+        showToast('Error generating script: ' + err.message);
+      } finally {
+        if (btn) btn.innerHTML = '<span>⚡</span><span>GENERATE SCRIPT</span>';
+      }
+    }
+
+    async function approveScriptDirectly(scriptId) {
+      try {
+        const resp = await fetch('/api/media/approve_script', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            script_id: scriptId,
+            decision: 'APPROVED_YEH_DABAO'
+          })
+        });
+        const data = await resp.json();
+        if (data.ok) {
+          showToast(`✅ Script ${scriptId} APPROVED via 'Yeh Dabao'!`);
+          await loadMediaStudioData();
+          if (currentPreviewScript && currentPreviewScript.id === scriptId) {
+            selectMediaScriptForPreview(scriptId);
+          }
+        }
+      } catch (err) {
+        showToast('Error approving script: ' + err.message);
+      }
+    }
+
+    async function approveCurrentScriptYehDabao() {
+      if (!currentPreviewScript) {
+        showToast('No script selected for approval.');
+        return;
+      }
+      await approveScriptDirectly(currentPreviewScript.id);
+    }
+
+    function copyCurrentScriptText() {
+      if (!currentPreviewScript || !currentPreviewScript.content) {
+        showToast('No script content to copy.');
+        return;
+      }
+      navigator.clipboard.writeText(currentPreviewScript.content)
+        .then(() => showToast('📋 Script copied to clipboard!'))
+        .catch(err => showToast('Failed to copy: ' + err));
+    }
+
+    // =========================================================================
+    // GAIGS 5-PILLAR CIVILIZATION ENGINE JAVASCRIPT LOGIC
+    // =========================================================================
+    async function loadGaigsCivOverview() {
+      try {
+        const [ovResp, prResp, spResp, hbResp, chResp] = await Promise.all([
+          fetch('/api/gaigs/overview'),
+          fetch('/api/gaigs/proposals'),
+          fetch('/api/gaigs/transparency/spending'),
+          fetch('/api/gaigs/hubs'),
+          fetch('/api/gaigs/challenges')
+        ]);
+
+        if (ovResp.ok) {
+          const ov = await ovResp.json();
+          // Update status ribbons
+        }
+        if (prResp.ok) {
+          const pr = await prResp.json();
+          const props = pr.proposals || [];
+          document.getElementById('gaigsPropCount').innerText = `${props.length} Active`;
+          renderGaigsProposals(props);
+        }
+        if (spResp.ok) {
+          const sp = await spResp.json();
+          const records = sp.records || [];
+          document.getElementById('gaigsSpendingCount').innerText = `${records.length} Ledgers`;
+          renderGaigsSpending(records);
+        }
+        if (hbResp.ok) {
+          const hb = await hbResp.json();
+          const hubs = hb.hubs || [];
+          document.getElementById('gaigsHubCount').innerText = `${hubs.length} Hubs`;
+          renderGaigsHubs(hubs);
+        }
+        if (chResp.ok) {
+          const ch = await chResp.json();
+          const challenges = ch.challenges || [];
+          document.getElementById('gaigsChallengeCount').innerText = `${challenges.length} Quests`;
+          renderGaigsChallenges(challenges);
+        }
+      } catch (err) {
+        console.error('Error loading GAIGS overview:', err);
+      }
+    }
+
+    function renderGaigsProposals(proposals) {
+      const container = document.getElementById('gaigsProposalsList');
+      if (!container) return;
+
+      container.innerHTML = proposals.map(p => {
+        const ayePercent = p.votes_for + p.votes_against > 0 
+          ? Math.round((p.votes_for / (p.votes_for + p.votes_against)) * 100) 
+          : 50;
+
+        return `
+          <div class="p-3 rounded bg-[#040a14] border border-[#142e47] space-y-2 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-1 border-b border-[#142e47]">
+                <span class="text-cyan-400 font-bold text-[10px]">${p.id}</span>
+                <span class="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 text-[8px] font-bold">${p.status}</span>
+              </div>
+              <div class="text-white font-bold text-xs mt-1">${p.title}</div>
+              <div class="text-[9px] text-slate-300 mt-1 leading-relaxed">${p.description}</div>
+            </div>
+
+            <div class="pt-2 border-t border-[#142e47]/60 space-y-1.5">
+              <div class="flex justify-between items-center text-[9px]">
+                <span class="text-slate-400">Aye: <strong class="text-emerald-400">${p.votes_for}</strong> | Nay: <strong class="text-red-400">${p.votes_against}</strong></span>
+                <span class="text-cyan-400 font-bold">${ayePercent}% Aye</span>
+              </div>
+              <div class="w-full bg-[#020610] h-1.5 rounded-full overflow-hidden flex">
+                <div class="bg-emerald-500 h-full" style="width: ${ayePercent}%"></div>
+                <div class="bg-red-500 h-full" style="width: ${100 - ayePercent}%"></div>
+              </div>
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-[8px] text-slate-500 font-mono truncate max-w-[140px]">Proof: ${p.sha256_hash ? p.sha256_hash.slice(0, 12) + '...' : 'Sha256'}</span>
+                <div class="flex space-x-1">
+                  <button onclick="castGaigsVote('${p.id}', 'aye')" class="btn-tactical text-[8px] text-emerald-400 font-bold hover:bg-emerald-500/20">👍 VOTE AYE</button>
+                  <button onclick="castGaigsVote('${p.id}', 'nay')" class="btn-tactical text-[8px] text-red-400 hover:bg-red-500/20">👎 VOTE NAY</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function castGaigsVote(propId, choice) {
+      try {
+        const resp = await fetch('/api/gaigs/vote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            proposal_id: propId,
+            voter_id: 'SOVEREIGN_MASTER_MUHAMMAD',
+            choice: choice
+          })
+        });
+        const data = await resp.json();
+        if (data.ok) {
+          showToast(`🗳️ Vote '${choice.toUpperCase()}' recorded on ${propId}! Receipt: ${data.vote_receipt ? data.vote_receipt.slice(0, 8) : ''}`);
+          await loadGaigsCivOverview();
+        } else {
+          showToast('Vote rejected: ' + (data.detail || 'Error'));
+        }
+      } catch (err) {
+        showToast('Vote error: ' + err.message);
+      }
+    }
+
+    function renderGaigsSpending(records) {
+      const tbody = document.getElementById('gaigsSpendingTableBody');
+      if (!tbody) return;
+
+      tbody.innerHTML = records.map(r => {
+        const isClean = !r.flagged && r.anti_corruption_check !== 'FLAGGED';
+        return `
+          <tr class="hover:bg-cyan-500/5 transition-all">
+            <td class="p-2 text-cyan-300 font-bold">${r.id || r.tx_id}</td>
+            <td class="p-2 text-slate-300">${r.category}</td>
+            <td class="p-2 font-bold text-emerald-400">$${(r.amount_usd || 0).toLocaleString()}</td>
+            <td class="p-2 text-slate-300">${r.vendor || r.recipient}</td>
+            <td class="p-2">
+              <span class="px-1.5 py-0.5 rounded text-[8px] font-bold ${isClean ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-red-500/20 text-red-400 border border-red-500/40'}">
+                ${isClean ? '✓ CLEAN' : '⚠ FLAGGED'}
+              </span>
+            </td>
+            <td class="p-2 text-[8px] text-slate-400 font-mono truncate max-w-[120px]" title="${r.sha256_hash || ''}">${r.sha256_hash ? r.sha256_hash.slice(0, 16) + '...' : 'SHA-256'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderGaigsHubs(hubs) {
+      const container = document.getElementById('gaigsHubsList');
+      if (!container) return;
+
+      container.innerHTML = hubs.map(h => `
+        <div class="p-2 rounded bg-[#020610] border border-[#142e47] flex items-center justify-between">
+          <div>
+            <div class="flex items-center space-x-1.5">
+              <span class="text-emerald-400 font-bold text-[10px]">${h.name}</span>
+              <span class="text-[8px] text-slate-500">(${h.id})</span>
+            </div>
+            <div class="text-[9px] text-slate-400 mt-0.5">Location: <strong class="text-white">${h.location}</strong> | Capacity: ${h.capacity || 500}</div>
+          </div>
+          <div class="text-right">
+            <span class="px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[8px] font-bold">Active Hub</span>
+            <div class="text-[8px] text-emerald-400 mt-0.5">${h.mediators || 3} Mediators</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderGaigsChallenges(challenges) {
+      const container = document.getElementById('gaigsChallengesList');
+      if (!container) return;
+
+      container.innerHTML = challenges.map(c => `
+        <div class="p-2 rounded bg-[#020610] border border-[#142e47] space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="text-amber-300 font-bold text-[10px]">${c.title}</span>
+            <span class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 text-[8px] font-bold">${c.bounty_points || 1000} PTS</span>
+          </div>
+          <div class="text-[9px] text-slate-300 leading-relaxed">${c.description}</div>
+          <div class="flex justify-between items-center pt-1 text-[8px]">
+            <span class="text-cyan-400">Domain: ${c.domain || 'Planetary Engineering'}</span>
+            <a href="/gaigs/live/science-world.html" target="_blank" class="text-emerald-400 hover:underline font-bold">SOLVE CHALLENGE ↗</a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function runGaigsEthicsAuditNow() {
+      const text = document.getElementById('gaigsEthicsInput').value.trim();
+      if (!text) {
+        showToast('Please enter text/proposal for Islamic Ethics audit.');
+        return;
+      }
+
+      try {
+        const resp = await fetch('/api/gaigs/ethics/evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ proposal_text: text })
+        });
+        const data = await resp.json();
+        if (data.ok && data.evaluation) {
+          const ev = data.evaluation;
+          document.getElementById('gaigsAuditScore').innerText = `${ev.composite_score} / 100`;
+          const verdictEl = document.getElementById('gaigsAuditVerdict');
+          verdictEl.innerText = ev.verdict;
+          if (ev.verdict === 'ETHICAL_APPROVED') {
+            verdictEl.className = 'px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold';
+          } else {
+            verdictEl.className = 'px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold';
+          }
+          document.getElementById('gaigsAuditNotes').innerText = 
+            `Tawhid: ${ev.breakdown.tawhid} | Adl: ${ev.breakdown.adl} | Shura: ${ev.breakdown.shura} | Amanah: ${ev.breakdown.amanah} | Rahmah: ${ev.breakdown.rahmah}. ${ev.notes || ''}`;
+          showToast(`Ethics Audit: ${ev.verdict} (${ev.composite_score}/100)`);
+        } else {
+          showToast('Audit failed: ' + (data.detail || 'Error'));
+        }
+      } catch (err) {
+        showToast('Ethics audit error: ' + err.message);
+      }
+    }
+
     // Auto-init on page ready
     document.addEventListener('DOMContentLoaded', () => {
       initGaigsPeerMonitor();
       loadFleetAccountsData();
+      loadMediaStudioData();
+      loadGaigsCivOverview();
     });
   </script>
 </body>

@@ -389,6 +389,7 @@ input:focus, textarea:focus {
   <div class="tab-btn" onclick="switchNav('tabTrading', this)">📈 TRADING BOT</div>
   <div class="tab-btn" onclick="switchNav('tabMarkets', this)">🌍 LIVE MARKETS</div>
   <div class="tab-btn" onclick="switchNav('tabReports', this)">📋 REPORTS &amp; UPGRADE</div>
+  <div class="tab-btn" onclick="switchNav('tabGaigs', this)">🏛️ GAIGS &amp; MEDIA</div>
 </div>
 
 <!-- ========================================================================= -->
@@ -743,6 +744,141 @@ input:focus, textarea:focus {
   </div>
 </div>
 
+<!-- ========================================================================= -->
+<!-- TAB 6: 🏛️ GAIGS CIVILIZATION & VIRAL MEDIA STUDIO (MOBILE)                -->
+<!-- ========================================================================= -->
+<div id="tabGaigs" class="tab-panel">
+  <!-- 1. Viral Social Media Script Studio (Mobile) -->
+  <div class="card" style="border:1px solid var(--purple); background:rgba(179,102,255,0.06);">
+    <div class="card-header" style="color:var(--purple); border-color:rgba(179,102,255,0.3);">
+      <span>🎬 VIRAL SOCIAL MEDIA SCRIPT STUDIO</span>
+      <span class="metric-val purple">7 Channels Live</span>
+    </div>
+    <div style="margin-bottom:8px;">
+      <label style="font-size:10px; color:var(--dim); display:block; margin-bottom:3px;">TARGET BROADCAST OUTLET:</label>
+      <select id="mobMediaChannel" style="width:100%; padding:8px; border-radius:8px; background:#030a14; border:1px solid var(--bd); color:var(--pri); font-size:11px; font-weight:bold; margin-bottom:7px;">
+        <option value="@HistoryOS-1">YouTube: @HistoryOS-1 (Historical Mysteries &amp; Falls)</option>
+        <option value="@TheTimelineReset">YouTube: @TheTimelineReset (Alternate Timelines)</option>
+        <option value="@Afkaar-Urdu">YouTube: @Afkaar-Urdu (Intellectual Discourse)</option>
+        <option value="@Fikr-o-Nizam">YouTube: @Fikr-o-Nizam (Islamic Ethics &amp; Governance)</option>
+        <option value="@tafkeereafkaar">YouTube: @tafkeereafkaar (Civilizational Analysis)</option>
+        <option value="@TimelinReset">X: @TimelinReset (Geopolitics &amp; Alert Stream)</option>
+        <option value="@fikronizam">X: @fikronizam (Islamic Governance Stream)</option>
+      </select>
+    </div>
+    <div class="btn-grid-2" style="margin-bottom:7px;">
+      <div>
+        <label style="font-size:10px; color:var(--dim); display:block; margin-bottom:3px;">LANGUAGE / FORMAT:</label>
+        <select id="mobMediaLang" style="width:100%; padding:8px; border-radius:8px; background:#030a14; border:1px solid var(--bd); color:var(--grn); font-size:11px; font-weight:bold;">
+          <option value="urdu">Urdu Nastaliq (45-60s Short)</option>
+          <option value="english">Global Tier-1 English (High CPM)</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:10px; color:var(--dim); display:block; margin-bottom:3px;">HOOK STYLE:</label>
+        <select id="mobMediaHook" style="width:100%; padding:8px; border-radius:8px; background:#030a14; border:1px solid var(--bd); color:var(--gold); font-size:11px; font-weight:bold;">
+          <option value="historical_mystery">Historical Mystery</option>
+          <option value="shocking_twist">Shocking Twist / On This Day</option>
+          <option value="islamic_golden_age">Islamic Golden Age</option>
+          <option value="geopolitical_crisis">Geopolitical Reset</option>
+        </select>
+      </div>
+    </div>
+    <textarea id="mobMediaTopic" rows="2" placeholder="Topic or historical prompt (or leave blank for automated 'On This Day' hook)..." style="margin-bottom:8px;"></textarea>
+    <button id="btnMobGenScript" class="grn" style="width:100%; padding:12px; font-size:12px; font-weight:900; margin-bottom:8px;" onclick="generateMobileScript()">
+      ⚡ GENERATE VIRAL SCRIPT (MOBILE)
+    </button>
+
+    <!-- Script Preview & Teleprompter Card -->
+    <div style="background:#02050a; border:1px solid #142e47; border-radius:8px; padding:8px; margin-bottom:8px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span style="font-size:10px; font-weight:bold; color:var(--gold);" id="mobScriptTitle">📜 TELEPROMPTER PREVIEW</span>
+        <div style="display:flex; gap:4px;">
+          <button class="pri" style="padding:2px 6px; font-size:9px;" onclick="copyMobileScript()">📋 COPY</button>
+          <button class="gold" style="padding:2px 6px; font-size:9px;" onclick="speakMobileScript()">🔊 READ</button>
+        </div>
+      </div>
+      <div id="mobScriptContent" style="font-size:11px; color:#dff2fd; line-height:1.4; max-height:140px; overflow-y:auto; white-space:pre-wrap; font-family:Consolas,monospace; padding:4px;">
+Select a script from the queue below or tap "GENERATE VIRAL SCRIPT".
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:8.5px; color:var(--dim); margin-top:4px;">
+        <span id="mobScriptMeta">Words: 0 · Est: ~0s</span>
+        <button id="btnMobYehDabaoScript" class="gold" style="padding:3px 8px; font-size:9px; font-weight:900;" onclick="approveCurrentMobileScript()">
+          ✅ YEH DABAO (APPROVE SCRIPT)
+        </button>
+      </div>
+    </div>
+
+    <!-- Staged Scripts Queue -->
+    <div style="font-size:10px; font-weight:bold; color:var(--dim); margin-bottom:4px; display:flex; justify-content:space-between;">
+      <span>📋 STAGED VIRAL SCRIPTS QUEUE</span>
+      <button class="pri" style="padding:1px 5px; font-size:8px;" onclick="loadMobileMediaData()">🔄 REFRESH</button>
+    </div>
+    <div id="mobStagedScriptsList" style="max-height:150px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;">
+      <!-- Script items -->
+    </div>
+  </div>
+
+  <!-- 2. GAIGS 5-Pillar Civilization Engine (Mobile) -->
+  <div class="card" style="border:1.5px solid var(--grn); background:rgba(0,255,136,0.06);">
+    <div class="card-header" style="color:var(--grn); border-color:rgba(0,255,136,0.3);">
+      <span>🕌 GAIGS 5-PILLAR CIVILIZATION ENGINE</span>
+      <span class="metric-val green">HUMANITY 3.0</span>
+    </div>
+    
+    <!-- 5 Pillars Mini Metric Grid -->
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:4px; margin-bottom:8px; text-align:center;">
+      <div style="background:#030a14; border:1px solid #142e47; border-radius:6px; padding:6px;">
+        <div style="font-size:8px; color:var(--dim);">DEMOCRACY</div>
+        <div style="font-size:12px; font-weight:900; color:var(--pri);" id="mobGaigsProps">—</div>
+        <div style="font-size:7.5px; color:var(--pri);">Proposals</div>
+      </div>
+      <div style="background:#030a14; border:1px solid #142e47; border-radius:6px; padding:6px;">
+        <div style="font-size:8px; color:var(--dim);">UNITY HUBS</div>
+        <div style="font-size:12px; font-weight:900; color:var(--grn);" id="mobGaigsHubs">—</div>
+        <div style="font-size:7.5px; color:var(--grn);">Masjid Model</div>
+      </div>
+      <div style="background:#030a14; border:1px solid #142e47; border-radius:6px; padding:6px;">
+        <div style="font-size:8px; color:var(--dim);">ETHICS AI</div>
+        <div style="font-size:12px; font-weight:900; color:var(--gold);" id="mobGaigsEthics">94/100</div>
+        <div style="font-size:7.5px; color:var(--gold);">5 Pillars</div>
+      </div>
+    </div>
+
+    <!-- Active Proposals & 1-Tap Mobile Direct Voting -->
+    <div style="background:#030a14; border:1px solid #142e47; border-radius:8px; padding:8px; margin-bottom:8px;">
+      <div style="font-size:10px; font-weight:800; color:#fff; margin-bottom:5px; display:flex; justify-content:space-between;">
+        <span>🗳️ DIRECT DEMOCRACY PROPOSALS</span>
+        <span style="font-size:8px; color:var(--pri);">1-Person 1-Vote (SHA-256)</span>
+      </div>
+      <div id="mobProposalsContainer" style="display:flex; flex-direction:column; gap:5px; max-height:180px; overflow-y:auto;">
+        <!-- Proposal cards -->
+      </div>
+    </div>
+
+    <!-- Islamic Ethics AI Audit Sandbox (Mobile) -->
+    <div style="background:#030a14; border:1px solid #142e47; border-radius:8px; padding:8px; margin-bottom:8px;">
+      <div style="font-size:10px; font-weight:800; color:var(--grn); margin-bottom:4px;">
+        ⚖️ ISLAMIC ETHICS AI AUDIT (TAWHID, ADL, SHURA)
+      </div>
+      <input id="mobEthicsInput" placeholder="Proposal / economic policy to audit..." style="margin-bottom:6px;" />
+      <button class="pri" style="width:100%; padding:9px; font-size:11px; font-weight:bold; margin-bottom:6px;" onclick="runMobileEthicsAudit()">
+        ⚖️ AUDIT ETHICAL CONFORMANCE
+      </button>
+      <div id="mobEthicsResult" style="font-size:9.5px; color:var(--txt); background:#02050a; border:1px solid #0d2238; border-radius:6px; padding:6px; display:none;">
+        <!-- Ethics breakdown -->
+      </div>
+    </div>
+
+    <!-- Links: Live Peer & Standalone GAIGS APK -->
+    <div class="btn-grid-2">
+      <button class="gold" onclick="window.open('/gaigs/live/index.html', '_blank')">🌍 OPEN GAIGS DAPP ↗</button>
+      <button class="grn" onclick="window.location.href='/api/download/gaigs-apk'">📦 GET GAIGS.APK (15MB)</button>
+    </div>
+  </div>
+</div>
+
+
 <!-- Sticky Bottom Dock -->
 <nav class="bottom-dock">
   <div class="dock-item active" onclick="switchDock('tabPc', this)">
@@ -764,6 +900,10 @@ input:focus, textarea:focus {
   <div class="dock-item" onclick="switchDock('tabReports', this)">
     <div class="dock-icon">📋</div>
     <span>REPORT</span>
+  </div>
+  <div class="dock-item" onclick="switchDock('tabGaigs', this)">
+    <div class="dock-icon">🏛️</div>
+    <span>GAIGS</span>
   </div>
 </nav>
 
@@ -813,6 +953,8 @@ function switchNav(tabId, el) {
   if (tabId === 'tabTrading') pollPositions();
   if (tabId === 'tabMarkets') pollLiveMarkets();
   if (tabId === 'tabReports') generateDailyReport();
+  if (tabId === 'tabGaigs') { loadMobileMediaData(); loadMobileGaigsData(); }
+  if (tabId === 'tabGaigs') { loadMobileMediaData(); loadMobileGaigsData(); }
 }
 
 function switchDock(tabId, el) {
@@ -1487,12 +1629,263 @@ async function sendMobileTelemetry() {
 }
 setInterval(sendMobileTelemetry, 20000);
 
+
+// =============================================================================
+// MOBILE GAIGS & VIRAL MEDIA STUDIO CLIENT FUNCTIONS
+// =============================================================================
+let activeMobileScripts = [];
+let currentMobilePreviewScript = null;
+
+async function loadMobileMediaData() {
+  try {
+    const res = await fetch(`${state.backend}/api/media/scripts`);
+    if (res.ok) {
+      const data = await res.json();
+      activeMobileScripts = data.scripts || [];
+      renderMobileScripts(activeMobileScripts);
+      if (activeMobileScripts.length > 0 && !currentMobilePreviewScript) {
+        selectMobileScript(activeMobileScripts[0].id);
+      }
+    }
+  } catch (err) {
+    console.warn('loadMobileMediaData error:', err);
+  }
+}
+
+function renderMobileScripts(scripts) {
+  const container = document.getElementById('mobStagedScriptsList');
+  if (!container) return;
+  if (scripts.length === 0) {
+    container.innerHTML = '<div style="font-size:9.5px; color:var(--dim); padding:6px; text-align:center;">Queue empty. Tap "GENERATE VIRAL SCRIPT".</div>';
+    return;
+  }
+  container.innerHTML = scripts.map(s => {
+    const isApproved = s.status === 'APPROVED_YEH_DABAO';
+    return `
+      <div style="background:#030a14; border:1px solid ${isApproved ? 'var(--grn)' : '#142e47'}; border-radius:6px; padding:6px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="selectMobileScript('${s.id}')">
+        <div style="flex:1; min-width:0; padding-right:6px;">
+          <div style="font-size:10px; font-weight:bold; color:#fff; display:flex; gap:4px; align-items:center;">
+            <span style="font-size:8px; padding:1px 4px; border-radius:3px; background:${s.language==='urdu'?'#4a154b':'#1a365d'}; color:${s.language==='urdu'?'#e9d8fd':'#bee3f8'};">${s.language.toUpperCase()}</span>
+            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${s.channel}</span>
+          </div>
+          <div style="font-size:9px; color:var(--dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:2px;">${s.hook || s.content.slice(0, 40)}</div>
+        </div>
+        <button class="${isApproved ? 'grn' : 'gold'}" style="padding:3px 7px; font-size:8.5px; font-weight:900; flex-shrink:0;" onclick="event.stopPropagation(); approveMobileScriptDirectly('${s.id}')">
+          ${isApproved ? '✅ APPROVED' : 'YEH DABAO'}
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectMobileScript(scriptId) {
+  const s = activeMobileScripts.find(x => x.id === scriptId);
+  if (!s) return;
+  currentMobilePreviewScript = s;
+  document.getElementById('mobScriptTitle').innerText = `📜 ${s.channel} [${s.language.toUpperCase()}]`;
+  document.getElementById('mobScriptContent').innerText = s.content;
+  document.getElementById('mobScriptMeta').innerText = `Words: ${s.word_count || 0} · Est: ~${s.duration_seconds || 55}s`;
+  const btn = document.getElementById('btnMobYehDabaoScript');
+  if (btn) {
+    if (s.status === 'APPROVED_YEH_DABAO') {
+      btn.innerText = '✅ APPROVED';
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+    } else {
+      btn.innerText = '✅ YEH DABAO (APPROVE SCRIPT)';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+}
+
+async function generateMobileScript() {
+  const channel = document.getElementById('mobMediaChannel').value;
+  const language = document.getElementById('mobMediaLang').value;
+  const hook = document.getElementById('mobMediaHook').value;
+  const topic = document.getElementById('mobMediaTopic').value.trim();
+  const btn = document.getElementById('btnMobGenScript');
+
+  btn.innerText = '⏳ GENERATING SCRIPT...';
+  try {
+    const res = await fetch(`${state.backend}/api/media/generate_script`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        channel,
+        language,
+        hook_style: hook,
+        topic: topic || undefined,
+        on_this_day: true
+      })
+    });
+    const data = await res.json();
+    if (data.ok && data.script) {
+      showToast(`⚡ Script generated for ${channel}!`);
+      await loadMobileMediaData();
+      selectMobileScript(data.script.id);
+    } else {
+      showToast('Error generating script');
+    }
+  } catch (err) {
+    showToast('Network error: ' + err.message);
+  } finally {
+    btn.innerText = '⚡ GENERATE VIRAL SCRIPT (MOBILE)';
+  }
+}
+
+async function approveMobileScriptDirectly(scriptId) {
+  try {
+    const res = await fetch(`${state.backend}/api/media/approve_script`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        script_id: scriptId,
+        decision: 'APPROVED_YEH_DABAO'
+      })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast(`✅ Script approved via 'Yeh Dabao'!`);
+      speakText('Viral script approved and staged, Master!');
+      await loadMobileMediaData();
+      if (currentMobilePreviewScript && currentMobilePreviewScript.id === scriptId) {
+        selectMobileScript(scriptId);
+      }
+    }
+  } catch (err) {
+    showToast('Approval error: ' + err.message);
+  }
+}
+
+async function approveCurrentMobileScript() {
+  if (!currentMobilePreviewScript) return;
+  await approveMobileScriptDirectly(currentMobilePreviewScript.id);
+}
+
+function copyMobileScript() {
+  if (!currentMobilePreviewScript || !currentMobilePreviewScript.content) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(currentMobilePreviewScript.content)
+      .then(() => showToast('📋 Script copied to mobile clipboard!'))
+      .catch(() => showToast('Failed to copy'));
+  }
+}
+
+function speakMobileScript() {
+  if (!currentMobilePreviewScript || !currentMobilePreviewScript.content) return;
+  speakText(currentMobilePreviewScript.content);
+}
+
+async function loadMobileGaigsData() {
+  try {
+    const [ovResp, prResp, hbResp] = await Promise.all([
+      fetch(`${state.backend}/api/gaigs/overview`),
+      fetch(`${state.backend}/api/gaigs/proposals`),
+      fetch(`${state.backend}/api/gaigs/hubs`)
+    ]);
+
+    if (prResp.ok) {
+      const pr = await prResp.json();
+      const props = pr.proposals || [];
+      document.getElementById('mobGaigsProps').innerText = `${props.length} Active`;
+      renderMobileProposals(props);
+    }
+    if (hbResp.ok) {
+      const hb = await hbResp.json();
+      const hubs = hb.hubs || [];
+      document.getElementById('mobGaigsHubs').innerText = `${hubs.length} Hubs`;
+    }
+  } catch (err) {
+    console.warn('loadMobileGaigsData error:', err);
+  }
+}
+
+function renderMobileProposals(props) {
+  const container = document.getElementById('mobProposalsContainer');
+  if (!container) return;
+  container.innerHTML = props.map(p => `
+    <div style="background:#020610; border:1px solid #142e47; border-radius:6px; padding:6px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:9.5px; font-weight:bold; color:var(--pri);">${p.id}</span>
+        <span style="font-size:8px; padding:1px 4px; border-radius:3px; background:rgba(0,255,136,0.15); color:var(--grn);">${p.status}</span>
+      </div>
+      <div style="font-size:10px; font-weight:bold; color:#fff; margin-top:2px;">${p.title}</div>
+      <div style="font-size:8.5px; color:var(--dim); margin-top:2px; line-height:1.3;">${p.description}</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px; pt:3px; border-top:1px solid #0d2238;">
+        <span style="font-size:8.5px; color:var(--txt);">Aye: <strong style="color:var(--grn);">${p.votes_for}</strong> | Nay: <strong style="color:var(--red);">${p.votes_against}</strong></span>
+        <div style="display:flex; gap:3px;">
+          <button class="grn" style="padding:2px 6px; font-size:8.5px;" onclick="castMobileVote('${p.id}', 'aye')">👍 AYE</button>
+          <button class="red" style="padding:2px 6px; font-size:8.5px;" onclick="castMobileVote('${p.id}', 'nay')">👎 NAY</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function castMobileVote(propId, choice) {
+  try {
+    const res = await fetch(`${state.backend}/api/gaigs/vote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        proposal_id: propId,
+        voter_id: 'SOVEREIGN_MOBILE_MASTER',
+        choice: choice
+      })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast(`🗳️ Vote '${choice.toUpperCase()}' cast! Receipt: ${data.vote_receipt ? data.vote_receipt.slice(0, 8) : ''}`);
+      speakText(`Vote ${choice} recorded on direct democracy proposal.`);
+      await loadMobileGaigsData();
+    }
+  } catch (err) {
+    showToast('Vote error: ' + err.message);
+  }
+}
+
+async function runMobileEthicsAudit() {
+  const text = document.getElementById('mobEthicsInput').value.trim();
+  if (!text) {
+    showToast('Please enter text to audit.');
+    return;
+  }
+  try {
+    const res = await fetch(`${state.backend}/api/gaigs/ethics/evaluate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ proposal_text: text })
+    });
+    const data = await res.json();
+    if (data.ok && data.evaluation) {
+      const ev = data.evaluation;
+      const resEl = document.getElementById('mobEthicsResult');
+      resEl.style.display = 'block';
+      resEl.innerHTML = `
+        <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:3px;">
+          <span>COMPOSITE SCORE: <strong style="color:${ev.verdict==='ETHICAL_APPROVED'?'var(--grn)':'var(--red)'};">${ev.composite_score}/100</strong></span>
+          <span style="color:${ev.verdict==='ETHICAL_APPROVED'?'var(--grn)':'var(--red)'};">${ev.verdict}</span>
+        </div>
+        <div style="font-size:8.5px; color:var(--dim); line-height:1.3;">
+          Tawhid: ${ev.breakdown.tawhid} · Adl: ${ev.breakdown.adl} · Shura: ${ev.breakdown.shura} · Amanah: ${ev.breakdown.amanah} · Rahmah: ${ev.breakdown.rahmah}
+        </div>
+      `;
+      showToast(`Ethics Audit: ${ev.verdict} (${ev.composite_score}/100)`);
+    }
+  } catch (err) {
+    showToast('Ethics audit error: ' + err.message);
+  }
+}
+
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', () => {
   pollPcVitals();
   pollLiveMarkets();
   pollPositions();
   initMobileWebSocketBridge();
+  loadMobileMediaData();
+  loadMobileGaigsData();
   setInterval(pollPcVitals, 3000);
   setInterval(pollLiveMarkets, 3500);
 });

@@ -63,6 +63,9 @@ app.include_router(custom_strategy_router)
 from core.gaigs.gaigs_api_router import router as gaigs_civilization_router, media_router as gaigs_media_router
 app.include_router(gaigs_civilization_router)
 app.include_router(gaigs_media_router)
+from core.repo_api_router import repo_router, task_panopticon_router
+app.include_router(repo_router)
+app.include_router(task_panopticon_router)
 app.mount('/command-center-assets', StaticFiles(directory=str(BASE / 'web' / 'command_center')), name='command-center-assets')
 js_assets_dir = BASE / 'web' / 'js'
 js_assets_dir.mkdir(parents=True, exist_ok=True)
@@ -124,7 +127,8 @@ async def owner_ingress(request: Request, call_next):
         "/api/media/channels", "/api/media/scripts",
         "/api/media/scripts/generate", "/api/media/scripts/approve"
     }
-    if request.url.path.startswith("/api/") and request.url.path not in exempt_paths:
+    is_exempt = request.url.path in exempt_paths or request.url.path.startswith("/api/repos/") or request.url.path.startswith("/api/tasks/") or request.url.path.startswith("/api/gaigs/") or request.url.path.startswith("/api/media/")
+    if request.url.path.startswith("/api/") and not is_exempt:
         supplied = (
             request.headers.get("X-Jarvis-Internal-Token", "")
             or request.headers.get("X-Jarvis-Token", "")

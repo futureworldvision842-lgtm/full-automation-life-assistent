@@ -184,7 +184,7 @@ class SocialMediaContentEngine:
         generated: List[SocialScriptItem] = []
 
         # Generate Urdu Nastaliq Script
-        if language in ["both", "ur", "ur_nastaliq"]:
+        if language.lower() in ["both", "ur", "ur_nastaliq", "urdu"]:
             uid = f"SCRIPT-URDU-{int(time.time() * 1000) % 1000000:06d}"
             u_text = (
                 "(\n"
@@ -215,7 +215,7 @@ class SocialMediaContentEngine:
             generated.append(item_u)
 
         # Generate English Global Script
-        if language in ["both", "en", "en_global"]:
+        if language.lower() in ["both", "en", "en_global", "english"]:
             eid = f"SCRIPT-ENG-{int(time.time() * 1000) % 1000000:06d}"
             e_text = (
                 f"What if everything you were taught about how the world works is completely backwards? "

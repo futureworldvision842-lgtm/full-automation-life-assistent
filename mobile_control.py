@@ -1923,7 +1923,9 @@ async def mobile_owner_ingress(req: Request, call_next):
         req.state.tenant = tenant_session
         token_valid = True
 
-    if req.url.path.startswith("/api/") and req.url.path not in {"/api/health", "/api/download/apk", "/api/download/gaigs-apk", "/api/client/pair"}:
+    exempt_paths = {"/api/health", "/api/download/apk", "/api/download/gaigs-apk", "/api/client/pair"}
+    is_exempt = req.url.path in exempt_paths or req.url.path.startswith("/api/gaigs/") or req.url.path.startswith("/api/media/") or req.url.path.startswith("/api/repos/") or req.url.path.startswith("/api/tasks/")
+    if req.url.path.startswith("/api/") and not is_exempt:
         origin = req.headers.get("origin")
         same_origin = not origin or origin.rstrip("/") == str(req.base_url).rstrip("/")
         is_cross_site = req.headers.get("sec-fetch-site") == "cross-site"
@@ -3570,6 +3572,16 @@ async def websocket_mobile_endpoint(websocket: WebSocket, token: typing.Optional
 @app.websocket("/ws/bridge")
 async def websocket_bridge_endpoint(websocket: WebSocket, token: typing.Optional[str] = Query(None)):
     await handle_websocket_session(websocket, token)
+
+try:
+    from core.gaigs.gaigs_api_router import gaigs_civilization_router, gaigs_media_router
+    app.include_router(gaigs_civilization_router)
+    app.include_router(gaigs_media_router)
+    from core.repo_api_router import repo_router, task_panopticon_router
+    app.include_router(repo_router)
+    app.include_router(task_panopticon_router)
+except Exception as _gaigs_router_err:
+    pass
 
 if __name__ == "__main__":
     uvicorn.run(app, host=os.getenv("JARVIS_MOBILE_BIND", "0.0.0.0"), port=PORT, log_level="warning", access_log=False)

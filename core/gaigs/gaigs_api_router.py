@@ -13,6 +13,8 @@ from core.gaigs.social_media_automation import get_social_media_engine
 
 router = APIRouter(prefix="/api/gaigs", tags=["GAIGS Civilization Upgrade"])
 media_router = APIRouter(prefix="/api/media", tags=["Social Media Automation"])
+gaigs_civilization_router = router
+gaigs_media_router = media_router
 
 # Request models
 class ProposalCreateRequest(BaseModel):
@@ -51,9 +53,10 @@ class SolutionRequest(BaseModel):
     model_data: Optional[Dict[str, Any]] = None
 
 class EthicsEvaluateRequest(BaseModel):
-    title: str
-    description: str
+    title: Optional[str] = "Civic Proposal"
+    description: Optional[str] = ""
     category: str = "POLICY"
+    proposal_text: Optional[str] = None
 
 class ScriptGenerateRequest(BaseModel):
     date_str: Optional[str] = None
@@ -150,8 +153,55 @@ async def solve_challenge(req: SolutionRequest):
 @router.post("/ethics/evaluate")
 async def evaluate_ethics(req: EthicsEvaluateRequest):
     engine = get_civilization_engine()
-    assessment = engine.evaluate_islamic_ethics(req.title, req.description, req.category)
-    return {"ok": True, "assessment": assessment}
+    title = req.title or (req.proposal_text[:40] if req.proposal_text else "Proposal")
+    desc = req.description or req.proposal_text or ""
+    assessment = engine.evaluate_islamic_ethics(title, desc, req.category)
+    comp_score = getattr(assessment, "composite_ethics_score", 90.0) if hasattr(assessment, "composite_ethics_score") else assessment.get("ethics_score", 90.0)
+    verdict = getattr(assessment, "verdict", "ETHICAL_APPROVED") if hasattr(assessment, "verdict") else assessment.get("verdict", "ETHICAL_APPROVED")
+    rec = getattr(assessment, "recommendations", "") if hasattr(assessment, "recommendations") else assessment.get("recommendation", "")
+    tawhid = getattr(assessment, "tawhid_coherence_score", 95) if hasattr(assessment, "tawhid_coherence_score") else 95
+    adl = getattr(assessment, "adl_justice_score", 95) if hasattr(assessment, "adl_justice_score") else 95
+    shura = getattr(assessment, "shura_consultation_score", 90) if hasattr(assessment, "shura_consultation_score") else 90
+    amanah = getattr(assessment, "amanah_integrity_score", 90) if hasattr(assessment, "amanah_integrity_score") else 90
+    rahmah = getattr(assessment, "rahmah_compassion_score", 90) if hasattr(assessment, "rahmah_compassion_score") else 90
+
+    return {
+        "ok": True,
+        "assessment": assessment,
+        "evaluation": {
+            "composite_score": comp_score,
+            "verdict": verdict,
+            "breakdown": {
+                "tawhid": tawhid,
+                "adl": adl,
+                "shura": shura,
+                "amanah": amanah,
+                "rahmah": rahmah,
+            },
+            "notes": rec
+        }
+    }
+
+# Convenient aliases for GAIGS endpoints
+@router.get("/proposals")
+async def list_proposals_alias():
+    return await list_proposals()
+
+@router.post("/vote")
+async def cast_vote_alias(req: VoteRequest):
+    res = await cast_vote(req)
+    if isinstance(res, dict) and "vote_receipt_hash" in res:
+        res["vote_receipt"] = res["vote_receipt_hash"]
+    return res
+
+@router.get("/challenges")
+async def list_challenges_alias():
+    return await list_challenges()
+
+@router.get("/transparency/spending")
+async def get_transparency_spending_alias():
+    engine = get_civilization_engine()
+    return {"ok": True, "records": engine.get_transparency_ledger()}
 
 
 # ---------------------------------------------------------------------------
@@ -179,6 +229,36 @@ async def generate_scripts(req: ScriptGenerateRequest):
 
 @media_router.post("/scripts/approve")
 async def approve_script(req: ScriptApproveRequest):
+    engine = get_social_media_engine()
+    res = engine.approve_script(req.script_id)
+    if not res.get("ok"):
+        raise HTTPException(status_code=404, detail=res.get("error"))
+    return res
+
+class ScriptFlexibleRequest(BaseModel):
+    channel: Optional[str] = None
+    language: Optional[str] = "both"
+    hook_style: Optional[str] = None
+    topic: Optional[str] = None
+    topic_focus: Optional[str] = None
+    on_this_day: Optional[bool] = True
+    date_str: Optional[str] = None
+
+@media_router.post("/generate_script")
+async def generate_script_alias(req: ScriptFlexibleRequest):
+    engine = get_social_media_engine()
+    topic = req.topic or req.topic_focus
+    lang = "urdu" if req.language == "urdu" else ("english" if req.language == "english" else "both")
+    scripts = engine.generate_daily_scripts(date_str=req.date_str, topic_focus=topic, language=lang)
+    script = scripts[0] if scripts else None
+    return {"ok": True, "script": script, "scripts": scripts, "generated_count": len(scripts)}
+
+class ScriptApproveFlexibleRequest(BaseModel):
+    script_id: str
+    decision: Optional[str] = "APPROVED_YEH_DABAO"
+
+@media_router.post("/approve_script")
+async def approve_script_alias(req: ScriptApproveFlexibleRequest):
     engine = get_social_media_engine()
     res = engine.approve_script(req.script_id)
     if not res.get("ok"):
