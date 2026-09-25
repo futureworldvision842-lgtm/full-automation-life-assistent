@@ -15,8 +15,8 @@ class JarvisCompanionApp {
     this.terminalHistory = [];
     this.historyIndex = -1;
 
-    this.serverUrl = localStorage.getItem('jarvis_server_url') || 'http://127.0.0.1:8765';
-    this.token = localStorage.getItem('jarvis_token') || 'CfHj8WkUTMdKFd5bxyDH5W3QDpbsWL08';
+    this.serverUrl = localStorage.getItem('jarvis_server_url') || 'http://192.168.100.3:8765';
+    this.token = localStorage.getItem('jarvis_token') || 'wHUfdgY-AdHQZMb93xK5ZB-uNeYoXrQ_0p7RgTgnAhE';
   }
 
   init() {

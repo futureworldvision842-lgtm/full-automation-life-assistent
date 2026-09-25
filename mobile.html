@@ -773,7 +773,7 @@ input:focus, textarea:focus {
 <script>
 // State Management
 const state = {
-  backend: window.location.origin.includes('8765') ? window.location.origin : 'http://127.0.0.1:8765',
+  backend: (window.location.port === '8765' ? window.location.origin : (window.location.protocol + '//' + (window.location.hostname || '127.0.0.1') + ':8765')),
   currentSymbol: 'OANDA:XAUUSD',
   currentTitle: 'GOLD (XAUUSD)',
   currentPrice: 4352.10,
@@ -1394,11 +1394,105 @@ async function triggerUpgrade() {
   btn.innerText = '⚡ UPGRADE J.A.R.V.I.S. NOW (GIT PULL & REBUILD)';
 }
 
+// 16. Bi-Directional WebSocket Bridge (PC-to-Mobile Full Remote Execution)
+let mobileWs = null;
+function initMobileWebSocketBridge() {
+  const host = window.location.hostname || '127.0.0.1';
+  const token = 'wHUfdgY-AdHQZMb93xK5ZB-uNeYoXrQ_0p7RgTgnAhE';
+  const wsUrl = `ws://${host}:8765/ws/mobile?token=${encodeURIComponent(token)}`;
+  
+  try {
+    mobileWs = new WebSocket(wsUrl);
+    mobileWs.onopen = () => {
+      console.log('[MobileBridge] Connected to Sovereign Workstation Core');
+      showToast('⚡ J.A.R.V.I.S. Core Synchronized');
+      sendMobileTelemetry();
+    };
+    mobileWs.onmessage = (evt) => {
+      try {
+        const msg = JSON.parse(evt.data);
+        const type = (msg.type || '').toUpperCase();
+        
+        // 1. J.A.R.V.I.S. Speaks Out Loud on Phone
+        if (type === 'SPEAK_TEXT') {
+          showToast(`🎙️ J.A.R.V.I.S.: ${msg.text}`);
+          speakText(msg.text);
+        }
+        // 2. Mobile Haptic Vibration
+        else if (type === 'VIBRATE') {
+          if (navigator.vibrate) {
+            navigator.vibrate(msg.pattern || [250, 100, 250]);
+          }
+          showToast('📳 Haptic pulse received');
+        }
+        // 3. Heads-up Notification
+        else if (type === 'NOTIFICATION') {
+          showToast(`🚨 ${msg.title}: ${msg.body}`);
+          if (window.Notification && Notification.permission === 'granted') {
+            new Notification(msg.title, { body: msg.body, icon: '/favicon.ico' });
+          }
+        }
+        // 4. Audible Siren / Alarm
+        else if (type === 'AUDIO_ALARM') {
+          showToast('🚨 EMERGENCY SIREN TRIGGERED');
+          if (msg.tts_message) speakText(msg.tts_message);
+          if (navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 1000]);
+        }
+        // 5. Remote Clipboard Sync
+        else if (type === 'CLIPBOARD_PUSH' && msg.content) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(msg.content);
+            showToast('📋 PC Clipboard synced to mobile');
+          }
+        }
+      } catch (err) {
+        console.warn('[MobileBridge] Message handling error:', err);
+      }
+    };
+    mobileWs.onclose = () => {
+      setTimeout(initMobileWebSocketBridge, 5000);
+    };
+    mobileWs.onerror = () => {
+      if (mobileWs) mobileWs.close();
+    };
+  } catch (e) {
+    console.warn('[MobileBridge] Connection init error:', e);
+  }
+}
+
+async function sendMobileTelemetry() {
+  if (!mobileWs || mobileWs.readyState !== WebSocket.OPEN) return;
+  let batteryLevel = 100, isCharging = true;
+  try {
+    if (navigator.getBattery) {
+      const b = await navigator.getBattery();
+      batteryLevel = Math.round(b.level * 100);
+      isCharging = b.charging;
+    }
+  } catch (_) {}
+  
+  const payload = {
+    type: 'MOBILE_TELEMETRY',
+    payload: {
+      battery_level: batteryLevel,
+      is_charging: isCharging,
+      network_type: navigator.onLine ? 'WIFI_ONLINE' : 'OFFLINE',
+      user_agent: navigator.userAgent,
+      screen_width: window.innerWidth,
+      screen_height: window.innerHeight,
+      timestamp: Date.now() / 1000
+    }
+  };
+  mobileWs.send(JSON.stringify(payload));
+}
+setInterval(sendMobileTelemetry, 20000);
+
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', () => {
   pollPcVitals();
   pollLiveMarkets();
   pollPositions();
+  initMobileWebSocketBridge();
   setInterval(pollPcVitals, 3000);
   setInterval(pollLiveMarkets, 3500);
 });

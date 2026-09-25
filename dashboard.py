@@ -7250,6 +7250,17 @@ def terminal_cockpit():
     return HTMLResponse("<h1>Terminal Cockpit not found</h1>", status_code=404)
 
 
+@app.get("/mobile", response_class=HTMLResponse)
+@app.get("/mobile.html", response_class=HTMLResponse)
+def mobile_companion_view():
+    html_file = BASE / "web" / "mobile.html"
+    if not html_file.exists():
+        html_file = BASE / "mobile.html"
+    if html_file.exists():
+        return html_file.read_text(encoding="utf-8", errors="ignore")
+    return HTMLResponse("<h1>Mobile Companion not found</h1>", status_code=404)
+
+
 @app.get("/", response_class=HTMLResponse)
 def home(view: str = ""):
     if view == "command_center":

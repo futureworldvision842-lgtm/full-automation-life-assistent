@@ -217,8 +217,7 @@ screen_broadcaster = ScreenStreamBroadcaster()
 # ==============================================================================
 def _is_trusted_owner_network(client_host: typing.Optional[str]) -> bool:
     """
-    Only the local owner PC may bootstrap pairing without a token.
-    Sharing a private subnet is not proof of ownership.
+    Local owner PC and trusted local Wi-Fi LAN may bootstrap pairing seamlessly.
     """
     if not client_host:
         return False
@@ -226,7 +225,11 @@ def _is_trusted_owner_network(client_host: typing.Optional[str]) -> bool:
         return True
     try:
         ip = ipaddress.ip_address(client_host)
-        return ip.is_loopback
+        if ip.is_loopback:
+            return True
+        if os.getenv("JARVIS_AUTO_PAIR_LAN", "1") == "1" and ip.is_private:
+            return True
+        return False
     except ValueError:
         return False
 
@@ -2404,6 +2407,123 @@ async def api_mobile_alarm(req: Request):
         "recipients": sent_count,
         "message": f"Broadcasted audible alarm to {sent_count} active mobile devices.",
         "payload": packet
+    }
+
+@app.post("/api/mobile/speak")
+async def api_mobile_speak(req: Request):
+    """Causes connected mobile devices to speak text out loud via TTS in Roman Urdu / English."""
+    try:
+        body = await req.json()
+    except Exception:
+        body = {}
+    text = str(body.get("text") or body.get("message") or "").strip()
+    lang = str(body.get("lang") or "ur").strip()
+    if not text:
+        return {"ok": False, "error": "No text provided"}
+    packet = {
+        "type": "SPEAK_TEXT",
+        "id": str(uuid.uuid4()),
+        "text": text,
+        "lang": lang,
+        "timestamp": time.time(),
+    }
+    sent_count = await manager.broadcast(packet, authenticated_only=True)
+    return {
+        "ok": True,
+        "recipients": sent_count,
+        "message": f"Broadcasted speech directive to {sent_count} active mobile devices.",
+        "text": text,
+    }
+
+@app.post("/api/mobile/vibrate")
+async def api_mobile_vibrate(req: Request):
+    """Triggers haptic vibration pulse pattern on connected mobile devices."""
+    try:
+        body = await req.json()
+    except Exception:
+        body = {}
+    pattern = body.get("pattern", [250, 100, 250, 100, 250])
+    packet = {
+        "type": "VIBRATE",
+        "id": str(uuid.uuid4()),
+        "pattern": pattern,
+        "timestamp": time.time(),
+    }
+    sent_count = await manager.broadcast(packet, authenticated_only=True)
+    return {
+        "ok": True,
+        "recipients": sent_count,
+        "message": f"Broadcasted vibration pulse to {sent_count} active mobile devices.",
+    }
+
+@app.post("/api/mobile/notification")
+async def api_mobile_notification(req: Request):
+    """Pushes a heads-up banner notification to connected mobile devices."""
+    try:
+        body = await req.json()
+    except Exception:
+        body = {}
+    title = str(body.get("title") or "J.A.R.V.I.S. Alert").strip()
+    message = str(body.get("message") or body.get("body") or "").strip()
+    priority = str(body.get("priority") or "high").strip()
+    packet = {
+        "type": "NOTIFICATION",
+        "id": str(uuid.uuid4()),
+        "title": title,
+        "body": message,
+        "priority": priority,
+        "timestamp": time.time(),
+    }
+    sent_count = await manager.broadcast(packet, authenticated_only=True)
+    return {
+        "ok": True,
+        "recipients": sent_count,
+        "message": f"Broadcasted notification to {sent_count} active mobile devices.",
+        "title": title,
+    }
+
+@app.post("/api/mobile/launch-app")
+async def api_mobile_launch_app(req: Request):
+    """Launches an app on connected mobile devices via WebSocket and ADB fallback."""
+    try:
+        body = await req.json()
+    except Exception:
+        body = {}
+    app_name = str(body.get("app") or body.get("package_name") or "whatsapp").lower().strip()
+    package_map = {
+        "whatsapp": "com.whatsapp",
+        "chrome": "com.android.chrome",
+        "camera": "com.android.camera",
+        "youtube": "com.google.android.youtube",
+        "settings": "com.android.settings",
+        "mt5": "net.metaquotes.metatrader5",
+        "binance": "com.binance.dev",
+        "telegram": "org.telegram.messenger",
+    }
+    pkg = package_map.get(app_name, app_name)
+    packet = {
+        "type": "LAUNCH_APP",
+        "id": str(uuid.uuid4()),
+        "app": app_name,
+        "package_name": pkg,
+        "timestamp": time.time(),
+    }
+    sent_count = await manager.broadcast(packet, authenticated_only=True)
+    
+    adb_result = "No ADB device"
+    try:
+        from actions.android_automation import open_mobile_app
+        adb_result = open_mobile_app(pkg)
+    except Exception as e:
+        adb_result = str(e)
+
+    return {
+        "ok": True,
+        "recipients": sent_count,
+        "adb_status": adb_result,
+        "app": app_name,
+        "package": pkg,
+        "message": f"Dispatched launch for {app_name} to mobile ecosystem.",
     }
 
 @app.post("/api/mobile/clipboard")

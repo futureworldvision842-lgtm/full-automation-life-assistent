@@ -7,9 +7,9 @@
 class JarvisCompanionBridge {
   constructor() {
     this.ws = null;
-    this.serverHost = '127.0.0.1';
-    this.serverPort = 8765;
-    this.token = 'CfHj8WkUTMdKFd5bxyDH5W3QDpbsWL08';
+    this.serverHost = localStorage.getItem('jarvis_server_host') || (window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' ? window.location.hostname : '192.168.100.3');
+    this.serverPort = parseInt(localStorage.getItem('jarvis_server_port') || '8765', 10);
+    this.token = localStorage.getItem('jarvis_token') || 'wHUfdgY-AdHQZMb93xK5ZB-uNeYoXrQ_0p7RgTgnAhE';
     this.connected = false;
     this.authenticated = false;
     this.latencyMs = 0;
