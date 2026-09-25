@@ -7,6 +7,8 @@ const TRADING_PATTERNS = [
   /^(?:status|positions|trades|market|signals|setups|gold|portfolio|telemetry|vitals)\b/i,
   /^(?:vm\s+status|vm\s+start|vm\s+stop)\b/i,
   /^(?:haath\s*rok|saari\s*trades\s*band|sona\s*khareedo|sona\s*becho|gold\s*khareedo|gold\s*becho)\b/i,
+  /https?:\/\/github\.com\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+/i,
+  /^(?:assimilate|clone|learn|use\s*repo|repo)\b/i,
   /^(?:help|commands)\b/i
 ];
 

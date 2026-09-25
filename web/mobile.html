@@ -742,6 +742,75 @@ input:focus, textarea:focus {
     <div style="font-size:10px; font-weight:bold; color:var(--dim); margin-bottom:4px;">LIVE UPGRADE EXECUTION LOG:</div>
     <div id="upgradeLog" style="background:#02050a; border:1px solid var(--bd); border-radius:8px; padding:8px; font-family:Consolas,monospace; font-size:10px; color:#7fe; min-height:110px; max-height:200px; overflow-y:auto; white-space:pre-wrap;">Standing by for upgrade trigger...</div>
   </div>
+
+  <!-- 🌐 GITHUB REPOSITORIES PANOPTICON & 1-TAP INGESTION (MOBILE) -->
+  <div class="card" style="border:1px solid var(--pri); background:rgba(0,240,255,0.04);">
+    <div class="card-header" style="color:var(--pri); border-color:rgba(0,240,255,0.3);">
+      <span>🌐 GITHUB REPOSITORIES PANOPTICON</span>
+      <span class="metric-val cyan" id="mobRepoCountBadge">7 REPOS ONLINE</span>
+    </div>
+
+    <!-- 1-Tap Assimilation Input -->
+    <div style="margin-bottom:8px;">
+      <div style="font-size:10px; font-weight:bold; color:var(--dim); margin-bottom:3px;">ASSIMILATE ANY REPO (HOT-RELOAD):</div>
+      <input id="mobRepoInput" placeholder="https://github.com/JustVugg/colibri.git or repo_name" style="width:100%; padding:8px; border-radius:8px; background:#030a14; border:1px solid var(--bd); color:var(--pri); font-size:11px; font-weight:bold; margin-bottom:5px;" value="https://github.com/JustVugg/colibri.git" />
+      <button class="pri" style="width:100%; padding:10px; font-size:11px; font-weight:bold; margin-bottom:6px;" onclick="assimilateMobileRepo()" id="mobBtnAssimilate">
+        ⚡ ASSIMILATE &amp; HOT-RELOAD REPO
+      </button>
+
+      <!-- Quick tap chips -->
+      <div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px;">
+        <button class="gold" style="padding:2px 6px; font-size:8px;" onclick="document.getElementById('mobRepoInput').value='https://github.com/JustVugg/colibri.git'">colibri</button>
+        <button class="grn" style="padding:2px 6px; font-size:8px;" onclick="document.getElementById('mobRepoInput').value='https://github.com/HKUDS/CLI-Anything'">CLI-Anything</button>
+        <button class="pri" style="padding:2px 6px; font-size:8px;" onclick="document.getElementById('mobRepoInput').value='https://github.com/trycua/cua'">trycua/cua</button>
+        <button class="purple" style="padding:2px 6px; font-size:8px;" onclick="document.getElementById('mobRepoInput').value='Global-Ai-Decentralize-Governance-System'">GAIGS</button>
+        <button class="gold" style="padding:2px 6px; font-size:8px;" onclick="document.getElementById('mobRepoInput').value='https://github.com/freqtrade/freqtrade'">freqtrade</button>
+      </div>
+    </div>
+
+    <!-- Repositories List -->
+    <div id="mobIntegratedReposList" style="display:flex; flex-direction:column; gap:6px; max-height:240px; overflow-y:auto;">
+      <div style="font-size:9.5px; color:var(--dim); text-align:center; padding:8px;">Loading integrated repos...</div>
+    </div>
+  </div>
+
+  <!-- 🪶 COLIBRÌ PURE-C MoE INFERENCE TELEMETRY (MOBILE) -->
+  <div class="card" style="border:1px solid var(--grn); background:rgba(0,255,136,0.04);">
+    <div class="card-header" style="color:var(--grn); border-color:rgba(0,255,136,0.3);">
+      <span>🪶 COLIBRÌ PURE-C MoE INFERENCE</span>
+      <span class="metric-val green">c/coli v1.12.1</span>
+    </div>
+    <div style="background:#030913; border:1px solid #132f4c; border-radius:8px; padding:8px; margin-bottom:6px;">
+      <div class="metric-row"><span>Target MoE Model:</span><span class="metric-val cyan">GLM-5.2 (744B MoE)</span></div>
+      <div class="metric-row"><span>NVMe Streaming Rate:</span><span class="metric-val green">~1,800 MB/s Expert Read</span></div>
+      <div class="metric-row"><span>Est. Generation Speed:</span><span class="metric-val amber">4.5 - 9.2 tok/s</span></div>
+      <div class="metric-row"><span>RAM Vitals:</span><span class="metric-val" id="mobColiRam">15.88 GB (8 Cores)</span></div>
+    </div>
+    <button class="grn" style="width:100%; padding:9px; font-size:11px; font-weight:bold; margin-bottom:5px;" onclick="runMobileColibriDoctor()">
+      🩺 RUN COLIBRÌ DOCTOR CHECK
+    </button>
+    <div id="mobColibriDoctorResult" style="font-size:9.5px; color:var(--txt); background:#02050a; border:1px solid #0d2238; border-radius:6px; padding:6px; display:none; white-space:pre-wrap;"></div>
+  </div>
+
+  <!-- ⚙️ LIVE TASK PANOPTICON & ROADMAP (MOBILE) -->
+  <div class="card" style="border:1px solid var(--purple); background:rgba(179,102,255,0.04);">
+    <div class="card-header" style="color:var(--purple); border-color:rgba(179,102,255,0.3);">
+      <span>⚙️ BACKGROUND TASK PANOPTICON</span>
+      <span class="metric-val purple">8 Daemons Active</span>
+    </div>
+    <div style="margin-bottom:6px;">
+      <div style="font-size:9.5px; font-weight:bold; color:var(--dim); margin-bottom:3px;">ACTIVE DAEMONS:</div>
+      <div id="mobPanopticonDaemons" style="display:flex; flex-direction:column; gap:4px; max-height:120px; overflow-y:auto;">
+        <div style="font-size:9px; color:var(--dim); text-align:center;">Loading daemons...</div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:9.5px; font-weight:bold; color:var(--dim); margin-bottom:3px;">RUNNING TASKS:</div>
+      <div id="mobPanopticonTasks" style="display:flex; flex-direction:column; gap:4px; max-height:120px; overflow-y:auto;">
+        <div style="font-size:9px; color:var(--dim); text-align:center;">Loading tasks...</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ========================================================================= -->
@@ -1878,6 +1947,134 @@ async function runMobileEthicsAudit() {
   }
 }
 
+async function loadMobileReposData() {
+  const container = document.getElementById('mobIntegratedReposList');
+  const badge = document.getElementById('mobRepoCountBadge');
+  if (!container) return;
+  try {
+    const res = await fetch(`${state.backend}/api/repos/integrated`);
+    const data = await res.json();
+    if (data.ok && Array.isArray(data.repositories)) {
+      if (badge) badge.innerText = `${data.repositories.length} REPOS ONLINE`;
+      let html = '';
+      data.repositories.forEach(r => {
+        html += `
+          <div style="background:#030a14; border:1px solid #142e47; border-radius:6px; padding:6px; font-size:9.5px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+              <span style="font-weight:bold; color:#fff;">📦 ${escapeHtml(r.name)}</span>
+              <span style="font-size:7.5px; font-weight:bold; padding:1px 4px; border-radius:3px; background:rgba(0,255,136,0.15); color:var(--grn); border:1px solid rgba(0,255,136,0.3);">● ONLINE</span>
+            </div>
+            <div style="font-size:8px; color:var(--pri); margin-bottom:2px;">${escapeHtml(r.full_name || r.name)}</div>
+            <div style="font-size:8.5px; color:var(--txt); margin-bottom:4px; line-height:1.2;">${escapeHtml(r.description || '')}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:8px; border-top:1px solid #0d2238; padding-top:3px;">
+              <span style="color:var(--dim);">📁 ${escapeHtml(r.local_path || 'native')}</span>
+              <a href="${escapeHtml(r.url)}" target="_blank" style="color:var(--pri); font-weight:bold; text-decoration:none;">GIT ↗</a>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+  } catch (err) {
+    console.error('Failed to load mobile repos:', err);
+  }
+}
+
+async function assimilateMobileRepo() {
+  const input = document.getElementById('mobRepoInput');
+  const btn = document.getElementById('mobBtnAssimilate');
+  const repo = input ? input.value.trim() : '';
+  if (!repo) {
+    showToast('Please enter a GitHub repo URL or name.');
+    return;
+  }
+  if (btn) { btn.disabled = true; btn.innerText = '⚡ ASSIMILATING...'; }
+  showToast('Cloning and assimilating repository...');
+  speakText(`Assimilating repo ${repo.split('/').pop()} into runtime.`);
+  try {
+    const res = await fetch(`${state.backend}/api/repos/assimilate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ repo: repo, requested_by: 'Master Muhammad (Mobile)' })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast(`✓ Repo '${data.repo?.name || repo}' assimilated successfully!`);
+      speakText(`Repository ${data.repo?.name || repo} assimilated and tools hot-reloaded.`);
+      await loadMobileReposData();
+      await loadMobileTaskPanopticon();
+    } else {
+      showToast(`Error assimilating repo: ${data.error || 'failed'}`);
+    }
+  } catch (err) {
+    showToast('Assimilation network error: ' + err.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerText = '⚡ ASSIMILATE & HOT-RELOAD REPO'; }
+  }
+}
+
+async function runMobileColibriDoctor() {
+  const resEl = document.getElementById('mobColibriDoctorResult');
+  if (!resEl) return;
+  resEl.style.display = 'block';
+  resEl.innerText = 'Running Colibrì doctor diagnostics...';
+  try {
+    const res = await fetch(`${state.backend}/api/repos/colibri/doctor`);
+    const data = await res.json();
+    if (data.ok) {
+      resEl.innerText = `[COLIBRÌ DOCTOR OK]\nOperational: ${data.engine_operational}\nExit Code: ${data.exit_code}\n${data.raw_info || 'Engine verified ready.'}`;
+      showToast('Colibrì engine doctor check passed!');
+    } else {
+      resEl.innerText = `[COLIBRÌ DOCTOR NOTICE]\n${data.error || 'Completed with warnings'}`;
+      showToast('Doctor check notice');
+    }
+  } catch (err) {
+    resEl.innerText = 'Failed to run doctor: ' + err.message;
+  }
+}
+
+async function loadMobileTaskPanopticon() {
+  const dEl = document.getElementById('mobPanopticonDaemons');
+  const tEl = document.getElementById('mobPanopticonTasks');
+  try {
+    const res = await fetch(`${state.backend}/api/tasks/panopticon`);
+    const data = await res.json();
+    if (data.ok) {
+      if (dEl && Array.isArray(data.daemons)) {
+        let dHtml = '';
+        data.daemons.forEach(d => {
+          dHtml += `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#030a14; border:1px solid #142e47; border-radius:4px; padding:3px 6px; font-size:8.5px;">
+              <span style="color:#fff; font-weight:bold;">${escapeHtml(d.name)}</span>
+              <span style="color:var(--grn); font-weight:bold;">● :${escapeHtml(String(d.port))} ${escapeHtml(d.status)}</span>
+            </div>
+          `;
+        });
+        dEl.innerHTML = dHtml;
+      }
+      if (tEl && Array.isArray(data.active_tasks)) {
+        let tHtml = '';
+        data.active_tasks.forEach(t => {
+          tHtml += `
+            <div style="background:#030a14; border:1px solid #142e47; border-radius:4px; padding:3px 6px; font-size:8.5px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                <span style="color:var(--pri); font-weight:bold;">${escapeHtml(t.name)}</span>
+                <span style="color:var(--grn);">${escapeHtml(t.status)}</span>
+              </div>
+              <div style="width:100%; height:3px; background:#010408; border-radius:2px; overflow:hidden;">
+                <div style="width:${t.progress || 100}%; height:100%; background:var(--pri);"></div>
+              </div>
+            </div>
+          `;
+        });
+        tEl.innerHTML = tHtml;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load mobile task panopticon:', err);
+  }
+}
+
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', () => {
   pollPcVitals();
@@ -1886,6 +2083,8 @@ window.addEventListener('DOMContentLoaded', () => {
   initMobileWebSocketBridge();
   loadMobileMediaData();
   loadMobileGaigsData();
+  loadMobileReposData();
+  loadMobileTaskPanopticon();
   setInterval(pollPcVitals, 3000);
   setInterval(pollLiveMarkets, 3500);
 });

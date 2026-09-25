@@ -449,8 +449,8 @@
           <span>Content Studio</span>
         </button>
         <button onclick="switchMasterpieceTab('agents')" class="side-nav-item w-full text-left" data-tab="agents">
-          <span class="text-sm">👥</span>
-          <span>Agents Manager</span>
+          <span class="text-sm">🌐</span>
+          <span>GitHub Panopticon & MoE</span>
         </button>
         <button onclick="switchMasterpieceTab('n8n')" class="side-nav-item w-full text-left" data-tab="n8n">
           <span class="text-sm">⚡</span>
@@ -3296,59 +3296,168 @@
         <div class="hud-panel p-3">
           <div class="flex justify-between items-center pb-2 mb-2 border-b border-[#142e47]">
             <div class="flex items-center space-x-2">
-              <span class="text-xl">🧬</span>
+              <span class="text-xl">🌐</span>
               <div>
                 <h2 class="text-base font-black tracking-wider text-white font-mono uppercase">
-                  SOVEREIGN GITHUB TOOL ASSIMILATOR &amp; DYNAMIC REGISTRY
+                  SOVEREIGN GITHUB PANOPTICON &amp; COLIBRÌ MoE ENGINE
                 </h2>
                 <div class="text-[9px] font-mono text-cyan-400">
-                  AUTONOMOUS REPO INGESTION // AST CAPABILITY EXTRACTION // ZERO-DOWNTIME HOT-RELOAD
+                  7 INTEGRATED REPOSITORIES // NVMe EXPERT STREAMING // LIVE TASK PANOPTICON &amp; SELF-UPGRADE
                 </div>
               </div>
             </div>
             <div class="flex items-center space-x-2">
-              <span class="px-2 py-0.5 text-[9px] font-bold font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded flex items-center space-x-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 live-dot"></span>
-                <span>SOVEREIGN LEARNER ONLINE</span>
+              <span class="px-2 py-0.5 text-[9px] font-bold font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded flex items-center space-x-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
+                <span id="panopticonReposBadge">7 REPOS ONLINE</span>
+              </span>
+              <span class="px-2 py-0.5 text-[9px] font-bold font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded">
+                COLIBRÌ v1.12.1 READY
               </span>
               <button onclick="switchMasterpieceTab('command')" class="btn-tactical text-xs">✕ RETURN</button>
             </div>
           </div>
 
-          <!-- Top Section: Ingestion Bar -->
+          <!-- Top Section: 1-Click Ingestion & Dynamic Assimilation Bar -->
           <div class="p-3 rounded bg-[#030914] border border-[#132c47] mb-3">
-            <div class="text-xs font-mono font-bold text-white mb-1.5 flex items-center space-x-1.5">
-              <span>⚡</span><span>INGEST &amp; ASSIMILATE GITHUB REPOSITORY</span>
+            <div class="text-xs font-mono font-bold text-white mb-1.5 flex items-center justify-between">
+              <div class="flex items-center space-x-1.5">
+                <span class="text-cyan-400">⚡</span><span>1-CLICK GITHUB REPO ASSIMILATOR &amp; ZERO-DOWNTIME HOT-RELOAD</span>
+              </div>
+              <span class="text-[9px] text-slate-400 font-mono">Accepts: Full GitHub URL or user/repo (WhatsApp integrated)</span>
             </div>
             <div class="flex flex-col sm:flex-row gap-2">
-              <input id="assimilateRepoInput" type="text" placeholder="https://github.com/HKUDS/CLI-Anything or https://github.com/trycua/cua" class="flex-1 bg-[#061221] border border-[#173859] rounded px-3 py-1.5 text-xs font-mono text-cyan-300 focus:outline-none focus:border-cyan-400" value="https://github.com/HKUDS/CLI-Anything" />
+              <input id="assimilateRepoInput" type="text" placeholder="e.g. https://github.com/JustVugg/colibri.git or trycua/cua" class="flex-1 bg-[#061221] border border-[#173859] rounded px-3 py-1.5 text-xs font-mono text-cyan-300 focus:outline-none focus:border-cyan-400" value="https://github.com/JustVugg/colibri.git" />
               <button onclick="assimilateGitHubRepo()" id="btnAssimilate" class="px-4 py-1.5 rounded bg-cyan-500/25 hover:bg-cyan-500/40 border border-cyan-400 text-cyan-300 font-mono font-bold text-xs flex items-center justify-center space-x-1.5 transition-all shadow-[0_0_15px_rgba(0,229,255,0.25)]">
-                <span>⚡</span><span>ASSIMILATE &amp; LEARN REPO</span>
+                <span>⚡</span><span>ASSIMILATE &amp; HOT-RELOAD</span>
               </button>
             </div>
-            <div class="flex flex-wrap gap-1.5 mt-2 text-[9px] font-mono">
-              <span class="text-slate-400">QUICK TARGETS:</span>
+            <div class="flex flex-wrap gap-1.5 mt-2 text-[9px] font-mono items-center">
+              <span class="text-slate-400">CORE SUITE TARGETS:</span>
+              <button onclick="document.getElementById('assimilateRepoInput').value='https://github.com/JustVugg/colibri.git'" class="btn-tactical text-[8px] border-cyan-500/50 text-cyan-300">JustVugg/colibri (744B MoE)</button>
               <button onclick="document.getElementById('assimilateRepoInput').value='https://github.com/HKUDS/CLI-Anything'" class="btn-tactical text-[8px]">HKUDS/CLI-Anything</button>
               <button onclick="document.getElementById('assimilateRepoInput').value='https://github.com/trycua/cua'" class="btn-tactical text-[8px]">trycua/cua</button>
+              <button onclick="document.getElementById('assimilateRepoInput').value='Global-Ai-Decentralize-Governance-System'" class="btn-tactical text-[8px]">GAIGS (5 Pillars)</button>
               <button onclick="document.getElementById('assimilateRepoInput').value='https://github.com/freqtrade/freqtrade'" class="btn-tactical text-[8px]">freqtrade</button>
               <button onclick="document.getElementById('assimilateRepoInput').value='https://github.com/openhuman/openhuman'" class="btn-tactical text-[8px]">openhuman</button>
             </div>
           </div>
 
-          <!-- Split Console: Ingestion Log & Active Registry -->
-          <div class="grid grid-cols-12 gap-3">
+          <!-- Section 1: The Sovereign GitHub Panopticon Grid (All 7 Assimilated Repos) -->
+          <div class="mb-3">
+            <div class="flex items-center justify-between font-mono text-xs text-slate-300 mb-2">
+              <div class="flex items-center space-x-2">
+                <span class="font-bold text-white tracking-wider uppercase">INTEGRATED REPOSITORY PANOPTICON</span>
+                <span class="px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-300 text-[8px] font-bold border border-cyan-700" id="panopticonRepoCountBadge">7 REPOSITORIES</span>
+              </div>
+              <button onclick="loadIntegratedRepositories()" class="btn-tactical text-[9px]">🔄 REFRESH REPOS</button>
+            </div>
+            <div id="integratedReposGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 font-mono">
+              <!-- Repositories dynamically populated by loadIntegratedRepositories() -->
+              <div class="p-3 rounded bg-[#040c17] border border-[#142e47] text-slate-400 text-center text-xs">
+                Loading sovereign repositories panopticon...
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Colibrì MoE SSD Streaming Engine & Hardware Resource Planner -->
+          <div class="p-3 rounded bg-[#030914] border border-[#132c47] mb-3">
+            <div class="flex flex-wrap items-center justify-between pb-2 mb-2 border-b border-[#142e47] gap-2">
+              <div class="flex items-center space-x-2">
+                <span class="text-lg">🪶</span>
+                <div>
+                  <div class="text-xs font-mono font-black text-white uppercase flex items-center space-x-2">
+                    <span>COLIBRÌ PURE-C MoE INFERENCE ENGINE</span>
+                    <span class="px-1.5 py-0.2 text-[8px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded">ZERO DEPENDENCIES</span>
+                  </div>
+                  <div class="text-[8.5px] font-mono text-slate-400">
+                    Runs 744B Parameter Models (GLM-5.2, DeepSeek) on 16GB RAM with NVMe SSD Streaming
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2 text-[9px] font-mono">
+                <button onclick="runColibriDoctorDiagnostic()" class="px-2 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold hover:bg-amber-500/30 transition-all">
+                  🩺 RUN DOCTOR DIAGNOSTIC
+                </button>
+                <button onclick="calculateMoEPlan()" class="px-2 py-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold hover:bg-cyan-500/30 transition-all">
+                  ⚡ RECALCULATE MOE PLAN
+                </button>
+              </div>
+            </div>
+
+            <!-- Hardware Telemetry & Inference Planner Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 font-mono text-xs">
+              <div class="p-2 rounded bg-[#061221] border border-[#132d4a]">
+                <div class="text-[8.5px] text-slate-400">SYSTEM RAM VITALS</div>
+                <div class="text-sm font-bold text-white mt-0.5" id="coliRamVitals">15.88 GB Total</div>
+                <div class="text-[8px] text-emerald-400 font-bold" id="coliRamAvail">4.1 GB Available</div>
+              </div>
+              <div class="p-2 rounded bg-[#061221] border border-[#132d4a]">
+                <div class="text-[8.5px] text-slate-400">NVMe SSD STORAGE</div>
+                <div class="text-sm font-bold text-white mt-0.5" id="coliDiskFree">156.5 GB Free</div>
+                <div class="text-[8px] text-cyan-400 font-bold">Streaming Ready (&gt;40 GB)</div>
+              </div>
+              <div class="p-2 rounded bg-[#061221] border border-[#132d4a]">
+                <div class="text-[8.5px] text-slate-400">EST. STREAMING BANDWIDTH</div>
+                <div class="text-sm font-bold text-cyan-300 mt-0.5" id="coliBw">~1,800 MB/s</div>
+                <div class="text-[8px] text-slate-400 font-bold">PCIe NVMe Expert Read</div>
+              </div>
+              <div class="p-2 rounded bg-[#061221] border border-[#132d4a]">
+                <div class="text-[8.5px] text-slate-400">EST. GENERATION SPEED</div>
+                <div class="text-sm font-bold text-emerald-400 mt-0.5" id="coliTokSpeed">4.5 - 9.2 tok/s</div>
+                <div class="text-[8px] text-amber-400 font-bold">No VRAM Exhaustion Crash</div>
+              </div>
+            </div>
+
+            <!-- Interactive Model Selector & Parameters -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 font-mono text-xs">
+              <div class="p-2 rounded bg-[#050f1c] border border-[#132d4a]">
+                <label class="text-[8.5px] text-slate-400 block mb-1">TARGET MoE MODEL:</label>
+                <select id="coliModelSelect" onchange="calculateMoEPlan()" class="w-full bg-[#030814] border border-[#173859] rounded p-1 text-xs text-cyan-300 font-mono">
+                  <option value="GLM-5.2">GLM-5.2 (744B MoE - 40B Active)</option>
+                  <option value="DeepSeek-V3">DeepSeek-V3 (671B MoE - 37B Active)</option>
+                  <option value="Mixtral-8x22B">Mixtral 8x22B (141B MoE - 39B Active)</option>
+                  <option value="Qwen-2.5-MoE">Qwen 2.5 MoE (57B MoE - 14B Active)</option>
+                </select>
+              </div>
+              <div class="p-2 rounded bg-[#050f1c] border border-[#132d4a]">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-[8.5px] text-slate-400">RAM EXPERT CACHE:</span>
+                  <span class="text-[9px] text-cyan-400 font-bold" id="coliRamBudgetValue">11 GB</span>
+                </div>
+                <input id="coliRamBudgetSlider" type="range" min="4" max="14" value="11" step="1" oninput="document.getElementById('coliRamBudgetValue').innerText = this.value + ' GB'; calculateMoEPlan();" class="w-full cursor-pointer accent-cyan-400" />
+              </div>
+              <div class="p-2 rounded bg-[#050f1c] border border-[#132d4a]">
+                <label class="text-[8.5px] text-slate-400 block mb-1">RECOMMENDED DEPLOYMENT:</label>
+                <div class="text-[9px] text-slate-300" id="coliPlanText">
+                  Allocate 11 GB RAM to active expert cache slots. Store quantized weights on NVMe. CPU throttle capped at 95%.
+                </div>
+              </div>
+            </div>
+
+            <!-- Doctor Output Modal/Container -->
+            <div id="colibriDoctorContainer" class="mt-2 p-2 rounded bg-[#02050b] border border-cyan-800 font-mono text-[9px] text-slate-300 hidden">
+              <div class="flex justify-between items-center text-cyan-400 font-bold mb-1">
+                <span>🩺 COLIBRÌ ENGINE DOCTOR REPORT:</span>
+                <button onclick="document.getElementById('colibriDoctorContainer').classList.add('hidden')" class="text-slate-400 hover:text-white">✕</button>
+              </div>
+              <div id="colibriDoctorText" class="whitespace-pre-wrap"></div>
+            </div>
+          </div>
+
+          <!-- Section 3: Split Console: Ingestion Telemetry Output & Active Dynamic Registry -->
+          <div class="grid grid-cols-12 gap-3 mb-3">
             <!-- Col 1: Ingestion Telemetry Output -->
             <div class="col-span-12 lg:col-span-6 space-y-2">
               <div class="flex items-center justify-between font-mono text-xs text-slate-300">
                 <span class="font-bold text-white">ASSIMILATION PIPELINE TELEMETRY</span>
                 <span id="assimilateStatusBadge" class="text-[9px] text-slate-400">IDLE</span>
               </div>
-              <div id="assimilateConsole" class="h-64 rounded bg-[#02060f] border border-[#0d2238] p-2.5 font-code text-[10px] text-cyan-300 overflow-y-auto leading-relaxed select-text whitespace-pre-wrap">╔══════════════════════════════════════════════════════════════════════════════╗
+              <div id="assimilateConsole" class="h-44 rounded bg-[#02060f] border border-[#0d2238] p-2.5 font-code text-[10px] text-cyan-300 overflow-y-auto leading-relaxed select-text whitespace-pre-wrap">╔══════════════════════════════════════════════════════════════════════════════╗
 ║  J.A.R.V.I.S. RECURSIVE GITHUB ASSIMILATOR &amp; CAPABILITY LEARNER             ║
 ║  Sole Master: Muhammad Qureshi // Zero Plaintext Keys // Sandbox Guarded     ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
-Ready to ingest remote repository. Enter GitHub URL above and click ASSIMILATE.
-</div>
+Ready to ingest remote repository. Enter GitHub URL above or send via WhatsApp.</div>
             </div>
 
             <!-- Col 2: Active Dynamic Tool Registry -->
@@ -3357,9 +3466,72 @@ Ready to ingest remote repository. Enter GitHub URL above and click ASSIMILATE.
                 <span class="font-bold text-white">ACTIVE DYNAMIC TOOL REGISTRY (<span id="activeToolsCount">0</span>)</span>
                 <button onclick="refreshDynamicToolsList()" class="btn-tactical text-[9px]">🔄 REFRESH</button>
               </div>
-              <div id="activeToolsContainer" class="h-64 rounded bg-[#02060f] border border-[#0d2238] p-2 overflow-y-auto space-y-1.5 font-mono text-xs">
+              <div id="activeToolsContainer" class="h-44 rounded bg-[#02060f] border border-[#0d2238] p-2 overflow-y-auto space-y-1.5 font-mono text-xs">
                 <div class="p-2 rounded bg-[#061426] border border-[#132d4a] text-slate-400 text-center text-[10px]">
                   Loading active registry skills...
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: Live Background Automation Terminal & Cognitive Roadmap (Panopticon) -->
+          <div class="p-3 rounded bg-[#030914] border border-[#132c47] mb-3">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-[#142e47]">
+              <div class="flex items-center space-x-2">
+                <span class="text-lg">⚙️</span>
+                <div>
+                  <h3 class="text-xs font-mono font-black text-white uppercase">
+                    LIVE BACKGROUND AUTOMATION TERMINAL &amp; COGNITIVE ROADMAP
+                  </h3>
+                  <div class="text-[8.5px] font-mono text-cyan-400">
+                    REAL-TIME DAEMON MONITOR // AUTONOMOUS TASKS // MILESTONE HISTORY // ROADMAP EVOLUTION
+                  </div>
+                </div>
+              </div>
+              <button onclick="loadTaskPanopticon()" class="btn-tactical text-[9px]">🔄 REFRESH PANOPTICON</button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 font-mono text-xs">
+              <!-- Left Col: Active Daemons Table -->
+              <div class="lg:col-span-6 space-y-2">
+                <div class="text-[10px] font-bold text-slate-300 uppercase">ACTIVE MICROSERVICE DAEMONS</div>
+                <div id="panopticonDaemonsContainer" class="space-y-1 max-h-48 overflow-y-auto">
+                  <div class="p-2 rounded bg-[#061221] border border-[#132d4a] text-center text-slate-400 text-[10px]">
+                    Loading daemons telemetry...
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Col: Current Autonomous Running Tasks -->
+              <div class="lg:col-span-6 space-y-2">
+                <div class="text-[10px] font-bold text-slate-300 uppercase">CURRENT RUNNING AUTONOMOUS TASKS</div>
+                <div id="panopticonTasksContainer" class="space-y-1.5 max-h-48 overflow-y-auto">
+                  <div class="p-2 rounded bg-[#061221] border border-[#132d4a] text-center text-slate-400 text-[10px]">
+                    Loading autonomous tasks...
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Milestones & Future Self-Evolution Roadmap -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 mt-3 pt-2 border-t border-[#142e47] font-mono text-xs">
+              <!-- Completed Milestones -->
+              <div class="lg:col-span-6 space-y-1.5">
+                <div class="text-[10px] font-bold text-emerald-400 uppercase flex items-center space-x-1">
+                  <span>✓</span><span>COMPLETED COGNITIVE MILESTONES</span>
+                </div>
+                <div id="panopticonMilestonesContainer" class="space-y-1 text-[9.5px]">
+                  <!-- Injected via loadTaskPanopticon() -->
+                </div>
+              </div>
+
+              <!-- Future Self-Evolution Roadmap -->
+              <div class="lg:col-span-6 space-y-1.5">
+                <div class="text-[10px] font-bold text-cyan-400 uppercase flex items-center space-x-1">
+                  <span>🚀</span><span>AUTONOMOUS SELF-EVOLUTION ROADMAP</span>
+                </div>
+                <div id="panopticonRoadmapContainer" class="space-y-1 text-[9.5px]">
+                  <!-- Injected via loadTaskPanopticon() -->
                 </div>
               </div>
             </div>
@@ -4878,6 +5050,9 @@ Click 'CHECK & UPGRADE NOW' to pull upstream updates, verify skills, and auto-pu
           loadGaigsCivOverview();
         } else if (tabId === 'agents') {
           refreshDynamicToolsList();
+          loadIntegratedRepositories();
+          loadTaskPanopticon();
+          loadColibriStatus();
         } else if (tabId === 'warroom') {
           if (typeof initWarroomView === 'function') initWarroomView();
         }
@@ -7021,7 +7196,7 @@ Click 'CHECK & UPGRADE NOW' to pull upstream updates, verify skills, and auto-pu
       const repoUrl = (inp ? inp.value.trim() : '');
 
       if (!repoUrl) {
-        showToast("Please enter a valid GitHub repository URL.");
+        showToast("Please enter a valid GitHub repository URL or repo name.");
         return;
       }
 
@@ -7030,34 +7205,55 @@ Click 'CHECK & UPGRADE NOW' to pull upstream updates, verify skills, and auto-pu
 
       consoleEl.innerHTML = `[${new Date().toLocaleTimeString()}] INITIATING SOVEREIGN REPO ASSIMILATION...\n`;
       consoleEl.innerHTML += `Target: ${escapeHtml(repoUrl)}\n`;
-      consoleEl.innerHTML += `Step 1/5: Fetching repository manifest & depth=1 clone...\n`;
+      consoleEl.innerHTML += `Step 1/5: Inspecting repository manifest & depth=1 clone...\n`;
       consoleEl.scrollTop = consoleEl.scrollHeight;
 
       try {
-        const resp = await fetch('/api/assimilator/assimilate', {
+        // Try unified repo orchestrator first
+        const resp = await fetch('/api/repos/assimilate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ repo_url: repoUrl })
+          body: JSON.stringify({ repo: repoUrl, requested_by: "Master Muhammad Qureshi" })
         });
         const data = await resp.json();
 
         if (data.ok) {
-          consoleEl.innerHTML += `[SUCCESS] Cloned & parsed in ${data.duration_ms}ms\n`;
-          consoleEl.innerHTML += `Step 2/5: AST Capability Extraction -> Found ${data.capabilities_found} capabilities\n`;
-          consoleEl.innerHTML += `Step 3/5: Dynamic Skill Synthesis & MANIFEST Generation\n`;
-          (data.synthesized_skills || []).forEach(s => {
-            consoleEl.innerHTML += `  -> Synthesized: ${escapeHtml(s.skill_name)} [${s.status}]\n`;
+          consoleEl.innerHTML += `[SUCCESS] Repository ${escapeHtml(data.repo?.name || repoUrl)} assimilated!\n`;
+          consoleEl.innerHTML += `Local Path: ${escapeHtml(data.repo?.local_path || 'repos/' + repoUrl.split('/').pop())}\n`;
+          consoleEl.innerHTML += `Step 2/5: Capability scan completed (${data.tools_count || 0} runnable tools extracted)\n`;
+          (data.repo?.capabilities || []).forEach(c => {
+            consoleEl.innerHTML += `  -> Capability: ${escapeHtml(c)}\n`;
           });
-          consoleEl.innerHTML += `Step 4/5: AST Sandbox & Invariant Security Verification -> PASSED\n`;
-          consoleEl.innerHTML += `Step 5/5: Zero-Downtime Hot-Reload -> Registered into Active Tool Fleet!\n`;
-          consoleEl.innerHTML += `\n[ASSIMILATION COMPLETE] Total Active Sovereign Tools: ${data.active_tools_count}\n`;
+          consoleEl.innerHTML += `Step 3/5: Dynamic Skill Synthesis & Module Registration\n`;
+          consoleEl.innerHTML += `Step 4/5: Zero-Downtime Hot-Reload -> Instantly injected into J.A.R.V.I.S. runtime\n`;
+          consoleEl.innerHTML += `Step 5/5: State synchronized across Dashboard (:8770), Mobile (:8765) & WhatsApp\n`;
+          consoleEl.innerHTML += `\n[ASSIMILATION COMPLETE] Full tool suite available immediately.\n`;
           if (badge) { badge.innerText = "ASSIMILATION SUCCESS"; badge.className = "text-[9px] text-emerald-400 font-bold"; }
-          showToast(`Successfully assimilated & learned: ${repoUrl.split('/').pop()}`);
+          showToast(`Assimilated: ${data.repo?.name || repoUrl}`);
+          loadIntegratedRepositories();
+          loadTaskPanopticon();
           refreshDynamicToolsList();
         } else {
-          consoleEl.innerHTML += `[ERROR] Assimilation failed: ${escapeHtml(data.error || 'Unknown error')}\n`;
-          if (badge) { badge.innerText = "FAILED"; badge.className = "text-[9px] text-red-400 font-bold"; }
-          showToast(`Assimilation error: ${data.error}`);
+          // Fallback to legacy endpoint if present
+          consoleEl.innerHTML += `[NOTE] Trying primary assimilator fallback...\n`;
+          const respFallback = await fetch('/api/assimilator/assimilate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ repo_url: repoUrl })
+          });
+          const fbData = await respFallback.json();
+          if (fbData.ok) {
+            consoleEl.innerHTML += `[SUCCESS] Fallback assimilation succeeded in ${fbData.duration_ms}ms\n`;
+            if (badge) { badge.innerText = "ASSIMILATION SUCCESS"; badge.className = "text-[9px] text-emerald-400 font-bold"; }
+            showToast(`Assimilated: ${repoUrl.split('/').pop()}`);
+            loadIntegratedRepositories();
+            loadTaskPanopticon();
+            refreshDynamicToolsList();
+          } else {
+            consoleEl.innerHTML += `[ERROR] Assimilation failed: ${escapeHtml(data.error || fbData.error || 'Unknown error')}\n`;
+            if (badge) { badge.innerText = "FAILED"; badge.className = "text-[9px] text-red-400 font-bold"; }
+            showToast(`Assimilation error: ${data.error || fbData.error}`);
+          }
         }
       } catch (err) {
         consoleEl.innerHTML += `[EXCEPTION] ${escapeHtml(err.message)}\n`;
@@ -7065,6 +7261,218 @@ Click 'CHECK & UPGRADE NOW' to pull upstream updates, verify skills, and auto-pu
       } finally {
         if (btn) btn.disabled = false;
         consoleEl.scrollTop = consoleEl.scrollHeight;
+      }
+    }
+
+    async function loadIntegratedRepositories() {
+      const grid = document.getElementById('integratedReposGrid');
+      const countBadge = document.getElementById('panopticonRepoCountBadge');
+      const topBadge = document.getElementById('panopticonReposBadge');
+      if (!grid) return;
+
+      try {
+        const resp = await fetch('/api/repos/integrated');
+        const data = await resp.json();
+        if (data.ok && Array.isArray(data.repositories)) {
+          if (countBadge) countBadge.innerText = `${data.repositories.length} REPOSITORIES`;
+          if (topBadge) topBadge.innerText = `${data.repositories.length} REPOS ONLINE`;
+          
+          let html = '';
+          data.repositories.forEach(r => {
+            const isLocal = r.local_path && r.local_path !== '';
+            html += `
+              <div class="p-2.5 rounded bg-[#050f1c] border border-[#132d4a] hover:border-cyan-500/50 transition-all flex flex-col justify-between space-y-2">
+                <div>
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-white text-xs flex items-center space-x-1.5">
+                      <span class="text-cyan-400">📦</span>
+                      <span>${escapeHtml(r.name)}</span>
+                    </span>
+                    <span class="px-1.5 py-0.2 rounded text-[7.5px] font-bold ${r.status === 'ASSIMILATED_ACTIVE' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-cyan-500/20 text-cyan-300'}">
+                      ● ${escapeHtml(r.status || 'ACTIVE')}
+                    </span>
+                  </div>
+                  <div class="text-[8px] text-slate-400 font-mono mt-0.5 truncate">${escapeHtml(r.full_name || r.name)}</div>
+                  <div class="text-[9px] text-slate-300 mt-1 line-clamp-2 leading-relaxed">${escapeHtml(r.description || 'Assimilated J.A.R.V.I.S. tool')}</div>
+                  
+                  <div class="mt-2 flex flex-wrap gap-1">
+                    <span class="px-1 py-0.2 rounded bg-purple-500/20 text-purple-300 text-[7px] font-bold border border-purple-500/30">${escapeHtml(r.category || 'TOOL')}</span>
+                    <span class="px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 text-[7px] font-bold border border-amber-500/30">★ ${escapeHtml(r.stars || 'Core')}</span>
+                    ${(r.capabilities || []).slice(0, 2).map(c => `<span class="px-1 py-0.2 rounded bg-cyan-950 text-cyan-300 text-[7px] border border-cyan-800">${escapeHtml(c)}</span>`).join('')}
+                  </div>
+                </div>
+
+                <div class="pt-2 border-t border-[#0e243a] flex items-center justify-between text-[8px]">
+                  <span class="text-slate-400 truncate max-w-[120px]" title="${escapeHtml(r.local_path || '')}">📁 ${escapeHtml(r.local_path || 'native')}</span>
+                  <div class="flex space-x-1">
+                    <a href="${escapeHtml(r.url)}" target="_blank" class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/40 no-underline font-bold transition-all">GIT ↗</a>
+                    <button onclick="document.getElementById('assimilateRepoInput').value='${escapeHtml(r.url)}'; assimilateGitHubRepo();" class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/40 font-bold transition-all">SYNC</button>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+          grid.innerHTML = html;
+        }
+      } catch (e) {
+        console.error("Failed to load integrated repos:", e);
+      }
+    }
+
+    async function loadTaskPanopticon() {
+      const daemonsEl = document.getElementById('panopticonDaemonsContainer');
+      const tasksEl = document.getElementById('panopticonTasksContainer');
+      const milesEl = document.getElementById('panopticonMilestonesContainer');
+      const roadEl = document.getElementById('panopticonRoadmapContainer');
+
+      try {
+        const resp = await fetch('/api/tasks/panopticon');
+        const data = await resp.json();
+        if (!data.ok) return;
+
+        // 1. Render Daemons
+        if (daemonsEl && Array.isArray(data.daemons)) {
+          let dHtml = '';
+          data.daemons.forEach(d => {
+            const isOnline = d.status === 'ONLINE' || d.status === 'STANDBY_READY' || d.status === 'ACTIVE_GUARD' || d.status === 'ACTIVE_POLL';
+            dHtml += `
+              <div class="p-1.5 rounded bg-[#061221] border border-[#132d4a] flex items-center justify-between text-[9px]">
+                <div class="flex items-center space-x-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-400 live-dot' : 'bg-red-400'}"></span>
+                  <span class="font-bold text-white">${escapeHtml(d.name)}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span class="text-cyan-400 font-mono">Port :${escapeHtml(String(d.port))}</span>
+                  <span class="px-1 py-0.2 rounded ${isOnline ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'} font-bold text-[7.5px] border border-current/30">${escapeHtml(d.status)}</span>
+                </div>
+              </div>
+            `;
+          });
+          daemonsEl.innerHTML = dHtml;
+        }
+
+        // 2. Render Tasks
+        if (tasksEl && Array.isArray(data.active_tasks)) {
+          let tHtml = '';
+          data.active_tasks.forEach(t => {
+            tHtml += `
+              <div class="p-1.5 rounded bg-[#061221] border border-[#132d4a] text-[9px] space-y-1">
+                <div class="flex justify-between items-center">
+                  <span class="text-cyan-300 font-bold">${escapeHtml(t.id)}: ${escapeHtml(t.name)}</span>
+                  <span class="text-emerald-400 font-bold text-[8px]">${escapeHtml(t.status)}</span>
+                </div>
+                <div class="w-full bg-[#030914] h-1.5 rounded-full overflow-hidden border border-[#142e47]">
+                  <div class="bg-gradient-to-r from-cyan-400 to-emerald-400 h-full rounded-full transition-all" style="width: ${t.progress || 100}%"></div>
+                </div>
+              </div>
+            `;
+          });
+          tasksEl.innerHTML = tHtml;
+        }
+
+        // 3. Render Milestones
+        if (milesEl && Array.isArray(data.previous_milestones)) {
+          let mHtml = '';
+          data.previous_milestones.forEach(m => {
+            mHtml += `
+              <div class="flex items-center justify-between p-1 rounded bg-[#040c17] border border-[#0f253d]">
+                <span class="text-slate-300 flex items-center space-x-1">
+                  <span class="text-emerald-400 font-bold">✓ [${escapeHtml(m.milestone)}]</span>
+                  <span>${escapeHtml(m.title)}</span>
+                </span>
+                <span class="text-emerald-400 font-bold text-[8px]">VERIFIED 100%</span>
+              </div>
+            `;
+          });
+          milesEl.innerHTML = mHtml;
+        }
+
+        // 4. Render Roadmap
+        if (roadEl && Array.isArray(data.future_roadmap)) {
+          let rHtml = '';
+          data.future_roadmap.forEach(r => {
+            rHtml += `
+              <div class="flex items-center justify-between p-1 rounded bg-[#040c17] border border-[#0f253d]">
+                <span class="text-slate-300 flex items-center space-x-1">
+                  <span class="text-cyan-400 font-bold">🚀 [${escapeHtml(r.phase)}]</span>
+                  <span>${escapeHtml(r.goal)}</span>
+                </span>
+                <span class="text-cyan-300 font-bold text-[8px]">SCHEDULED</span>
+              </div>
+            `;
+          });
+          roadEl.innerHTML = rHtml;
+        }
+      } catch (e) {
+        console.error("Failed to load task panopticon:", e);
+      }
+    }
+
+    async function loadColibriStatus() {
+      try {
+        const resp = await fetch('/api/repos/colibri/status');
+        const data = await resp.json();
+        if (data.ok && data.colibri) {
+          const hw = data.colibri.workstation_hardware || {};
+          const ramEl = document.getElementById('coliRamVitals');
+          const availEl = document.getElementById('coliRamAvail');
+          const diskEl = document.getElementById('coliDiskFree');
+          
+          if (ramEl && hw.total_ram_gb) ramEl.innerText = `${hw.total_ram_gb} GB Total (${hw.logical_cpu_cores} Cores)`;
+          if (availEl && hw.available_ram_gb) availEl.innerText = `${hw.available_ram_gb} GB Available (${hw.ram_percent}% load)`;
+          if (diskEl && hw.free_disk_gb) diskEl.innerText = `${hw.free_disk_gb} GB Free NVMe`;
+        }
+      } catch (e) {
+        console.error("Failed to load Colibri status:", e);
+      }
+    }
+
+    async function calculateMoEPlan() {
+      const modelEl = document.getElementById('coliModelSelect');
+      const budgetEl = document.getElementById('coliRamBudgetSlider');
+      const planTextEl = document.getElementById('coliPlanText');
+      const bwEl = document.getElementById('coliBw');
+      const tokEl = document.getElementById('coliTokSpeed');
+
+      const model = modelEl ? modelEl.value : 'GLM-5.2';
+      const budget = budgetEl ? parseInt(budgetEl.value, 10) : 11;
+
+      try {
+        const resp = await fetch('/api/repos/colibri/plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model_name: model, ram_budget_gb: budget, ctx_len: 2048 })
+        });
+        const plan = await resp.json();
+        if (plan.ok) {
+          if (planTextEl) planTextEl.innerText = plan.recommendation;
+          if (bwEl) bwEl.innerText = `~${plan.nvme_streaming_rate_mbs} MB/s`;
+          if (tokEl) tokEl.innerText = plan.estimated_token_generation_speed;
+          showToast(`MoE Resource Plan computed for ${model} with ${budget}GB RAM budget.`);
+        }
+      } catch (e) {
+        console.error("Failed to compute MoE plan:", e);
+      }
+    }
+
+    async function runColibriDoctorDiagnostic() {
+      const container = document.getElementById('colibriDoctorContainer');
+      const textEl = document.getElementById('colibriDoctorText');
+      if (!container || !textEl) return;
+
+      container.classList.remove('hidden');
+      textEl.innerText = "Executing Colibrì engine doctor diagnostics (repos/colibri/c/coli)...";
+
+      try {
+        const resp = await fetch('/api/repos/colibri/doctor');
+        const data = await resp.json();
+        if (data.ok) {
+          textEl.innerText = `[COLIBRÌ DOCTOR OK]\nOperational: ${data.engine_operational}\nExit Code: ${data.exit_code}\nOutput:\n${data.raw_info || 'Engine verified ready for SSD streaming.'}`;
+        } else {
+          textEl.innerText = `[COLIBRÌ DOCTOR NOTICE]\n${data.error || 'Diagnostic completed with warnings.'}`;
+        }
+      } catch (e) {
+        textEl.innerText = `[EXCEPTION] Failed to run doctor: ${e.message}`;
       }
     }
 

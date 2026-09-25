@@ -215,6 +215,40 @@ function synthesizeVoiceBuffer(text) {
   });
 }
 
+function checkAndAssimilateRepo(message, sender) {
+  return new Promise((resolve) => {
+    const body = JSON.stringify({ sender: sender || '+923468053268', message: message });
+    const target = new URL('http://127.0.0.1:8770/api/repos/whatsapp/process_directive');
+    const req = http.request({
+      hostname: target.hostname,
+      port: target.port || 80,
+      path: target.pathname,
+      method: 'POST',
+      timeout: 35000,
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+        'X-Jarvis-Internal-Token': INTERNAL_TOKEN,
+      },
+    }, (r) => {
+      let d = '';
+      r.on('data', c => d += c);
+      r.on('end', () => {
+        try {
+          const res = JSON.parse(d);
+          resolve(res);
+        } catch {
+          resolve(null);
+        }
+      });
+    });
+    req.on('timeout', () => { req.destroy(); resolve(null); });
+    req.on('error', () => resolve(null));
+    req.write(body);
+    req.end();
+  });
+}
+
 let lastQr = null;
 let lastQrImage = null;
 let groupMap = new Map();
@@ -374,9 +408,26 @@ async function start() {
 
         console.log(`[JARVIS Baileys] Executing ${isVoice ? 'VOICE ' : ''}command from ${isSelfChat ? 'Self-Chat (Owner)' : (isEliteGroup ? 'Elite Trade Group' : 'Direct')}: "${command}"`);
         const senderId = isEliteGroup ? `elite_wa_${digits || 'member'}` : digits;
-        const jarvisResult = await callJarvis(command, senderId);
-        const reply = typeof jarvisResult === 'object' ? (jarvisResult.text || '') : String(jarvisResult || '');
-        let imageToSend = typeof jarvisResult === 'object' ? jarvisResult.imagePath : null;
+
+        // Check if message is a GitHub repo assimilation directive (URL or 'assimilate <repo>')
+        let repoAssimilationResult = null;
+        try {
+          repoAssimilationResult = await checkAndAssimilateRepo(command, digits || '923468053268');
+        } catch (e) {
+          console.error('[JARVIS Baileys] Repo assimilation check notice:', e.message);
+        }
+
+        let reply = '';
+        let imageToSend = null;
+
+        if (repoAssimilationResult && repoAssimilationResult.ok && repoAssimilationResult.reply) {
+          reply = repoAssimilationResult.reply;
+          console.log(`[JARVIS Baileys] 🚀 Autonomous GitHub Assimilation directive executed: ${repoAssimilationResult.action}`);
+        } else {
+          const jarvisResult = await callJarvis(command, senderId);
+          reply = typeof jarvisResult === 'object' ? (jarvisResult.text || '') : String(jarvisResult || '');
+          imageToSend = typeof jarvisResult === 'object' ? jarvisResult.imagePath : null;
+        }
 
         // Visual screen & camera vision handling if command asked for screen/camera and no image already set
         const isVisionCmd = /(?:screen|vision|screenshot|tasweer)/i.test(command);
