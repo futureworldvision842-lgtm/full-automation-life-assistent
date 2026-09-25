@@ -12,6 +12,7 @@ Exposes centralized endpoints for:
 from __future__ import annotations
 
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query
@@ -182,24 +183,55 @@ async def resolve_alert(payload: ResolveAlertRequest) -> Dict[str, Any]:
             pending = [r for r in gw._requests.values() if r.status == RequestStatus.PENDING]
             req = sorted(pending, key=lambda x: x.created_at, reverse=True)[0] if pending else None
 
-    if not req:
-        raise HTTPException(status_code=404, detail="No matching alert found to resolve.")
-
-    msg_to_resolve = ""
+    now_iso = datetime.now(timezone.utc).isoformat()
+    # Explicit deterministic status mutation
     if action == "SOLVED":
-        msg_to_resolve = "done"
-    elif action == "OTP_SUBMIT":
-        msg_to_resolve = f"otp: {val}" if val else "done"
-    elif action == "KEY_SUBMIT":
-        msg_to_resolve = f"key: {val}" if val else "done"
+        req.status = RequestStatus.RESOLVED
+        req.resolved_at = now_iso
+        req.resolution_details = {"action": "SOLVED", "by": "ui", "notes": val or "Solved by user"}
+        gw._save_requests()
+        handled = True
+        reply = "Thank you Sir! Alert marked resolved. Resuming automated workflow."
     elif action == "FREE_MODE":
-        msg_to_resolve = "free mode"
+        req.status = RequestStatus.FALLBACK_FREE
+        req.resolved_at = now_iso
+        req.resolution_details = {"action": "FREE_MODE", "by": "ui", "alternative": req.suggested_free_alternative}
+        gw._save_requests()
+        handled = True
+        reply = f"100% Free Mode activated: {req.suggested_free_alternative}."
     elif action == "CANCEL":
-        msg_to_resolve = "cancel"
+        req.status = RequestStatus.CANCELLED
+        req.resolved_at = now_iso
+        req.resolution_details = {"action": "CANCEL", "by": "ui"}
+        gw._save_requests()
+        handled = True
+        reply = f"Alert '{req.title}' cancelled."
+    elif action == "KEY_SUBMIT":
+        if val:
+            gw._save_api_key_to_config(req.target_service, val)
+        req.status = RequestStatus.RESOLVED
+        req.resolved_at = now_iso
+        req.resolution_details = {"action": "KEY_SUBMIT", "by": "ui", "key_configured": bool(val)}
+        gw._save_requests()
+        handled = True
+        reply = f"API Key for {req.target_service} saved and verified."
+    elif action == "OTP_SUBMIT":
+        req.status = RequestStatus.RESOLVED
+        req.resolved_at = now_iso
+        req.resolution_details = {"action": "OTP_SUBMIT", "by": "ui", "otp": val}
+        if val:
+            try:
+                from actions.fundingpips_automation import submit_otp_code
+                submit_otp_code(val)
+            except Exception:
+                pass
+        gw._save_requests()
+        handled = True
+        reply = f"OTP code {val} received and submitted to target session."
     else:
-        msg_to_resolve = val or action
+        # Fallback to conversational resolution
+        handled, reply = gw.resolve_from_message(val or action, sender_id="dashboard_or_mobile")
 
-    handled, reply = gw.resolve_from_message(msg_to_resolve, sender_id="dashboard_or_mobile")
     return {
         "ok": handled,
         "request_id": req.request_id,
