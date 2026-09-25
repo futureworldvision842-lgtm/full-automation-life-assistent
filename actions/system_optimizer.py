@@ -84,7 +84,8 @@ def get_gpu_telemetry() -> Dict[str, Any]:
             "--query-gpu=name,utilization.gpu,utilization.memory,memory.total,memory.used,memory.free,temperature.gpu",
             "--format=csv,noheader,nounits"
         ]
-        out = subprocess.check_output(cmd, text=True, timeout=8).strip()
+        flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+        out = subprocess.check_output(cmd, text=True, timeout=2.5, creationflags=flags).strip()
         parts = [p.strip() for p in out.split(",")]
         if len(parts) >= 7:
             res = {

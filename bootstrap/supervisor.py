@@ -21,7 +21,7 @@ LOCK_FILE = ROOT / "runtime" / "supervisor.lock"
 STOP_FLAG = ROOT / "scratch" / "jarvis.stop"
 OVERRIDES_FILE = ROOT / 'runtime/service-overrides.json'
 LOG_DIR = ROOT / "logs" / "services"
-PY = sys.executable
+PY = getattr(sys, "_base_executable", sys.executable)
 
 
 def stamp():
@@ -233,6 +233,8 @@ def main():
     state = {"root": str(ROOT), "supervisor": identity(os.getpid()), "services": records,
              "mode": "local-research-read-only", "disabled": ["autonomous-trading", "discord", "mission-broadcasts", "whatsapp-group-commands"]}
     env = os.environ.copy()
+    env["VIRTUAL_ENV"] = str(ROOT / ".venv")
+    env["PATH"] = f"{ROOT / '.venv' / 'Scripts'};{env.get('PATH', '')}"
     env.setdefault("OLLAMA_MODELS", str(ROOT / "data" / "ollama" / "models"))
     env["OLLAMA_HOST"] = "127.0.0.1:11434"
     env["OLLAMA_BASE_URL"] = "http://127.0.0.1:11434"

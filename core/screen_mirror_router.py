@@ -12,6 +12,7 @@ import base64
 import os
 import sys
 import time
+import json
 from pathlib import Path
 from typing import Any, Dict, Optional
 from fastapi import APIRouter, Response
@@ -22,9 +23,10 @@ screen_mirror_router = APIRouter(prefix="/api/screen", tags=["screen_mirror"])
 BASE_DIR = Path(__file__).resolve().parent.parent
 RUNTIME_DIR = BASE_DIR / "runtime"
 RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+SESSION_FILE = RUNTIME_DIR / "mobile_session.json"
 
-# In-memory mobile state tracker
-_mobile_session_state: Dict[str, Any] = {
+# In-memory mobile state tracker with file persistence
+_default_mobile_session: Dict[str, Any] = {
     "device_name": "Sovereign Mobile Companion",
     "connected": True,
     "last_seen": time.time(),
@@ -36,6 +38,23 @@ _mobile_session_state: Dict[str, Any] = {
     "client_ip": "127.0.0.1",
     "last_touch_event": None
 }
+
+def get_current_mobile_state() -> Dict[str, Any]:
+    state = dict(_default_mobile_session)
+    if SESSION_FILE.exists():
+        try:
+            saved = json.loads(SESSION_FILE.read_text(encoding="utf-8"))
+            if isinstance(saved, dict):
+                state.update(saved)
+        except Exception:
+            pass
+    return state
+
+def save_current_mobile_state(state: Dict[str, Any]) -> None:
+    try:
+        SESSION_FILE.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    except Exception:
+        pass
 
 
 class MobileHeartbeatRequest(BaseModel):
@@ -90,30 +109,33 @@ async def get_pc_screen_latest():
 async def get_mobile_screen_status() -> Dict[str, Any]:
     """Returns real-time state of connected mobile companion."""
     now = time.time()
-    is_connected = (now - _mobile_session_state["last_seen"]) < 60
+    state = get_current_mobile_state()
+    is_connected = (now - state.get("last_seen", 0)) < 60
     return {
         "ok": True,
         "is_connected": is_connected,
         "session": {
-            **_mobile_session_state,
+            **state,
             "connected": is_connected,
-            "seconds_since_heartbeat": round(now - _mobile_session_state["last_seen"], 1)
+            "seconds_since_heartbeat": round(now - state.get("last_seen", 0), 1)
         }
     }
 
 
 @screen_mirror_router.post("/mobile/heartbeat")
 async def update_mobile_heartbeat(req: MobileHeartbeatRequest) -> Dict[str, Any]:
-    """Receives live heartbeat from mobile companion."""
-    _mobile_session_state.update({
-        "device_name": req.device_name or _mobile_session_state["device_name"],
+    """Receives live heartbeat from mobile companion and syncs state across processes."""
+    state = get_current_mobile_state()
+    state.update({
+        "device_name": req.device_name or state.get("device_name", "Master Muhammad Sovereign Mobile"),
         "connected": True,
         "last_seen": time.time(),
-        "active_tab": req.active_tab or _mobile_session_state["active_tab"],
-        "battery_pct": req.battery_pct if req.battery_pct is not None else _mobile_session_state["battery_pct"],
-        "charging": req.charging if req.charging is not None else _mobile_session_state["charging"],
-        "orientation": req.orientation or _mobile_session_state["orientation"],
-        "resolution": req.resolution or _mobile_session_state["resolution"],
-        "last_touch_event": {"x": req.last_touch_x, "y": req.last_touch_y} if req.last_touch_x is not None else None
+        "active_tab": req.active_tab or state.get("active_tab", "tabPc"),
+        "battery_pct": req.battery_pct if req.battery_pct is not None else state.get("battery_pct", 88),
+        "charging": req.charging if req.charging is not None else state.get("charging", False),
+        "orientation": req.orientation or state.get("orientation", "portrait"),
+        "resolution": req.resolution or state.get("resolution", "1080x2400"),
+        "last_touch_event": {"x": req.last_touch_x, "y": req.last_touch_y} if req.last_touch_x is not None else state.get("last_touch_event")
     })
+    save_current_mobile_state(state)
     return {"ok": True, "acknowledged_at": time.time()}

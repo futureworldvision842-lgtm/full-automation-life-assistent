@@ -106,11 +106,39 @@ def open_mobile_app(package_or_alias: str) -> str:
         return f"Successfully launched {pkg} on Android device {dev}."
     return f"Failed to launch {pkg}: {res.stderr.strip()}"
 
+def record_mobile_action(action_type: str, payload: Dict[str, Any]) -> None:
+    events_file = BASE / "runtime" / "mobile_events.json"
+    try:
+        events_file.parent.mkdir(parents=True, exist_ok=True)
+        events = []
+        if events_file.exists():
+            try:
+                events = json.loads(events_file.read_text(encoding="utf-8"))
+                if not isinstance(events, list):
+                    events = []
+            except Exception:
+                events = []
+        events.append({"type": action_type, "payload": payload, "timestamp": time.time()})
+        events_file.write_text(json.dumps(events[-50:], indent=2), encoding="utf-8")
+    except Exception:
+        pass
+
+
 def tap_mobile_screen(x: int, y: int) -> str:
-    """Taps specified screen coordinates on connected Android phone."""
+    """Taps specified screen coordinates on connected Android phone or companion app."""
+    record_mobile_action("tap", {"x": x, "y": y})
+    session_file = BASE / "runtime" / "mobile_session.json"
+    if session_file.exists():
+        try:
+            s = json.loads(session_file.read_text(encoding="utf-8"))
+            s["last_touch_event"] = {"x": x, "y": y, "timestamp": time.time()}
+            session_file.write_text(json.dumps(s, indent=2), encoding="utf-8")
+        except Exception:
+            pass
+
     devices = list_connected_devices()
     if not devices:
-        return "No Android device connected."
+        return f"Dispatched virtual touch tap at ({x}, {y}) to Mobile Companion."
     adb = get_adb_path()
     dev = devices[0]
     cmd = [adb, "-s", dev, "shell", "input", "tap", str(x), str(y)]
@@ -119,9 +147,10 @@ def tap_mobile_screen(x: int, y: int) -> str:
 
 def swipe_mobile_screen(x1: int, y1: int, x2: int, y2: int, duration_ms: int = 300) -> str:
     """Swipes across screen coordinates on connected Android phone."""
+    record_mobile_action("swipe", {"x1": x1, "y1": y1, "x2": x2, "y2": y2, "duration_ms": duration_ms})
     devices = list_connected_devices()
     if not devices:
-        return "No Android device connected."
+        return f"Dispatched virtual swipe from ({x1}, {y1}) to ({x2}, {y2}) to Mobile Companion."
     adb = get_adb_path()
     dev = devices[0]
     cmd = [adb, "-s", dev, "shell", "input", "swipe", str(x1), str(y1), str(x2), str(y2), str(duration_ms)]
@@ -141,9 +170,10 @@ def send_mobile_key(key_action: str) -> str:
         "wake": "224"
     }
     code = key_map.get(key_action.lower(), key_action)
+    record_mobile_action("key", {"key": key_action, "code": code})
     devices = list_connected_devices()
     if not devices:
-        return "No Android device connected via ADB."
+        return f"Dispatched key event '{key_action}' ({code}) to Mobile Companion."
     adb = get_adb_path()
     dev = devices[0]
     subprocess.run([adb, "-s", dev, "shell", "input", "keyevent", str(code)], capture_output=True, timeout=5)
@@ -151,9 +181,10 @@ def send_mobile_key(key_action: str) -> str:
 
 def type_mobile_text(text: str) -> str:
     """Types text directly into the focused field on connected Android phone."""
+    record_mobile_action("type", {"text": text})
     devices = list_connected_devices()
     if not devices:
-        return "No Android device connected via ADB."
+        return f"Dispatched text '{text}' to Mobile Companion."
     adb = get_adb_path()
     dev = devices[0]
     safe_text = text.replace(" ", "%s")

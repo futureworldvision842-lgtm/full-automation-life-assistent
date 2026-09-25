@@ -110,6 +110,7 @@ async def owner_ingress(request: Request, call_next):
         "/api/gaigs/peer-status",
         "/api/accounts/fleet", "/api/accounts/onboard",
         "/api/mobile/screen/live", "/api/mobile/telemetry", "/api/mobile/tap", "/api/mobile/key",
+        "/api/mobile/type", "/api/mobile/adb/connect",
         "/api/memory/learn", "/api/memory/graph", "/api/memory/search",
         "/api/assimilator/tree", "/api/self-healing/log",
         "/api/assimilator/registry", "/api/assimilator/assimilate",
@@ -3953,10 +3954,11 @@ async def api_accounts_fleet():
 
 @app.get("/api/mobile/screen/live")
 async def api_mobile_screen_live():
-    """Streams live phone screen frame from ADB or high-res dynamic HUD frame."""
+    """Streams live phone screen frame from ADB or high-res dynamic cybernetic HUD frame."""
     from starlette.responses import Response
     import actions.android_automation as aa
 
+    # 1. Real ADB physical screencap if device connected
     devices = aa.list_connected_devices()
     if devices:
         capture_res = aa.capture_mobile_screen()
@@ -3964,51 +3966,119 @@ async def api_mobile_screen_live():
             data = Path(capture_res["path"]).read_bytes()
             return Response(content=data, media_type="image/png")
 
-    batt = aa.get_mobile_battery()
-    level = batt.get("level", "88%")
-    status_text = "CHARGING" if batt.get("status") == "2" else "BATTERY ACTIVE"
-    now_str = time.strftime("%H:%M")
+    # 2. Uploaded frame from mobile companion if present
+    custom_frame = BASE / "runtime" / "mobile_frame.jpg"
+    if custom_frame.exists() and (time.time() - custom_frame.stat().st_mtime < 5):
+        return Response(content=custom_frame.read_bytes(), media_type="image/jpeg")
+
+    # 3. Dynamic Real-Time Interactive SVG Mirror driven by live telemetry & heartbeats
+    from core.screen_mirror_router import get_current_mobile_state
+    mob = get_current_mobile_state()
+    now_ts = time.time()
+    last_seen = mob.get("last_seen", 0)
+    is_live = (now_ts - last_seen) < 45
+    batt_pct = mob.get("battery_pct", 88)
+    charging = mob.get("charging", False)
+    active_tab = mob.get("active_tab", "tabPc")
+    active_tab_title = {
+        "tabPc": "🖥️ PC DESKTOP REMOTE",
+        "tabVoice": "🤖 JARVIS VOICE GATE",
+        "tabTrading": "📈 MQ3 PROP TRADING",
+        "tabMarkets": "🌍 GLOBAL RADAR",
+        "tabReports": "📋 MASTER REPORT",
+        "tabGaigs": "🏛️ GAIGS DEMOCRACY"
+    }.get(active_tab, active_tab.upper())
+
+    status_color = "#00ff88" if is_live else "#eab308"
+    status_text = "COMPANION PWA LIVE" if is_live else "STANDBY / WI-FI READY"
+    batt_icon = "⚡" if charging else "🔋"
+    now_str = time.strftime("%H:%M:%S")
+
+    # Touch ripple visualization if tapped recently
+    touch_svg = ""
+    last_touch = mob.get("last_touch_event")
+    if last_touch and isinstance(last_touch, dict):
+        tx = int(last_touch.get("x", 540)) / 1080.0 * 360.0
+        ty = int(last_touch.get("y", 1200)) / 2400.0 * 640.0
+        touch_svg = f"""
+        <circle cx="{tx:.1f}" cy="{ty:.1f}" r="18" fill="none" stroke="#00f0ff" stroke-width="2.5" opacity="0.85">
+          <animate attributeName="r" from="6" to="24" dur="1s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" from="1" to="0" dur="1s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="{tx:.1f}" cy="{ty:.1f}" r="4" fill="#00f0ff"/>
+        """
 
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="360" height="640" viewBox="0 0 360 640">
       <defs>
         <linearGradient id="mBg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#040b15"/>
-          <stop offset="50%" stop-color="#081729"/>
-          <stop offset="100%" stop-color="#02060e"/>
+          <stop offset="0%" stop-color="#030914"/>
+          <stop offset="45%" stop-color="#081b30"/>
+          <stop offset="100%" stop-color="#02050b"/>
+        </linearGradient>
+        <linearGradient id="gCard" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#0d2642" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#061626" stop-opacity="0.9"/>
         </linearGradient>
       </defs>
+      <!-- Background -->
       <rect width="360" height="640" fill="url(#mBg)"/>
-      <rect x="0" y="0" width="360" height="28" fill="#030914" opacity="0.8"/>
+
+      <!-- Android Top Status Bar -->
+      <rect x="0" y="0" width="360" height="28" fill="#020813" opacity="0.95"/>
       <text x="16" y="19" fill="#00f0ff" font-family="monospace" font-size="12" font-weight="bold">{now_str}</text>
-      <text x="344" y="19" fill="#00ff88" font-family="monospace" font-size="11" font-weight="bold" text-anchor="end">⚡ {level}</text>
-      <circle cx="180" cy="175" r="72" fill="none" stroke="#00f0ff" stroke-width="2" stroke-dasharray="6,4" opacity="0.75"/>
-      <circle cx="180" cy="175" r="56" fill="#041220" stroke="#00ff88" stroke-width="2"/>
-      <text x="180" y="170" fill="#00f0ff" font-family="monospace" font-size="13" font-weight="bold" text-anchor="middle">J.A.R.V.I.S.</text>
-      <text x="180" y="188" fill="#00ff88" font-family="monospace" font-size="10" text-anchor="middle">MOBILE OS</text>
-      <rect x="25" y="275" width="310" height="115" rx="12" fill="#07182b" stroke="#123b60" stroke-width="1.5"/>
-      <text x="40" y="302" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold">SOVEREIGN CORE ACTIVE</text>
-      <text x="40" y="324" fill="#94a3b8" font-family="monospace" font-size="10">Master: Muhammad Qureshi</text>
-      <text x="40" y="344" fill="#00f0ff" font-family="monospace" font-size="10">Bi-Directional Mirror: ONLINE (30 FPS)</text>
-      <text x="40" y="364" fill="#00ff88" font-family="monospace" font-size="10">Status: {status_text} • ADB / WS ARMED</text>
-      <g transform="translate(30, 415)">
-        <rect x="0" y="0" width="60" height="60" rx="12" fill="#0d243a" stroke="#00f0ff" stroke-width="1"/>
-        <text x="30" y="34" font-size="20" text-anchor="middle">💬</text>
-        <text x="30" y="52" fill="#94a3b8" font-family="monospace" font-size="8" text-anchor="middle">WhatsApp</text>
-        <rect x="80" y="0" width="60" height="60" rx="12" fill="#0d243a" stroke="#00ff88" stroke-width="1"/>
-        <text x="110" y="34" font-size="20" text-anchor="middle">📈</text>
-        <text x="110" y="52" fill="#94a3b8" font-family="monospace" font-size="8" text-anchor="middle">MT5</text>
-        <rect x="160" y="0" width="60" height="60" rx="12" fill="#0d243a" stroke="#eab308" stroke-width="1"/>
-        <text x="190" y="34" font-size="20" text-anchor="middle">🌐</text>
-        <text x="190" y="52" fill="#94a3b8" font-family="monospace" font-size="8" text-anchor="middle">Chrome</text>
-        <rect x="240" y="0" width="60" height="60" rx="12" fill="#0d243a" stroke="#ef4444" stroke-width="1"/>
-        <text x="270" y="34" font-size="20" text-anchor="middle">📷</text>
-        <text x="270" y="52" fill="#94a3b8" font-family="monospace" font-size="8" text-anchor="middle">Camera</text>
+      <text x="344" y="19" fill="{status_color}" font-family="monospace" font-size="11" font-weight="bold" text-anchor="end">{batt_icon} {batt_pct}%</text>
+
+      <!-- Center Hologram Radar / Arc -->
+      <circle cx="180" cy="165" r="76" fill="none" stroke="#00f0ff" stroke-width="1.5" stroke-dasharray="8,5" opacity="0.6"/>
+      <circle cx="180" cy="165" r="60" fill="#041424" stroke="#00ff88" stroke-width="2"/>
+      <text x="180" y="160" fill="#00f0ff" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle">J.A.R.V.I.S.</text>
+      <text x="180" y="178" fill="#00ff88" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">SOVEREIGN MOBILE</text>
+
+      <!-- Active Status & Panopticon Card -->
+      <rect x="20" y="260" width="320" height="130" rx="14" fill="url(#gCard)" stroke="#1a4975" stroke-width="1.5"/>
+      <text x="36" y="288" fill="#ffffff" font-family="monospace" font-size="12" font-weight="900">SOVEREIGN MOBILE PANOPTICON</text>
+      <text x="36" y="310" fill="#94a3b8" font-family="monospace" font-size="10">Master: Muhammad Qureshi</text>
+      <text x="36" y="330" fill="#00f0ff" font-family="monospace" font-size="10">Active View: {active_tab_title}</text>
+      <circle cx="42" cy="354" r="5" fill="{status_color}"/>
+      <text x="54" y="358" fill="{status_color}" font-family="monospace" font-size="10" font-weight="bold">{status_text} • 30 FPS</text>
+      <text x="36" y="377" fill="#64748b" font-family="monospace" font-size="8.5">Res: {mob.get("resolution", "1080x2400")} • IP: {mob.get("client_ip", "127.0.0.1")}</text>
+
+      <!-- App Grid (WhatsApp, MT5, Chrome, Camera) -->
+      <g transform="translate(25, 410)">
+        <!-- WhatsApp -->
+        <rect x="0" y="0" width="68" height="68" rx="14" fill="#0a2238" stroke="#00f0ff" stroke-width="1.2"/>
+        <text x="34" y="38" font-size="24" text-anchor="middle">💬</text>
+        <text x="34" y="58" fill="#94a3b8" font-family="monospace" font-size="8.5" text-anchor="middle">WhatsApp</text>
+
+        <!-- MT5 -->
+        <rect x="80" y="0" width="68" height="68" rx="14" fill="#0a2238" stroke="#00ff88" stroke-width="1.2"/>
+        <text x="114" y="38" font-size="24" text-anchor="middle">📈</text>
+        <text x="114" y="58" fill="#94a3b8" font-family="monospace" font-size="8.5" text-anchor="middle">MT5</text>
+
+        <!-- Chrome -->
+        <rect x="160" y="0" width="68" height="68" rx="14" fill="#0a2238" stroke="#eab308" stroke-width="1.2"/>
+        <text x="194" y="38" font-size="24" text-anchor="middle">🌐</text>
+        <text x="194" y="58" fill="#94a3b8" font-family="monospace" font-size="8.5" text-anchor="middle">Chrome</text>
+
+        <!-- Camera -->
+        <rect x="240" y="0" width="68" height="68" rx="14" fill="#0a2238" stroke="#ef4444" stroke-width="1.2"/>
+        <text x="274" y="38" font-size="24" text-anchor="middle">📷</text>
+        <text x="274" y="58" fill="#94a3b8" font-family="monospace" font-size="8.5" text-anchor="middle">Camera</text>
       </g>
-      <rect x="30" y="505" width="300" height="42" rx="8" fill="#08253b" stroke="#00ff88" stroke-width="1.5"/>
-      <text x="180" y="531" fill="#00ff88" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">🎮 YEH DABAO (1-TAP SOVEREIGN)</text>
-      <rect x="30" y="560" width="300" height="28" rx="6" fill="#061524" stroke="#143452" stroke-width="1"/>
-      <text x="180" y="578" fill="#38bdf8" font-family="monospace" font-size="9" text-anchor="middle">Click anywhere to send touch tap</text>
-      <line x1="120" y1="615" x2="240" y2="615" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+
+      <!-- 1-Tap Sovereign Button (Yeh Dabao) -->
+      <rect x="25" y="505" width="310" height="45" rx="10" fill="#082b42" stroke="#00ff88" stroke-width="1.8"/>
+      <text x="180" y="533" fill="#00ff88" font-family="monospace" font-size="12" font-weight="900" text-anchor="middle">⚡ YEH DABAO (1-TAP SOVEREIGN)</text>
+
+      <!-- Click hint -->
+      <rect x="25" y="565" width="310" height="28" rx="7" fill="#051524" stroke="#123654" stroke-width="1"/>
+      <text x="180" y="583" fill="#38bdf8" font-family="monospace" font-size="9.5" text-anchor="middle">🎯 Click anywhere to tap phone screen</text>
+
+      <!-- Home bar indicator -->
+      <line x1="120" y1="620" x2="240" y2="620" stroke="#475569" stroke-width="4.5" stroke-linecap="round"/>
+
+      <!-- Recent Touch Ripple -->
+      {touch_svg}
     </svg>"""
     return Response(content=svg, media_type="image/svg+xml")
 
@@ -4017,14 +4087,21 @@ async def api_mobile_screen_live():
 def api_mobile_telemetry():
     """Returns live mobile battery, ADB device presence, and telemetry."""
     import actions.android_automation as aa
+    from core.screen_mirror_router import get_current_mobile_state
+    mob = get_current_mobile_state()
     devices = aa.list_connected_devices()
     batt = aa.get_mobile_battery()
     return {
         "ok": True,
-        "connected": len(devices) > 0,
+        "connected": len(devices) > 0 or ((time.time() - mob.get("last_seen", 0)) < 60),
         "device_count": len(devices),
         "devices": devices,
-        "battery": batt,
+        "battery": {
+            "level": f"{mob.get('battery_pct', 88)}%",
+            "charging": mob.get("charging", False),
+            **batt
+        },
+        "session": mob,
         "gateway_url": "http://127.0.0.1:8765",
         "timestamp": time.time(),
     }
@@ -4032,7 +4109,7 @@ def api_mobile_telemetry():
 
 @app.post("/api/mobile/tap")
 async def api_mobile_tap(req: Request):
-    """Sends touch tap coordinates to connected Android device."""
+    """Sends touch tap coordinates to connected Android device or companion."""
     try:
         body = await req.json()
     except Exception:
@@ -4046,7 +4123,7 @@ async def api_mobile_tap(req: Request):
 
 @app.post("/api/mobile/key")
 async def api_mobile_key(req: Request):
-    """Sends hardware key event to connected Android device."""
+    """Sends hardware key event to connected Android device or companion."""
     try:
         body = await req.json()
     except Exception:
@@ -4055,6 +4132,46 @@ async def api_mobile_key(req: Request):
     import actions.android_automation as aa
     msg = aa.send_mobile_key(key)
     return {"ok": True, "message": msg, "key": key}
+
+
+@app.post("/api/mobile/type")
+async def api_mobile_type(req: Request):
+    """Types text directly into the focused field on connected Android phone."""
+    try:
+        body = await req.json()
+    except Exception:
+        return JSONResponse({"ok": False, "error": "invalid_json"}, status_code=400)
+    text = str(body.get("text", ""))
+    import actions.android_automation as aa
+    msg = aa.type_mobile_text(text)
+    return {"ok": True, "message": msg, "text": text}
+
+
+@app.post("/api/mobile/adb/connect")
+async def api_mobile_adb_connect(req: Request):
+    """Connects to phone over Wi-Fi ADB without needing a USB cable."""
+    try:
+        body = await req.json()
+    except Exception:
+        body = {}
+    ip = str(body.get("ip", "192.168.100.5")).strip()
+    port = int(body.get("port", 5555))
+    import actions.android_automation as aa
+    res = aa.connect_wifi_adb(ip=ip, port=port)
+    return res
+
+
+@app.post("/api/mobile/launch-app")
+async def api_mobile_launch_app(req: Request):
+    """Launches an app on connected phone by name or package."""
+    try:
+        body = await req.json()
+    except Exception:
+        body = {}
+    app_name = str(body.get("app", "whatsapp"))
+    import actions.android_automation as aa
+    msg = aa.open_mobile_app(app_name)
+    return {"ok": True, "message": msg, "app": app_name}
 
 
 

@@ -572,6 +572,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # ==============================================================================
 # Embedded PWA Web Application
 # ==============================================================================
@@ -2658,6 +2667,35 @@ async def api_mouse_click(req: Request):
             user32.mouse_event(0x0002, 0, 0, 0, 0)
             user32.mouse_event(0x0004, 0, 0, 0, 0)
         return {"ok": True, "button": button}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+@app.post("/api/mouse/click_at")
+async def api_mouse_click_at(req: Request):
+    """Direct absolute coordinate click on Windows desktop screen (e.g. from mobile tap)."""
+    try:
+        body = await req.json()
+    except Exception:
+        body = {}
+    x = int(body.get("x", 0))
+    y = int(body.get("y", 0))
+    button = str(body.get("button", "left")).lower()
+    try:
+        user32.SetCursorPos(x, y)
+        time.sleep(0.015)
+        if button in ("right", "r"):
+            user32.mouse_event(0x0008, 0, 0, 0, 0)
+            user32.mouse_event(0x0010, 0, 0, 0, 0)
+        elif button in ("double", "dbl"):
+            user32.mouse_event(0x0002, 0, 0, 0, 0)
+            user32.mouse_event(0x0004, 0, 0, 0, 0)
+            time.sleep(0.04)
+            user32.mouse_event(0x0002, 0, 0, 0, 0)
+            user32.mouse_event(0x0004, 0, 0, 0, 0)
+        else:
+            user32.mouse_event(0x0002, 0, 0, 0, 0)
+            user32.mouse_event(0x0004, 0, 0, 0, 0)
+        return {"ok": True, "x": x, "y": y, "button": button}
     except Exception as e:
         return {"ok": False, "error": str(e)}
 

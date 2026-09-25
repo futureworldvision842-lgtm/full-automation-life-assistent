@@ -2835,6 +2835,18 @@
                   <button onclick="launchAppOnPhone('camera')" class="p-1 rounded bg-[#0b2133] hover:bg-red-950 border border-[#17456d] text-red-300">📷 Camera</button>
                 </div>
               </div>
+
+              <!-- Type Directly Into Phone -->
+              <div class="w-[330px] mt-2 p-2 rounded bg-[#050d18] border border-[#142e47] text-[8.5px]">
+                <div class="text-slate-400 mb-1 flex justify-between items-center">
+                  <span>⌨️ TYPE DIRECTLY INTO PHONE:</span>
+                  <span class="text-emerald-400">Win32 ➔ Android</span>
+                </div>
+                <div class="flex space-x-1">
+                  <input id="mobileTypeInputText" placeholder="Type text / URL / msg..." class="bg-[#091b2e] border border-[#17456d] rounded px-2 py-1 text-white text-[9.5px] flex-1 outline-none focus:border-cyan-400" onkeydown="if(event.key==='Enter')sendTypeToMobile()" />
+                  <button onclick="sendTypeToMobile()" class="btn-tactical py-1 px-3 text-cyan-300 font-bold text-[9.5px]">SEND ↵</button>
+                </div>
+              </div>
             </div>
 
             <!-- Right: Live QR Code & Wi-Fi Connection Guide -->
@@ -2906,6 +2918,17 @@
                     <div class="text-slate-400">Tactile Approvals</div>
                     <div class="text-amber-400 font-bold mt-0.5">YEH DABAO Armed</div>
                   </div>
+                </div>
+
+                <!-- Wireless ADB Pair Bar -->
+                <div class="pt-2 border-t border-[#142e47] flex flex-wrap gap-2 items-center text-[10px]">
+                  <div class="text-slate-300 font-bold flex items-center gap-1">
+                    <span>📶 WIRELESS ADB:</span>
+                  </div>
+                  <input id="wifiAdbIpInput" value="192.168.100.5" placeholder="Phone IP" class="w-32 bg-[#091b2e] border border-[#17456d] rounded px-2 py-1 text-cyan-300 text-xs font-mono outline-none focus:border-cyan-400" />
+                  <input id="wifiAdbPortInput" value="5555" placeholder="Port" class="w-16 bg-[#091b2e] border border-[#17456d] rounded px-2 py-1 text-cyan-300 text-xs font-mono outline-none focus:border-cyan-400" />
+                  <button onclick="connectWifiAdb()" class="btn-tactical py-1 px-3 text-emerald-400 font-bold border-emerald-500/40">⚡ CONNECT WI-FI ADB</button>
+                  <span id="wifiAdbStatusText" class="text-slate-400 text-[9px] font-mono"></span>
                 </div>
 
                 <div class="pt-2 flex gap-2">
@@ -9691,11 +9714,34 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
     }
 
     async function handleMobileScreenClick(event) {
-      const rect = event.currentTarget.getBoundingClientRect();
+      const mirrorDiv = document.getElementById('expandedMobileLiveMirror');
+      if (!mirrorDiv) return;
+      const rect = mirrorDiv.getBoundingClientRect();
       const clickX = event.clientX - rect.left;
       const clickY = event.clientY - rect.top;
       const phoneX = Math.round((clickX / rect.width) * 1080);
       const phoneY = Math.round((clickY / rect.height) * 2400);
+
+      // Create tactile visual ripple
+      const ripple = document.createElement('div');
+      ripple.style.position = 'absolute';
+      ripple.style.left = (clickX - 12) + 'px';
+      ripple.style.top = (clickY - 12) + 'px';
+      ripple.style.width = '24px';
+      ripple.style.height = '24px';
+      ripple.style.borderRadius = '50%';
+      ripple.style.border = '2px solid #00f0ff';
+      ripple.style.background = 'rgba(0, 240, 255, 0.4)';
+      ripple.style.boxShadow = '0 0 12px #00f0ff';
+      ripple.style.pointerEvents = 'none';
+      ripple.style.transition = 'all 0.5s ease-out';
+      ripple.style.zIndex = '50';
+      mirrorDiv.appendChild(ripple);
+      requestAnimationFrame(() => {
+        ripple.style.transform = 'scale(2.2)';
+        ripple.style.opacity = '0';
+      });
+      setTimeout(() => ripple.remove(), 550);
 
       try {
         const res = await fetch('/api/mobile/tap', {
@@ -9704,9 +9750,62 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
           body: JSON.stringify({ x: phoneX, y: phoneY })
         });
         showToast(`Tapped phone at (${phoneX}, ${phoneY})`);
-        setTimeout(refreshLiveMobileScreen, 400);
+        setTimeout(refreshLiveMobileScreen, 300);
       } catch (e) {
         console.error('Tap failed:', e);
+      }
+    }
+
+    async function sendTypeToMobile() {
+      const input = document.getElementById('mobileTypeInputText');
+      const text = (input?.value || '').trim();
+      if (!text) return;
+      try {
+        const res = await fetch('/api/mobile/type', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text })
+        });
+        showToast(`Typed to phone: "${text}"`);
+        input.value = '';
+        setTimeout(refreshLiveMobileScreen, 500);
+      } catch (e) {
+        showToast(`Type error: ${e.message}`);
+      }
+    }
+
+    async function connectWifiAdb() {
+      const ipInput = document.getElementById('wifiAdbIpInput');
+      const portInput = document.getElementById('wifiAdbPortInput');
+      const statusEl = document.getElementById('wifiAdbStatusText');
+      const ip = (ipInput?.value || '192.168.100.5').trim();
+      const port = parseInt(portInput?.value || '5555');
+
+      if (statusEl) statusEl.innerText = 'Connecting...';
+      try {
+        const res = await fetch('/api/mobile/adb/connect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ip: ip, port: port })
+        });
+        const d = await res.json();
+        if (d.ok) {
+          if (statusEl) {
+            statusEl.innerText = `Connected: ${d.target}`;
+            statusEl.className = 'text-emerald-400 text-[9px] font-mono';
+          }
+          showToast(`Wi-Fi ADB Connected to ${d.target}!`);
+          setTimeout(refreshLiveMobileScreen, 600);
+        } else {
+          if (statusEl) {
+            statusEl.innerText = d.output || d.error || 'Failed';
+            statusEl.className = 'text-amber-400 text-[9px] font-mono';
+          }
+          showToast(`ADB: ${d.output || d.error}`);
+        }
+      } catch (e) {
+        if (statusEl) statusEl.innerText = e.message;
+        showToast(`ADB Error: ${e.message}`);
       }
     }
 
