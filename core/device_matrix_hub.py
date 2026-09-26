@@ -35,11 +35,22 @@ class DeviceMatrixHub:
     def __init__(self):
         self._devices: Dict[str, Dict[str, Any]] = {}
         self._command_queues: Dict[str, List[Dict[str, Any]]] = {}
+        self._last_loaded_mtime: float = 0.0
         self._load_registry()
+
+    def _ensure_fresh_registry(self) -> None:
+        if DEVICES_REGISTRY_FILE.exists():
+            try:
+                mtime = DEVICES_REGISTRY_FILE.stat().st_mtime
+                if mtime > self._last_loaded_mtime:
+                    self._load_registry()
+            except Exception:
+                pass
 
     def _load_registry(self) -> None:
         if DEVICES_REGISTRY_FILE.exists():
             try:
+                self._last_loaded_mtime = DEVICES_REGISTRY_FILE.stat().st_mtime
                 data = json.loads(DEVICES_REGISTRY_FILE.read_text(encoding="utf-8"))
                 if isinstance(data, dict):
                     self._devices = data.get("devices", {})
@@ -185,6 +196,7 @@ class DeviceMatrixHub:
 
     def update_device_telemetry(self, device_id: str, telemetry: Dict[str, Any]) -> Dict[str, Any]:
         """Ingests live telemetry from an enrolled device (GPS, battery, screen state, orientation)."""
+        self._ensure_fresh_registry()
         dev = self._devices.get(device_id)
         if not dev:
             # Fallback to default_mobile if unmatched
@@ -273,6 +285,7 @@ class DeviceMatrixHub:
 
     def queue_command(self, device_id: str, cmd_type: str, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Queues a remote command to be executed by the target device."""
+        self._ensure_fresh_registry()
         packet = {
             "command_id": f"cmd_{secrets.token_hex(4)}",
             "type": cmd_type.upper().strip(),
@@ -294,6 +307,7 @@ class DeviceMatrixHub:
 
     def list_fleet(self) -> List[Dict[str, Any]]:
         """Returns all enrolled satellite devices with online/offline status."""
+        self._ensure_fresh_registry()
         now = time.time()
         result = []
         for dev_id, dev in self._devices.items():
