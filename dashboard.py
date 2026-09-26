@@ -8076,5 +8076,5 @@ def home(view: str = ""):
 
 if __name__ == "__main__":
     print(f"[JARVIS Master Command Center] http://localhost:{PORT}")
-    bind_host = os.getenv("JARVIS_DASHBOARD_BIND", "127.0.0.1")
+    bind_host = os.getenv("JARVIS_DASHBOARD_BIND", "0.0.0.0")
     uvicorn.run(app, host=bind_host, port=PORT, log_level="warning")
