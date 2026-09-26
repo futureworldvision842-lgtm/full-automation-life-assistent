@@ -114,13 +114,15 @@ async def api_upload_screen_frame(device_id: str, frame: UploadFile = File(...))
 async def api_upload_screen_frame_b64(device_id: str, req: Dict[str, Any]) -> Dict[str, Any]:
     """Receives base64-encoded screen snapshot directly from phone Canvas/MediaStream."""
     hub = get_device_matrix_hub()
-    b64_data = req.get("image") or req.get("data") or ""
+    b64_data = req.get("image") or req.get("data") or req.get("frame") or ""
     if "," in b64_data:
         b64_data = b64_data.split(",", 1)[1]
     try:
         raw_bytes = base64.b64decode(b64_data)
+        if not raw_bytes:
+            return {"ok": False, "error": "Empty payload"}
         ok = hub.save_screen_frame(device_id, raw_bytes)
-        return {"ok": ok, "device_id": device_id, "timestamp": time.time()}
+        return {"ok": ok, "device_id": device_id, "size_bytes": len(raw_bytes), "timestamp": time.time()}
     except Exception as e:
         return {"ok": False, "error": str(e)}
 
