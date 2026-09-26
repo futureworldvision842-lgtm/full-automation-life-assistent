@@ -252,7 +252,7 @@ def main():
     env.setdefault("JARVIS_WEB_LLM_ENABLED", "0")
     env["JARVIS_WA_GROUP_COMMANDS"] = "0"
     env['MQ3_READ_ONLY'] = '0'
-    env['JARVIS_DASHBOARD_BIND'] = '127.0.0.1'
+    env['JARVIS_DASHBOARD_BIND'] = os.getenv('JARVIS_DASHBOARD_BIND', '0.0.0.0')
     children = {}
     try:
         while not STOP_FLAG.exists():
