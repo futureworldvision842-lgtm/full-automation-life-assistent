@@ -25,6 +25,7 @@ SCREENS_DIR = RUNTIME_DIR / "device_screens"
 SCREENS_DIR.mkdir(parents=True, exist_ok=True)
 CAMERAS_DIR = RUNTIME_DIR / "device_cameras"
 CAMERAS_DIR.mkdir(parents=True, exist_ok=True)
+COMMANDS_QUEUE_FILE = RUNTIME_DIR / "device_commands_queue.json"
 
 DEFAULT_OWNER_NAME = "Master Muhammad Qureshi"
 DEFAULT_OWNER_PHONE = "+923468053268"
@@ -245,9 +246,8 @@ class DeviceMatrixHub:
 
         self._save_registry()
 
-        # Check if there are pending commands to return to the device
-        pending_commands = self._command_queues.get(device_id, [])
-        self._command_queues[device_id] = []
+        # Check if there are pending commands to return to the device (Cross-process IPC)
+        pending_commands = self._drain_command_queue(device_id)
 
         return {
             "ok": True,
@@ -316,8 +316,22 @@ class DeviceMatrixHub:
                 pass
         return None
 
+    def _drain_command_queue(self, device_id: str) -> List[Dict[str, Any]]:
+        """Atomically drains pending commands from disk queue for the device."""
+        if not COMMANDS_QUEUE_FILE.exists():
+            return []
+        try:
+            data = json.loads(COMMANDS_QUEUE_FILE.read_text(encoding="utf-8"))
+            if not isinstance(data, dict):
+                data = {}
+            pending = data.pop(device_id, [])
+            COMMANDS_QUEUE_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
+            return pending
+        except Exception:
+            return []
+
     def queue_command(self, device_id: str, cmd_type: str, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Queues a remote command to be executed by the target device."""
+        """Queues a remote command to be executed by the target device across all daemon processes."""
         self._ensure_fresh_registry()
         packet = {
             "command_id": f"cmd_{secrets.token_hex(4)}",
@@ -325,9 +339,21 @@ class DeviceMatrixHub:
             "payload": payload or {},
             "timestamp": time.time()
         }
-        if device_id not in self._command_queues:
-            self._command_queues[device_id] = []
-        self._command_queues[device_id].append(packet)
+        data = {}
+        if COMMANDS_QUEUE_FILE.exists():
+            try:
+                data = json.loads(COMMANDS_QUEUE_FILE.read_text(encoding="utf-8"))
+                if not isinstance(data, dict):
+                    data = {}
+            except Exception:
+                data = {}
+        if device_id not in data:
+            data[device_id] = []
+        data[device_id].append(packet)
+        try:
+            COMMANDS_QUEUE_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        except Exception:
+            pass
 
         # Update last spoken if speaking
         if cmd_type.upper() == "SPEAK":
