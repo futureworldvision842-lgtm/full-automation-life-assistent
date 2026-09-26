@@ -441,6 +441,35 @@ input:focus, textarea:focus {
     </div>
   </div>
 
+  <!-- 1.5 Bi-Directional Phone-to-PC Screen, GPS & Duplex Audio -->
+  <div class="card" style="border: 1.5px solid var(--pri); background: linear-gradient(135deg, rgba(0,240,255,0.06), rgba(7,21,38,0.92));">
+    <div class="card-header">
+      <span>📱 SHARE PHONE SCREEN &amp; GPS WITH PC</span>
+      <span class="metric-val cyan" id="phoneShareStatus">STANDBY</span>
+    </div>
+    <div style="font-size:10px; color:#a2e4ff; margin-bottom:8px;">
+      Allow J.A.R.V.I.S. on your PC to see your phone screen live, track GPS location, and talk through phone speaker.
+    </div>
+    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+      <button id="btnMobBroadcast" class="pri" style="flex:1; min-width:140px; padding:10px; font-size:11px; font-weight:bold;" onclick="togglePhoneToPcScreen()">
+        🔴 BROADCAST PHONE SCREEN
+      </button>
+      <button id="btnMobGps" class="gold" style="flex:1; min-width:120px; padding:10px; font-size:11px; font-weight:bold;" onclick="togglePhoneGps()">
+        📍 SHARE LIVE GPS
+      </button>
+      <button class="grn" style="flex:1; min-width:120px; padding:10px; font-size:11px; font-weight:bold;" onclick="testPhoneSpeaker()">
+        🔊 SPEAKER TEST
+      </button>
+    </div>
+    <div id="mobScreenPreview" style="display:none; margin-top:8px;">
+      <video id="mobLocalVideo" autoplay muted playsinline style="width:100%; max-height:160px; object-fit:contain; border-radius:6px; background:#000;"></video>
+      <div style="font-size:9px; color:var(--pri); font-family:var(--font-mono); text-align:center; margin-top:4px;">
+        STREAMING LIVE TO PC COCKPIT AT 10 FPS
+      </div>
+    </div>
+    <canvas id="mobCanvas" style="display:none;"></canvas>
+  </div>
+
   <!-- 2. Virtual PC Keyboard & Physical Shortcuts -->
   <div class="card">
     <div class="card-header">
@@ -2545,6 +2574,130 @@ async function runMobileVibeCoder() {
   } finally {
     if (btn) btn.innerText = '🚀 VIBE CODE NOW';
   }
+}
+
+// =============================================================================
+// PHONE-TO-PC LIVE SCREEN BROADCAST, GPS & SPEAKER DUPLEX
+// =============================================================================
+let phoneScreenStream = null;
+let phoneScreenInterval = null;
+let phoneGpsWatchId = null;
+let phoneWakeLock = null;
+
+async function togglePhoneToPcScreen() {
+  const btn = document.getElementById('btnMobBroadcast');
+  const preview = document.getElementById('mobScreenPreview');
+  const video = document.getElementById('mobLocalVideo');
+  const status = document.getElementById('phoneShareStatus');
+
+  if (phoneScreenStream) {
+    if (phoneScreenInterval) clearInterval(phoneScreenInterval);
+    phoneScreenStream.getTracks().forEach(t => t.stop());
+    phoneScreenStream = null;
+    if (phoneWakeLock) { try { await phoneWakeLock.release(); } catch(e){} phoneWakeLock = null; }
+    preview.style.display = 'none';
+    btn.innerText = '🔴 BROADCAST PHONE SCREEN';
+    btn.className = 'pri';
+    status.innerText = 'STANDBY';
+    status.className = 'metric-val cyan';
+    showToast('Phone screen broadcast stopped.');
+  } else {
+    try {
+      phoneScreenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { displaySurface: 'monitor', cursor: 'always' },
+        audio: false
+      });
+      video.srcObject = phoneScreenStream;
+      preview.style.display = 'block';
+      btn.innerText = '⏹️ STOP SCREEN BROADCAST';
+      btn.className = 'red';
+      status.innerText = 'STREAMING LIVE';
+      status.className = 'metric-val red';
+
+      try {
+        if ('wakeLock' in navigator) phoneWakeLock = await navigator.wakeLock.request('screen');
+      } catch(e){}
+
+      const canvas = document.getElementById('mobCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 640;
+      canvas.height = 360;
+
+      phoneScreenInterval = setInterval(async () => {
+        if (!phoneScreenStream) return;
+        try {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const b64 = canvas.toDataURL('image/jpeg', 0.65);
+          await fetch(`${state.backend}/api/devices/default_mobile/screen-frame/base64`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: b64 })
+          });
+        } catch(e) {}
+      }, 100);
+
+      phoneScreenStream.getVideoTracks()[0].onended = () => {
+        togglePhoneToPcScreen();
+      };
+      showToast('Phone screen now streaming live to PC Cockpit!');
+    } catch (err) {
+      showToast('Screen share cancelled/denied: ' + err.message);
+    }
+  }
+}
+
+function togglePhoneGps() {
+  const btn = document.getElementById('btnMobGps');
+  if (phoneGpsWatchId) {
+    navigator.geolocation.clearWatch(phoneGpsWatchId);
+    phoneGpsWatchId = null;
+    btn.innerText = '📍 SHARE LIVE GPS';
+    showToast('GPS sharing stopped.');
+  } else {
+    if (!('geolocation' in navigator)) {
+      showToast('Geolocation not supported in browser.');
+      return;
+    }
+    phoneGpsWatchId = navigator.geolocation.watchPosition(
+      async pos => {
+        btn.innerText = '📍 GPS STREAMING';
+        try {
+          await fetch(`${state.backend}/api/devices/default_mobile/telemetry`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              gps: {
+                lat: pos.coords.latitude,
+                lon: pos.coords.longitude,
+                accuracy: pos.coords.accuracy,
+                speed: pos.coords.speed || 0.0,
+                altitude: pos.coords.altitude
+              }
+            })
+          });
+        } catch(e){}
+      },
+      err => {
+        showToast('GPS error: ' + err.message);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+    showToast('High-accuracy GPS streaming to PC!');
+  }
+}
+
+function testPhoneSpeaker() {
+  if (!('speechSynthesis' in window)) {
+    showToast('Speech synthesis not supported in this browser.');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance('Assalam-o-Alaikum Sir, J.A.R.V.I.S. is speaking directly through your phone speaker.');
+  utter.rate = 1.0;
+  utter.pitch = 1.0;
+  utter.lang = 'en-US';
+  window.speechSynthesis.speak(utter);
+  showToast('Speaking aloud through phone speaker...');
 }
 
 // Initialize on page load

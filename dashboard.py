@@ -74,6 +74,8 @@ from core.vibe_coder import vibe_router
 app.include_router(vibe_router)
 from core.screen_mirror_router import screen_mirror_router
 app.include_router(screen_mirror_router)
+from core.device_api_router import device_router
+app.include_router(device_router)
 app.mount('/command-center-assets', StaticFiles(directory=str(BASE / 'web' / 'command_center')), name='command-center-assets')
 js_assets_dir = BASE / 'web' / 'js'
 js_assets_dir.mkdir(parents=True, exist_ok=True)
@@ -136,7 +138,7 @@ async def owner_ingress(request: Request, call_next):
         "/api/media/channels", "/api/media/scripts",
         "/api/media/scripts/generate", "/api/media/scripts/approve"
     }
-    is_exempt = request.url.path in exempt_paths or request.url.path.startswith("/api/repos/") or request.url.path.startswith("/api/tasks/") or request.url.path.startswith("/api/gaigs/") or request.url.path.startswith("/api/media/") or request.url.path.startswith("/api/alerts/") or request.url.path.startswith("/api/sentinel/") or request.url.path.startswith("/api/vibe/") or request.url.path.startswith("/api/screen/")
+    is_exempt = request.url.path in exempt_paths or request.url.path.startswith("/api/repos/") or request.url.path.startswith("/api/tasks/") or request.url.path.startswith("/api/gaigs/") or request.url.path.startswith("/api/media/") or request.url.path.startswith("/api/alerts/") or request.url.path.startswith("/api/sentinel/") or request.url.path.startswith("/api/vibe/") or request.url.path.startswith("/api/screen/") or request.url.path.startswith("/api/devices/")
     if request.url.path.startswith("/api/") and not is_exempt:
         supplied = (
             request.headers.get("X-Jarvis-Internal-Token", "")
@@ -4214,6 +4216,21 @@ async def api_mobile_screen_live():
     if custom_frame.exists() and (time.time() - custom_frame.stat().st_mtime < 5):
         return Response(content=custom_frame.read_bytes(), media_type="image/jpeg")
 
+    # 2b. Uploaded frame from device matrix hub (Satellite Node / Phone stream)
+    try:
+        from core.device_matrix_hub import get_device_matrix_hub
+        hub = get_device_matrix_hub()
+        raw_screen = hub.get_latest_screen_frame("default_mobile")
+        if not raw_screen:
+            for dev_id in hub._devices:
+                raw_screen = hub.get_latest_screen_frame(dev_id)
+                if raw_screen:
+                    break
+        if raw_screen:
+            return Response(content=raw_screen, media_type="image/jpeg")
+    except Exception:
+        pass
+
     # 3. Dynamic Real-Time Interactive SVG Mirror driven by live telemetry & heartbeats
     from core.screen_mirror_router import get_current_mobile_state
     mob = get_current_mobile_state()
@@ -8052,6 +8069,15 @@ def mobile_companion_view():
     if html_file.exists():
         return html_file.read_text(encoding="utf-8", errors="ignore")
     return HTMLResponse("<h1>Mobile Companion not found</h1>", status_code=404)
+
+
+@app.get("/enroll", response_class=HTMLResponse)
+@app.get("/device/node", response_class=HTMLResponse)
+def serve_device_node_page():
+    node_file = BASE / "web" / "device_node.html"
+    if node_file.exists():
+        return node_file.read_text(encoding="utf-8", errors="ignore")
+    return HTMLResponse("<h1>J.A.R.V.I.S. Device Node</h1>")
 
 
 @app.get("/", response_class=HTMLResponse)

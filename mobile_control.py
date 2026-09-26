@@ -1933,7 +1933,7 @@ async def mobile_owner_ingress(req: Request, call_next):
         token_valid = True
 
     exempt_paths = {"/api/health", "/api/download/apk", "/api/download/gaigs-apk", "/api/client/pair"}
-    is_exempt = req.url.path in exempt_paths or req.url.path.startswith("/api/gaigs/") or req.url.path.startswith("/api/media/") or req.url.path.startswith("/api/repos/") or req.url.path.startswith("/api/tasks/") or req.url.path.startswith("/api/alerts/") or req.url.path.startswith("/api/sentinel/") or req.url.path.startswith("/api/vibe/") or req.url.path.startswith("/api/screen/")
+    is_exempt = req.url.path in exempt_paths or req.url.path.startswith("/api/gaigs/") or req.url.path.startswith("/api/media/") or req.url.path.startswith("/api/repos/") or req.url.path.startswith("/api/tasks/") or req.url.path.startswith("/api/alerts/") or req.url.path.startswith("/api/sentinel/") or req.url.path.startswith("/api/vibe/") or req.url.path.startswith("/api/screen/") or req.url.path.startswith("/api/devices/")
     if req.url.path.startswith("/api/") and not is_exempt:
         origin = req.headers.get("origin")
         same_origin = not origin or origin.rstrip("/") == str(req.base_url).rstrip("/")
@@ -2114,6 +2114,17 @@ def _load_mobile_page() -> str:
         except Exception:
             pass
     return MOBILE_PAGE
+
+@app.get("/enroll", response_class=HTMLResponse)
+@app.get("/device/node", response_class=HTMLResponse)
+def serve_device_node_page(req: Request):
+    node_html_path = BASE / "web" / "device_node.html"
+    if node_html_path.exists():
+        try:
+            return node_html_path.read_text(encoding="utf-8")
+        except Exception:
+            pass
+    return "<h1>J.A.R.V.I.S. Device Satellite Node</h1>"
 
 @app.get("/", response_class=HTMLResponse)
 def home(req: Request):
@@ -3626,6 +3637,8 @@ try:
     app.include_router(vibe_router)
     from core.screen_mirror_router import screen_mirror_router
     app.include_router(screen_mirror_router)
+    from core.device_api_router import device_router
+    app.include_router(device_router)
 except Exception as _gaigs_router_err:
     pass
 

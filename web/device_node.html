@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#030811">
+<title>⚡ J.A.R.V.I.S. Sovereign Satellite Node</title>
+<link rel="manifest" href="/manifest.json">
+<style>
+:root {
+  --bg: #030811;
+  --pan: #071526;
+  --pan2: #0b223d;
+  --bd: #133a5e;
+  --pri: #00f0ff;
+  --pri-glow: rgba(0, 240, 255, 0.4);
+  --gold: #ffb800;
+  --grn: #00ff88;
+  --red: #ff3366;
+  --txt: #e2f1ff;
+  --dim: #7da5c2;
+  --font-mono: 'Consolas', 'Fira Code', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+body {
+  background: var(--bg);
+  color: var(--txt);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 12px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+header {
+  background: var(--pan);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: var(--pri);
+}
+.pulse-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--grn);
+  box-shadow: 0 0 10px var(--grn);
+  animation: pulse 1.8s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 16px var(--grn); }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+.badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0, 255, 136, 0.15);
+  border: 1px solid var(--grn);
+  color: var(--grn);
+}
+
+.card {
+  background: var(--pan);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.5);
+}
+.card-title {
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+button {
+  background: var(--pan2);
+  border: 1px solid var(--bd);
+  color: var(--txt);
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all .15s;
+}
+button:active { transform: scale(0.97); }
+button.pri {
+  background: linear-gradient(135deg, rgba(0,240,255,0.2), rgba(0,119,182,0.3));
+  border-color: var(--pri);
+  color: #fff;
+  box-shadow: 0 0 12px var(--pri-glow);
+}
+button.red {
+  background: linear-gradient(135deg, rgba(255,51,102,0.25), rgba(180,0,50,0.35));
+  border-color: var(--red);
+  color: #fff;
+}
+button.gold {
+  background: linear-gradient(135deg, rgba(255,184,0,0.25), rgba(200,120,0,0.35));
+  border-color: var(--gold);
+  color: var(--gold);
+}
+button.grn {
+  background: linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,150,70,0.3));
+  border-color: var(--grn);
+  color: var(--grn);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(19, 58, 94, 0.4);
+  font-size: 11.5px;
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-val { font-weight: 900; font-family: var(--font-mono); color: var(--pri); }
+
+#screenPreviewWrapper {
+  display: none;
+  margin-top: 10px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+}
+video#screenVideo { width: 100%; height: auto; max-height: 200px; display: block; object-fit: contain; }
+
+.status-log {
+  background: #02050c;
+  border: 1px solid #10263f;
+  border-radius: 8px;
+  padding: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #9bd7f5;
+  height: 90px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="pulse-dot" id="connDot"></div>
+    <span id="nodeHeaderTitle">⚡ J.A.R.V.I.S. SATELLITE NODE</span>
+  </div>
+  <div class="badge" id="connBadge">ONLINE</div>
+</header>
+
+<!-- Main Node State Card -->
+<div class="card">
+  <div class="card-title">
+    <span>DEVICE VITALS &amp; TELEMETRY</span>
+    <span id="deviceIdLabel" style="color:var(--gold); font-family:var(--font-mono);">DEFAULT_MOBILE</span>
+  </div>
+  <div class="stat-row">
+    <span>Target Owner:</span>
+    <span class="stat-val" style="color:var(--gold);">Master Muhammad Qureshi</span>
+  </div>
+  <div class="stat-row">
+    <span>Battery:</span>
+    <span class="stat-val" id="statBattery">92% · Discharging</span>
+  </div>
+  <div class="stat-row">
+    <span>GPS Location:</span>
+    <span class="stat-val" id="statGps">Active · Tracking</span>
+  </div>
+  <div class="stat-row">
+    <span>Screen Broadcast:</span>
+    <span class="stat-val" id="statScreen">Idle</span>
+  </div>
+  <div class="stat-row">
+    <span>Speaker Audio:</span>
+    <span class="stat-val" id="statSpeaker" style="color:var(--grn);">Ready (Urdu/English)</span>
+  </div>
+</div>
+
+<!-- Live Dual Actions -->
+<div class="card">
+  <div class="card-title">
+    <span>BI-DIRECTIONAL SATELLITE CONTROLS</span>
+  </div>
+  
+  <div style="margin-bottom:8px;">
+    <button id="btnScreenShare" class="pri" style="width:100%; padding:14px;" onclick="toggleScreenBroadcast()">
+      🔴 BROADCAST MOBILE SCREEN TO PC
+    </button>
+  </div>
+  <div id="screenPreviewWrapper">
+    <video id="screenVideo" autoplay muted playsinline></video>
+    <div style="font-size:9.5px; padding:4px 8px; background:rgba(0,0,0,0.8); color:var(--pri); font-family:var(--font-mono); text-align:center;">
+      STREAMING TO J.A.R.V.I.S. PC DASHBOARD AT 10 FPS
+    </div>
+  </div>
+
+  <div class="btn-grid">
+    <button class="gold" onclick="toggleGpsTracking()" id="btnGps">
+      📍 GPS ON
+    </button>
+    <button class="grn" onclick="testSpeakerSpeech()">
+      🔊 TEST SPEAKER
+    </button>
+  </div>
+
+  <div class="btn-grid" style="margin-top:8px;">
+    <button class="pri" onclick="startVoiceRecognition()" id="btnVoice">
+      🎙️ SPEAK TO JARVIS
+    </button>
+    <button class="gold" onclick="installPWA()" id="btnInstallPwa">
+      📲 ADD TO HOME SCREEN
+    </button>
+  </div>
+</div>
+
+<!-- Navigation to Main Companion -->
+<div class="card" style="text-align:center;">
+  <div style="font-size:11px; color:var(--dim); margin-bottom:8px;">Want full PC mouse &amp; keyboard remote control?</div>
+  <button class="pri" style="width:100%;" onclick="window.location.href='/'">
+    🖥️ OPEN FULL PC DESKTOP REMOTE
+  </button>
+</div>
+
+<!-- Live Telemetry Stream Log -->
+<div class="card" style="margin-top:auto;">
+  <div class="card-title"><span>TELEMETRY DISPATCH LOG</span></div>
+  <div class="status-log" id="statusLog">
+    <div>[System] J.A.R.V.I.S. Satellite Node Engine initialized.</div>
+  </div>
+</div>
+
+<canvas id="screenCanvas" style="display:none;"></canvas>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const DEVICE_ID = urlParams.get('id') || 'default_mobile';
+const TOKEN = urlParams.get('token') || 'wHUfdgY-AdHQZMb93xK5ZB-uNeYoXrQ_0p7RgTgnAhE';
+const DEVICE_NAME = urlParams.get('name') || 'Master Muhammad Galaxy Ultra';
+
+document.getElementById('deviceIdLabel').innerText = DEVICE_ID;
+document.getElementById('nodeHeaderTitle').innerText = '⚡ ' + DEVICE_NAME.toUpperCase();
+
+const state = {
+  backend: window.location.origin,
+  gpsWatchId: null,
+  currentGps: null,
+  screenStream: null,
+  screenInterval: null,
+  battery: { pct: 88, charging: false },
+  wakeLock: null,
+  deferredPrompt: null
+};
+
+function logMsg(msg) {
+  const logEl = document.getElementById('statusLog');
+  const d = document.createElement('div');
+  d.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  logEl.prepend(d);
+}
+
+// 1. Battery Telemetry
+if ('getBattery' in navigator) {
+  navigator.getBattery().then(b => {
+    function updateB() {
+      state.battery.pct = Math.round(b.level * 100);
+      state.battery.charging = b.charging;
+      document.getElementById('statBattery').innerText = `${state.battery.pct}% · ${b.charging ? '⚡ Charging' : 'Discharging'}`;
+    }
+    updateB();
+    b.addEventListener('levelchange', updateB);
+    b.addEventListener('chargingchange', updateB);
+  });
+}
+
+// 2. High-Precision GPS Tracking
+function toggleGpsTracking() {
+  if (state.gpsWatchId) {
+    navigator.geolocation.clearWatch(state.gpsWatchId);
+    state.gpsWatchId = null;
+    document.getElementById('btnGps').innerText = '📍 GPS OFF';
+    document.getElementById('statGps').innerText = 'Paused';
+    logMsg('GPS tracking paused.');
+  } else {
+    if (!('geolocation' in navigator)) {
+      alert('Geolocation is not supported by your browser.');
+      return;
+    }
+    document.getElementById('statGps').innerText = 'Acquiring satellites...';
+    state.gpsWatchId = navigator.geolocation.watchPosition(
+      pos => {
+        state.currentGps = {
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+          altitude: pos.coords.altitude,
+          speed: pos.coords.speed || 0.0,
+          heading: pos.coords.heading || 0.0,
+          timestamp: pos.timestamp
+        };
+        document.getElementById('statGps').innerText = `${state.currentGps.lat.toFixed(4)}, ${state.currentGps.lon.toFixed(4)} (±${Math.round(state.currentGps.accuracy)}m)`;
+        document.getElementById('btnGps').innerText = '📍 GPS ON (ACTIVE)';
+        dispatchTelemetry();
+      },
+      err => {
+        logMsg('GPS Error: ' + err.message);
+        document.getElementById('statGps').innerText = 'Error: ' + err.message;
+      },
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+    );
+    logMsg('GPS high-accuracy tracking started.');
+  }
+}
+
+// Start GPS automatically on load
+toggleGpsTracking();
+
+// 3. Screen Broadcast (Phone -> PC)
+async function toggleScreenBroadcast() {
+  if (state.screenStream) {
+    stopScreenBroadcast();
+  } else {
+    try {
+      logMsg('Requesting screen capture permission...');
+      state.screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { displaySurface: 'monitor', cursor: 'always' },
+        audio: false
+      });
+      const video = document.getElementById('screenVideo');
+      video.srcObject = state.screenStream;
+      document.getElementById('screenPreviewWrapper').style.display = 'block';
+      document.getElementById('btnScreenShare').innerText = '⏹️ STOP SCREEN BROADCAST';
+      document.getElementById('btnScreenShare').className = 'red';
+      document.getElementById('statScreen').innerText = 'LIVE BROADCASTING';
+      document.getElementById('statScreen').style.color = 'var(--red)';
+
+      // Keep screen awake
+      if ('wakeLock' in navigator) {
+        try { state.wakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
+      }
+
+      // Frame chunker at 10 FPS
+      const canvas = document.getElementById('screenCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 640;
+      canvas.height = 360;
+
+      state.screenInterval = setInterval(async () => {
+        if (!state.screenStream) return;
+        try {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const b64 = canvas.toDataURL('image/jpeg', 0.65);
+          await fetch(`${state.backend}/api/devices/${DEVICE_ID}/screen-frame/base64`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: b64 })
+          });
+        } catch(e) {}
+      }, 100);
+
+      state.screenStream.getVideoTracks()[0].onended = () => {
+        stopScreenBroadcast();
+      };
+      logMsg('Screen broadcast streaming live to PC Cockpit.');
+    } catch(err) {
+      logMsg('Screen share cancelled/denied: ' + err.message);
+    }
+  }
+}
+
+function stopScreenBroadcast() {
+  if (state.screenInterval) clearInterval(state.screenInterval);
+  if (state.screenStream) {
+    state.screenStream.getTracks().forEach(t => t.stop());
+    state.screenStream = null;
+  }
+  if (state.wakeLock) { state.wakeLock.release(); state.wakeLock = null; }
+  document.getElementById('screenPreviewWrapper').style.display = 'none';
+  document.getElementById('btnScreenShare').innerText = '🔴 BROADCAST MOBILE SCREEN TO PC';
+  document.getElementById('btnScreenShare').className = 'pri';
+  document.getElementById('statScreen').innerText = 'Idle';
+  document.getElementById('statScreen').style.color = 'var(--pri)';
+  logMsg('Screen broadcast stopped.');
+}
+
+// 4. Speaker Speech Output (Jarvis Voice)
+function speakThroughPhone(text, lang = 'ur') {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 1.0;
+  utter.pitch = 1.0;
+  utter.volume = 1.0;
+  utter.lang = (lang === 'ur') ? 'ur-PK' : 'en-US';
+  window.speechSynthesis.speak(utter);
+  logMsg(`🔊 Phone Speaker: "${text}"`);
+}
+
+function testSpeakerSpeech() {
+  speakThroughPhone('Assalam-o-Alaikum Sir, J.A.R.V.I.S. is speaking directly through your phone speaker.');
+}
+
+// 5. Speech Recognition (Phone Mic -> Jarvis)
+function startVoiceRecognition() {
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) {
+    alert('Voice recognition not supported in this browser. Please use Chrome.');
+    return;
+  }
+  const rec = new SpeechRec();
+  rec.lang = 'en-US';
+  rec.continuous = false;
+  rec.interimResults = false;
+
+  document.getElementById('btnVoice').innerText = '🎙️ LISTENING...';
+  rec.onresult = async e => {
+    const transcript = e.results[0][0].transcript;
+    logMsg(`User voice: "${transcript}"`);
+    document.getElementById('btnVoice').innerText = '⚡ EXECUTING...';
+    try {
+      const res = await fetch(`${state.backend}/api/command`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: transcript })
+      });
+      const data = await res.json();
+      const reply = data.output || 'Command acknowledged, Sir.';
+      speakThroughPhone(reply, data.lang || 'ur');
+    } catch(err) {
+      speakThroughPhone('Command dispatch error, Sir.');
+    } finally {
+      document.getElementById('btnVoice').innerText = '🎙️ SPEAK TO JARVIS';
+    }
+  };
+  rec.onerror = () => {
+    document.getElementById('btnVoice').innerText = '🎙️ SPEAK TO JARVIS';
+  };
+  rec.start();
+}
+
+// 6. Telemetry & Remote Command Dispatcher (Heartbeat Poll)
+async function dispatchTelemetry() {
+  try {
+    const payload = {
+      device_name: DEVICE_NAME,
+      battery_pct: state.battery.pct,
+      charging: state.battery.charging,
+      gps: state.currentGps,
+      screen_sharing: {
+        active: Boolean(state.screenStream),
+        last_frame_at: state.screenStream ? Date.now() / 1000 : null
+      }
+    };
+    const res = await fetch(`${state.backend}/api/devices/${DEVICE_ID}/telemetry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.commands && data.commands.length > 0) {
+      for (const cmd of data.commands) {
+        handleRemoteCommand(cmd);
+      }
+    }
+  } catch(e) {}
+}
+
+function handleRemoteCommand(cmd) {
+  logMsg(`Command received from PC: ${cmd.type}`);
+  if (cmd.type === 'SPEAK') {
+    speakThroughPhone(cmd.payload.text || 'Notification from PC', cmd.payload.lang || 'ur');
+  } else if (cmd.type === 'VIBRATE') {
+    if ('vibrate' in navigator) navigator.vibrate([200, 100, 200, 100, 400]);
+  } else if (cmd.type === 'ALARM') {
+    const audio = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
+    audio.play().catch(()=>{});
+  } else if (cmd.type === 'OPEN_URL') {
+    if (cmd.payload.url) window.open(cmd.payload.url, '_blank');
+  }
+}
+
+// Poll telemetry every 4 seconds
+setInterval(dispatchTelemetry, 4000);
+
+// 7. PWA Install Handler
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  state.deferredPrompt = e;
+  document.getElementById('btnInstallPwa').style.display = 'inline-flex';
+});
+
+async function installPWA() {
+  if (state.deferredPrompt) {
+    state.deferredPrompt.prompt();
+    const { outcome } = await state.deferredPrompt.userChoice;
+    if (outcome === 'accepted') logMsg('PWA installed to Home Screen.');
+    state.deferredPrompt = null;
+  } else {
+    alert('To install: Open browser menu (⋮ on Chrome or Share on Safari) and select "Add to Home Screen".');
+  }
+}
+</script>
+</body>
+</html>

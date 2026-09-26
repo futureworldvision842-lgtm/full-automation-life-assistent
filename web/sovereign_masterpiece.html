@@ -2954,6 +2954,128 @@
 
             </div>
           </div>
+
+          <!-- ================================================================= -->
+          <!-- FULL FLEET MATRIX: UNIVERSAL SATELLITE ONBOARDING & DUPLEX AUDIO -->
+          <!-- ================================================================= -->
+          <div class="mt-3.5 pt-3 border-t border-[#142e47] grid grid-cols-1 lg:grid-cols-12 gap-3.5 font-mono">
+            <!-- Col 1: Satellite Link & QR Generator -->
+            <div class="lg:col-span-4 p-3 rounded bg-[#050d18] border border-cyan-500/30 space-y-2.5">
+              <div class="flex items-center justify-between pb-1.5 border-b border-[#142e47]">
+                <div class="flex items-center space-x-2">
+                  <span class="text-cyan-400">⚡</span>
+                  <span class="text-white font-bold text-xs uppercase tracking-wider">GENERATE SATELLITE ONBOARDING LINK</span>
+                </div>
+                <span class="text-[9px] text-cyan-400 font-bold px-1.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/30">ZERO-INSTALL</span>
+              </div>
+              <p class="text-[10px] text-slate-400 leading-relaxed">
+                Generate an instant QR code / link for any new phone, tablet, or laptop. Opening the link enrolls the device to stream live GPS, battery, screen mirror, and voice duplex.
+              </p>
+              <div class="space-y-2">
+                <div>
+                  <label class="text-[9px] text-slate-400 uppercase font-bold">Device Name:</label>
+                  <input id="enrollDeviceNameInput" type="text" value="Master Secondary Mobile" placeholder="e.g. Master iPad Pro" class="w-full bg-[#030914] border border-[#1b3e64] rounded px-2.5 py-1 text-cyan-300 text-xs font-mono font-bold focus:border-cyan-400 outline-none mt-0.5" />
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="text-[9px] text-slate-400 uppercase font-bold">Device Type:</label>
+                    <select id="enrollDeviceTypeSelect" class="w-full bg-[#030914] border border-[#1b3e64] rounded px-2 py-1 text-slate-200 text-xs font-mono mt-0.5 outline-none">
+                      <option value="mobile_phone">📱 Mobile Phone</option>
+                      <option value="tablet">📟 Tablet / iPad</option>
+                      <option value="workstation">💻 Laptop / PC</option>
+                      <option value="smartwatch">⌚ Smartwatch</option>
+                      <option value="vehicle">🚗 In-Vehicle Terminal</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-[9px] text-slate-400 uppercase font-bold">Host IP:</label>
+                    <input id="enrollLanIpInput" type="text" value="192.168.100.3" class="w-full bg-[#030914] border border-[#1b3e64] rounded px-2 py-1 text-emerald-400 text-xs font-mono font-bold focus:border-cyan-400 outline-none mt-0.5" />
+                  </div>
+                </div>
+                <button onclick="generateSatelliteLink()" class="w-full py-2 rounded bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 hover:from-cyan-500/35 hover:to-emerald-500/35 border border-cyan-400 text-cyan-300 font-bold text-xs transition-all shadow-[0_0_15px_rgba(0,229,255,0.2)]">
+                  ⚡ GENERATE 1-TAP PAIRING LINK &amp; QR
+                </button>
+              </div>
+
+              <!-- Generated Link & QR Container -->
+              <div id="enrollResultContainer" class="hidden pt-2 border-t border-[#142e47] space-y-2">
+                <div class="text-[10px] text-emerald-400 font-bold flex items-center justify-between">
+                  <span>✓ PAIRING LINK READY:</span>
+                  <button onclick="copyGeneratedLink()" class="text-cyan-300 hover:underline">📋 Copy</button>
+                </div>
+                <input id="enrollGeneratedUrl" type="text" readonly class="w-full bg-[#030914] border border-[#1b3e64] rounded px-2 py-1 text-[10px] text-cyan-300 font-mono select-all outline-none" />
+                <div class="flex justify-center p-2 bg-white rounded-lg border border-cyan-400/40">
+                  <div id="enrollQrBox" class="w-36 h-36 flex items-center justify-center"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Col 2: Voice Duplex Dispatcher (PC -> Phone Speaker) -->
+            <div class="lg:col-span-4 p-3 rounded bg-[#050d18] border border-[#142e47] space-y-2.5 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between pb-1.5 border-b border-[#142e47]">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-emerald-400">📢</span>
+                    <span class="text-white font-bold text-xs uppercase tracking-wider">SPEAK TO PHONE (DUPLEX AUDIO)</span>
+                  </div>
+                  <span class="text-[9px] text-emerald-400 font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30">ONLINE</span>
+                </div>
+                <p class="text-[10px] text-slate-400 leading-relaxed mt-1">
+                  Transmit Roman Urdu or English speech through the phone's physical loudspeaker anywhere in the house via Wi-Fi.
+                </p>
+                <div class="mt-2 space-y-2">
+                  <textarea id="deviceSpeakTextInput" rows="2" placeholder="e.g. Master Muhammad, Jarvis Command Center live hai..." class="w-full bg-[#030914] border border-[#1b3e64] rounded px-2.5 py-1.5 text-white text-xs font-mono focus:border-cyan-400 outline-none resize-none"></textarea>
+                  <div class="flex items-center space-x-2">
+                    <select id="deviceSpeakLangSelect" class="bg-[#030914] border border-[#1b3e64] rounded px-2 py-1 text-slate-200 text-xs font-mono outline-none">
+                      <option value="ur">🇵🇰 Roman Urdu / Urdu</option>
+                      <option value="en">🇬🇧 English</option>
+                    </select>
+                    <button onclick="dispatchVoiceToPhone()" class="flex-1 py-1.5 rounded bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400 text-emerald-300 font-bold text-xs transition-all">
+                      📢 SPEAK TO PHONE
+                    </button>
+                  </div>
+                </div>
+                <!-- Quick Speech Presets -->
+                <div class="mt-2 pt-2 border-t border-[#142e47]">
+                  <div class="text-[9px] text-slate-400 uppercase font-bold mb-1">Quick Presets:</div>
+                  <div class="flex flex-wrap gap-1">
+                    <button onclick="presetSpeak('Assalam-o-Alaikum Sir, PC system status is optimal and all operations running smoothly.')" class="px-2 py-1 rounded bg-[#091b2e] hover:bg-cyan-950 border border-[#17456d] text-[9px] text-cyan-300">👋 Salam</button>
+                    <button onclick="presetSpeak('Alert: FundingPips risk invariant verified. Zero violations.')" class="px-2 py-1 rounded bg-[#091b2e] hover:bg-emerald-950 border border-[#17456d] text-[9px] text-emerald-300">🛡️ Risk Ok</button>
+                    <button onclick="presetSpeak('Sir, a new critical signal is detected on MT5.')" class="px-2 py-1 rounded bg-[#091b2e] hover:bg-amber-950 border border-[#17456d] text-[9px] text-amber-300">📈 Signal</button>
+                  </div>
+                </div>
+              </div>
+              <div class="pt-2 border-t border-[#142e47] flex gap-2">
+                <button onclick="dispatchDeviceCommand('default_mobile', 'VIBRATE')" class="flex-1 py-1.5 rounded bg-cyan-500/15 hover:bg-cyan-500/30 border border-cyan-400 text-cyan-300 text-[10px] font-bold">
+                  📳 Vibrate Phone
+                </button>
+                <button onclick="dispatchDeviceCommand('default_mobile', 'ALARM')" class="flex-1 py-1.5 rounded bg-red-500/15 hover:bg-red-500/30 border border-red-500 text-red-300 text-[10px] font-bold">
+                  🚨 Trigger Alarm
+                </button>
+              </div>
+            </div>
+
+            <!-- Col 3: Enrolled Devices Fleet Panopticon -->
+            <div class="lg:col-span-4 p-3 rounded bg-[#050d18] border border-[#142e47] space-y-2 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between pb-1.5 border-b border-[#142e47]">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-amber-400">🛰️</span>
+                    <span class="text-white font-bold text-xs uppercase tracking-wider">ACTIVE DEVICE FLEET</span>
+                  </div>
+                  <button onclick="refreshDeviceFleet()" class="text-[9px] text-cyan-400 hover:underline">⟳ REFRESH</button>
+                </div>
+                <div class="overflow-y-auto max-h-[220px] space-y-1.5 mt-2" id="deviceFleetContainer">
+                  <div class="text-[10px] text-slate-500 py-4 text-center">Loading registered devices...</div>
+                </div>
+              </div>
+              <div class="pt-2 border-t border-[#142e47] text-[9px] text-slate-400 flex items-center justify-between">
+                <span>Autonomous Hub: <strong class="text-emerald-400 font-mono">0.0.0.0:8770 &amp; :8765</strong></span>
+                <span class="text-cyan-300">Continuous GPS Sync</span>
+              </div>
+            </div>
+          </div>
+          </div>
         </div>
       </div>
 
@@ -5100,6 +5222,15 @@ Click 'CHECK & UPGRADE NOW' to pull upstream updates, verify skills, and auto-pu
           loadColibriStatus();
         } else if (tabId === 'warroom') {
           if (typeof initWarroomView === 'function') initWarroomView();
+        } else if (tabId === 'mobile') {
+          refreshDeviceFleet();
+          if (!deviceFleetTimer) {
+            deviceFleetTimer = setInterval(refreshDeviceFleet, 3000);
+          }
+        }
+        if (tabId !== 'mobile' && deviceFleetTimer) {
+          clearInterval(deviceFleetTimer);
+          deviceFleetTimer = null;
         }
       } else {
         // If specific subview pane not defined, return to command center and highlight module
@@ -10250,6 +10381,184 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
         setTimeout(refreshLiveMobileScreen, 1200);
       } catch (e) {
         showToast(`Launch error: ${e.message}`);
+      }
+    }
+
+    // =========================================================================
+    // 2B. SOVEREIGN MULTI-DEVICE SATELLITE & FLEET PANOPTICON CONTROLLER
+    // =========================================================================
+    let deviceFleetTimer = null;
+
+    async function generateSatelliteLink() {
+      const nameInput = document.getElementById('enrollDeviceNameInput');
+      const typeSelect = document.getElementById('enrollDeviceTypeSelect');
+      const ipInput = document.getElementById('enrollLanIpInput');
+      const resContainer = document.getElementById('enrollResultContainer');
+      const urlInput = document.getElementById('enrollGeneratedUrl');
+      const qrBox = document.getElementById('enrollQrBox');
+
+      const name = (nameInput?.value || 'Master Satellite Device').trim();
+      const devType = typeSelect?.value || 'mobile_phone';
+      const lanIp = (ipInput?.value || '192.168.100.3').trim();
+
+      try {
+        const res = await fetch('/api/devices/generate-enroll-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            device_name: name,
+            device_type: devType,
+            lan_ip: lanIp,
+            port: 8765
+          })
+        });
+        const data = await res.json();
+        if (data.ok && data.enroll_url) {
+          if (resContainer) resContainer.classList.remove('hidden');
+          if (urlInput) urlInput.value = data.enroll_url;
+          if (qrBox) {
+            qrBox.innerHTML = data.qr_svg || `<div class="text-[9px] text-black">Scan: ${data.enroll_url}</div>`;
+          }
+          showToast(`✓ Onboarding link generated for ${name}!`);
+          refreshDeviceFleet();
+        } else {
+          showToast('Failed to generate link: ' + (data.error || 'Unknown error'));
+        }
+      } catch (e) {
+        showToast('Enrollment error: ' + e.message);
+      }
+    }
+
+    function copyGeneratedLink() {
+      const urlInput = document.getElementById('enrollGeneratedUrl');
+      if (urlInput && urlInput.value) {
+        navigator.clipboard.writeText(urlInput.value).then(() => {
+          showToast('✓ Link copied to clipboard!');
+        }).catch(() => {
+          urlInput.select();
+          document.execCommand('copy');
+          showToast('✓ Copied!');
+        });
+      }
+    }
+
+    async function dispatchVoiceToPhone(customText = null) {
+      const input = document.getElementById('deviceSpeakTextInput');
+      const langSel = document.getElementById('deviceSpeakLangSelect');
+      const text = customText || (input?.value || '').trim();
+      const lang = langSel?.value || 'ur';
+
+      if (!text) {
+        showToast('Please enter text to speak');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/devices/default_mobile/speak', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text, lang: lang, volume: 1.0 })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast(`📢 Speaking on phone: "${text.substring(0, 30)}..."`);
+          if (!customText && input) input.value = '';
+        } else {
+          showToast('Speak error: ' + (data.error || 'Failed'));
+        }
+      } catch (e) {
+        showToast('Speak dispatch failed: ' + e.message);
+      }
+    }
+
+    function presetSpeak(text) {
+      const input = document.getElementById('deviceSpeakTextInput');
+      if (input) input.value = text;
+      dispatchVoiceToPhone(text);
+    }
+
+    async function dispatchDeviceCommand(deviceId, command) {
+      try {
+        const res = await fetch(`/api/devices/${deviceId}/command`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command: command })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast(`✓ Command ${command} sent to device!`);
+        } else {
+          showToast(`Command error: ${data.error || 'Failed'}`);
+        }
+      } catch (e) {
+        showToast(`Command error: ${e.message}`);
+      }
+    }
+
+    async function refreshDeviceFleet() {
+      const container = document.getElementById('deviceFleetContainer');
+      if (!container) return;
+
+      try {
+        const res = await fetch('/api/devices/fleet');
+        if (!res.ok) return;
+        const data = await res.json();
+        const devices = data.devices || [];
+
+        if (devices.length === 0) {
+          container.innerHTML = '<div class="text-[10px] text-slate-500 py-3 text-center">No satellite devices enrolled yet.</div>';
+          return;
+        }
+
+        let html = '';
+        devices.forEach(dev => {
+          const isOnline = dev.online;
+          const statusBadge = isOnline
+            ? '<span class="px-1.5 py-0.5 rounded text-[8px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">ONLINE</span>'
+            : '<span class="px-1.5 py-0.5 rounded text-[8px] bg-slate-800 text-slate-400">STANDBY</span>';
+
+          const batt = dev.battery || {};
+          const battPct = batt.pct !== undefined ? `${batt.pct}%` : '--%';
+          const battIcon = batt.charging ? '⚡' : '🔋';
+
+          const gps = dev.gps || {};
+          let gpsStr = 'GPS Standby';
+          let mapsLink = '';
+          if (gps.lat && gps.lon) {
+            gpsStr = `${gps.lat.toFixed(4)}, ${gps.lon.toFixed(4)}`;
+            mapsLink = `<a href="https://maps.google.com/?q=${gps.lat},${gps.lon}" target="_blank" class="text-cyan-400 hover:underline ml-1">📍 Map</a>`;
+          }
+
+          const screenLive = dev.screen_sharing && dev.screen_sharing.active;
+          const screenBadge = screenLive
+            ? '<span class="text-[8px] text-emerald-400 font-bold">📺 Screen Live</span>'
+            : '<span class="text-[8px] text-slate-500">📺 Standby</span>';
+
+          html += `
+            <div class="p-2 rounded bg-[#030914] border border-[#17456d] flex flex-col space-y-1.5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-1.5">
+                  <span class="text-xs">${dev.device_type === 'tablet' ? '📟' : dev.device_type === 'workstation' ? '💻' : '📱'}</span>
+                  <span class="text-white font-bold text-[10px]">${dev.device_name}</span>
+                </div>
+                ${statusBadge}
+              </div>
+              <div class="flex items-center justify-between text-[9px] text-slate-300">
+                <span>${battIcon} ${battPct}</span>
+                <span>${gpsStr} ${mapsLink}</span>
+                <span>${screenBadge}</span>
+              </div>
+              <div class="flex gap-1 pt-1 border-t border-[#122e4d]">
+                <button onclick="dispatchDeviceCommand('${dev.device_id}', 'VIBRATE')" class="flex-1 py-0.5 rounded bg-[#091b2e] hover:bg-cyan-950 border border-[#17456d] text-[8px] text-cyan-300">📳 Vibrate</button>
+                <button onclick="dispatchDeviceCommand('${dev.device_id}', 'ALARM')" class="flex-1 py-0.5 rounded bg-[#091b2e] hover:bg-red-950 border border-[#17456d] text-[8px] text-red-300">🚨 Siren</button>
+                <button onclick="setMobileScreenMode('mirror')" class="flex-1 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/30 border border-emerald-500/40 text-[8px] text-emerald-300">📺 Mirror</button>
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      } catch (e) {
+        console.error('Failed to refresh device fleet:', e);
       }
     }
 
