@@ -298,6 +298,23 @@
         <span>🛡️</span><span>SENTINEL</span>
       </button>
 
+      <!-- Master Ecosystem FULL RUN Button -->
+      <button id="btnHeaderFullRun" onclick="triggerFullRun()" class="px-2.5 py-1 rounded bg-emerald-500/25 hover:bg-emerald-500/40 border border-emerald-400 text-emerald-300 text-xs font-mono font-black flex items-center space-x-1.5 transition-all shadow-[0_0_12px_rgba(16,185,129,0.4)] hover:scale-105 active:scale-95 cursor-pointer" title="Start All J.A.R.V.I.S. Ecosystem Services & Daemons">
+        <span class="text-[11px] text-emerald-400">▶</span>
+        <span>FULL RUN</span>
+      </button>
+
+      <!-- Master Ecosystem FULL STOP Button -->
+      <button id="btnHeaderFullStop" onclick="triggerFullStop()" class="px-2.5 py-1 rounded bg-red-500/25 hover:bg-red-500/40 border border-red-500 text-red-300 text-xs font-mono font-black flex items-center space-x-1.5 transition-all shadow-[0_0_12px_rgba(239,68,68,0.4)] hover:scale-105 active:scale-95 cursor-pointer" title="Emergency Halt - Safely Stop All Background Fleet Services">
+        <span class="text-[11px] text-red-400">⏹</span>
+        <span>FULL STOP</span>
+      </button>
+
+      <!-- Launch Desktop Mobile Companion Pop-out -->
+      <button onclick="openMobileAppWindow()" class="px-2 py-1 rounded bg-indigo-500/20 hover:bg-indigo-500/35 border border-indigo-400/60 text-indigo-300 text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-[0_0_10px_rgba(99,102,241,0.3)]" title="Open Mobile Companion in Dedicated Floating Desktop Window">
+        <span>📱</span><span>MOBILE APP</span>
+      </button>
+
       <!-- Connect Mobile Phone Button -->
       <button onclick="openMobilePairModal()" class="px-2.5 py-1 rounded bg-cyan-500/20 hover:bg-cyan-500/35 border border-cyan-400/60 text-[#00e5ff] text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-[0_0_12px_rgba(0,229,255,0.3)]">
         <span>📱</span><span>CONNECT MOBILE</span>
@@ -558,6 +575,135 @@
       <!-- ===================================================================== -->
       <div id="view-command" class="tab-view-pane space-y-2.5">
         
+        <!-- ================================================================= -->
+        <!-- 0. SOVEREIGN DEPLOYMENT & LIVE FLEET INFRASTRUCTURE PANOPTICON    -->
+        <!-- ================================================================= -->
+        <div class="hud-panel p-3 border border-emerald-500/40 bg-gradient-to-r from-[#031122] via-[#051c36] to-[#031122] shadow-[0_0_20px_rgba(16,185,129,0.15)] font-mono text-xs">
+          <!-- Top Row: Title, Mode, Emergency Controls -->
+          <div class="flex flex-wrap items-center justify-between pb-2 mb-2 border-b border-[#143d66] gap-2">
+            <div class="flex items-center space-x-2.5">
+              <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-emerald-300 text-base shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+                🛡️
+              </div>
+              <div>
+                <div class="flex items-center space-x-2">
+                  <h2 class="text-sm font-black tracking-wider text-white uppercase flex items-center space-x-2">
+                    <span>SOVEREIGN DEPLOYMENT &amp; ECOSYSTEM PANOPTICON</span>
+                  </h2>
+                  <span id="panopticonFleetStateBadge" class="px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500/25 text-emerald-300 border border-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.4)]">
+                    9/9 SERVICES ONLINE
+                  </span>
+                  <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/50">
+                    24/7 TUNNEL ACTIVE
+                  </span>
+                </div>
+                <div class="text-[9.5px] text-cyan-300 flex items-center space-x-2">
+                  <span>Operator: <strong>Master Muhammad Qureshi</strong></span>
+                  <span>•</span>
+                  <span>FundingPips #40000294403 ($100K Model)</span>
+                  <span>•</span>
+                  <span id="panopticonGitSha" class="text-amber-300 font-bold">Git: 6c2294b</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Master Fleet Tactical Controls -->
+            <div class="flex items-center space-x-2 flex-wrap text-[11px]">
+              <button onclick="triggerFullRun()" class="px-3.5 py-1.5 rounded bg-emerald-500/30 hover:bg-emerald-500/50 border border-emerald-400 text-emerald-300 font-black transition-all flex items-center space-x-1.5 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:scale-105 active:scale-95 cursor-pointer">
+                <span>▶</span><span>FULL RUN (START ALL)</span>
+              </button>
+              <button onclick="triggerFullStop()" class="px-3.5 py-1.5 rounded bg-red-500/30 hover:bg-red-500/50 border border-red-500 text-red-300 font-black transition-all flex items-center space-x-1.5 shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:scale-105 active:scale-95 cursor-pointer">
+                <span>⏹</span><span>FULL STOP (HALT)</span>
+              </button>
+              <button onclick="triggerRestartFleet()" class="px-2.5 py-1.5 rounded bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400 text-amber-300 font-bold transition-all flex items-center space-x-1 cursor-pointer">
+                <span>🔄</span><span>RESTART</span>
+              </button>
+              <button onclick="openMobileAppWindow()" class="px-2.5 py-1.5 rounded bg-indigo-500/25 hover:bg-indigo-500/45 border border-indigo-400 text-indigo-300 font-bold transition-all flex items-center space-x-1 cursor-pointer">
+                <span>📱</span><span>POP-OUT APP</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom Row: 3-Col Panopticon Grid (WAN Gateway, LAN Endpoints, Live Service Matrix) -->
+          <div class="grid grid-cols-12 gap-2 text-[10px]">
+            <!-- Col 1: Global Cloud WAN Tunnel -->
+            <div class="col-span-12 md:col-span-4 bg-[#06152b] border border-[#1b436e] rounded-lg p-2 flex flex-col justify-between">
+              <div class="flex items-center justify-between pb-1 mb-1 border-b border-[#143252]">
+                <span class="text-cyan-300 font-bold flex items-center space-x-1">
+                  <span>🌐</span><span>GLOBAL CLOUD WAN TUNNEL (HTTPS)</span>
+                </span>
+                <span class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
+              </div>
+              <div class="my-1">
+                <div class="text-[8.5px] text-slate-400">PUBLIC 24/7 ENCRYPTED ENDPOINT:</div>
+                <div class="text-xs font-mono font-bold text-emerald-400 truncate bg-black/40 px-2 py-1 rounded border border-emerald-500/30 my-0.5 select-all" id="panopticonWanUrl">
+                  https://silly-pots-hear.loca.lt
+                </div>
+              </div>
+              <div class="flex items-center space-x-1.5 mt-1 pt-1 border-t border-[#143252]">
+                <button onclick="copyPanopticonWanUrl()" class="px-2 py-0.5 rounded bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/60 text-cyan-300 font-bold flex-1 text-center">
+                  📋 COPY WAN LINK
+                </button>
+                <button onclick="openPanopticonWanUrl()" class="px-2 py-0.5 rounded bg-emerald-500/20 hover:bg-emerald-500/40 border border-emerald-400/60 text-emerald-300 font-bold flex-1 text-center">
+                  ↗ OPEN TUNNEL
+                </button>
+              </div>
+            </div>
+
+            <!-- Col 2: Local Wi-Fi LAN Gateways -->
+            <div class="col-span-12 md:col-span-4 bg-[#06152b] border border-[#1b436e] rounded-lg p-2 flex flex-col justify-between">
+              <div class="flex items-center justify-between pb-1 mb-1 border-b border-[#143252]">
+                <span class="text-cyan-300 font-bold flex items-center space-x-1">
+                  <span>📡</span><span>LOCAL WI-FI LAN ENDPOINTS</span>
+                </span>
+                <span class="text-[9px] text-slate-400" id="panopticonLanIp">192.168.100.3</span>
+              </div>
+              <div class="space-y-1 my-0.5">
+                <div class="flex items-center justify-between bg-black/30 px-1.5 py-0.5 rounded border border-slate-700">
+                  <span class="text-slate-300">Desktop Cockpit:</span>
+                  <a id="panopticonLanCockpitLink" href="http://192.168.100.3:8770" target="_blank" class="text-cyan-300 hover:underline font-bold">http://192.168.100.3:8770</a>
+                </div>
+                <div class="flex items-center justify-between bg-black/30 px-1.5 py-0.5 rounded border border-slate-700">
+                  <span class="text-slate-300">Mobile Gateway:</span>
+                  <a id="panopticonLanMobileLink" href="http://192.168.100.3:8765" target="_blank" class="text-emerald-300 hover:underline font-bold">http://192.168.100.3:8765</a>
+                </div>
+              </div>
+              <div class="flex items-center justify-between text-[8.5px] text-slate-400 mt-1 pt-1 border-t border-[#143252]">
+                <span>Radars: :3000 • :4173</span>
+                <span>Trading: :5050</span>
+                <span>AI: :7000 • :11434</span>
+              </div>
+            </div>
+
+            <!-- Col 3: Real-Time Fleet Service Matrix Pills -->
+            <div class="col-span-12 md:col-span-4 bg-[#06152b] border border-[#1b436e] rounded-lg p-2 flex flex-col justify-between">
+              <div class="flex items-center justify-between pb-1 mb-1 border-b border-[#143252]">
+                <span class="text-cyan-300 font-bold flex items-center space-x-1">
+                  <span>🛰️</span><span>ACTIVE MICROSERVICE MATRIX</span>
+                </span>
+                <button onclick="refreshDeploymentPanopticon()" class="text-[8.5px] text-cyan-400 hover:underline">
+                  ⟳ REFRESH
+                </button>
+              </div>
+              <div class="grid grid-cols-3 gap-1 my-0.5 text-[8px]" id="panopticonServicePills">
+                <div class="px-1 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 flex items-center justify-between"><span>Cockpit</span><span class="font-bold">:8770</span></div>
+                <div class="px-1 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 flex items-center justify-between"><span>Mobile</span><span class="font-bold">:8765</span></div>
+                <div class="px-1 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 flex items-center justify-between"><span>World</span><span class="font-bold">:3000</span></div>
+                <div class="px-1 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 flex items-center justify-between"><span>GodsEye</span><span class="font-bold">:4173</span></div>
+                <div class="px-1 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 flex items-center justify-between"><span>MQ3</span><span class="font-bold">:5050</span></div>
+                <div class="px-1 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 flex items-center justify-between"><span>Odysseus</span><span class="font-bold">:7000</span></div>
+                <div class="px-1 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 flex items-center justify-between"><span>Ollama</span><span class="font-bold">:11434</span></div>
+                <div class="px-1 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 flex items-center justify-between"><span>WhatsApp</span><span class="font-bold">:3200</span></div>
+                <div class="px-1 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 flex items-center justify-between"><span>Discord</span><span class="font-bold">BOT</span></div>
+              </div>
+              <div class="flex items-center justify-between text-[8px] text-slate-400 mt-1 pt-1 border-t border-[#143252]">
+                <span class="text-emerald-400 font-bold">🛡️ Prop Shield Cap: $750</span>
+                <span>Drawdown Limit: $5,000</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- ================================================================= -->
         <!-- SATELLITE DEVICE QUICK PANOPTICON & 1-TAP LINK GENERATOR BANNER  -->
         <!-- ================================================================= -->
@@ -2824,11 +2970,14 @@
               </div>
             </div>
             <div class="flex items-center space-x-2">
-              <button onclick="window.open('mobile.html','_blank')" class="btn-tactical text-xs text-cyan-300 font-bold border-cyan-400/50">
-                📱 OPEN MOBILE APP
+              <button onclick="openMobileAppWindow()" class="btn-tactical text-xs text-indigo-300 font-bold border-indigo-400/50" title="Pop out into floating standalone window">
+                ⧉ POP-OUT WINDOW
               </button>
-              <button onclick="window.open('http://192.168.100.3:8765/?token=wHUfdgY-AdHQZMb93xK5ZB-uNeYoXrQ_0p7RgTgnAhE','_blank')" class="btn-tactical text-xs text-emerald-400">
-                ↗ WI-FI GATEWAY
+              <button onclick="window.open('/mobile','_blank')" class="btn-tactical text-xs text-cyan-300 font-bold border-cyan-400/50">
+                📱 OPEN FULLSCREEN
+              </button>
+              <button onclick="openPanopticonWanUrl()" class="btn-tactical text-xs text-emerald-400 font-bold border-emerald-400/50" title="Open Global Cloud Tunnel WAN Endpoint">
+                🌐 GLOBAL WAN APP
               </button>
               <button onclick="switchMasterpieceTab('command')" class="btn-tactical text-xs">✕ RETURN</button>
             </div>
@@ -6798,6 +6947,155 @@ Click 'CHECK & UPGRADE NOW' to pull upstream updates, verify skills, and auto-pu
         showToast(`⚠️ [TASK ERROR]: Dispatched in background.`);
       }
     }
+
+    let currentWanUrl = 'https://silly-pots-hear.loca.lt';
+
+    async function triggerFullRun() {
+      playTacticalBeep(659, 0.15);
+      showToast("🚀 [SYSTEM DIRECTIVE]: Starting all J.A.R.V.I.S. fleet microservices...");
+      const btnHeader = document.getElementById('btnHeaderFullRun');
+      if (btnHeader) btnHeader.classList.add('animate-pulse');
+      const baseUrl = JarvisProfileManager.getBackendBaseUrl();
+      try {
+        const resp = await fetch(`${baseUrl}/api/control/start_all`, { method: 'POST' });
+        if (resp && resp.ok) {
+          const res = await resp.json();
+          showToast(`✅ [FLEET]: ${res.message || 'All microservices started.'}`);
+          setTimeout(refreshDeploymentPanopticon, 1000);
+        }
+      } catch (err) {
+        showToast(`❌ [ERROR]: Start all command failed: ${err.message}`);
+      } finally {
+        if (btnHeader) btnHeader.classList.remove('animate-pulse');
+      }
+    }
+
+    async function triggerFullStop() {
+      if (!confirm("⚠️ EMERGENCY HALT: Are you sure you want to stop all background fleet services? (Dashboard will remain active)")) {
+        return;
+      }
+      playTacticalBeep(330, 0.25);
+      showToast("🛑 [EMERGENCY HALT]: Stopping all fleet microservices...");
+      const btnHeader = document.getElementById('btnHeaderFullStop');
+      if (btnHeader) btnHeader.classList.add('animate-pulse');
+      const baseUrl = JarvisProfileManager.getBackendBaseUrl();
+      try {
+        const resp = await fetch(`${baseUrl}/api/control/stop_all`, { method: 'POST' });
+        if (resp && resp.ok) {
+          const res = await resp.json();
+          showToast(`⚠️ [FLEET]: ${res.message || 'All background services stopped.'}`);
+          setTimeout(refreshDeploymentPanopticon, 1000);
+        }
+      } catch (err) {
+        showToast(`❌ [ERROR]: Stop all command failed: ${err.message}`);
+      } finally {
+        if (btnHeader) btnHeader.classList.remove('animate-pulse');
+      }
+    }
+
+    async function triggerRestartFleet() {
+      playTacticalBeep(523, 0.15);
+      showToast("🔄 [RESTART DIRECTIVE]: Restarting all ecosystem microservices...");
+      const baseUrl = JarvisProfileManager.getBackendBaseUrl();
+      try {
+        const resp = await fetch(`${baseUrl}/api/control/restart_all`, { method: 'POST' });
+        if (resp && resp.ok) {
+          const res = await resp.json();
+          showToast(`✅ [FLEET]: ${res.message || 'Fleet restarted successfully.'}`);
+          setTimeout(refreshDeploymentPanopticon, 1500);
+        }
+      } catch (err) {
+        showToast(`❌ [ERROR]: Restart command failed: ${err.message}`);
+      }
+    }
+
+    function openMobileAppWindow() {
+      const w = 420;
+      const h = 820;
+      const left = Math.max(0, Math.round((window.screen.width - w) / 2));
+      const top = Math.max(0, Math.round((window.screen.height - h) / 2));
+      window.open('/mobile', 'JarvisMobileCompanion', `width=${w},height=${h},top=${top},left=${left},status=no,menubar=no,toolbar=no,location=no,resizable=yes`);
+    }
+
+    function copyPanopticonWanUrl() {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(currentWanUrl);
+        showToast(`📋 Copied Public WAN URL: ${currentWanUrl}`);
+        playTacticalBeep(880, 0.08);
+      } else {
+        prompt("Public WAN URL:", currentWanUrl);
+      }
+    }
+
+    function openPanopticonWanUrl() {
+      if (currentWanUrl) {
+        window.open(currentWanUrl, '_blank');
+      }
+    }
+
+    async function refreshDeploymentPanopticon() {
+      const baseUrl = JarvisProfileManager.getBackendBaseUrl();
+      try {
+        const resp = await fetch(`${baseUrl}/api/deployment/info`, { signal: AbortSignal.timeout(2500) });
+        if (resp && resp.ok) {
+          const data = await resp.json();
+          if (data.wan_tunnel?.public_url) {
+            currentWanUrl = data.wan_tunnel.public_url;
+            const el = document.getElementById('panopticonWanUrl');
+            if (el) el.innerText = currentWanUrl;
+          }
+          if (data.lan_endpoints?.ip) {
+            const el = document.getElementById('panopticonLanIp');
+            if (el) el.innerText = data.lan_endpoints.ip;
+            const cockpitLink = document.getElementById('panopticonLanCockpitLink');
+            if (cockpitLink && data.lan_endpoints.dashboard) {
+              cockpitLink.href = data.lan_endpoints.dashboard;
+              cockpitLink.innerText = data.lan_endpoints.dashboard;
+            }
+            const mobileLink = document.getElementById('panopticonLanMobileLink');
+            if (mobileLink && data.lan_endpoints.mobile_gateway) {
+              mobileLink.href = data.lan_endpoints.mobile_gateway;
+              mobileLink.innerText = data.lan_endpoints.mobile_gateway;
+            }
+          }
+          if (data.fleet) {
+            const badge = document.getElementById('panopticonFleetStateBadge');
+            if (badge) {
+              badge.innerText = `${data.fleet.online_count}/${data.fleet.total} SERVICES ONLINE`;
+              if (data.fleet.online_count >= 8) {
+                badge.className = "px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500/25 text-emerald-300 border border-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.4)]";
+              } else {
+                badge.className = "px-2 py-0.5 rounded text-[9px] font-black bg-amber-500/25 text-amber-300 border border-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.4)]";
+              }
+            }
+            const pillsContainer = document.getElementById('panopticonServicePills');
+            if (pillsContainer && data.fleet.services) {
+              const svcs = data.fleet.services;
+              let html = '';
+              for (const [k, s] of Object.entries(svcs)) {
+                const isOnline = s.online || s.healthy;
+                const portLabel = s.port > 0 ? `:${s.port}` : 'BOT';
+                const cls = isOnline 
+                  ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300' 
+                  : 'bg-red-950/60 border-red-500/40 text-red-300 opacity-60';
+                html += `<div class="px-1 py-0.5 rounded border ${cls} flex items-center justify-between truncate" title="${s.name} (${s.status})">
+                  <span class="truncate">${s.name.split(' ')[0]}</span>
+                  <span class="font-bold ml-1">${portLabel}</span>
+                </div>`;
+              }
+              pillsContainer.innerHTML = html;
+            }
+          }
+          if (data.git?.commit) {
+            const el = document.getElementById('panopticonGitSha');
+            if (el) el.innerText = `Git: ${data.git.commit} (${data.git.branch})`;
+          }
+        }
+      } catch (_) {}
+    }
+
+    setInterval(refreshDeploymentPanopticon, 5000);
+    setTimeout(refreshDeploymentPanopticon, 800);
 
     async function executePcAction(act) {
       showToast(`⚡ [PC DIRECTIVE]: Executing ${act.toUpperCase()}...`);
