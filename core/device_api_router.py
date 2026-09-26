@@ -150,6 +150,45 @@ async def api_get_screen_frame(device_id: str) -> Response:
     )
 
 
+@device_router.post("/{device_id}/camera-frame/base64")
+async def api_upload_camera_frame_b64(device_id: str, req: Dict[str, Any]) -> Dict[str, Any]:
+    """Receives base64-encoded camera snapshot directly from the phone's webcam/rear camera."""
+    hub = get_device_matrix_hub()
+    b64_data = req.get("image") or req.get("data") or req.get("frame") or ""
+    if "," in b64_data:
+        b64_data = b64_data.split(",", 1)[1]
+    try:
+        raw_bytes = base64.b64decode(b64_data)
+        if not raw_bytes:
+            return {"ok": False, "error": "Empty payload"}
+        ok = hub.save_camera_frame(device_id, raw_bytes)
+        return {"ok": ok, "device_id": device_id, "size_bytes": len(raw_bytes), "timestamp": time.time()}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+@device_router.get("/{device_id}/camera-frame")
+async def api_get_camera_frame(device_id: str) -> Response:
+    """Returns the latest camera frame captured from the phone camera so PC can see it."""
+    hub = get_device_matrix_hub()
+    frame_bytes = hub.get_latest_camera_frame(device_id)
+
+    transparent_png = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=")
+    if not frame_bytes:
+        return Response(content=transparent_png, media_type="image/png")
+
+    if frame_bytes.startswith(b"\xff\xd8"):
+        media_type = "image/jpeg"
+    else:
+        media_type = "image/png"
+
+    return Response(
+        content=frame_bytes,
+        media_type=media_type,
+        headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
+    )
+
+
 @device_router.post("/{device_id}/speak")
 async def api_device_speak(device_id: str, req: DeviceSpeakRequest) -> Dict[str, Any]:
     """Tells the target phone to speak text aloud through its speaker via TTS."""

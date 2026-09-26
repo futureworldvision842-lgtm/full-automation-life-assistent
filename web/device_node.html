@@ -246,6 +246,35 @@ video#screenVideo { width: 100%; height: auto; max-height: 200px; display: block
   </div>
 </div>
 
+<!-- Phone Optical Vision (Camera & Torch) -->
+<div class="card">
+  <div class="card-title">
+    <span>OPTICAL VISION &amp; SENSORS</span>
+    <span id="statCamera" style="color:var(--pri); font-family:var(--font-mono);">Camera Idle</span>
+  </div>
+  
+  <div style="margin-bottom:8px;">
+    <button id="btnCameraShare" class="grn" style="width:100%; padding:12px;" onclick="toggleCameraVision()">
+      📷 STREAM PHONE CAMERA TO JARVIS
+    </button>
+  </div>
+  <div id="cameraPreviewWrapper" style="display:none; margin-top:8px; border:1px solid var(--bd); border-radius:8px; overflow:hidden; background:#000;">
+    <video id="cameraVideo" autoplay muted playsinline style="width:100%; max-height:220px; object-fit:contain; display:block;"></video>
+    <div style="font-size:9.5px; padding:4px 8px; background:rgba(0,0,0,0.8); color:var(--grn); font-family:var(--font-mono); text-align:center;">
+      OPTICAL VISION LIVE STREAMING TO JARVIS AI (10 FPS)
+    </div>
+  </div>
+
+  <div class="btn-grid" style="margin-top:8px;">
+    <button class="gold" onclick="switchCameraFacing()" id="btnFlipCam">
+      🔄 FLIP (BACK/FRONT)
+    </button>
+    <button class="pri" onclick="togglePhoneTorch()" id="btnTorch">
+      💡 TORCH / FLASH
+    </button>
+  </div>
+</div>
+
 <!-- Navigation to Main Companion -->
 <div class="card" style="text-align:center;">
   <div style="font-size:11px; color:var(--dim); margin-bottom:8px;">Want full PC mouse &amp; keyboard remote control?</div>
@@ -263,6 +292,7 @@ video#screenVideo { width: 100%; height: auto; max-height: 200px; display: block
 </div>
 
 <canvas id="screenCanvas" style="display:none;"></canvas>
+<canvas id="cameraCanvas" style="display:none;"></canvas>
 
 <script>
 const urlParams = new URLSearchParams(window.location.search);
@@ -279,6 +309,10 @@ const state = {
   currentGps: null,
   screenStream: null,
   screenInterval: null,
+  cameraStream: null,
+  cameraInterval: null,
+  cameraFacing: 'environment',
+  torchOn: false,
   battery: { pct: 88, charging: false },
   wakeLock: null,
   deferredPrompt: null
@@ -415,6 +449,110 @@ function stopScreenBroadcast() {
   logMsg('Screen broadcast stopped.');
 }
 
+// 3B. Camera Optical Vision (Phone Rear/Front Camera -> Jarvis PC)
+async function toggleCameraVision() {
+  if (state.cameraStream) {
+    stopCameraVision();
+  } else {
+    try {
+      logMsg(`Requesting ${state.cameraFacing === 'environment' ? 'rear' : 'front'} camera permission...`);
+      state.cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: state.cameraFacing },
+          width: { ideal: 640 },
+          height: { ideal: 480 }
+        },
+        audio: false
+      });
+      const video = document.getElementById('cameraVideo');
+      video.srcObject = state.cameraStream;
+      document.getElementById('cameraPreviewWrapper').style.display = 'block';
+      document.getElementById('btnCameraShare').innerText = '⏹️ STOP CAMERA STREAM';
+      document.getElementById('btnCameraShare').className = 'red';
+      document.getElementById('statCamera').innerText = `LIVE (${state.cameraFacing.toUpperCase()})`;
+      document.getElementById('statCamera').style.color = 'var(--grn)';
+
+      // Keep screen awake
+      if ('wakeLock' in navigator && !state.wakeLock) {
+        try { state.wakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
+      }
+
+      const canvas = document.getElementById('cameraCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 480;
+      canvas.height = 360;
+
+      state.cameraInterval = setInterval(async () => {
+        if (!state.cameraStream) return;
+        try {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const b64 = canvas.toDataURL('image/jpeg', 0.60);
+          await fetch(`${state.backend}/api/devices/${DEVICE_ID}/camera-frame/base64`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: b64 })
+          });
+        } catch(e) {}
+      }, 100);
+
+      logMsg('Camera vision streaming live to Jarvis.');
+    } catch(err) {
+      logMsg('Camera permission denied: ' + err.message);
+      alert('Camera error: ' + err.message);
+    }
+  }
+}
+
+function stopCameraVision() {
+  if (state.cameraInterval) clearInterval(state.cameraInterval);
+  if (state.cameraStream) {
+    state.cameraStream.getTracks().forEach(t => t.stop());
+    state.cameraStream = null;
+  }
+  document.getElementById('cameraPreviewWrapper').style.display = 'none';
+  document.getElementById('btnCameraShare').innerText = '📷 STREAM PHONE CAMERA TO JARVIS';
+  document.getElementById('btnCameraShare').className = 'grn';
+  document.getElementById('statCamera').innerText = 'Camera Idle';
+  document.getElementById('statCamera').style.color = 'var(--pri)';
+  logMsg('Camera stream stopped.');
+}
+
+async function switchCameraFacing() {
+  state.cameraFacing = (state.cameraFacing === 'environment') ? 'user' : 'environment';
+  logMsg(`Switching camera facing to: ${state.cameraFacing}`);
+  if (state.cameraStream) {
+    stopCameraVision();
+    setTimeout(toggleCameraVision, 300);
+  } else {
+    document.getElementById('statCamera').innerText = `Set: ${state.cameraFacing.toUpperCase()}`;
+  }
+}
+
+async function togglePhoneTorch() {
+  if (!state.cameraStream) {
+    alert('Please start camera stream first to activate torch.');
+    return;
+  }
+  const track = state.cameraStream.getVideoTracks()[0];
+  if (!track) return;
+  const capabilities = track.getCapabilities ? track.getCapabilities() : {};
+  if (!capabilities.torch) {
+    logMsg('Device camera does not support hardware torch via web.');
+    alert('Flashlight/Torch is not supported by this browser/camera.');
+    return;
+  }
+  try {
+    state.torchOn = !state.torchOn;
+    await track.applyConstraints({
+      advanced: [{ torch: state.torchOn }]
+    });
+    logMsg(`Torch ${state.torchOn ? 'ON' : 'OFF'}`);
+    document.getElementById('btnTorch').innerText = state.torchOn ? '💡 TORCH ON' : '💡 TORCH OFF';
+  } catch(e) {
+    logMsg('Torch toggle error: ' + e.message);
+  }
+}
+
 // 4. Speaker Speech Output (Jarvis Voice)
 function speakThroughPhone(text, lang = 'ur') {
   if (!('speechSynthesis' in window)) return;
@@ -481,6 +619,11 @@ async function dispatchTelemetry() {
       screen_sharing: {
         active: Boolean(state.screenStream),
         last_frame_at: state.screenStream ? Date.now() / 1000 : null
+      },
+      camera: {
+        active: Boolean(state.cameraStream),
+        facing: state.cameraFacing,
+        torch: state.torchOn
       }
     };
     const res = await fetch(`${state.backend}/api/devices/${DEVICE_ID}/telemetry`, {
@@ -508,6 +651,16 @@ function handleRemoteCommand(cmd) {
     audio.play().catch(()=>{});
   } else if (cmd.type === 'OPEN_URL') {
     if (cmd.payload.url) window.open(cmd.payload.url, '_blank');
+  } else if (cmd.type === 'TORCH_ON') {
+    if (!state.torchOn) togglePhoneTorch();
+  } else if (cmd.type === 'TORCH_OFF') {
+    if (state.torchOn) togglePhoneTorch();
+  } else if (cmd.type === 'TOGGLE_TORCH') {
+    togglePhoneTorch();
+  } else if (cmd.type === 'START_CAMERA') {
+    if (!state.cameraStream) toggleCameraVision();
+  } else if (cmd.type === 'STOP_CAMERA') {
+    if (state.cameraStream) stopCameraVision();
   }
 }
 

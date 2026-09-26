@@ -23,6 +23,8 @@ RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
 DEVICES_REGISTRY_FILE = RUNTIME_DIR / "devices_fleet_registry.json"
 SCREENS_DIR = RUNTIME_DIR / "device_screens"
 SCREENS_DIR.mkdir(parents=True, exist_ok=True)
+CAMERAS_DIR = RUNTIME_DIR / "device_cameras"
+CAMERAS_DIR.mkdir(parents=True, exist_ok=True)
 
 DEFAULT_OWNER_NAME = "Master Muhammad Qureshi"
 DEFAULT_OWNER_PHONE = "+923468053268"
@@ -275,6 +277,37 @@ class DeviceMatrixHub:
         target = SCREENS_DIR / f"{device_id}_screen.jpg"
         if not target.exists():
             target = SCREENS_DIR / "latest_mobile_screen.jpg"
+
+        if target.exists() and (time.time() - target.stat().st_mtime < 120):
+            try:
+                return target.read_bytes()
+            except Exception:
+                pass
+        return None
+
+    def save_camera_frame(self, device_id: str, image_bytes: bytes) -> bool:
+        """Saves a live camera vision frame transmitted from the mobile device to the PC."""
+        target = CAMERAS_DIR / f"{device_id}_camera.jpg"
+        default_target = CAMERAS_DIR / "latest_mobile_camera.jpg"
+        try:
+            target.write_bytes(image_bytes)
+            default_target.write_bytes(image_bytes)
+            dev = self._devices.get(device_id)
+            if dev:
+                if "camera" not in dev:
+                    dev["camera"] = {}
+                dev["camera"]["active"] = True
+                dev["camera"]["last_frame_at"] = time.time()
+                self._save_registry()
+            return True
+        except Exception:
+            return False
+
+    def get_latest_camera_frame(self, device_id: str = "default_mobile") -> Optional[bytes]:
+        """Returns the latest camera frame captured from the specified mobile device."""
+        target = CAMERAS_DIR / f"{device_id}_camera.jpg"
+        if not target.exists():
+            target = CAMERAS_DIR / "latest_mobile_camera.jpg"
 
         if target.exists() and (time.time() - target.stat().st_mtime < 120):
             try:
