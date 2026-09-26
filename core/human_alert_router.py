@@ -125,7 +125,8 @@ async def create_alert(payload: CreateAlertRequest) -> Dict[str, Any]:
             url=payload.portal_url or "",
             action_blocked=payload.action_blocked,
             account_username=payload.account_username or "",
-            window_title=payload.window_title or ""
+            window_title=payload.window_title or "",
+            title=payload.title or ""
         )
     elif "2FA" in t or "OTP" in t or "TWO_FACTOR" in t:
         req = gw.request_2fa_code(
@@ -151,14 +152,16 @@ async def create_alert(payload: CreateAlertRequest) -> Dict[str, Any]:
             action_name=payload.title,
             risk_details=payload.reason,
             potential_consequence="Financial balance alteration or system configuration change",
-            action_blocked=payload.action_blocked
+            action_blocked=payload.action_blocked,
+            title=payload.title or ""
         )
     else:
         req = gw.request_human_discussion(
             topic=payload.title,
             context=payload.reason,
             options=["Proceed with automated default", "Postpone task", "Switch to free mode"],
-            action_blocked=payload.action_blocked
+            action_blocked=payload.action_blocked,
+            title=payload.title or ""
         )
 
     return {
@@ -182,6 +185,9 @@ async def resolve_alert(payload: ResolveAlertRequest) -> Dict[str, Any]:
             # Fall back to latest pending request if ID not exact
             pending = [r for r in gw._requests.values() if r.status == RequestStatus.PENDING]
             req = sorted(pending, key=lambda x: x.created_at, reverse=True)[0] if pending else None
+
+    if not req:
+        raise HTTPException(status_code=404, detail="Alert request not found or no active pending alerts.")
 
     now_iso = datetime.now(timezone.utc).isoformat()
     # Explicit deterministic status mutation

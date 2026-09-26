@@ -59,10 +59,11 @@ from unittest.mock import patch, MagicMock
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 MQ3_DIR = BASE_DIR / "MQ3 TRADING BOT"
 
-if str(BASE_DIR) not in sys.path:
-    sys.path.insert(0, str(BASE_DIR))
 if str(MQ3_DIR) not in sys.path:
-    sys.path.insert(0, str(MQ3_DIR))
+    sys.path.append(str(MQ3_DIR))
+if str(BASE_DIR) in sys.path:
+    sys.path.remove(str(BASE_DIR))
+sys.path.insert(0, str(BASE_DIR))
 
 os.environ["TESTING"] = "true"
 os.environ["PYTEST_CURRENT_TEST"] = "e2e_r1_to_r7"
@@ -843,8 +844,9 @@ class TestTier1_R7_RemoteControlAndSentinelAlerts(unittest.TestCase):
         self.assertEqual(click_resp.status_code, 200)
         self.assertTrue(click_resp.json().get("ok"))
 
+    @patch("actions.fundingpips_automation.open_and_prepare_fundingpips", return_value={"ok": True})
     @patch("actions.fundingpips_automation.submit_otp_code", return_value=True)
-    def test_f32_sentinel_human_assistance_alerts(self, _mock_otp):
+    def test_f32_sentinel_human_assistance_alerts(self, _mock_otp, _mock_prep):
         """Feature 32: Sentinel alert creation and deterministic resolution via SOLVED, OTP, KEY, FREE, CANCEL."""
         # 1. Create alert
         create_resp = self.dash_client.post(
@@ -1093,8 +1095,9 @@ class TestTier3_CrossFeatureCombinations(unittest.TestCase):
         updated_repos = orch.get_all_integrated_repos()
         self.assertGreaterEqual(len(updated_repos), initial_count)
 
+    @patch("actions.fundingpips_automation.open_and_prepare_fundingpips", return_value={"ok": True})
     @patch("actions.fundingpips_automation.submit_otp_code", return_value=True)
-    def test_c03_sentinel_alert_pause_mobile_otp_resume(self, _mock_otp):
+    def test_c03_sentinel_alert_pause_mobile_otp_resume(self, _mock_otp, _mock_prep):
         """C03: Blocked task triggers Sentinel alert, pauses safely, resolves on Mobile OTP submit."""
         # 1. Background task triggers CAPTCHA / 2FA alert
         alert_resp = self.client.post(
@@ -1155,8 +1158,9 @@ class TestTier4_RealWorldScenarios(unittest.TestCase):
         cls.dash_client = get_dashboard_client()
         cls.mob_client = get_mobile_client()
 
+    @patch("actions.fundingpips_automation.open_and_prepare_fundingpips", return_value={"ok": True})
     @patch("actions.fundingpips_automation.submit_otp_code", return_value=True)
-    def test_s01_master_muhammad_executive_workflow(self, _mock_otp):
+    def test_s01_master_muhammad_executive_workflow(self, _mock_otp, _mock_prep):
         """S01: End-to-end Master Muhammad executive operating system workflow spanning R1 to R7."""
         # Step 1: Query Macro Surveillance CSM
         r1_csm = self.dash_client.get("/api/research/forex/macro?symbol=ALL").json()

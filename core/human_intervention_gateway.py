@@ -275,7 +275,8 @@ class HumanInterventionGateway:
         url: str,
         action_blocked: str = "Web scraping operation",
         account_username: str = "",
-        window_title: str = ""
+        window_title: str = "",
+        title: str = ""
     ) -> HumanInterventionRequest:
         """Creates and dispatches an alert for a Captcha challenge with screen focus & screenshot."""
         if "fundingpips" in target_site.lower() or "fundingpips" in url.lower():
@@ -297,7 +298,7 @@ class HumanInterventionGateway:
         req = HumanInterventionRequest(
             request_id=req_id,
             request_type=InterventionType.CAPTCHA_CHALLENGE,
-            title=f"Captcha Challenge on {target_site}",
+            title=title or f"Captcha Challenge on {target_site}",
             target_service=target_site,
             reason_technical=f"Cloudflare Turnstile or reCAPTCHA detected at {eff_url}",
             explanation_ur=explanation_ur,
@@ -309,6 +310,70 @@ class HumanInterventionGateway:
             window_title=window_title or target_site,
             screenshot_path=shot_path,
             pc_status="Browser window computer screen par samne open kar di gayi hai"
+        )
+        with self._lock:
+            self._requests[req_id] = req
+        self._save_requests()
+        self._dispatch_to_whatsapp(req)
+        return req
+
+    def request_critical_confirmation(
+        self,
+        action_name: str,
+        risk_details: str,
+        potential_consequence: str = "Financial balance alteration or system configuration change",
+        action_blocked: str = "Critical operation awaiting operator confirmation",
+        title: str = "",
+    ) -> HumanInterventionRequest:
+        """Creates and dispatches an alert for a critical system or trading confirmation."""
+        req_id = f"REQ-CONFIRM-{int(time.time())}"
+        req = HumanInterventionRequest(
+            request_id=req_id,
+            request_type=InterventionType.CRITICAL_CONFIRMATION,
+            title=title or f"Critical Action Confirmation: {action_name}",
+            target_service=action_name,
+            reason_technical=risk_details,
+            explanation_ur=f"Sir, critical confirmation darkar hai: {risk_details}",
+            suggested_free_alternative="Decline or cancel execution",
+            action_blocked=action_blocked,
+            account_username=DEFAULT_OWNER_EMAIL,
+            code_destination="Dashboard Confirmation Modal",
+            portal_url="",
+            window_title="",
+            screenshot_path=None,
+            pc_status="Waiting for operator sign-off"
+        )
+        with self._lock:
+            self._requests[req_id] = req
+        self._save_requests()
+        self._dispatch_to_whatsapp(req)
+        return req
+
+    def request_human_discussion(
+        self,
+        topic: str,
+        context: str,
+        options: Optional[List[str]] = None,
+        action_blocked: str = "Complex decision requiring human guidance",
+        title: str = "",
+    ) -> HumanInterventionRequest:
+        """Creates and dispatches an alert for conversational guidance/human discussion."""
+        req_id = f"REQ-DISC-{int(time.time())}"
+        req = HumanInterventionRequest(
+            request_id=req_id,
+            request_type=InterventionType.HUMAN_DISCUSSION_NEEDED,
+            title=title or f"Discussion Needed: {topic}",
+            target_service=topic,
+            reason_technical=context,
+            explanation_ur=f"Sir, aapki rehnumai darkar hai is topic par: {topic}",
+            suggested_free_alternative="Use default heuristic",
+            action_blocked=action_blocked,
+            account_username=DEFAULT_OWNER_EMAIL,
+            code_destination="Operator Discussion Chat",
+            portal_url="",
+            window_title="",
+            screenshot_path=None,
+            pc_status="Consultation active"
         )
         with self._lock:
             self._requests[req_id] = req
@@ -585,7 +650,7 @@ class HumanInterventionGateway:
             or clean_text in {"kholo", "open", "pc par kholo", "samne lao", "screen par lao", "window kholo", "bring to front", "screen open"}
             or any(w in lower for w in ["fundingpips kholo", "portal kholo", "hamid kholo", "chrome kholo", "pips kholo"])
             or (len(clean_text.split()) <= 4 and any(w in lower for w in ["kholo", "samne lao", "screen par lao", "pc par kholo", "window kholo", "bring to front"]))
-        ) and not any(w in lower for w in ["profile", "adeel", "chatgpt", "gemini", "claude", "deepseek", "youtube", "vscode", "terminal"])
+        ) and not any(w in lower for w in ["profile", "browser", "chatgpt", "gemini", "claude", "deepseek", "youtube", "vscode", "terminal"])
 
         if is_open_option:
             target_svc = str(req.target_service).lower() if req else "fundingpips"

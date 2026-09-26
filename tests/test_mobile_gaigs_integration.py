@@ -33,7 +33,8 @@ def test_mobile_endpoint_media_channels(client):
     assert resp.status_code == 200
     data = resp.json()
     assert data["ok"] is True
-    assert "@HistoryOS-1" in [ch["handle"] for ch in data["channels"].values()]
+    channels_iterable = data["channels"].values() if isinstance(data["channels"], dict) else data["channels"]
+    assert "@HistoryOS-1" in [ch["handle"] for ch in channels_iterable]
 
 
 def test_mobile_endpoint_gaigs_overview(client):
