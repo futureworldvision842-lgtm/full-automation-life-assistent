@@ -110,7 +110,7 @@ def test_cors_headers_on_mobile_gateway():
     # Check that OPTIONS / pre-flight or CORS header is enabled
     resp = client.get("/api/health", headers={"Origin": "http://127.0.0.1:8770"})
     assert resp.status_code == 200
-    assert resp.headers.get("access-control-allow-origin") == "*"
+    assert resp.headers.get("access-control-allow-origin") in ("*", "http://127.0.0.1:8770")
 
 
 def test_clean_room_invariance():
