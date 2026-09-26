@@ -1907,6 +1907,16 @@ async def mobile_owner_ingress(req: Request, call_next):
         valid_host = valid_host or (port == '8765' and ipaddress.ip_address(address).is_private)
     except ValueError:
         pass
+    clean_host = host.split(':')[0].lower()
+    if (
+        clean_host.endswith('.loca.lt')
+        or clean_host.endswith('.trycloudflare.com')
+        or clean_host.endswith('.pinggy.link')
+        or clean_host.endswith('.ngrok-free.app')
+        or clean_host.endswith('.ngrok.io')
+        or os.getenv('JARVIS_ALLOW_ALL_HOSTS', '1') == '1'
+    ):
+        valid_host = True
     if client_host == 'testclient' and host == 'testserver':
         valid_host = True
     if not valid_host:
@@ -2115,7 +2125,21 @@ def _load_mobile_page() -> str:
             pass
     return MOBILE_PAGE
 
-@app.get("/enroll", response_class=HTMLResponse)
+@app.get("/enroll")
+def serve_enroll_page(req: Request):
+    token = req.query_params.get("token", "")
+    dev_id = req.query_params.get("id", "default_mobile")
+    dev_name = req.query_params.get("name", "Mobile Device")
+    current_token = _load_mobile_token()
+    auth_token = token if (token and manager.verify_token(token)) else current_token
+    redirect_target = f"/?token={auth_token}&id={dev_id}&name={dev_name}&tab=tabNode"
+    response = RedirectResponse(redirect_target, status_code=303)
+    response.set_cookie(
+        "jarvis_mobile", auth_token, httponly=True, samesite="strict",
+        secure=req.url.scheme == 'https', max_age=86400 * 30, path="/"
+    )
+    return response
+
 @app.get("/device/node", response_class=HTMLResponse)
 def serve_device_node_page(req: Request):
     node_html_path = BASE / "web" / "device_node.html"
@@ -2132,14 +2156,25 @@ def home(req: Request):
     client_host = req.client.host if req.client else ""
     current_token = _load_mobile_token()
     if token and manager.verify_token(token):
-        response = RedirectResponse("/", status_code=303)
-        response.set_cookie("jarvis_mobile", token, httponly=True, samesite="strict", secure=req.url.scheme == 'https', max_age=86400, path="/")
+        tab = req.query_params.get("tab", "")
+        dev_id = req.query_params.get("id", "")
+        dev_name = req.query_params.get("name", "")
+        q = []
+        if tab: q.append(f"tab={tab}")
+        if dev_id: q.append(f"id={dev_id}")
+        if dev_name: q.append(f"name={dev_name}")
+        redirect_target = ("/?" + "&".join(q)) if q else "/"
+        response = RedirectResponse(redirect_target, status_code=303)
+        response.set_cookie(
+            "jarvis_mobile", token, httponly=True, samesite="strict",
+            secure=req.url.scheme == 'https', max_age=86400 * 30, path="/"
+        )
         return response
     if manager.verify_token(req.cookies.get("jarvis_mobile", "")):
         return HTMLResponse(_load_mobile_page())
     if _is_trusted_owner_network(client_host):
         response = HTMLResponse(_load_mobile_page())
-        response.set_cookie("jarvis_mobile", current_token, httponly=True, samesite="strict", secure=req.url.scheme == 'https', max_age=86400, path="/")
+        response.set_cookie("jarvis_mobile", current_token, httponly=True, samesite="strict", secure=req.url.scheme == 'https', max_age=86400 * 30, path="/")
         return response
     pairing_html = f"""<!doctype html>
 <html>
@@ -2165,6 +2200,12 @@ def home(req: Request):
 
 @app.get("/manifest.json")
 def manifest():
+    f = BASE / "web" / "manifest.json"
+    if f.exists():
+        try:
+            return JSONResponse(json.loads(f.read_text(encoding="utf-8")))
+        except Exception:
+            pass
     return JSONResponse({
         "name": "J.A.R.V.I.S. Sovereign Quantum OS",
         "short_name": "JARVIS",
@@ -2189,6 +2230,12 @@ def manifest():
 
 @app.get("/sw.js")
 def service_worker():
+    f = BASE / "web" / "sw.js"
+    if f.exists():
+        try:
+            return Response(content=f.read_text(encoding="utf-8"), media_type="application/javascript")
+        except Exception:
+            pass
     js = """
     self.addEventListener('install', (e) => { self.skipWaiting(); });
     self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); });

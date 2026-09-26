@@ -1,0 +1,36 @@
+{
+  "name": "J.A.R.V.I.S. Sovereign Command Center",
+  "short_name": "JARVIS",
+  "description": "Master Muhammad Qureshi Sovereign 24/7 Mobile Command Center, Edge Server & Satellite Node",
+  "start_url": "/?pwa=1",
+  "display": "standalone",
+  "background_color": "#02060d",
+  "theme_color": "#02060d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%2302060d'/%3E%3Ccircle cx='256' cy='256' r='200' fill='none' stroke='%2300f0ff' stroke-width='16' stroke-dasharray='30 15'/%3E%3Ccircle cx='256' cy='256' r='140' fill='none' stroke='%2300ff88' stroke-width='8'/%3E%3Ccircle cx='256' cy='256' r='70' fill='%2300f0ff' filter='drop-shadow(0 0 20px %2300f0ff)'/%3E%3Ctext x='256' y='275' font-family='sans-serif' font-size='55' font-weight='900' fill='%2302060d' text-anchor='middle'%3EJ%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity", "finance"],
+  "shortcuts": [
+    {
+      "name": "PC Remote",
+      "url": "/?tab=tabPc",
+      "description": "Control PC screen, mouse, and keyboard"
+    },
+    {
+      "name": "Edge Node 24/7",
+      "url": "/?tab=tabNode",
+      "description": "24/7 Edge Server, Camera Vision & GPS"
+    },
+    {
+      "name": "Jarvis Voice",
+      "url": "/?tab=tabVoice",
+      "description": "Duplex Voice Assistant"
+    }
+  ]
+}

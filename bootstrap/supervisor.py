@@ -181,6 +181,7 @@ def build_services():
         ServiceSpec("Odysseus AI Brain", 7000, "/api/health", [PY, "-m", "uvicorn", "app:app", "--host", "127.0.0.1", "--port", "7000"], ROOT / "bots" / "odysseus", match="uvicorn"),
         ServiceSpec("Mobile Companion & Remote Gateway", 8765, "/api/health", [PY, "mobile_control.py"], ROOT, match="mobile_control.py"),
         ServiceSpec("Gods Eye Mobile Viewer", 8766, "/api/health", [PY, "gods_eye_mobile.py"], ROOT, match="gods_eye_mobile.py"),
+        ServiceSpec("Global 24/7 Cloud Tunnel", 0, "", [PY, "actions/persistent_tunnel.py"], ROOT, match="persistent_tunnel.py"),
     ]
 
     ollama = shutil.which("ollama")

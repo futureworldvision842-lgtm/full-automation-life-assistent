@@ -160,7 +160,20 @@ class DeviceMatrixHub:
         self._command_queues[device_id] = []
         self._save_registry()
 
-        enroll_url = f"http://{lan_ip}:{port}/enroll?id={device_id}&token={token}&name={clean_name}"
+        public_url = ""
+        pub_file = BASE_DIR / "config" / "public_url.json"
+        if pub_file.exists():
+            try:
+                data = json.loads(pub_file.read_text(encoding="utf-8"))
+                p_url = str(data.get("public_url", "")).strip().rstrip("/")
+                if p_url and (p_url.startswith("http://") or p_url.startswith("https://")):
+                    public_url = p_url
+            except Exception:
+                pass
+
+        lan_url = f"http://{lan_ip}:{port}/enroll?id={device_id}&token={token}&name={clean_name}"
+        global_url = f"{public_url}/enroll?id={device_id}&token={token}&name={clean_name}" if public_url else ""
+        enroll_url = global_url if global_url else lan_url
         qr_svg = self._make_qr_svg(enroll_url)
 
         return {
@@ -170,8 +183,10 @@ class DeviceMatrixHub:
             "device_type": device_type,
             "token": token,
             "enroll_url": enroll_url,
+            "global_url": global_url,
+            "lan_url": lan_url,
             "qr_svg": qr_svg,
-            "instructions": f"Open this link on {clean_name} or scan the QR code to grant J.A.R.V.I.S. live access."
+            "instructions": f"Open this link on {clean_name} or scan the QR code to grant J.A.R.V.I.S. live access globally."
         }
 
     def _make_qr_svg(self, data_str: str) -> str:

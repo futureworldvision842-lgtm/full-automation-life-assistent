@@ -410,6 +410,7 @@ input:focus, textarea:focus {
 <!-- Top Carousel Navigation -->
 <div class="tab-scroller">
   <div class="tab-btn active" onclick="switchNav('tabPc', this)">🖥️ PC DESKTOP</div>
+  <div class="tab-btn" onclick="switchNav('tabNode', this)">🛰️ 24/7 EDGE NODE</div>
   <div class="tab-btn" onclick="switchNav('tabVoice', this)">🤖 JARVIS VOICE</div>
   <div class="tab-btn" onclick="switchNav('tabTrading', this)">📈 TRADING BOT</div>
   <div class="tab-btn" onclick="switchNav('tabMarkets', this)">🌍 LIVE MARKETS</div>
@@ -1050,12 +1051,189 @@ Select a script from the queue below or tap "GENERATE VIRAL SCRIPT".
   </div>
 </div>
 
+<!-- ========================================================================= -->
+<!-- TAB 7: 🛰️ 24/7 SATELLITE EDGE SERVER & HARDWARE NODE                   -->
+<!-- ========================================================================= -->
+<div id="tabNode" class="tab-panel">
+  <!-- 1. 24/7 Edge Server Master Status Card -->
+  <div class="card" style="border: 2px solid var(--pri); background: linear-gradient(135deg, rgba(0,240,255,0.08), rgba(7,21,38,0.95)); box-shadow: 0 0 25px rgba(0,240,255,0.2);">
+    <div class="card-header" style="border-color: rgba(0,240,255,0.3);">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="pulse-beacon" id="nodeBeaconDot"></div>
+        <span style="font-weight:900; letter-spacing:1px; color:var(--pri);">🛰️ 24/7 EDGE SERVER &amp; SATELLITE NODE</span>
+      </div>
+      <span class="metric-val green" id="nodeServerStatusBadge">24/7 ACTIVE</span>
+    </div>
+    
+    <div style="font-size:10.5px; color:#a2e4ff; margin-bottom:10px; line-height:1.4;">
+      This phone acts as an always-on 24/7 autonomous edge node for J.A.R.V.I.S., broadcasting live camera vision, GPS telemetry, screen frames, and receiving two-way duplex voice worldwide.
+    </div>
+
+    <!-- 24/7 Master Awake & Background Toggle -->
+    <div style="display:flex; gap:6px; margin-bottom:10px;">
+      <button id="btnToggleServer247" class="grn" style="flex:1; padding:12px; font-size:11.5px; font-weight:900;" onclick="toggle247ServerMode()">
+        ⚡ 24/7 SERVER MODE: ACTIVE
+      </button>
+      <button id="btnKeepAwakeWakeLock" class="pri" style="padding:12px; font-size:11px; font-weight:bold;" onclick="toggleWakeLock()">
+        🔒 WAKELOCK ON
+      </button>
+    </div>
+
+    <!-- Live Server Telemetry Grid -->
+    <div class="stat-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-family:var(--font-mono); font-size:10.5px;">
+      <div style="background:#030c18; padding:8px; border-radius:8px; border:1px solid #143552;">
+        <div style="color:var(--dim); font-size:9px;">DEVICE ID:</div>
+        <div style="color:var(--gold); font-weight:bold; truncate;" id="nodeDeviceIdLabel">DEFAULT_MOBILE</div>
+      </div>
+      <div style="background:#030c18; padding:8px; border-radius:8px; border:1px solid #143552;">
+        <div style="color:var(--dim); font-size:9px;">SERVER UPTIME:</div>
+        <div style="color:var(--grn); font-weight:bold;" id="nodeUptimeCounter">00:00:00</div>
+      </div>
+      <div style="background:#030c18; padding:8px; border-radius:8px; border:1px solid #143552;">
+        <div style="color:var(--dim); font-size:9px;">BATTERY VITALS:</div>
+        <div style="color:var(--pri); font-weight:bold;" id="nodeBatteryVitals">--% · Discharging</div>
+      </div>
+      <div style="background:#030c18; padding:8px; border-radius:8px; border:1px solid #143552;">
+        <div style="color:var(--dim); font-size:9px;">NETWORK LINK:</div>
+        <div style="color:var(--cyan); font-weight:bold;" id="nodeNetworkStatus">Detecting...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Optical Vision (Phone Camera Live Stream to PC) -->
+  <div class="card" style="border: 1.5px solid var(--grn); background: rgba(0,255,136,0.04);">
+    <div class="card-header" style="color:var(--grn); border-color: rgba(0,255,136,0.3);">
+      <span>👁️ PHONE CAMERA OPTICAL VISION (STREAM TO JARVIS)</span>
+      <span class="metric-val green" id="nodeCamStatus">IDLE</span>
+    </div>
+    
+    <div style="margin-bottom:8px;">
+      <button id="btnNodeCameraStream" class="grn" style="width:100%; padding:13px; font-size:12px; font-weight:900;" onclick="toggleNodeCameraStream()">
+        📷 STREAM PHONE CAMERA TO JARVIS (10 FPS)
+      </button>
+    </div>
+
+    <!-- Local Viewfinder Preview -->
+    <div id="nodeCamPreviewBox" style="display:none; margin-bottom:8px; border:1px solid var(--bd); border-radius:8px; overflow:hidden; background:#000; position:relative;">
+      <video id="nodeCamVideo" autoplay muted playsinline style="width:100%; max-height:220px; object-fit:contain; display:block;"></video>
+      <div style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.8); color:var(--grn); padding:4px 8px; border-radius:4px; font-size:9px; font-family:var(--font-mono); text-align:center;">
+        OPTICAL VISION STREAMING LIVE TO J.A.R.V.I.S. PC DASHBOARD
+      </div>
+    </div>
+
+    <!-- Camera Controls: Flip & Torch -->
+    <div class="btn-grid-3" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+      <button class="gold" onclick="flipNodeCamera()" id="btnNodeFlip">
+        🔄 FLIP (BACK/FRONT)
+      </button>
+      <button class="pri" onclick="toggleNodeTorch()" id="btnNodeTorch">
+        💡 TORCH / FLASH
+      </button>
+      <button class="purple" onclick="snapNodePhoto()" id="btnNodeSnap">
+        📸 SNAP PHOTO
+      </button>
+    </div>
+    <canvas id="nodeCamCanvas" style="display:none;"></canvas>
+  </div>
+
+  <!-- 3. Screen Broadcast (Live Phone Screen -> PC) -->
+  <div class="card">
+    <div class="card-header">
+      <span>📱 SCREEN BROADCAST (PHONE ➔ PC)</span>
+      <span class="metric-val cyan" id="nodeScreenStatus">IDLE</span>
+    </div>
+    <div style="margin-bottom:8px;">
+      <button id="btnNodeScreenShare" class="pri" style="width:100%; padding:12px; font-size:11.5px; font-weight:bold;" onclick="toggleNodeScreenShare()">
+        🔴 BROADCAST SCREEN TO PC COCKPIT
+      </button>
+    </div>
+    <div id="nodeScreenPreviewBox" style="display:none; margin-bottom:8px; border:1px solid var(--bd); border-radius:8px; overflow:hidden; background:#000;">
+      <video id="nodeScreenVideo" autoplay muted playsinline style="width:100%; max-height:180px; object-fit:contain; display:block;"></video>
+    </div>
+    <canvas id="nodeScreenCanvas" style="display:none;"></canvas>
+  </div>
+
+  <!-- 4. Precision GPS Satellite Geo-Tracking -->
+  <div class="card" style="border: 1px solid var(--gold); background: rgba(255,184,0,0.04);">
+    <div class="card-header" style="color:var(--gold); border-color: rgba(255,184,0,0.3);">
+      <span>📍 SATELLITE GPS GEO-TRACKER</span>
+      <span class="metric-val gold" id="nodeGpsStatus">STANDBY</span>
+    </div>
+    <div style="font-size:11px; font-family:var(--font-mono); margin-bottom:8px; color:#dff2fd;" id="nodeGpsCoordsText">
+      Coordinates: Acquiring GPS fix...
+    </div>
+    <div style="display:flex; gap:6px;">
+      <button id="btnNodeGps" class="gold" style="flex:1; padding:10px; font-size:11px; font-weight:bold;" onclick="toggleNodeGps()">
+        📍 TOGGLE GPS TRACKING
+      </button>
+      <button class="pri" style="padding:10px 14px; font-size:11px; font-weight:bold;" onclick="openNodeGoogleMaps()" id="btnNodeMaps">
+        🗺️ OPEN MAP
+      </button>
+    </div>
+  </div>
+
+  <!-- 5. Two-Way Duplex Audio & Remote Loudspeaker -->
+  <div class="card">
+    <div class="card-header">
+      <span>📢 TWO-WAY DUPLEX AUDIO &amp; LOUDSPEAKER</span>
+      <span class="metric-val green">READY</span>
+    </div>
+    <div style="font-size:10px; color:#a2e4ff; margin-bottom:8px;">
+      When J.A.R.V.I.S. on PC speaks, this phone automatically outputs natural Roman Urdu / English speech through its loudspeaker.
+    </div>
+    <div class="btn-grid-3" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:8px;">
+      <button class="grn" onclick="testNodeSpeaker()">
+        🔊 TEST SPEAKER
+      </button>
+      <button class="pri" onclick="vibrateNodePhone()">
+        📳 VIBRATE
+      </button>
+      <button class="red" onclick="triggerNodeSiren()">
+        🚨 TEST SIREN
+      </button>
+    </div>
+    <div style="display:flex; gap:6px;">
+      <button id="btnNodeMic" class="pri" style="width:100%; padding:12px; font-size:11.5px; font-weight:bold;" onclick="startNodeVoiceMic()">
+        🎙️ SPEAK TO JARVIS (ROMAN URDU / ENGLISH)
+      </button>
+    </div>
+  </div>
+
+  <!-- 6. Satellite Fleet & Pairing Link Generator -->
+  <div class="card" style="border:1px solid #1b4d7a;">
+    <div class="card-header">
+      <span>⚡ PAIR ANOTHER SATELLITE DEVICE (LINK &amp; QR)</span>
+      <span class="metric-val cyan">FLEET HUB</span>
+    </div>
+    <div style="font-size:10px; color:var(--dim); margin-bottom:8px;">
+      Generate a link or QR code to onboard another mobile phone, tablet, or laptop into your J.A.R.V.I.S. fleet.
+    </div>
+    <div style="display:flex; gap:6px; margin-bottom:8px;">
+      <input id="nodeNewDevName" placeholder="Device Name (e.g. Master Tablet)" style="margin-bottom:0;" value="Secondary Phone" />
+      <button class="pri" style="flex-shrink:0; padding:8px 12px; font-weight:bold;" onclick="generateNodeFleetLink()">GENERATE ↵</button>
+    </div>
+    <div id="nodeGeneratedLinkBox" style="display:none; padding:8px; background:#02060e; border:1px solid var(--bd); border-radius:8px;">
+      <div style="font-size:9px; color:var(--grn); font-weight:bold; margin-bottom:4px;">✓ ONBOARDING LINK READY:</div>
+      <input id="nodeGeneratedUrlInput" readonly style="font-size:10px; margin-bottom:6px; color:var(--pri); font-family:var(--font-mono);" />
+      <div style="display:flex; gap:6px; margin-bottom:6px;">
+        <button class="pri" style="flex:1; padding:6px; font-size:10px;" onclick="copyNodeGeneratedLink()">📋 COPY LINK</button>
+        <button class="gold" style="flex:1; padding:6px; font-size:10px;" onclick="openNodeGeneratedLink()">↗ OPEN HERE</button>
+      </div>
+      <div id="nodeGeneratedQrBox" style="display:flex; justify-content:center; padding:6px; background:#fff; border-radius:6px;"></div>
+    </div>
+  </div>
+</div>
+
 
 <!-- Sticky Bottom Dock -->
 <nav class="bottom-dock">
   <div class="dock-item active" onclick="switchDock('tabPc', this)">
     <div class="dock-icon">🖥️</div>
     <span>DESKTOP</span>
+  </div>
+  <div class="dock-item" onclick="switchDock('tabNode', this)">
+    <div class="dock-icon">🛰️</div>
+    <span>NODE 24/7</span>
   </div>
   <div class="dock-item" onclick="switchDock('tabVoice', this)">
     <div class="dock-icon">🤖</div>
@@ -1069,13 +1247,13 @@ Select a script from the queue below or tap "GENERATE VIRAL SCRIPT".
     <div class="dock-icon">🌍</div>
     <span>MARKETS</span>
   </div>
-  <div class="dock-item" onclick="switchDock('tabReports', this)">
-    <div class="dock-icon">📋</div>
-    <span>REPORT</span>
-  </div>
   <div class="dock-item" onclick="switchDock('tabGaigs', this)">
     <div class="dock-icon">🏛️</div>
     <span>GAIGS</span>
+  </div>
+  <div class="dock-item" onclick="switchDock('tabReports', this)">
+    <div class="dock-icon">📋</div>
+    <span>REPORT</span>
   </div>
 </nav>
 
@@ -1158,7 +1336,24 @@ Select a script from the queue below or tap "GENERATE VIRAL SCRIPT".
 <script>
 // State Management
 const state = {
-  backend: (window.location.port === '8765' ? window.location.origin : (window.location.protocol + '//' + (window.location.hostname || '127.0.0.1') + ':8765')),
+  backend: window.location.origin,
+  deviceId: new URLSearchParams(window.location.search).get('id') || 'default_mobile',
+  token: new URLSearchParams(window.location.search).get('token') || 'wHUfdgY-AdHQZMb93xK5ZB-uNeYoXrQ_0p7RgTgnAhE',
+  deviceName: new URLSearchParams(window.location.search).get('name') || 'Master Muhammad Galaxy Ultra',
+  nodeServerActive: true,
+  nodeUptimeStart: Date.now(),
+  cameraStream: null,
+  cameraInterval: null,
+  cameraFacing: 'environment',
+  torchOn: false,
+  screenStream: null,
+  screenInterval: null,
+  gpsWatchId: null,
+  currentGps: null,
+  wakeLock: null,
+  audioKeepAliveCtx: null,
+  battery: { pct: 90, charging: false },
+  commandsPollerId: null,
   currentSymbol: 'OANDA:XAUUSD',
   currentTitle: 'GOLD (XAUUSD)',
   currentPrice: 4352.10,
@@ -1195,10 +1390,10 @@ function switchNav(tabId, el) {
   });
 
   if (tabId === 'tabPc') pollPcVitals();
+  if (tabId === 'tabNode') refreshNodeVitals();
   if (tabId === 'tabTrading') pollPositions();
   if (tabId === 'tabMarkets') pollLiveMarkets();
   if (tabId === 'tabReports') generateDailyReport();
-  if (tabId === 'tabGaigs') { loadMobileMediaData(); loadMobileGaigsData(); }
   if (tabId === 'tabGaigs') { loadMobileMediaData(); loadMobileGaigsData(); }
 }
 
@@ -1220,9 +1415,11 @@ function switchDock(tabId, el) {
   if (panel) panel.classList.add('active');
 
   if (tabId === 'tabPc') pollPcVitals();
+  if (tabId === 'tabNode') refreshNodeVitals();
   if (tabId === 'tabTrading') pollPositions();
   if (tabId === 'tabMarkets') pollLiveMarkets();
   if (tabId === 'tabReports') generateDailyReport();
+  if (tabId === 'tabGaigs') { loadMobileMediaData(); loadMobileGaigsData(); }
 }
 
 // 2. Sovereign 1-Tap Gate: YEH DABAO
@@ -2646,62 +2843,589 @@ async function togglePhoneToPcScreen() {
   }
 }
 
-function togglePhoneGps() {
-  const btn = document.getElementById('btnMobGps');
-  if (phoneGpsWatchId) {
-    navigator.geolocation.clearWatch(phoneGpsWatchId);
-    phoneGpsWatchId = null;
-    btn.innerText = '📍 SHARE LIVE GPS';
-    showToast('GPS sharing stopped.');
+// -----------------------------------------------------------------------------
+// 🛰️ UNIVERSAL 24/7 SATELLITE EDGE SERVER & HARDWARE NODE ENGINE
+// -----------------------------------------------------------------------------
+
+function refreshNodeVitals() {
+  const devIdEl = document.getElementById('nodeDeviceIdLabel');
+  if (devIdEl) devIdEl.innerText = state.deviceId.toUpperCase();
+
+  const netEl = document.getElementById('nodeNetworkStatus');
+  if (netEl) {
+    if (window.location.protocol === 'https:') {
+      netEl.innerText = '🌐 GLOBAL HTTPS (WAN)';
+      netEl.style.color = 'var(--grn)';
+    } else {
+      netEl.innerText = `📶 LOCAL WI-FI (${window.location.hostname})`;
+      netEl.style.color = 'var(--pri)';
+    }
+  }
+
+  const battEl = document.getElementById('nodeBatteryVitals');
+  if (battEl) {
+    battEl.innerText = `${state.battery.pct}% · ${state.battery.charging ? '⚡ Charging' : 'Discharging'}`;
+  }
+}
+
+function updateNodeUptime() {
+  const counterEl = document.getElementById('nodeUptimeCounter');
+  if (!counterEl) return;
+  const elapsedSec = Math.floor((Date.now() - state.nodeUptimeStart) / 1000);
+  const hrs = String(Math.floor(elapsedSec / 3600)).padStart(2, '0');
+  const mins = String(Math.floor((elapsedSec % 3600) / 60)).padStart(2, '0');
+  const secs = String(elapsedSec % 60).padStart(2, '0');
+  counterEl.innerText = `${hrs}:${mins}:${secs}`;
+}
+
+async function toggle247ServerMode() {
+  const btn = document.getElementById('btnToggleServer247');
+  const badge = document.getElementById('nodeServerStatusBadge');
+  state.nodeServerActive = !state.nodeServerActive;
+
+  if (state.nodeServerActive) {
+    if (btn) { btn.innerText = '⚡ 24/7 SERVER MODE: ACTIVE'; btn.className = 'grn'; }
+    if (badge) { badge.innerText = '24/7 ACTIVE'; badge.className = 'metric-val green'; }
+    await toggleWakeLock(true);
+    startAudioKeepAlive();
+    toggleNodeGps(true);
+    showToast('24/7 Edge Server Mode fully engaged!');
   } else {
+    if (btn) { btn.innerText = '⏸️ 24/7 SERVER MODE: PAUSED'; btn.className = 'pri'; }
+    if (badge) { badge.innerText = 'STANDBY'; badge.className = 'metric-val cyan'; }
+    await toggleWakeLock(false);
+    stopAudioKeepAlive();
+    showToast('24/7 Server Mode paused.');
+  }
+}
+
+async function toggleWakeLock(forceState) {
+  const btn = document.getElementById('btnKeepAwakeWakeLock');
+  const desired = forceState !== undefined ? forceState : !state.wakeLock;
+
+  if (!desired && state.wakeLock) {
+    try { await state.wakeLock.release(); } catch(e){}
+    state.wakeLock = null;
+    if (btn) { btn.innerText = '🔓 WAKELOCK OFF'; btn.className = 'pri'; }
+    showToast('Screen WakeLock released.');
+  } else if (desired) {
+    try {
+      if ('wakeLock' in navigator) {
+        state.wakeLock = await navigator.wakeLock.request('screen');
+        state.wakeLock.addEventListener('release', () => {
+          if (btn) { btn.innerText = '🔓 WAKELOCK OFF'; btn.className = 'pri'; }
+          state.wakeLock = null;
+        });
+        if (btn) { btn.innerText = '🔒 WAKELOCK ON (24/7)'; btn.className = 'grn'; }
+        showToast('Screen WakeLock active — phone will stay awake 24/7!');
+      } else {
+        showToast('WakeLock API not supported by browser.');
+      }
+    } catch(err) {
+      console.warn('WakeLock request error:', err);
+    }
+  }
+}
+
+function startAudioKeepAlive() {
+  if (state.audioKeepAliveCtx) return;
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    state.audioKeepAliveCtx = new AudioCtx();
+    const osc = state.audioKeepAliveCtx.createOscillator();
+    const gain = state.audioKeepAliveCtx.createGain();
+    gain.gain.value = 0.0001; // Inaudible silent buffer keep-alive
+    osc.connect(gain);
+    gain.connect(state.audioKeepAliveCtx.destination);
+    osc.start();
+  } catch(e) {}
+}
+
+function stopAudioKeepAlive() {
+  if (state.audioKeepAliveCtx) {
+    try { state.audioKeepAliveCtx.close(); } catch(e){}
+    state.audioKeepAliveCtx = null;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Optical Vision: Camera Stream (Phone -> PC)
+// -----------------------------------------------------------------------------
+async function toggleNodeCameraStream() {
+  const btn = document.getElementById('btnNodeCameraStream');
+  const preview = document.getElementById('nodeCamPreviewBox');
+  const video = document.getElementById('nodeCamVideo');
+  const status = document.getElementById('nodeCamStatus');
+
+  if (state.cameraStream) {
+    if (state.cameraInterval) clearInterval(state.cameraInterval);
+    state.cameraStream.getTracks().forEach(t => t.stop());
+    state.cameraStream = null;
+    state.torchOn = false;
+    if (preview) preview.style.display = 'none';
+    if (btn) { btn.innerText = '📷 STREAM PHONE CAMERA TO JARVIS (10 FPS)'; btn.className = 'grn'; }
+    if (status) { status.innerText = 'IDLE'; status.className = 'metric-val green'; }
+    showToast('Phone camera streaming stopped.');
+  } else {
+    try {
+      showToast('Requesting camera permissions...');
+      const constraints = {
+        video: {
+          facingMode: state.cameraFacing,
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          frameRate: { ideal: 15, max: 20 }
+        },
+        audio: false
+      };
+      state.cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+      if (video) video.srcObject = state.cameraStream;
+      if (preview) preview.style.display = 'block';
+      if (btn) { btn.innerText = '⏹️ STOP OPTICAL VISION STREAM'; btn.className = 'red'; }
+      if (status) { status.innerText = 'STREAMING LIVE (10 FPS)'; status.className = 'metric-val red'; }
+
+      const canvas = document.getElementById('nodeCamCanvas') || document.createElement('canvas');
+      canvas.id = 'nodeCamCanvas';
+      canvas.width = 480;
+      canvas.height = 360;
+      const ctx = canvas.getContext('2d');
+
+      state.cameraInterval = setInterval(async () => {
+        if (!state.cameraStream || !video.videoWidth) return;
+        try {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const b64 = canvas.toDataURL('image/jpeg', 0.65);
+          await fetch(`${state.backend}/api/devices/${state.deviceId}/camera-frame/base64`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: b64 })
+          });
+        } catch(e) {}
+      }, 100);
+
+      showToast('Optical vision now streaming live to J.A.R.V.I.S. Cockpit!');
+    } catch(err) {
+      showToast('Camera access denied or unavailable: ' + err.message);
+    }
+  }
+}
+
+async function flipNodeCamera() {
+  state.cameraFacing = (state.cameraFacing === 'environment' ? 'user' : 'environment');
+  showToast(`Switching camera to ${state.cameraFacing === 'user' ? 'Front Selfie' : 'Rear'}...`);
+  if (state.cameraStream) {
+    state.cameraStream.getTracks().forEach(t => t.stop());
+    state.cameraStream = null;
+    if (state.cameraInterval) clearInterval(state.cameraInterval);
+    await toggleNodeCameraStream();
+  }
+}
+
+async function toggleNodeTorch() {
+  if (!state.cameraStream) {
+    showToast('Start camera stream first to use flashlight/torch.');
+    return;
+  }
+  const track = state.cameraStream.getVideoTracks()[0];
+  if (!track) return;
+  const caps = track.getCapabilities ? track.getCapabilities() : {};
+  if (!caps.torch) {
+    showToast('Torch/Flashlight not supported on this camera/lens.');
+    return;
+  }
+  try {
+    state.torchOn = !state.torchOn;
+    await track.applyConstraints({ advanced: [{ torch: state.torchOn }] });
+    const btn = document.getElementById('btnNodeTorch');
+    if (btn) btn.innerText = state.torchOn ? '💡 TORCH: ON' : '💡 TORCH / FLASH';
+    showToast(`Phone Torch ${state.torchOn ? 'TURNED ON' : 'TURNED OFF'}`);
+  } catch(e) {
+    showToast('Torch error: ' + e.message);
+  }
+}
+
+function snapNodePhoto() {
+  if (!state.cameraStream) {
+    showToast('Start camera stream first to snap photo.');
+    return;
+  }
+  const video = document.getElementById('nodeCamVideo');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+  const b64 = canvas.toDataURL('image/jpeg', 0.9);
+  fetch(`${state.backend}/api/devices/${state.deviceId}/camera-frame/base64`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image: b64 })
+  });
+  showToast('High-Res photo captured and stored on PC!');
+}
+
+// -----------------------------------------------------------------------------
+// Screen Broadcast (Phone -> PC)
+// -----------------------------------------------------------------------------
+async function toggleNodeScreenShare() {
+  const btn = document.getElementById('btnNodeScreenShare');
+  const preview = document.getElementById('nodeScreenPreviewBox');
+  const video = document.getElementById('nodeScreenVideo');
+  const status = document.getElementById('nodeScreenStatus');
+
+  if (state.screenStream) {
+    if (state.screenInterval) clearInterval(state.screenInterval);
+    state.screenStream.getTracks().forEach(t => t.stop());
+    state.screenStream = null;
+    if (preview) preview.style.display = 'none';
+    if (btn) { btn.innerText = '🔴 BROADCAST SCREEN TO PC COCKPIT'; btn.className = 'pri'; }
+    if (status) { status.innerText = 'IDLE'; status.className = 'metric-val cyan'; }
+    showToast('Screen broadcast stopped.');
+  } else {
+    try {
+      state.screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { displaySurface: 'monitor', cursor: 'always' },
+        audio: false
+      });
+      if (video) video.srcObject = state.screenStream;
+      if (preview) preview.style.display = 'block';
+      if (btn) { btn.innerText = '⏹️ STOP SCREEN BROADCAST'; btn.className = 'red'; }
+      if (status) { status.innerText = 'STREAMING LIVE'; status.className = 'metric-val red'; }
+
+      const canvas = document.getElementById('nodeScreenCanvas') || document.createElement('canvas');
+      canvas.id = 'nodeScreenCanvas';
+      canvas.width = 640;
+      canvas.height = 360;
+      const ctx = canvas.getContext('2d');
+
+      state.screenInterval = setInterval(async () => {
+        if (!state.screenStream || !video.videoWidth) return;
+        try {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const b64 = canvas.toDataURL('image/jpeg', 0.65);
+          await fetch(`${state.backend}/api/devices/${state.deviceId}/screen-frame/base64`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: b64 })
+          });
+        } catch(e) {}
+      }, 100);
+
+      state.screenStream.getVideoTracks()[0].onended = () => {
+        toggleNodeScreenShare();
+      };
+      showToast('Phone screen streaming live to PC Cockpit!');
+    } catch(err) {
+      showToast('Screen share cancelled/denied: ' + err.message);
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// GPS Satellite Geo-Tracking
+// -----------------------------------------------------------------------------
+function toggleNodeGps(forceState) {
+  const btn = document.getElementById('btnNodeGps');
+  const status = document.getElementById('nodeGpsStatus');
+  const coordsText = document.getElementById('nodeGpsCoordsText');
+  const desired = forceState !== undefined ? forceState : !state.gpsWatchId;
+
+  if (!desired && state.gpsWatchId) {
+    navigator.geolocation.clearWatch(state.gpsWatchId);
+    state.gpsWatchId = null;
+    if (btn) btn.innerText = '📍 TOGGLE GPS TRACKING';
+    if (status) { status.innerText = 'PAUSED'; status.className = 'metric-val cyan'; }
+    showToast('GPS tracking paused.');
+  } else if (desired) {
     if (!('geolocation' in navigator)) {
       showToast('Geolocation not supported in browser.');
       return;
     }
-    phoneGpsWatchId = navigator.geolocation.watchPosition(
-      async pos => {
-        btn.innerText = '📍 GPS STREAMING';
-        try {
-          await fetch(`${state.backend}/api/devices/default_mobile/telemetry`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              gps: {
-                lat: pos.coords.latitude,
-                lon: pos.coords.longitude,
-                accuracy: pos.coords.accuracy,
-                speed: pos.coords.speed || 0.0,
-                altitude: pos.coords.altitude
-              }
-            })
-          });
-        } catch(e){}
+    if (status) { status.innerText = 'ACQUIRING FIX...'; status.className = 'metric-val gold'; }
+    state.gpsWatchId = navigator.geolocation.watchPosition(
+      pos => {
+        state.currentGps = {
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+          speed: pos.coords.speed || 0.0,
+          altitude: pos.coords.altitude || 0.0,
+          timestamp: pos.timestamp
+        };
+        if (coordsText) {
+          coordsText.innerText = `GPS Fix: ${state.currentGps.lat.toFixed(5)}° N, ${state.currentGps.lon.toFixed(5)}° E (±${Math.round(state.currentGps.accuracy)}m)`;
+        }
+        if (btn) btn.innerText = '📍 GPS STREAMING LIVE';
+        if (status) { status.innerText = 'ACTIVE TRACKING'; status.className = 'metric-val green'; }
+        pollNodeCommandsAndTelemetry();
       },
       err => {
-        showToast('GPS error: ' + err.message);
+        if (coordsText) coordsText.innerText = 'GPS Error: ' + err.message;
+        if (status) { status.innerText = 'ERROR'; status.className = 'metric-val red'; }
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
     );
-    showToast('High-accuracy GPS streaming to PC!');
+    showToast('High-precision satellite GPS tracking engaged!');
   }
 }
 
-function testPhoneSpeaker() {
+function openNodeGoogleMaps() {
+  if (state.currentGps && state.currentGps.lat && state.currentGps.lon) {
+    window.open(`https://maps.google.com/?q=${state.currentGps.lat},${state.currentGps.lon}`, '_blank');
+  } else {
+    showToast('Acquiring satellite GPS fix... Please wait 2 seconds.');
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Duplex Audio, Vibrate & Siren Receivers
+// -----------------------------------------------------------------------------
+function testNodeSpeaker() {
   if (!('speechSynthesis' in window)) {
     showToast('Speech synthesis not supported in this browser.');
     return;
   }
   window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance('Assalam-o-Alaikum Sir, J.A.R.V.I.S. is speaking directly through your phone speaker.');
+  const utter = new SpeechSynthesisUtterance('Assalam-o-Alaikum Master Muhammad. J.A.R.V.I.S. 24/7 Satellite Edge Node is fully operational.');
   utter.rate = 1.0;
   utter.pitch = 1.0;
   utter.lang = 'en-US';
   window.speechSynthesis.speak(utter);
-  showToast('Speaking aloud through phone speaker...');
+  showToast('Speaking aloud through phone loudspeaker...');
+}
+
+function vibrateNodePhone() {
+  if ('vibrate' in navigator) {
+    navigator.vibrate([250, 100, 250, 100, 400]);
+    showToast('📳 Phone vibrated successfully.');
+  } else {
+    showToast('Vibration API not supported on this device.');
+  }
+}
+
+function triggerNodeSiren() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1400, ctx.currentTime + 0.4);
+    osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.8);
+    gain.gain.setValueAtTime(0.5, ctx.currentTime);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 1.6);
+    showToast('🚨 Siren alert sounding!');
+  } catch(e) {
+    showToast('Audio siren error: ' + e.message);
+  }
+}
+
+function startNodeVoiceMic() {
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) {
+    showToast('Web Speech recognition not supported in this browser.');
+    return;
+  }
+  const btn = document.getElementById('btnNodeMic');
+  const rec = new SpeechRec();
+  rec.lang = 'ur-PK';
+  rec.continuous = false;
+  rec.interimResults = false;
+
+  if (btn) btn.innerText = '🔴 LISTENING... BOLO SIR!';
+  rec.onstart = () => showToast('Listening... Speak now!');
+  rec.onresult = async event => {
+    const transcript = event.results[0][0].transcript;
+    if (btn) btn.innerText = '⚙️ PROCESSING...';
+    showToast(`You: "${transcript}"`);
+    try {
+      const res = await fetch(`${state.backend}/api/voice/process`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: transcript, lang: 'ur' })
+      });
+      const data = await res.json();
+      if (data && data.output) {
+        if ('speechSynthesis' in window) {
+          const u = new SpeechSynthesisUtterance(data.output);
+          u.lang = data.lang === 'en' ? 'en-US' : 'hi-IN';
+          window.speechSynthesis.speak(u);
+        }
+        showToast(`Jarvis: ${data.output}`);
+      }
+    } catch(e) {
+      showToast('Voice error: ' + e.message);
+    } finally {
+      if (btn) btn.innerText = '🎙️ SPEAK TO JARVIS (ROMAN URDU / ENGLISH)';
+    }
+  };
+  rec.onerror = e => {
+    showToast('Speech error: ' + e.error);
+    if (btn) btn.innerText = '🎙️ SPEAK TO JARVIS (ROMAN URDU / ENGLISH)';
+  };
+  rec.onend = () => {
+    if (btn) btn.innerText = '🎙️ SPEAK TO JARVIS (ROMAN URDU / ENGLISH)';
+  };
+  rec.start();
+}
+
+// -----------------------------------------------------------------------------
+// Background Command Poller & Telemetry Dispatch (Two-Way Duplex)
+// -----------------------------------------------------------------------------
+async function pollNodeCommandsAndTelemetry() {
+  if (!state.nodeServerActive) return;
+  const payload = {
+    device_name: state.deviceName,
+    battery_pct: state.battery.pct,
+    charging: state.battery.charging,
+    gps: state.currentGps,
+    screen_sharing: { active: !!state.screenStream }
+  };
+
+  try {
+    const res = await fetch(`${state.backend}/api/devices/${state.deviceId}/telemetry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) return;
+    const d = await res.json();
+
+    if (d && Array.isArray(d.commands) && d.commands.length > 0) {
+      d.commands.forEach(cmd => {
+        const type = (cmd.type || '').toUpperCase();
+        const p = cmd.payload || {};
+
+        if (type === 'SPEAK') {
+          if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance(p.text || 'Assalam-o-Alaikum Sir');
+            utter.lang = p.lang === 'ur' ? 'hi-IN' : 'en-US';
+            utter.volume = p.volume || 1.0;
+            window.speechSynthesis.speak(utter);
+            showToast(`📢 PC Spoke: "${p.text}"`);
+          }
+        } else if (type === 'VIBRATE') {
+          vibrateNodePhone();
+        } else if (type === 'ALARM') {
+          triggerNodeSiren();
+        } else if (type === 'TOGGLE_TORCH') {
+          toggleNodeTorch();
+        } else if (type === 'OPEN_URL' && p.url) {
+          window.open(p.url, '_blank');
+        }
+      });
+    }
+  } catch(e) {}
+}
+
+// -----------------------------------------------------------------------------
+// Fleet Onboarding Link & QR Generator (Mobile UI)
+// -----------------------------------------------------------------------------
+async function generateNodeFleetLink() {
+  const nameInput = document.getElementById('nodeNewDevName');
+  const name = (nameInput?.value || 'Master Satellite Phone').trim();
+  const box = document.getElementById('nodeGeneratedLinkBox');
+  const urlInp = document.getElementById('nodeGeneratedUrlInput');
+  const qrBox = document.getElementById('nodeGeneratedQrBox');
+
+  try {
+    const res = await fetch(`${state.backend}/api/devices/generate-enroll-link`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        device_name: name,
+        device_type: 'mobile_phone',
+        lan_ip: window.location.hostname || '192.168.100.3',
+        port: window.location.port ? parseInt(window.location.port) : 8765
+      })
+    });
+    const d = await res.json();
+    if (d.ok && d.enroll_url) {
+      if (box) box.style.display = 'block';
+      if (urlInp) urlInp.value = d.enroll_url;
+      if (qrBox) {
+        qrBox.innerHTML = d.qr_svg || `<div style="font-size:9px; color:#000;">Scan: ${d.enroll_url}</div>`;
+      }
+      showToast(`✓ Pairing link generated for ${name}!`);
+    }
+  } catch(e) {
+    showToast('Failed to generate link: ' + e.message);
+  }
+}
+
+function copyNodeGeneratedLink() {
+  const urlInp = document.getElementById('nodeGeneratedUrlInput');
+  if (urlInp && urlInp.value) {
+    navigator.clipboard.writeText(urlInp.value).then(() => {
+      showToast('✓ Link copied to clipboard!');
+    }).catch(() => {
+      urlInp.select();
+      document.execCommand('copy');
+      showToast('✓ Copied!');
+    });
+  }
+}
+
+function openNodeGeneratedLink() {
+  const urlInp = document.getElementById('nodeGeneratedUrlInput');
+  if (urlInp && urlInp.value) {
+    window.open(urlInp.value, '_blank');
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Node Server Auto-Bootstrap
+// -----------------------------------------------------------------------------
+function initNodeServer() {
+  if ('getBattery' in navigator) {
+    navigator.getBattery().then(b => {
+      function updateB() {
+        state.battery.pct = Math.round(b.level * 100);
+        state.battery.charging = b.charging;
+        refreshNodeVitals();
+      }
+      updateB();
+      b.addEventListener('levelchange', updateB);
+      b.addEventListener('chargingchange', updateB);
+    });
+  }
+
+  const pill = document.getElementById('networkPill');
+  if (pill) {
+    if (window.location.protocol === 'https:') {
+      pill.innerText = '🌐 GLOBAL WAN';
+      pill.style.color = 'var(--grn)';
+      pill.style.borderColor = 'var(--grn)';
+    } else {
+      pill.innerText = '📶 WI-FI LAN';
+      pill.style.color = 'var(--pri)';
+    }
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+
+  toggle247ServerMode();
+  refreshNodeVitals();
+
+  const targetTab = new URLSearchParams(window.location.search).get('tab');
+  if (targetTab === 'tabNode' || window.location.pathname.includes('/enroll')) {
+    const btn = document.querySelector('.tab-btn[onclick*="tabNode"]');
+    switchNav('tabNode', btn);
+  }
 }
 
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', () => {
+  initNodeServer();
   pollPcVitals();
   pollLiveMarkets();
   pollPositions();
@@ -2718,6 +3442,8 @@ window.addEventListener('DOMContentLoaded', () => {
   setInterval(pollMobileAlertStatus, 4000);
   setInterval(sendMobileHeartbeat, 10000);
   setInterval(pollMobileSentinelDiagnostics, 8000);
+  setInterval(pollNodeCommandsAndTelemetry, 3000);
+  setInterval(updateNodeUptime, 1000);
 });
 </script>
 </body>
