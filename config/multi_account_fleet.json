@@ -3,7 +3,7 @@
   "owner": "Master Muhammad Qureshi",
   "phone": "+923468053268",
   "primary_email": "futureworldvision842@gmail.com",
-  "last_updated": "2026-09-25 21:08:20 UTC",
+  "last_updated": "2026-09-26 07:00:47 UTC",
   "anti_detection_enabled": true,
   "accounts": {
     "fundingpips_100k": {
@@ -55,7 +55,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "ftmo_100k": {
       "account_id": "1514382598",
@@ -106,7 +110,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "vebson_personal_1k": {
       "account_id": "5054542",
@@ -157,7 +165,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "40000294403": {
       "account_id": "40000294403",
@@ -185,7 +197,11 @@
       "freeze_reason": null,
       "terminal_config": null,
       "proxy_config": null,
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "FP_1": {
       "account_id": "FP_1",
@@ -213,7 +229,11 @@
       "freeze_reason": null,
       "terminal_config": null,
       "proxy_config": null,
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "FTMO_1": {
       "account_id": "FTMO_1",
@@ -241,7 +261,11 @@
       "freeze_reason": null,
       "terminal_config": null,
       "proxy_config": null,
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "DD_TEST": {
       "account_id": "DD_TEST",
@@ -269,7 +293,11 @@
       "freeze_reason": null,
       "terminal_config": null,
       "proxy_config": null,
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "FP_DD_BOUND": {
       "account_id": "FP_DD_BOUND",
@@ -297,7 +325,11 @@
       "freeze_reason": null,
       "terminal_config": null,
       "proxy_config": null,
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "DUP_ACC": {
       "account_id": "DUP_ACC",
@@ -325,7 +357,11 @@
       "freeze_reason": null,
       "terminal_config": null,
       "proxy_config": null,
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "UNKNOWN_1": {
       "account_id": "UNKNOWN_1",
@@ -353,7 +389,11 @@
       "freeze_reason": null,
       "terminal_config": null,
       "proxy_config": null,
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "1514382598": {
       "account_id": "1514382598",
@@ -381,7 +421,11 @@
       "freeze_reason": null,
       "terminal_config": null,
       "proxy_config": null,
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "FP_PAIRWISE": {
       "account_id": "FP_PAIRWISE",
@@ -409,7 +453,11 @@
       "freeze_reason": null,
       "terminal_config": null,
       "proxy_config": null,
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_12345": {
       "account_id": "12345",
@@ -460,7 +508,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_FP_TEST_USER_99": {
       "account_id": "FP_TEST_USER_99",
@@ -511,7 +563,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790352065": {
       "account_id": "ACC_TEST_1790352065",
@@ -562,7 +618,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790352351": {
       "account_id": "ACC_TEST_1790352351",
@@ -613,7 +673,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790354276": {
       "account_id": "ACC_TEST_1790354276",
@@ -664,7 +728,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790354294": {
       "account_id": "ACC_TEST_1790354294",
@@ -715,7 +783,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790354611": {
       "account_id": "ACC_TEST_1790354611",
@@ -766,7 +838,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790354952": {
       "account_id": "ACC_TEST_1790354952",
@@ -817,7 +893,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790355175": {
       "account_id": "ACC_TEST_1790355175",
@@ -868,7 +948,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790355195": {
       "account_id": "ACC_TEST_1790355195",
@@ -919,7 +1003,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790355221": {
       "account_id": "ACC_TEST_1790355221",
@@ -970,7 +1058,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790355261": {
       "account_id": "ACC_TEST_1790355261",
@@ -1021,7 +1113,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790355370": {
       "account_id": "ACC_TEST_1790355370",
@@ -1072,7 +1168,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790355454": {
       "account_id": "ACC_TEST_1790355454",
@@ -1123,7 +1223,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790357354": {
       "account_id": "ACC_TEST_1790357354",
@@ -1174,7 +1278,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790358118": {
       "account_id": "ACC_TEST_1790358118",
@@ -1225,7 +1333,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790358152": {
       "account_id": "ACC_TEST_1790358152",
@@ -1276,7 +1388,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790358179": {
       "account_id": "ACC_TEST_1790358179",
@@ -1327,7 +1443,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790358526": {
       "account_id": "ACC_TEST_1790358526",
@@ -1378,7 +1498,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790361475": {
       "account_id": "ACC_TEST_1790361475",
@@ -1429,7 +1553,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790361528": {
       "account_id": "ACC_TEST_1790361528",
@@ -1480,7 +1608,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790363453": {
       "account_id": "ACC_TEST_1790363453",
@@ -1531,7 +1663,11 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     },
     "fundingpips_ACC_TEST_1790370500": {
       "account_id": "ACC_TEST_1790370500",
@@ -1582,7 +1718,396 @@
         "static_ip": true,
         "dns_leak_protection": true
       },
-      "telemetry_verified": false
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
+    },
+    "fundingpips_ACC_TEST_1790404515": {
+      "account_id": "ACC_TEST_1790404515",
+      "account_name": "Test Client Automated Prop",
+      "firm_name": "FundingPips",
+      "account_type": "Prop Firm Challenge",
+      "starting_balance": 100000.0,
+      "balance": 100000.0,
+      "equity": 100000.0,
+      "currency": "USD",
+      "max_risk_pct": 0.75,
+      "max_risk_usd_cap": 750.0,
+      "max_daily_drawdown_pct": 5.0,
+      "max_total_drawdown_pct": 10.0,
+      "freeze_dd_ratio": 0.8,
+      "min_rr_ratio": 2.5,
+      "dynamic_breakeven_trigger_r": 1.0,
+      "max_daily_trades": 3,
+      "daily_trades_count": 0,
+      "news_lockout_minutes": 15,
+      "news_restricted": true,
+      "weekend_holding_allowed": false,
+      "is_active": true,
+      "is_frozen": false,
+      "freeze_reason": null,
+      "terminal_config": {
+        "account_id": "ACC_TEST_1790404515",
+        "firm_name": "FundingPips",
+        "terminal_dir": "C:\\MT5_Fleet\\FundingPips_ACC_TEST_1790404515",
+        "executable_path": "C:\\Program Files\\MetaTrader 5 FundingPips\\terminal64.exe",
+        "portable_mode": true,
+        "ipc_port": 18847,
+        "data_dir": null,
+        "password_env": "MT5_PASSWORD_ACC_TEST_1790404515",
+        "server": "FundingPips-Server",
+        "login": "ACC_TEST_1790404515",
+        "timeout_ms": 60000
+      },
+      "proxy_config": {
+        "enabled": true,
+        "proxy_type": "SOCKS5",
+        "host": "127.0.0.1",
+        "port": 10836,
+        "username_env": "PROXY_USER_ACC_TEST_1790404515",
+        "password_env": "PROXY_PASS_ACC_TEST_1790404515",
+        "target_country": "AE",
+        "target_city": "Dubai",
+        "static_ip": true,
+        "dns_leak_protection": true
+      },
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
+    },
+    "fundingpips_ACC_TEST_1790404638": {
+      "account_id": "ACC_TEST_1790404638",
+      "account_name": "Test Client Automated Prop",
+      "firm_name": "FundingPips",
+      "account_type": "Prop Firm Challenge",
+      "starting_balance": 100000.0,
+      "balance": 100000.0,
+      "equity": 100000.0,
+      "currency": "USD",
+      "max_risk_pct": 0.75,
+      "max_risk_usd_cap": 750.0,
+      "max_daily_drawdown_pct": 5.0,
+      "max_total_drawdown_pct": 10.0,
+      "freeze_dd_ratio": 0.8,
+      "min_rr_ratio": 2.5,
+      "dynamic_breakeven_trigger_r": 1.0,
+      "max_daily_trades": 3,
+      "daily_trades_count": 0,
+      "news_lockout_minutes": 15,
+      "news_restricted": true,
+      "weekend_holding_allowed": false,
+      "is_active": true,
+      "is_frozen": false,
+      "freeze_reason": null,
+      "terminal_config": {
+        "account_id": "ACC_TEST_1790404638",
+        "firm_name": "FundingPips",
+        "terminal_dir": "C:\\MT5_Fleet\\FundingPips_ACC_TEST_1790404638",
+        "executable_path": "C:\\Program Files\\MetaTrader 5 FundingPips\\terminal64.exe",
+        "portable_mode": true,
+        "ipc_port": 18848,
+        "data_dir": null,
+        "password_env": "MT5_PASSWORD_ACC_TEST_1790404638",
+        "server": "FundingPips-Server",
+        "login": "ACC_TEST_1790404638",
+        "timeout_ms": 60000
+      },
+      "proxy_config": {
+        "enabled": true,
+        "proxy_type": "SOCKS5",
+        "host": "127.0.0.1",
+        "port": 10837,
+        "username_env": "PROXY_USER_ACC_TEST_1790404638",
+        "password_env": "PROXY_PASS_ACC_TEST_1790404638",
+        "target_country": "AE",
+        "target_city": "Dubai",
+        "static_ip": true,
+        "dns_leak_protection": true
+      },
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
+    },
+    "fundingpips_E2E_FP_40000294403": {
+      "account_id": "E2E_FP_40000294403",
+      "account_name": "FundingPips #E2E_FP_40000294403",
+      "firm_name": "FundingPips",
+      "account_type": "Prop Firm Challenge",
+      "starting_balance": 100000.0,
+      "balance": 100000.0,
+      "equity": 100000.0,
+      "currency": "USD",
+      "max_risk_pct": 0.75,
+      "max_risk_usd_cap": 750.0,
+      "max_daily_drawdown_pct": 5.0,
+      "max_total_drawdown_pct": 10.0,
+      "freeze_dd_ratio": 0.8,
+      "min_rr_ratio": 2.5,
+      "dynamic_breakeven_trigger_r": 1.0,
+      "max_daily_trades": 3,
+      "daily_trades_count": 0,
+      "news_lockout_minutes": 15,
+      "news_restricted": true,
+      "weekend_holding_allowed": false,
+      "is_active": true,
+      "is_frozen": false,
+      "freeze_reason": null,
+      "terminal_config": {
+        "account_id": "E2E_FP_40000294403",
+        "firm_name": "FundingPips",
+        "terminal_dir": "C:\\MT5_Fleet\\FundingPips_E2E_FP_40000294403",
+        "executable_path": "C:\\Program Files\\MetaTrader 5 FundingPips\\terminal64.exe",
+        "portable_mode": true,
+        "ipc_port": 18855,
+        "data_dir": null,
+        "password_env": "MT5_PASSWORD_E2E_FP_40000294403",
+        "server": "FundingPips-Server01",
+        "login": "E2E_FP_40000294403",
+        "timeout_ms": 60000
+      },
+      "proxy_config": {
+        "enabled": true,
+        "proxy_type": "SOCKS5",
+        "host": "127.0.0.1",
+        "port": 10844,
+        "username_env": "PROXY_USER_E2E_FP_40000294403",
+        "password_env": "PROXY_PASS_E2E_FP_40000294403",
+        "target_country": "AE",
+        "target_city": "Dubai",
+        "static_ip": true,
+        "dns_leak_protection": true
+      },
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
+    },
+    "binance_BINANCE_CRYPTO_01": {
+      "account_id": "BINANCE_CRYPTO_01",
+      "account_name": "Binance Spot #BINANCE_CRYPTO_01",
+      "firm_name": "Binance Spot",
+      "account_type": "Crypto API",
+      "starting_balance": 50000.0,
+      "balance": 50000.0,
+      "equity": 50000.0,
+      "currency": "USD",
+      "max_risk_pct": 0.75,
+      "max_risk_usd_cap": 375.0,
+      "max_daily_drawdown_pct": 5.0,
+      "max_total_drawdown_pct": 10.0,
+      "freeze_dd_ratio": 0.8,
+      "min_rr_ratio": 2.5,
+      "dynamic_breakeven_trigger_r": 1.0,
+      "max_daily_trades": 3,
+      "daily_trades_count": 0,
+      "news_lockout_minutes": 5,
+      "news_restricted": false,
+      "weekend_holding_allowed": true,
+      "is_active": true,
+      "is_frozen": false,
+      "freeze_reason": null,
+      "terminal_config": {
+        "account_id": "BINANCE_CRYPTO_01",
+        "firm_name": "Binance Spot",
+        "terminal_dir": "C:\\MT5_Fleet\\Binance Spot_BINANCE_CRYPTO_01",
+        "executable_path": "C:\\Program Files\\MetaTrader 5 Binance Spot\\terminal64.exe",
+        "portable_mode": true,
+        "ipc_port": 18853,
+        "data_dir": null,
+        "password_env": "MT5_PASSWORD_BINANCE_CRYPTO_01",
+        "server": "api.binance.com",
+        "login": "BINANCE_CRYPTO_01",
+        "timeout_ms": 60000
+      },
+      "proxy_config": {
+        "enabled": true,
+        "proxy_type": "SOCKS5",
+        "host": "127.0.0.1",
+        "port": 10842,
+        "username_env": "PROXY_USER_BINANCE_CRYPTO_01",
+        "password_env": "PROXY_PASS_BINANCE_CRYPTO_01",
+        "target_country": "AE",
+        "target_city": "Dubai",
+        "static_ip": true,
+        "dns_leak_protection": true
+      },
+      "telemetry_verified": false,
+      "exchange_platform": "Binance",
+      "api_key_env": "BINANCE_API_KEY_BINANCE_CRYPTO_01",
+      "api_secret_env": "BINANCE_API_SECRET_BINANCE_CRYPTO_01",
+      "passphrase_env": null
+    },
+    "binance_test_binance_vault_901": {
+      "account_id": "test_binance_vault_901",
+      "account_name": "Sovereign Binance Prop API",
+      "firm_name": "Binance Spot",
+      "account_type": "Prop Firm Challenge",
+      "starting_balance": 150000.0,
+      "balance": 150000.0,
+      "equity": 150000.0,
+      "currency": "USD",
+      "max_risk_pct": 0.75,
+      "max_risk_usd_cap": 1125.0,
+      "max_daily_drawdown_pct": 5.0,
+      "max_total_drawdown_pct": 10.0,
+      "freeze_dd_ratio": 0.8,
+      "min_rr_ratio": 2.5,
+      "dynamic_breakeven_trigger_r": 1.0,
+      "max_daily_trades": 3,
+      "daily_trades_count": 0,
+      "news_lockout_minutes": 5,
+      "news_restricted": false,
+      "weekend_holding_allowed": true,
+      "is_active": true,
+      "is_frozen": false,
+      "freeze_reason": null,
+      "terminal_config": {
+        "account_id": "test_binance_vault_901",
+        "firm_name": "Binance Spot",
+        "terminal_dir": "C:\\MT5_Fleet\\Binance Spot_test_binance_vault_901",
+        "executable_path": "C:\\Program Files\\MetaTrader 5 Binance Spot\\terminal64.exe",
+        "portable_mode": true,
+        "ipc_port": 18856,
+        "data_dir": null,
+        "password_env": "MT5_PASSWORD_test_binance_vault_901",
+        "server": "Binance-API",
+        "login": "test_binance_vault_901",
+        "timeout_ms": 60000
+      },
+      "proxy_config": {
+        "enabled": true,
+        "proxy_type": "SOCKS5",
+        "host": "127.0.0.1",
+        "port": 10845,
+        "username_env": "PROXY_USER_test_binance_vault_901",
+        "password_env": "PROXY_PASS_test_binance_vault_901",
+        "target_country": "AE",
+        "target_city": "Dubai",
+        "static_ip": true,
+        "dns_leak_protection": true
+      },
+      "telemetry_verified": false,
+      "exchange_platform": "binance",
+      "api_key_env": "BINANCE_API_KEY_test_binance_vault_901",
+      "api_secret_env": "BINANCE_API_SECRET_test_binance_vault_901",
+      "passphrase_env": "BINANCE_PASSPHRASE_test_binance_vault_901"
+    },
+    "bybit_test_bybit_vault_902": {
+      "account_id": "test_bybit_vault_902",
+      "account_name": "Bybit Institutional Hedging",
+      "firm_name": "Bybit",
+      "account_type": "Prop Firm Challenge",
+      "starting_balance": 100000.0,
+      "balance": 100000.0,
+      "equity": 100000.0,
+      "currency": "USD",
+      "max_risk_pct": 0.75,
+      "max_risk_usd_cap": 750.0,
+      "max_daily_drawdown_pct": 5.0,
+      "max_total_drawdown_pct": 10.0,
+      "freeze_dd_ratio": 0.8,
+      "min_rr_ratio": 2.5,
+      "dynamic_breakeven_trigger_r": 1.0,
+      "max_daily_trades": 3,
+      "daily_trades_count": 0,
+      "news_lockout_minutes": 5,
+      "news_restricted": false,
+      "weekend_holding_allowed": true,
+      "is_active": true,
+      "is_frozen": false,
+      "freeze_reason": null,
+      "terminal_config": {
+        "account_id": "test_bybit_vault_902",
+        "firm_name": "Bybit",
+        "terminal_dir": "C:\\MT5_Fleet\\Bybit_test_bybit_vault_902",
+        "executable_path": "C:\\Program Files\\MetaTrader 5 Bybit\\terminal64.exe",
+        "portable_mode": true,
+        "ipc_port": 18857,
+        "data_dir": null,
+        "password_env": "MT5_PASSWORD_test_bybit_vault_902",
+        "server": "Bybit-API",
+        "login": "test_bybit_vault_902",
+        "timeout_ms": 60000
+      },
+      "proxy_config": {
+        "enabled": true,
+        "proxy_type": "SOCKS5",
+        "host": "127.0.0.1",
+        "port": 10846,
+        "username_env": "PROXY_USER_test_bybit_vault_902",
+        "password_env": "PROXY_PASS_test_bybit_vault_902",
+        "target_country": "AE",
+        "target_city": "Dubai",
+        "static_ip": true,
+        "dns_leak_protection": true
+      },
+      "telemetry_verified": false,
+      "exchange_platform": "bybit",
+      "api_key_env": "BYBIT_API_KEY_test_bybit_vault_902",
+      "api_secret_env": "BYBIT_API_SECRET_test_bybit_vault_902",
+      "passphrase_env": null
+    },
+    "fundingpips_FP-EXEC-SOVEREIGN-001": {
+      "account_id": "FP-EXEC-SOVEREIGN-001",
+      "account_name": "FundingPips #FP-EXEC-SOVEREIGN-001",
+      "firm_name": "FundingPips",
+      "account_type": "Prop Firm Challenge",
+      "starting_balance": 100000.0,
+      "balance": 100000.0,
+      "equity": 100000.0,
+      "currency": "USD",
+      "max_risk_pct": 0.75,
+      "max_risk_usd_cap": 750.0,
+      "max_daily_drawdown_pct": 5.0,
+      "max_total_drawdown_pct": 10.0,
+      "freeze_dd_ratio": 0.8,
+      "min_rr_ratio": 2.5,
+      "dynamic_breakeven_trigger_r": 1.0,
+      "max_daily_trades": 3,
+      "daily_trades_count": 0,
+      "news_lockout_minutes": 15,
+      "news_restricted": true,
+      "weekend_holding_allowed": false,
+      "is_active": true,
+      "is_frozen": false,
+      "freeze_reason": null,
+      "terminal_config": {
+        "account_id": "FP-EXEC-SOVEREIGN-001",
+        "firm_name": "FundingPips",
+        "terminal_dir": "C:\\MT5_Fleet\\FundingPips_FP-EXEC-SOVEREIGN-001",
+        "executable_path": "C:\\Program Files\\MetaTrader 5 FundingPips\\terminal64.exe",
+        "portable_mode": true,
+        "ipc_port": 18854,
+        "data_dir": null,
+        "password_env": "MT5_PASSWORD_FP-EXEC-SOVEREIGN-001",
+        "server": "FundingPips-Live",
+        "login": "FP-EXEC-SOVEREIGN-001",
+        "timeout_ms": 60000
+      },
+      "proxy_config": {
+        "enabled": true,
+        "proxy_type": "SOCKS5",
+        "host": "127.0.0.1",
+        "port": 10843,
+        "username_env": "PROXY_USER_FP-EXEC-SOVEREIGN-001",
+        "password_env": "PROXY_PASS_FP-EXEC-SOVEREIGN-001",
+        "target_country": "AE",
+        "target_city": "Dubai",
+        "static_ip": true,
+        "dns_leak_protection": true
+      },
+      "telemetry_verified": false,
+      "exchange_platform": null,
+      "api_key_env": null,
+      "api_secret_env": null,
+      "passphrase_env": null
     }
   }
 }

@@ -26,6 +26,7 @@ logger = logging.getLogger("Jarvis.GAIGS.SocialMediaAutomation")
 # Master Channels Directory
 MASTER_CHANNELS = {
     "youtube_historyos": {
+        "name": "HistoryOS",
         "platform": "YouTube",
         "handle": "@HistoryOS-1",
         "url": "https://www.youtube.com/@HistoryOS-1",
@@ -33,6 +34,7 @@ MASTER_CHANNELS = {
         "content_type": "Civilization Lessons, Tech History, Timeline Resets"
     },
     "youtube_timeline_reset": {
+        "name": "The Timeline Reset (Shorts)",
         "platform": "YouTube",
         "handle": "@TheTimelineReset",
         "url": "https://www.youtube.com/@TheTimelineReset/shorts",
@@ -40,6 +42,7 @@ MASTER_CHANNELS = {
         "content_type": "High-Retention Rapid History Facts"
     },
     "youtube_afkaar_urdu": {
+        "name": "Afkaar Urdu",
         "platform": "YouTube",
         "handle": "@Afkaar-Urdu",
         "url": "https://www.youtube.com/@Afkaar-Urdu/shorts",
@@ -47,6 +50,7 @@ MASTER_CHANNELS = {
         "content_type": "On-This-Day History & Civilization Critiques"
     },
     "youtube_fikr_o_nizam": {
+        "name": "Fikr-o-Nizam",
         "platform": "YouTube",
         "handle": "@Fikr-o-Nizam",
         "url": "https://www.youtube.com/@Fikr-o-Nizam/videos",
@@ -54,13 +58,39 @@ MASTER_CHANNELS = {
         "content_type": "Governance Systems, Masjid-e-Nabawi Model, GAIGS"
     },
     "youtube_tafkeereafkaar": {
+        "name": "Tafkeer-e-Afkaar",
         "platform": "YouTube",
         "handle": "@tafkeereafkaar",
         "url": "https://www.youtube.com/@tafkeereafkaar/videos",
         "target_audience": "Philosophy & Deep Thought",
         "content_type": "Ideological Analysis & Human Purpose"
     },
+    "instagram_living_timeline": {
+        "name": "The Living Timeline (Instagram)",
+        "platform": "Instagram",
+        "handle": "@the_living_timeline",
+        "url": "https://www.instagram.com/the_living_timeline/",
+        "target_audience": "Global Visual Thinkers & History Enthusiasts",
+        "content_type": "Visual Timeline Reels, Infographics, Epoch Highlights"
+    },
+    "tiktok_living_timeline": {
+        "name": "The Living Timeline (TikTok)",
+        "platform": "TikTok",
+        "handle": "@thelivingtimeline1",
+        "url": "https://www.tiktok.com/@thelivingtimeline1",
+        "target_audience": "Global Gen-Z & Fast-Paced Alpha History",
+        "content_type": "Rapid-Fire Timeline Resets & Micro-Documentaries"
+    },
+    "the_living_timeline": {
+        "name": "The Living Timeline",
+        "platform": "Multi-Platform",
+        "handle": "@the_living_timeline / @thelivingtimeline1",
+        "url": "https://www.instagram.com/the_living_timeline/",
+        "target_audience": "Global Visual Thinkers & Gen-Z History Enthusiasts",
+        "content_type": "Civilization Timeline Evolution & Visual Epochs"
+    },
     "x_timeline_reset": {
+        "name": "Timeline Reset (X)",
         "platform": "X (Twitter)",
         "handle": "@TimelinReset",
         "url": "https://x.com/TimelinReset",
@@ -68,6 +98,7 @@ MASTER_CHANNELS = {
         "content_type": "Deep Long-Form Threads & Contrarian Takes"
     },
     "x_fikr_o_nizam": {
+        "name": "Fikr-o-Nizam (X)",
         "platform": "X (Twitter)",
         "handle": "@fikronizam",
         "url": "https://x.com/fikronizam",
@@ -251,13 +282,81 @@ class SocialMediaContentEngine:
             return {"ok": False, "error": f"Script '{script_id}' not found"}
 
         item = self._scripts[script_id]
-        item.status = "APPROVED_QUEUED"
-        logger.info("Script %s approved by Master Muhammad Qureshi", script_id)
-        return {"ok": True, "script_id": script_id, "status": item.status}
+        item.status = "APPROVED_YEH_DABAO"
+        logger.info("Script %s approved by Master Muhammad Qureshi with status APPROVED_YEH_DABAO", script_id)
+        return {"ok": True, "script_id": script_id, "status": item.status, "script": asdict(item)}
+
+    def get_script(self, script_id: str) -> Optional[Dict[str, Any]]:
+        """Returns single script by ID if present."""
+        if script_id in self._scripts:
+            return asdict(self._scripts[script_id])
+        return None
 
     def list_channels(self) -> Dict[str, Any]:
         """Returns the registered channel network for Master Muhammad Qureshi."""
         return MASTER_CHANNELS
+
+    def get_channels_list(self) -> List[Dict[str, Any]]:
+        """
+        Returns channels as an ARRAY of channel objects with id, name, handle, target_audience,
+        eliminating the frontend channels.map() TypeError.
+        """
+        channels_list = []
+        for cid, data in MASTER_CHANNELS.items():
+            channels_list.append({
+                "id": cid,
+                "name": data.get("name", cid.replace("_", " ").title()),
+                "handle": data.get("handle", ""),
+                "platform": data.get("platform", ""),
+                "target_audience": data.get("target_audience", ""),
+                "content_type": data.get("content_type", ""),
+                "url": data.get("url", "")
+            })
+        return channels_list
+
+    def crosspost_script(
+        self,
+        script_id: str,
+        platforms: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """
+        Simulates cross-posting of approved content to multi-channel social networks
+        with staged webhook delivery receipts.
+        """
+        if script_id not in self._scripts:
+            return {"ok": False, "error": f"Script '{script_id}' not found for cross-posting"}
+
+        script = self._scripts[script_id]
+        target_platforms = platforms or ["YouTube", "Instagram", "TikTok", "X (Twitter)"]
+        ts = time.time()
+        crosspost_id = f"XPOST-{int(ts * 1000) % 1000000:06d}"
+
+        webhook_receipts = []
+        for plat in target_platforms:
+            plat_slug = plat.lower().replace(" ", "_").replace("(", "").replace(")", "")
+            digest = hashlib.sha256(f"{crosspost_id}:{script_id}:{plat}:{ts}".encode("utf-8")).hexdigest()
+            webhook_receipts.append({
+                "platform": plat,
+                "status": "STAGED_DISPATCH",
+                "webhook_endpoint": f"https://api.internal.jarvis/webhooks/social/{plat_slug}",
+                "payload_digest": digest,
+                "staged_latency_ms": 32,
+                "channel_handle": "@the_living_timeline" if "living" in plat.lower() else "@HistoryOS-1"
+            })
+
+        script.status = "QUEUED_CROSSPOST"
+
+        return {
+            "ok": True,
+            "crosspost_id": crosspost_id,
+            "script_id": script_id,
+            "title": script.title,
+            "status": "STAGED",
+            "platforms": target_platforms,
+            "staged_at": ts,
+            "webhook_receipts": webhook_receipts,
+            "message": f"Script '{script.title}' successfully staged across {len(target_platforms)} social channels."
+        }
 
     def get_staged_scripts(self) -> List[Dict[str, Any]]:
         """Returns all scripts currently staged for review or publication."""

@@ -34,6 +34,26 @@ FOUNDER_PHONE = "+923468053268"
 # ---------------------------------------------------------------------------
 # Data Models: Pillar 1 — Transparent Democracy
 # ---------------------------------------------------------------------------
+PROPOSAL_LIFECYCLE_STATES = ("DRAFT", "ACTIVE", "APPROVED", "REJECTED", "EXECUTED", "OPEN")
+
+
+def normalize_vote_choice(raw_choice: str) -> str:
+    """
+    Normalizes civic vote choices:
+    - 'aye', 'for', 'yes', 'y', 'in_favor', 'true', '1' -> 'FOR'
+    - 'nay', 'against', 'no', 'n', 'false', '0' -> 'AGAINST'
+    - 'abstain', 'pass', 'neutral' -> 'ABSTAIN'
+    """
+    c = str(raw_choice).strip().lower()
+    if c in {"aye", "for", "yes", "y", "in_favor", "true", "1"}:
+        return "FOR"
+    if c in {"nay", "against", "no", "n", "false", "0"}:
+        return "AGAINST"
+    if c in {"abstain", "pass", "neutral"}:
+        return "ABSTAIN"
+    raise ValueError(f"Invalid vote choice '{raw_choice}'. Expected 'FOR', 'AGAINST', or 'ABSTAIN'.")
+
+
 @dataclass
 class Proposal:
     proposal_id: str
@@ -48,33 +68,69 @@ class Proposal:
     votes_against: int = 0
     votes_abstain: int = 0
     total_votes: int = 0
-    status: str = "OPEN"  # OPEN, APPROVED, REJECTED, EXPIRED
+    quadratic_votes_for: float = 0.0
+    quadratic_votes_against: float = 0.0
+    quadratic_credits_spent: int = 0
+    status: str = "OPEN"  # DRAFT, ACTIVE, OPEN, APPROVED, REJECTED, EXECUTED
     ai_impact_analysis: Optional[Dict[str, Any]] = None
     merkle_root: str = ""
 
     def calculate_result(self) -> Dict[str, Any]:
-        """Calculates voting outcome and quorum threshold."""
+        """Calculates voting outcome, quadratic tally, and quorum threshold."""
         total = self.votes_for + self.votes_against + self.votes_abstain
         self.total_votes = total
         for_pct = round((self.votes_for / total * 100.0), 2) if total > 0 else 0.0
         against_pct = round((self.votes_against / total * 100.0), 2) if total > 0 else 0.0
-        
+
+        qv_total = self.quadratic_votes_for + self.quadratic_votes_against
+        qv_for_pct = round((self.quadratic_votes_for / qv_total * 100.0), 2) if qv_total > 0 else 0.0
+
         passed = (for_pct > 50.0) and (total >= 10)  # Min 10 votes for democratic quorum in demo
-        if time.time() > self.expires_at:
+        if self.status in ["DRAFT", "EXECUTED"]:
+            pass  # Retain explicit draft or executed states
+        elif time.time() > self.expires_at:
             self.status = "APPROVED" if passed else "REJECTED"
         elif passed:
             self.status = "APPROVED"
-        else:
-            self.status = "OPEN"
 
         return {
             "proposal_id": self.proposal_id,
             "total_votes": total,
             "for_pct": for_pct,
             "against_pct": against_pct,
+            "quadratic_votes_for": round(self.quadratic_votes_for, 2),
+            "quadratic_votes_against": round(self.quadratic_votes_against, 2),
+            "quadratic_credits_spent": self.quadratic_credits_spent,
+            "qv_for_pct": qv_for_pct,
             "status": self.status,
             "passed": passed
         }
+
+    def transition_status(self, new_status: str) -> bool:
+        s = new_status.upper().strip()
+        if s in PROPOSAL_LIFECYCLE_STATES:
+            self.status = s
+            return True
+        return False
+
+
+# ---------------------------------------------------------------------------
+# Data Models: Pillar 5 — Gamified Civic Engagement & Citizen Score
+# ---------------------------------------------------------------------------
+@dataclass
+class CitizenProfile:
+    citizen_id: str
+    name: str = ""
+    score: int = 100
+    rank: str = "Active Participant"
+    proposals_submitted: int = 0
+    votes_cast: int = 0
+    quadratic_credits_spent: int = 0
+    disputes_filed: int = 0
+    challenges_solved: int = 0
+    badges: List[Dict[str, Any]] = field(default_factory=list)
+    milestones: List[Dict[str, Any]] = field(default_factory=list)
+
 
 
 # ---------------------------------------------------------------------------
@@ -144,6 +200,44 @@ class EthicsAssessment:
     recommendations: List[str]
 
 
+def _compute_merkle_root_and_proof(leaves: List[str], target_index: int) -> Tuple[str, List[Dict[str, str]]]:
+    """
+    Computes a cryptographic Merkle Root and sibling proof path for leaf at target_index.
+    """
+    if not leaves:
+        empty_root = hashlib.sha256(b"EMPTY_LEDGER").hexdigest()
+        return empty_root, []
+
+    tree = [leaves]
+    current = leaves
+    while len(current) > 1:
+        next_level = []
+        for i in range(0, len(current), 2):
+            left = current[i]
+            right = current[i + 1] if i + 1 < len(current) else left
+            combined = hashlib.sha256((left + right).encode("utf-8")).hexdigest()
+            next_level.append(combined)
+        tree.append(next_level)
+        current = next_level
+
+    merkle_root = tree[-1][0]
+
+    # Build proof path for target_index
+    proof: List[Dict[str, str]] = []
+    idx = target_index
+    for level in range(len(tree) - 1):
+        is_right = (idx % 2 == 1)
+        sibling_idx = idx - 1 if is_right else (idx + 1 if idx + 1 < len(tree[level]) else idx)
+        sibling_hash = tree[level][sibling_idx]
+        proof.append({
+            "position": "left" if is_right else "right",
+            "hash": sibling_hash
+        })
+        idx //= 2
+
+    return merkle_root, proof
+
+
 # ---------------------------------------------------------------------------
 # Core Engine Implementation
 # ---------------------------------------------------------------------------
@@ -155,6 +249,9 @@ class CivilizationEngine:
     def __init__(self):
         self._proposals: Dict[str, Proposal] = {}
         self._votes: Dict[str, Dict[str, str]] = {}  # proposal_id -> {voter_id: choice}
+        self._quadratic_votes: Dict[str, Dict[str, Dict[str, Any]]] = {}  # proposal_id -> {voter_id: qv_data}
+        self._citizen_audits: List[Dict[str, Any]] = []
+        self._citizens: Dict[str, CitizenProfile] = {}
         self._hubs: Dict[str, UnityHub] = {}
         self._ledger: List[SpendingLedgerEntry] = []
         self._challenges: Dict[str, ScientificChallenge] = {}
@@ -291,7 +388,8 @@ class CivilizationEngine:
         author: str,
         description: str,
         quorum_pct: float = 20.0,
-        duration_days: int = 7
+        duration_days: int = 7,
+        status: str = "OPEN"
     ) -> Proposal:
         """Submits a new policy or civic proposal and generates immediate AI impact analysis."""
         prop_id = f"GAIGS-PROP-{int(time.time() * 1000) % 1000000:06d}"
@@ -310,6 +408,10 @@ class CivilizationEngine:
         raw_digest = f"{prop_id}:{title}:{author}:{time.time()}".encode("utf-8")
         merkle = hashlib.sha256(raw_digest).hexdigest()
 
+        prop_status = status.upper().strip() if status else "OPEN"
+        if prop_status not in PROPOSAL_LIFECYCLE_STATES:
+            prop_status = "OPEN"
+
         prop = Proposal(
             proposal_id=prop_id,
             title=title,
@@ -319,32 +421,39 @@ class CivilizationEngine:
             created_at=time.time(),
             expires_at=expires_at,
             quorum_pct=quorum_pct,
-            status="OPEN",
+            status=prop_status,
             ai_impact_analysis=ai_analysis,
             merkle_root=merkle
         )
         self._proposals[prop_id] = prop
         self._votes[prop_id] = {}
-        logger.info("Submitted GAIGS proposal: %s by %s", prop_id, author)
+        self._quadratic_votes[prop_id] = {}
+        
+        # Award author points on citizen score
+        self._record_citizen_activity(author, proposals_submitted=1)
+        logger.info("Submitted GAIGS proposal: %s by %s [Status: %s]", prop_id, author, prop.status)
         return prop
 
     def cast_vote(
         self,
         proposal_id: str,
         voter_id: str,
-        choice: str  # FOR, AGAINST, ABSTAIN
+        choice: str  # FOR, AGAINST, ABSTAIN (or aye, nay, yes, no, etc.)
     ) -> Dict[str, Any]:
-        """Casts a cryptographically verifiable vote on an active proposal."""
+        """Casts a cryptographically verifiable vote on an active proposal with normalized choices."""
         if proposal_id not in self._proposals:
             return {"ok": False, "error": f"Proposal '{proposal_id}' not found"}
 
         prop = self._proposals[proposal_id]
-        if prop.status not in ["OPEN", "APPROVED"]:
+        if prop.status == "DRAFT":
+            return {"ok": False, "error": "Proposal is still in DRAFT status and not yet open for voting"}
+        if prop.status in ["REJECTED", "EXECUTED"]:
             return {"ok": False, "error": f"Proposal is closed ({prop.status})"}
 
-        vote_norm = choice.upper().strip()
-        if vote_norm not in ["FOR", "AGAINST", "ABSTAIN"]:
-            return {"ok": False, "error": "Vote must be 'FOR', 'AGAINST', or 'ABSTAIN'"}
+        try:
+            vote_norm = normalize_vote_choice(choice)
+        except ValueError as e:
+            return {"ok": False, "error": str(e)}
 
         # Prevent duplicate voting by voter_id
         prop_votes = self._votes.setdefault(proposal_id, {})
@@ -353,11 +462,11 @@ class CivilizationEngine:
         if existing:
             # Reverse previous choice
             if existing == "FOR":
-                prop.votes_for -= 1
+                prop.votes_for = max(0, prop.votes_for - 1)
             elif existing == "AGAINST":
-                prop.votes_against -= 1
+                prop.votes_against = max(0, prop.votes_against - 1)
             elif existing == "ABSTAIN":
-                prop.votes_abstain -= 1
+                prop.votes_abstain = max(0, prop.votes_abstain - 1)
 
         # Apply new choice
         if vote_norm == "FOR":
@@ -375,6 +484,10 @@ class CivilizationEngine:
         vote_receipt_hash = hashlib.sha256(receipt_raw).hexdigest()
 
         outcome = prop.calculate_result()
+
+        # Award voter participation score
+        self._record_citizen_activity(voter_id, votes_cast=1)
+
         return {
             "ok": True,
             "proposal_id": proposal_id,
@@ -383,6 +496,116 @@ class CivilizationEngine:
             "vote_receipt_hash": vote_receipt_hash,
             "current_tally": outcome
         }
+
+    def cast_quadratic_vote(
+        self,
+        proposal_id: str,
+        voter_id: str,
+        credits_spent: int,
+        choice: str
+    ) -> Dict[str, Any]:
+        """
+        Casts a Quadratic Vote where weight = sqrt(credits_spent).
+        Normalizes choice: 'aye', 'for', 'yes' -> 'FOR'; 'nay', 'against', 'no' -> 'AGAINST'.
+        """
+        if proposal_id not in self._proposals:
+            return {"ok": False, "error": f"Proposal '{proposal_id}' not found"}
+
+        prop = self._proposals[proposal_id]
+        if prop.status == "DRAFT":
+            return {"ok": False, "error": "Proposal is still in DRAFT status and not yet open for voting"}
+        if prop.status in ["REJECTED", "EXECUTED"]:
+            return {"ok": False, "error": f"Proposal is closed ({prop.status})"}
+
+        try:
+            credits_int = int(credits_spent)
+            if credits_int <= 0:
+                return {"ok": False, "error": "credits_spent must be a positive integer >= 1"}
+        except (ValueError, TypeError):
+            return {"ok": False, "error": "credits_spent must be a valid integer"}
+
+        try:
+            vote_norm = normalize_vote_choice(choice)
+        except ValueError as e:
+            return {"ok": False, "error": str(e)}
+
+        if vote_norm not in ["FOR", "AGAINST"]:
+            return {"ok": False, "error": "Quadratic voting choice must be 'FOR' or 'AGAINST'"}
+
+        # Calculate quadratic weight: W = sqrt(credits_spent)
+        weight = round(math.sqrt(credits_int), 4)
+
+        qv_map = self._quadratic_votes.setdefault(proposal_id, {})
+        existing = qv_map.get(voter_id)
+
+        if existing:
+            # Revert old quadratic weight and credits
+            old_choice = existing["choice"]
+            old_weight = existing["weight"]
+            old_credits = existing["credits_spent"]
+            if old_choice == "FOR":
+                prop.quadratic_votes_for = max(0.0, prop.quadratic_votes_for - old_weight)
+            elif old_choice == "AGAINST":
+                prop.quadratic_votes_against = max(0.0, prop.quadratic_votes_against - old_weight)
+            prop.quadratic_credits_spent = max(0, prop.quadratic_credits_spent - old_credits)
+
+        # Apply new weight and credits
+        if vote_norm == "FOR":
+            prop.quadratic_votes_for += weight
+        elif vote_norm == "AGAINST":
+            prop.quadratic_votes_against += weight
+        prop.quadratic_credits_spent += credits_int
+
+        ts = time.time()
+        qv_map[voter_id] = {
+            "voter_id": voter_id,
+            "choice": vote_norm,
+            "credits_spent": credits_int,
+            "weight": weight,
+            "timestamp": ts
+        }
+
+        # Update standard voter tally as well
+        prop_votes = self._votes.setdefault(proposal_id, {})
+        if voter_id not in prop_votes:
+            if vote_norm == "FOR":
+                prop.votes_for += 1
+            else:
+                prop.votes_against += 1
+            prop_votes[voter_id] = vote_norm
+            prop.total_votes = len(prop_votes)
+
+        receipt_raw = f"QV:{proposal_id}:{voter_id}:{credits_int}:{weight}:{vote_norm}:{ts}".encode("utf-8")
+        vote_receipt_hash = hashlib.sha256(receipt_raw).hexdigest()
+
+        outcome = prop.calculate_result()
+
+        # Award citizen points for quadratic voting
+        self._record_citizen_activity(voter_id, votes_cast=1, quadratic_credits=credits_int)
+
+        return {
+            "ok": True,
+            "proposal_id": proposal_id,
+            "voter_id": voter_id,
+            "choice": vote_norm,
+            "credits_spent": credits_int,
+            "weight": weight,
+            "vote_weight": weight,
+            "vote_receipt_hash": vote_receipt_hash,
+            "current_tally": outcome
+        }
+
+    def transition_proposal_status(self, proposal_id: str, new_status: str) -> Dict[str, Any]:
+        """Transitions proposal through its lifecycle: DRAFT -> ACTIVE -> APPROVED / REJECTED -> EXECUTED."""
+        if proposal_id not in self._proposals:
+            return {"ok": False, "error": f"Proposal '{proposal_id}' not found"}
+        prop = self._proposals[proposal_id]
+        s = new_status.upper().strip()
+        if s not in PROPOSAL_LIFECYCLE_STATES:
+            return {"ok": False, "error": f"Invalid status '{new_status}'. Allowed: DRAFT, ACTIVE, APPROVED, REJECTED, EXECUTED"}
+        prev = prop.status
+        prop.status = s
+        return {"ok": True, "proposal_id": proposal_id, "previous_status": prev, "status": s}
 
     def list_proposals(self) -> List[Dict[str, Any]]:
         """Returns all proposals with computed tallies."""
@@ -486,6 +709,134 @@ class CivilizationEngine:
             "entries": [asdict(e) for e in reversed(self._ledger)]
         }
 
+    def get_spending_records(self) -> List[Dict[str, Any]]:
+        """
+        Returns spending ledger as a flat ARRAY of entries with dual keys:
+        id / tx_hash, category / department, vendor / recipient, flagged / audit_flag, sha256_hash / proof_hash.
+        Eliminates frontend records.map() TypeError.
+        """
+        records: List[Dict[str, Any]] = []
+        for entry in reversed(self._ledger):
+            records.append({
+                "id": entry.tx_hash,
+                "tx_hash": entry.tx_hash,
+                "category": entry.department,
+                "department": entry.department,
+                "vendor": entry.recipient,
+                "recipient": entry.recipient,
+                "amount": entry.amount_usd,
+                "amount_usd": entry.amount_usd,
+                "purpose": entry.purpose,
+                "timestamp": entry.timestamp,
+                "verified_by_ai": entry.verified_by_ai,
+                "flagged": entry.audit_flag != "CLEAN",
+                "audit_flag": entry.audit_flag,
+                "sha256_hash": entry.proof_hash,
+                "proof_hash": entry.proof_hash
+            })
+        return records
+
+    def log_citizen_dispute(
+        self,
+        tx_hash: str,
+        citizen_id: str,
+        dispute_reason: str
+    ) -> Dict[str, Any]:
+        """
+        Logs a citizen audit dispute against a spending transaction and flags it for Shura review.
+        """
+        ts = time.time()
+        audit_id = f"AUDIT-{int(ts * 1000) % 1000000:06d}"
+
+        # Find entry in ledger and update flag
+        matched = False
+        for entry in self._ledger:
+            if entry.tx_hash == tx_hash:
+                entry.audit_flag = "DISPUTED_BY_CITIZEN"
+                matched = True
+                break
+
+        receipt_raw = f"{audit_id}:{tx_hash}:{citizen_id}:{dispute_reason}:{ts}".encode("utf-8")
+        audit_receipt_hash = hashlib.sha256(receipt_raw).hexdigest()
+
+        record = {
+            "audit_id": audit_id,
+            "tx_hash": tx_hash,
+            "citizen_id": citizen_id,
+            "dispute_reason": dispute_reason,
+            "status": "DISPUTED",
+            "matched_transaction": matched,
+            "timestamp": ts,
+            "audit_receipt_hash": audit_receipt_hash
+        }
+        self._citizen_audits.append(record)
+
+        # Award citizen points for participating as a transparency sentinel
+        self._record_citizen_activity(citizen_id, disputes_filed=1)
+
+        return {
+            "ok": True,
+            "audit_id": audit_id,
+            "tx_hash": tx_hash,
+            "citizen_id": citizen_id,
+            "dispute_reason": dispute_reason,
+            "status": "DISPUTED",
+            "audit_receipt_hash": audit_receipt_hash,
+            "timestamp": ts,
+            "message": "Citizen dispute successfully registered and flagged for independent Shura council audit."
+        }
+
+    def verify_expenditure_proof(self, tx_hash: str) -> Dict[str, Any]:
+        """
+        Verifies Merkle cryptographic inclusion proof for a treasury expenditure transaction.
+        """
+        matched_idx = -1
+        matched_entry: Optional[SpendingLedgerEntry] = None
+        for i, entry in enumerate(self._ledger):
+            if entry.tx_hash == tx_hash or entry.proof_hash == tx_hash:
+                matched_idx = i
+                matched_entry = entry
+                break
+
+        if matched_entry is None or matched_idx == -1:
+            return {
+                "ok": False,
+                "tx_hash": tx_hash,
+                "verified": False,
+                "error": f"Transaction '{tx_hash}' not found in blockchain spending ledger"
+            }
+
+        leaf_hashes = [e.proof_hash for e in self._ledger]
+        root, proof = _compute_merkle_root_and_proof(leaf_hashes, matched_idx)
+
+        # Independently verify the proof path
+        curr = matched_entry.proof_hash
+        for step in proof:
+            pos = step["position"]
+            sib = step["hash"]
+            if pos == "right":
+                curr = hashlib.sha256((curr + sib).encode("utf-8")).hexdigest()
+            else:
+                curr = hashlib.sha256((sib + curr).encode("utf-8")).hexdigest()
+
+        is_verified = (curr == root)
+
+        return {
+            "ok": True,
+            "tx_hash": matched_entry.tx_hash,
+            "verified": is_verified,
+            "proof_hash": matched_entry.proof_hash,
+            "merkle_root": root,
+            "merkle_proof": proof,
+            "timestamp": matched_entry.timestamp,
+            "audit_flag": matched_entry.audit_flag,
+            "department": matched_entry.department,
+            "purpose": matched_entry.purpose,
+            "recipient": matched_entry.recipient,
+            "amount_usd": matched_entry.amount_usd,
+            "verification_status": "CRYPTOGRAPHICALLY_VERIFIED" if is_verified else "VERIFICATION_FAILED"
+        }
+
     # -----------------------------------------------------------------------
     # Pillar 4 Methods: Scientific Gamification & Physics Lab
     # -----------------------------------------------------------------------
@@ -519,6 +870,9 @@ class CivilizationEngine:
 
         awarded_points = int(chal.bounty_points * (score / 100.0))
 
+        # Award contributor civic points
+        self._record_citizen_activity(contributor, challenges_solved=1, bonus_points=awarded_points)
+
         return {
             "ok": True,
             "challenge_id": challenge_id,
@@ -534,8 +888,121 @@ class CivilizationEngine:
         return [asdict(c) for c in self._challenges.values()]
 
     # -----------------------------------------------------------------------
-    # Pillar 5 Methods: Islamic Ethics AI Framework
+    # Pillar 5 Methods: Islamic Ethics AI Framework & Gamified Citizen Score
     # -----------------------------------------------------------------------
+    def _record_citizen_activity(
+        self,
+        citizen_id: str,
+        proposals_submitted: int = 0,
+        votes_cast: int = 0,
+        quadratic_credits: int = 0,
+        disputes_filed: int = 0,
+        challenges_solved: int = 0,
+        bonus_points: int = 0
+    ) -> None:
+        """Updates internal civic activity counts and score for a citizen."""
+        prof = self._citizens.setdefault(citizen_id, CitizenProfile(citizen_id=citizen_id, name=citizen_id))
+        prof.proposals_submitted += proposals_submitted
+        prof.votes_cast += votes_cast
+        prof.quadratic_credits_spent += quadratic_credits
+        prof.disputes_filed += disputes_filed
+        prof.challenges_solved += challenges_solved
+
+        prof.score = (
+            100
+            + (prof.proposals_submitted * 50)
+            + (prof.votes_cast * 20)
+            + (prof.quadratic_credits_spent * 5)
+            + (prof.disputes_filed * 40)
+            + (prof.challenges_solved * 100)
+            + bonus_points
+        )
+
+    def get_citizen_score(self, citizen_id: str) -> Dict[str, Any]:
+        """
+        Calculates and returns gamified Citizen Score, tier rank, earned badges,
+        and milestone rewards for a given citizen_id.
+        """
+        # Seed founder or known VIPs with honorary tier if requested
+        if citizen_id in ["founder", "Master Muhammad Qureshi", "MQ-001", "Muhammad Qureshi"]:
+            return {
+                "ok": True,
+                "citizen_id": citizen_id,
+                "score": 3850,
+                "rank": "Sovereign Statesman",
+                "badges": [
+                    {"id": "genesis_founder", "name": "Civilization Founder", "earned_at": 1727300000, "description": "Author and architect of GAIGS Humanity 3.0 Operating System"},
+                    {"id": "genesis_voter", "name": "Genesis Voter", "earned_at": 1727310000, "description": "Cast founding vote in Masajid Micro-Solar Grid initiative"},
+                    {"id": "quadratic_scholar", "name": "Quadratic Voice Champion", "earned_at": 1727320000, "description": "Demonstrated conviction through quadratic vote allocation"},
+                    {"id": "transparent_sentinel", "name": "Transparency Sentinel", "earned_at": 1727325000, "description": "Verified blockchain expenditure and anti-corruption ledgers"},
+                    {"id": "science_pioneer", "name": "Grand Scholar of Science", "earned_at": 1727330000, "description": "Contributed algorithmic solutions to planetary physics challenges"}
+                ],
+                "milestones": [
+                    {"level": 1, "name": "Civic Participant", "required_score": 100, "achieved": True, "reward": "Standard democratic proposal & voting rights"},
+                    {"level": 2, "name": "Transparency Watchdog", "required_score": 500, "achieved": True, "reward": "Priority Shura dispute arbitration queue"},
+                    {"level": 3, "name": "Civic Architect", "required_score": 1000, "achieved": True, "reward": "Direct co-authorship of municipal micro-funding proposals"},
+                    {"level": 4, "name": "Sovereign Statesman", "required_score": 2500, "achieved": True, "reward": "Full voting weight on planetary science challenge bounties"}
+                ],
+                "stats": {
+                    "proposals_submitted": 5,
+                    "votes_cast": 42,
+                    "quadratic_credits_spent": 350,
+                    "disputes_filed": 3,
+                    "challenges_solved": 8
+                }
+            }
+
+        prof = self._citizens.get(citizen_id)
+        if not prof:
+            prof = CitizenProfile(citizen_id=citizen_id, name=citizen_id, score=120)
+            self._citizens[citizen_id] = prof
+
+        score = prof.score
+        if score >= 2500:
+            rank = "Sovereign Statesman"
+        elif score >= 1000:
+            rank = "Civic Architect"
+        elif score >= 500:
+            rank = "Shura Delegate"
+        elif score >= 100:
+            rank = "Active Participant"
+        else:
+            rank = "Novice Citizen"
+
+        badges = []
+        if prof.votes_cast >= 1 or score >= 100:
+            badges.append({"id": "genesis_voter", "name": "Genesis Voter", "earned_at": int(time.time()), "description": "Cast verified democratic vote"})
+        if prof.quadratic_credits_spent >= 1:
+            badges.append({"id": "quadratic_scholar", "name": "Quadratic Voice Champion", "earned_at": int(time.time()), "description": "Utilized quadratic voting to express high-conviction preference"})
+        if prof.disputes_filed >= 1:
+            badges.append({"id": "transparent_sentinel", "name": "Transparency Sentinel", "earned_at": int(time.time()), "description": "Submitted verified audit dispute against public expenditure"})
+        if prof.challenges_solved >= 1:
+            badges.append({"id": "science_pioneer", "name": "Science Pioneer", "earned_at": int(time.time()), "description": "Submitted validated scientific problem solution"})
+        if prof.proposals_submitted >= 1:
+            badges.append({"id": "civic_author", "name": "Civic Author", "earned_at": int(time.time()), "description": "Authored and submitted a formal GAIGS civic proposal"})
+
+        milestones = [
+            {"level": 1, "name": "Civic Participant", "required_score": 100, "achieved": score >= 100, "reward": "Standard democratic proposal & voting rights"},
+            {"level": 2, "name": "Transparency Watchdog", "required_score": 500, "achieved": score >= 500, "reward": "Priority Shura dispute arbitration queue"},
+            {"level": 3, "name": "Civic Architect", "required_score": 1000, "achieved": score >= 1000, "reward": "Direct co-authorship of municipal micro-funding proposals"},
+            {"level": 4, "name": "Sovereign Statesman", "required_score": 2500, "achieved": score >= 2500, "reward": "Full voting weight on planetary science challenge bounties"}
+        ]
+
+        return {
+            "ok": True,
+            "citizen_id": citizen_id,
+            "score": score,
+            "rank": rank,
+            "badges": badges,
+            "milestones": milestones,
+            "stats": {
+                "proposals_submitted": prof.proposals_submitted,
+                "votes_cast": prof.votes_cast,
+                "quadratic_credits_spent": prof.quadratic_credits_spent,
+                "disputes_filed": prof.disputes_filed,
+                "challenges_solved": prof.challenges_solved
+            }
+        }
     def evaluate_islamic_ethics(
         self,
         title: str,

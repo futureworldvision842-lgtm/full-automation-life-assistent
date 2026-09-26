@@ -1029,3 +1029,119 @@ Integrity mode: development
 ### Multi-Tenant Client Onboarding
 - [ ] WhatsApp QR pairing modal links new client numbers with Baileys gateway.
 - [ ] Multi-device gateway authenticates client mobile companion sessions with isolated credentials.
+
+## Follow-up — 2026-09-26T06:24:29Z
+
+# Teamwork Project Prompt — J.A.R.V.I.S. Sovereign Omnipresent Ecosystem: Institutional Market Research, 3D Macro Contagion, Universal Trading Automation, GAIGS Governance & Self-Upgrading Panopticon
+
+Transform J.A.R.V.I.S. into an omnipresent, institutional-grade AI clone and executive operating system for Master Muhammad Qureshi: integrating deep multi-asset market research (Forex, Solana Meme coins, Spot Blue-chips), 3D Macro Contagion & Correlation Radar (World Monitor style), dual-engine candlestick charting (Lightweight-Charts & TradingView) with Smart Money Concepts (Order Blocks, FVGs, CVD, VWAP) explained in Roman Urdu and English, autonomous high-conviction signals (R:R >= 2.5), universal broker account onboarding with anti-ban protection, GAIGS decentralized governance (5 pillars), multi-channel media automation (HistoryOS, Fikr-o-Nizam, Tafkeer-e-Afkaar, The Timeline Reset), autonomous GitHub repository assimilation (colibri), and bi-directional PC <-> Mobile remote control with Human Assistance alert resolution (CAPTCHA, 2FA, OTP).
+
+Working directory: F:\Jarvis Command Center
+Integrity mode: development
+
+## Identity, Safety & Security Constraints
+1. Sole Sovereign Master: Muhammad Qureshi (Phone: +923468053268, Email: futureworldvision842@gmail.com).
+2. Strict Identity Rule: Absolute ZERO occurrences of prohibited identifiers anywhere in code, comments, configs, database entries, or logs.
+3. Private Key & Credential Isolation: Solana and EVM hot wallet private keys must strictly be ingested via environment variables (SOLANA_PRIVATE_KEY, EVM_PRIVATE_KEY). Zero plaintext disk leaks.
+4. Deterministic Risk Cap: FundingPips #40000294403 ($100,000 balance) strictly enforced at <= 0.75% ($750 limit), R:R >= 2.5, dynamic +1.0R breakeven trigger, and 15-minute news blackout window.
+5. Hardware Stability & Thermal Governor: Maintain Intel Core i7 Haswell throttle cap at 95% and ceiling <82°C strictly preserved.
+
+## Requirements
+### R1. Deep Institutional Market Research Hub (Forex, Meme Coins & Future Gems)
+- Forex Macro Surveillance: Real-time currency strength matrix (USD, EUR, GBP, JPY, AUD, CAD, CHF, NZD), central bank interest rate differential table (Fed, ECB, BoE, BoJ), and economic calendar news impact ratings with automated pre/post 15-minute high-impact blackout buffers.
+- Meme Coin & Early Alpha Radar: Multi-factor scoring for Solana Raydium and Pump.fun tokens: bonding curve velocity %, dev wallet safety audits, liquidity pool burn/lock verification, whale wallet accumulation clusters, and social velocity sentiment.
+- Future Blue-Chip & Spot Crypto Research: Fundamental asset dossiers with historical drawdown distributions, circulating vs. total tokenomics schedules, 30-day developer commit activity from GitHub, staking yield telemetry (nominal vs. real yield), and quantitative valuation percentiles (FDV/TVL, Price-to-Fees, Metcalfe Adoption Index).
+
+### R2. 3D Macro Contagion & Cross-Asset Correlation Visualizer (World Monitor Style)
+- Interactive 3D Planetary & Network Graph: Visualizing global cross-asset linkages modeled after World Monitor:
+  - Dynamic contagion vectors mapping how US Dollar Index (DXY) swings, US Treasury yield spikes (US10Y), and crude oil price shocks cascade into Gold (XAUUSD), major Forex pairs, Bitcoin, and Solana.
+  - Geopolitical hotspot pulse overlay: active choke points (Red Sea / Bab el-Mandeb, Strait of Hormuz, Malacca Strait, Taiwan Strait, Eastern Europe) linked to real-time commodity volatility and safe-haven capital flows.
+  - Forward-looking catalyst timeline highlighting scheduled macroeconomic releases (CPI, NFP, FOMC), central bank speeches, and historical price reaction precedents.
+
+### R3. Dual-Engine Candlestick Charting & Elite Indicators with Explainable AI
+- Dual-Engine Interactive Charting:
+  - High-performance Lightweight-Charts canvas with custom plugins for Smart Money Concepts (SMC): automated detection and visual rendering of Institutional Order Blocks (Bullish/Bearish OBs), Fair Value Gaps (FVG), Liquidity Sweeps, Change of Character (CHoCH), and Market Structure Breaks (BOS).
+  - Quantitative volume & momentum tools: Volume Profile (VPVR with Point of Control POC), Cumulative Volume Delta (CVD) absorption divergence waves, Multi-Band Anchored VWAP, and multi-timeframe RSI divergence.
+  - Seamless 1-click toggle between native Lightweight-Charts pro canvas and embedded TradingView Pro chart.
+- Explainable AI Rationale Engine: Clicking any detected technical pattern or active signal generates a comprehensive thesis in English and Roman Urdu breaking down why the setup formed, confluence factors, invalidation levels, and target institutional liquidity pools.
+
+### R4. Autonomous High-Conviction Signals & Universal Strategy Automation
+- Autonomous Multi-Agent Consensus Signals: Continuous real-time scanning generating trade setups with quantitative confidence scores (0-100), multi-timeframe confirmation (M15, H1, H4), entry, stop-loss, and minimum 1:2.5 take-profit targets.
+- Dual-Mode Account Automation:
+  - J.A.R.V.I.S. Institutional Preset Mode: Automated execution under proven SMC presets across connected prop firm and broker accounts (FundingPips, FTMO, Topstep, Exness, Personal MT5, Binance, Bybit).
+  - Custom Client Strategy Engine: Allows operator/trader to submit custom strategy rules via Dual Mode (natural language prompt interpreter in Urdu/English or interactive visual rule builder with indicator triggers and risk parameters), executed under 5-layer anti-ban protection and deterministic risk caps.
+  - Universal 1-Click Onboarding: Simple modal for traders to onboard broker accounts (MT5, Prop Firm, Crypto API) with automatic rule extraction and risk compliance guardrails.
+
+### R5. G.A.I.G.S. Decentralized Governance & Multi-Channel Media Engine
+- 5 Pillars of G.A.I.G.S.:
+  - Transparent Democracy (blockchain voting, quadratic voting, proposal lifecycle).
+  - Community Unity Hubs (physical + virtual multi-faith community coordination).
+  - Blockchain Transparency (real-time treasury expenditure ledger, citizen audit tools).
+  - Ethical AI Framework (Islamic and universal values alignment engine).
+  - Gamified Civic Engagement (impact challenges, citizen score, milestone rewards).
+- Multi-Channel Social Media Automation:
+  - Automated video/shorts script generation and cross-posting pipeline for Master Muhammad's media network: HistoryOS, Fikr-o-Nizam, Tafkeer-e-Afkaar, The Timeline Reset, The Living Timeline.
+  - Synchronization with core mission documents in F:\Muhammad's platforms missions main files (Civilization Upgrade, Installing Humanity 3.0, The Civic Operating System).
+
+### R6. Autonomous Evolution, GitHub Assimilation (colibri) & Cognitive Panopticon
+- Autonomous Repository Assimilation:
+  - Integration of https://github.com/JustVugg/colibri.git for high-speed diagnostic and execution bridging.
+  - Automatic cloning, dependency sandboxing, and runtime API assimilation of external GitHub repositories.
+  - Dynamic integrated repository registry displayed live on the frontend with status badges and doctor checks.
+- Visual Terminal & Supermemory Knowledge Graph:
+  - Live browser-based terminal showing real-time background execution, tool dispatching, and agent logs.
+  - Sub-500ms knowledge graph queries linking Master Muhammad's mission entities, accounts, and platforms.
+
+### R7. Bi-Directional Mobile & PC Remote Control with Human Assistance Alert System
+- PC Dashboard Se Mobile Control:
+  - Real-time dynamic cybernetic HUD mirror streaming live battery %, active tab, and touch ripple feedback.
+  - Interactive click-to-tap, hardware key dispatching (Back, Home, App Switcher, Power, Volume), direct text typing input bar, and 1-click Wi-Fi ADB pairing.
+- Mobile Companion Se PC Workstation Control:
+  - Live 30 FPS workstation desktop screen mirror with direct tap-to-click on any PC window/icon.
+  - Virtual PC keyboard with physical shortcuts (Task Manager, Show Desktop, Explorer, Alt+F4, F5).
+  - Cybernetic trackpad with adjustable sensitivity (0.6x to 2.4x).
+- Human Assistance Alert System (Sentinel):
+  - Immediate modal and mobile notification when human intervention is needed (Cloudflare CAPTCHA challenge, 2FA/OTP code request, API key required, broker manual intervention).
+  - Pending alerts pause the blocked task without crashing or forgetting state until resolved.
+  - Resolution actions: SOLVED, OTP_SUBMIT, KEY_SUBMIT, FREE_MODE, or CANCEL.
+
+## Acceptance Criteria
+### Institutional Market Research Hub
+- [ ] /api/research/forex/macro returns real-time currency strength matrix, interest rate differentials, and economic calendar blackout status.
+- [ ] /api/research/crypto/memes streams scored Solana tokens with bonding curve %, whale accumulation index, and safety score (0-100).
+- [ ] /api/research/crypto/gems delivers fundamental research dossiers for prospective spot crypto assets with valuation metrics.
+
+### 3D Macro Contagion Visualizer
+- [ ] 3D macro correlation visualizer renders interactive cross-asset impact vectors connecting macro drivers (DXY, Oil, Yields) to Gold, Forex, and Crypto.
+- [ ] Hotspot event triggers display historical market reaction dossiers and volatility forecasts.
+
+### Dual-Engine Charting & Explainable Indicators
+- [ ] Candlestick chart renders real-time feeds with toggleable overlays for SMC (Order Blocks, FVGs) and Volume Profile.
+- [ ] Clicking any detected pattern generates an explainable AI thesis in English and Roman Urdu with confirmation checklist.
+- [ ] User can toggle smoothly between Lightweight-Charts pro canvas and TradingView Pro without data loss.
+
+### Autonomous Signals & Custom Strategy Automation
+- [ ] Autonomous signal generator outputs actionable setups with confidence score, entry, SL, TP, and guaranteed R:R >= 2.5.
+- [ ] Natural language strategy interpreter parses operator/client directives into structured execution rules.
+- [ ] Visual rule builder allows configuring indicator triggers, risk sliders, and asset filters.
+- [ ] Onboarded accounts execute trades under 5-layer anti-ban protection with FundingPips #40000294403 strictly adhering to <= 0.75% ($750) risk cap.
+
+### GAIGS Governance & Media Network
+- [ ] GAIGS democracy, hubs, transparency ledger, and ethics endpoints return live structured governance data.
+- [ ] Media automation endpoints generate and approve scripts aligned with Master Muhammad's mission channels (HistoryOS, Fikr-o-Nizam, Tafkeer-e-Afkaar).
+
+### Repository Assimilation & Colibri Bridge
+- [ ] /api/repos/integrated lists active assimilated repositories including colibri.
+- [ ] /api/repos/assimilate accepts repository URLs and integrates them into runtime.
+- [ ] /api/repos/colibri/doctor confirms operational readiness of Colibri sub-engine.
+
+### Bi-Directional PC <-> Mobile Remote Control & Sentinel Alerts
+- [ ] /api/mobile/screen/live renders dynamic real-time HUD mirror with live battery %, active view, and touch ripple pulse.
+- [ ] PC Dashboard sends touch taps, hardware keys, and typed text to mobile.
+- [ ] Mobile Companion feeds 30 FPS workstation screen with direct tap-to-click mouse dispatching (/api/mouse/click_at).
+- [ ] Human assistance alert modal prompts on CAPTCHA / 2FA / OTP challenges with deterministic resolution (SOLVED, OTP_SUBMIT, KEY_SUBMIT, FREE_MODE, CANCEL).
+
+### Regression & Integrity Verification
+- [ ] All automated unit and integration tests pass with 100% success rate.
+- [ ] Zero occurrences of prohibited tokens across all newly created or modified files.
+

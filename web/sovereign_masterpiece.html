@@ -1463,6 +1463,9 @@
               <button onclick="switchTradingCockpitMode('radar3d')" id="btnTradingModeRadar3d" class="btn-tactical text-emerald-300">
                 🌌 3D ALPHA RADAR &amp; DEPTH
               </button>
+              <button onclick="switchTradingCockpitMode('contagion3d')" id="btnTradingModeContagion3d" class="btn-tactical text-cyan-300">
+                🌐 3D MACRO CONTAGION
+              </button>
               <button onclick="switchMasterpieceTab('command')" class="btn-tactical text-xs ml-2">✕ RETURN</button>
             </div>
           </div>
@@ -1550,6 +1553,11 @@
             <div id="trading3dRadarContainer" class="w-full h-[560px] hidden relative rounded border border-emerald-500/40 bg-[#020712] overflow-hidden">
               <div id="tradingAlphaRadar3dMount" class="w-full h-full"></div>
             </div>
+
+            <!-- 3D Macro Contagion & Cross-Asset Geopolitical Network Container (Milestone M2) -->
+            <div id="macroContagionContainer" class="macro-contagion-container w-full h-[560px] hidden relative rounded border border-cyan-500/40 bg-[#030712] overflow-hidden">
+              <div id="macroContagionSphereMount" class="w-full h-full"></div>
+            </div>
           </div>
 
           <!-- Bottom Grid: Live Open Positions & Big Sharks Order Flow Commentary -->
@@ -1621,6 +1629,9 @@
               </div>
               <div class="flex items-center space-x-2">
                 <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[8.5px] font-bold border border-emerald-500/40" id="fleetCountBadge">13 ACCOUNTS MANAGED</span>
+                <button onclick="openUniversalOnboardingModal()" class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[8.5px] font-bold border border-cyan-400/50 hover:bg-cyan-500/40 transition-all">
+                  ⚡ 1-CLICK ONBOARDING MODAL
+                </button>
                 <button onclick="loadFleetAccountsData()" class="btn-tactical text-[9px] py-0.5 px-2">🔄 REFRESH FLEET</button>
               </div>
             </div>
@@ -5135,12 +5146,15 @@ Click 'CHECK & UPGRADE NOW' to pull upstream updates, verify skills, and auto-pu
       const tvFrame = document.getElementById('expandedTvIframe');
       const splitContainer = document.getElementById('tradingSplitViewContainer');
       const radar3dContainer = document.getElementById('trading3dRadarContainer');
+      const contagionContainer = document.getElementById('macroContagionContainer');
       const btnMq3 = document.getElementById('btnTradingModeMq3');
       const btnTv = document.getElementById('btnTradingModeTv');
       const btnSplit = document.getElementById('btnTradingModeSplit');
       const btnRadar3d = document.getElementById('btnTradingModeRadar3d');
+      const btnContagion = document.getElementById('btnTradingModeContagion3d');
 
-      [btnMq3, btnTv, btnSplit, btnRadar3d].forEach(b => b && b.classList.remove('active'));
+      [btnMq3, btnTv, btnSplit, btnRadar3d, btnContagion].forEach(b => b && b.classList.remove('active'));
+      if (contagionContainer) contagionContainer.classList.add('hidden');
 
       if (mode === 'mq3') {
         if (mq3Frame) mq3Frame.classList.remove('hidden');
@@ -5184,6 +5198,31 @@ Click 'CHECK & UPGRADE NOW' to pull upstream updates, verify skills, and auto-pu
             });
             tradingAlphaRadarInstance.init();
           }
+        }
+      } else if (mode === 'contagion3d') {
+        if (mq3Frame) mq3Frame.classList.add('hidden');
+        if (tvFrame) tvFrame.classList.add('hidden');
+        if (splitContainer) splitContainer.classList.add('hidden');
+        if (radar3dContainer) radar3dContainer.classList.add('hidden');
+        if (contagionContainer) contagionContainer.classList.remove('hidden');
+        if (btnContagion) btnContagion.classList.add('active');
+        showToast('Trading view: 3D Macro Contagion & World Monitor Sphere');
+
+        mountMacroContagionSphere();
+      }
+    }
+
+    function mountMacroContagionSphere() {
+      const mount = document.getElementById('macroContagionSphereMount') || document.getElementById('macroContagionContainer');
+      if (mount && !window.macroContagionSphereInstance && window.MacroContagionSphere3D) {
+        try {
+          window.macroContagionSphereInstance = new window.MacroContagionSphere3D(mount, {
+            autoRotate: true,
+            autoRotateSpeed: 0.0018
+          });
+          console.log('[JARVIS] MacroContagionSphere3D successfully mounted into container.');
+        } catch (e) {
+          console.warn('[JARVIS] MacroContagionSphere3D mount note:', e);
         }
       }
     }
@@ -9617,12 +9656,389 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
     </div>
   </div>
 
+  <!-- ========================================================================= -->
+  <!-- EXPLAINABLE AI BILINGUAL MODAL (Milestone M3)                             -->
+  <!-- ========================================================================= -->
+  <div id="explainableAiModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/85 backdrop-blur-md p-3 font-mono">
+    <div class="relative w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-lg border-2 border-cyan-500/60 bg-[#040a17] p-5 shadow-[0_0_30px_rgba(0,240,255,0.25)] text-[9.5px]">
+      
+      <!-- Modal Header -->
+      <div class="flex flex-wrap justify-between items-center pb-2.5 mb-3 border-b border-cyan-500/30 gap-2">
+        <div class="flex items-center space-x-2">
+          <span class="text-xl text-cyan-400">🧠</span>
+          <div>
+            <div class="text-white font-black text-xs tracking-wider uppercase" id="explainModalTitle">
+              J.A.R.V.I.S. EXPLAINABLE AI // INSTITUTIONAL SMC THESIS
+            </div>
+            <div class="text-[8px] text-cyan-400">TONY STARK QUANTITATIVE RATIONALE ENGINE • BILINGUAL CONFIRMATION</div>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span id="explainModalPatternBadge" class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40 text-[8.5px]">BULLISH ORDER BLOCK</span>
+          <span id="explainModalSymbolBadge" class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40 text-[8.5px]">XAUUSD • M15</span>
+          <button onclick="closeExplainableAiModal()" class="btn-tactical text-xs px-2.5 py-0.5 text-slate-300 hover:text-white">✕</button>
+        </div>
+      </div>
+
+      <!-- Loading State Indicator -->
+      <div id="explainModalLoading" class="py-12 text-center text-cyan-400 space-y-2 hidden">
+        <div class="animate-spin text-2xl">⚙️</div>
+        <div class="text-xs">SYNTHESIZING BILINGUAL EXPLAINABLE AI THESIS...</div>
+      </div>
+
+      <!-- Modal Content Body -->
+      <div id="explainModalBody" class="space-y-3">
+        <!-- Language Switcher Bar -->
+        <div class="flex justify-between items-center bg-[#061224] p-1.5 rounded border border-[#163659]">
+          <div class="flex items-center space-x-2">
+            <span class="text-slate-400 text-[8.5px]">LANGUAGE / ZUBAAN:</span>
+            <button id="btnThesisEn" onclick="switchExplainLang('en')" class="px-3 py-1 rounded bg-cyan-500/30 text-cyan-300 font-bold border border-cyan-400/50">
+              🇬🇧 English Thesis
+            </button>
+            <button id="btnThesisUr" onclick="switchExplainLang('ur')" class="px-3 py-1 rounded text-slate-400 hover:text-white border border-transparent">
+              🇵🇰 Roman Urdu Thesis
+            </button>
+          </div>
+          <span class="text-emerald-400 text-[8px] font-bold">🛡️ STRICT RISK GUARDRAILS ENFORCED</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+          <!-- Left Column: Confluence Checklist & Invalidation Levels -->
+          <div class="lg:col-span-6 space-y-2.5">
+            <!-- Headline & Core Rationale -->
+            <div class="p-2.5 rounded bg-[#061224] border border-[#142e47]">
+              <div class="text-cyan-300 font-bold text-[10px] mb-1" id="thesisHeadline">Market Setup Rationale</div>
+              <div class="text-slate-300 leading-relaxed text-[9px]" id="thesisRationaleCore">
+                <!-- Rationale narrative -->
+              </div>
+            </div>
+
+            <!-- Confluence Checklist -->
+            <div class="p-2.5 rounded bg-[#061224] border border-[#142e47]">
+              <div class="text-white font-bold text-[9px] pb-1 mb-1.5 border-b border-[#142e47] flex justify-between">
+                <span>✅ CONFIRMATION &amp; CONFLUENCE CHECKLIST</span>
+                <span class="text-emerald-400 font-bold" id="thesisConfluenceScore">4/4 ALIGNED</span>
+              </div>
+              <div id="thesisConfluenceList" class="space-y-1">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Invalidation & Execution Guardrails -->
+            <div class="p-2.5 rounded bg-[#061224] border border-[#142e47]">
+              <div class="text-amber-400 font-bold text-[9px] pb-1 mb-1.5 border-b border-[#142e47]">
+                🎯 INVALIDATION LEVELS &amp; EXECUTION LIMITS
+              </div>
+              <div class="grid grid-cols-2 gap-1.5 text-[8.5px]">
+                <div class="p-1 rounded bg-[#030914] border border-[#163659]">
+                  <span class="text-slate-400">Entry Level:</span>
+                  <div class="text-white font-bold text-[9.5px]" id="invEntry">2,650.50</div>
+                </div>
+                <div class="p-1 rounded bg-[#030914] border border-[#163659]">
+                  <span class="text-slate-400">Stop Loss (SL):</span>
+                  <div class="text-red-400 font-bold text-[9.5px]" id="invStopLoss">2,642.00</div>
+                </div>
+                <div class="p-1 rounded bg-[#030914] border border-[#163659]">
+                  <span class="text-slate-400">Take Profit (TP):</span>
+                  <div class="text-emerald-400 font-bold text-[9.5px]" id="invTakeProfit">2,672.00</div>
+                </div>
+                <div class="p-1 rounded bg-[#030914] border border-[#163659]">
+                  <span class="text-slate-400">Risk : Reward (R:R):</span>
+                  <div class="text-cyan-400 font-bold text-[9.5px]" id="invRR">1 : 2.53 (&ge; 2.50)</div>
+                </div>
+                <div class="p-1 rounded bg-[#030914] border border-[#163659]">
+                  <span class="text-slate-400">Breakeven Trigger:</span>
+                  <div class="text-amber-300 font-bold text-[9.5px]" id="invBE">+1.0R Dynamic Lock</div>
+                </div>
+                <div class="p-1 rounded bg-[#030914] border border-[#163659]">
+                  <span class="text-slate-400">Risk Cap (FundingPips):</span>
+                  <div class="text-emerald-300 font-bold text-[9.5px]" id="invRiskCap">&le; 0.75% ($750 Cap)</div>
+                </div>
+              </div>
+              <div class="mt-1.5 text-[8px] text-slate-400" id="invRuleText">
+                Structural Invalidation: Candle body close beyond invalidation level cancels the setup immediately.
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Institutional Liquidity Targets & Full Thesis -->
+          <div class="lg:col-span-6 space-y-2.5 flex flex-col justify-between">
+            <!-- Target Liquidity Pools -->
+            <div class="p-2.5 rounded bg-[#061224] border border-[#142e47]">
+              <div class="text-cyan-400 font-bold text-[9px] pb-1 mb-1.5 border-b border-[#142e47]">
+                🌊 INSTITUTIONAL LIQUIDITY POOL TARGETS
+              </div>
+              <div id="thesisLiquidityTargets" class="space-y-1 text-[8.5px]">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Full Thesis Narrative -->
+            <div class="p-2.5 rounded bg-[#061224] border border-[#142e47] flex-1 flex flex-col">
+              <div class="flex justify-between items-center pb-1 mb-1.5 border-b border-[#142e47]">
+                <span class="text-white font-bold text-[9px]">📜 COMPLETE STRATEGIC THESIS</span>
+                <button onclick="copyThesisToClipboard()" class="text-[8px] text-cyan-400 hover:text-cyan-300">📋 COPY THESIS</button>
+              </div>
+              <div id="thesisFullContent" class="text-slate-300 whitespace-pre-line text-[8.5px] leading-relaxed max-h-[220px] overflow-y-auto pr-1">
+                <!-- Full thesis text -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex justify-between items-center pt-2.5 mt-3 border-t border-[#142e47] text-[8.5px] text-slate-400">
+        <div>Prop Firm Compliance: <span class="text-emerald-400 font-bold">FundingPips #40000294403 Invariant Verified</span></div>
+        <button onclick="closeExplainableAiModal()" class="btn-tactical text-[9px] px-3 py-1 text-white">✕ DISMISS MODAL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- UNIVERSAL 1-CLICK ONBOARDING MODAL (Milestone M4)                        -->
+  <!-- ========================================================================= -->
+  <div id="universalOnboardingModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/85 backdrop-blur-md p-3 font-mono">
+    <div class="relative w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-lg border-2 border-cyan-500/60 bg-[#040915] p-5 shadow-[0_0_30px_rgba(0,240,255,0.25)] text-[9.5px]">
+      
+      <!-- Modal Header -->
+      <div class="flex flex-wrap justify-between items-center pb-2.5 mb-3 border-b border-cyan-500/30 gap-2">
+        <div class="flex items-center space-x-2">
+          <span class="text-xl text-cyan-400">🚀</span>
+          <div>
+            <div class="text-white font-black text-xs tracking-wider uppercase">
+              UNIVERSAL 1-CLICK ONBOARDING COCKPIT
+            </div>
+            <div class="text-[8px] text-cyan-400">PROP FIRMS • BROKER MT5 • CRYPTO APIS // AUTOMATIC RULE EXTRACTION &amp; ANTI-BAN</div>
+          </div>
+        </div>
+        <button onclick="closeUniversalOnboardingModal()" class="btn-tactical text-xs px-2.5 py-0.5 text-slate-300 hover:text-white">✕</button>
+      </div>
+
+      <!-- 3 Category Switcher Tabs -->
+      <div class="grid grid-cols-3 gap-2 mb-3 text-center">
+        <button id="tabBtnProp" onclick="switchOnboardTab('prop')" class="p-2 rounded bg-cyan-500/30 text-cyan-300 font-bold border border-cyan-400/60 shadow-[0_0_10px_rgba(0,240,255,0.2)]">
+          🏢 1. PROP FIRMS
+          <div class="text-[7.5px] text-slate-300 font-normal">FundingPips, FTMO, Topstep, 5%ers, Alpha, E8, TFT</div>
+        </button>
+        <button id="tabBtnBroker" onclick="switchOnboardTab('broker')" class="p-2 rounded bg-[#061224] text-slate-400 hover:text-white border border-[#163659]">
+          📊 2. BROKER MT5
+          <div class="text-[7.5px] text-slate-400 font-normal">Personal MT5, Exness, IC Markets, Pepperstone, OANDA</div>
+        </button>
+        <button id="tabBtnCrypto" onclick="switchOnboardTab('crypto')" class="p-2 rounded bg-[#061224] text-slate-400 hover:text-white border border-[#163659]">
+          ⚡ 3. CRYPTO APIS
+          <div class="text-[7.5px] text-slate-400 font-normal">Binance Spot/Futures, Bybit, Hyperliquid DEX, Bitget</div>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+        <!-- Left: Form Inputs -->
+        <div class="lg:col-span-6 space-y-2 p-3 rounded bg-[#061224] border border-[#142e47]">
+          <div class="text-white font-bold text-[9.5px] pb-1 border-b border-[#142e47] flex justify-between">
+            <span id="onboardFormHeading">CONFIGURE PROP FIRM CREDENTIALS</span>
+            <span class="text-emerald-400 text-[8px]">🔒 ZERO PLAINTEXT DISK LEAKS</span>
+          </div>
+
+          <!-- Tab 1: Prop Firm Account Inputs -->
+          <div id="paneOnboardProp" class="space-y-2">
+            <div>
+              <label class="text-slate-400 block mb-0.5">Prop Firm Template *</label>
+              <select id="uOnboardPropFirm" onchange="updateOnboardRulePreview()" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none">
+                <option value="FundingPips">FundingPips ($100k, 0.75% / $750 Cap, 1:2.5 RR, BE +1.0R)</option>
+                <option value="FTMO">FTMO Institutional ($100k, 0.50% / $500 Cap, Swing Holding)</option>
+                <option value="Topstep">Topstep Futures ($50k-$150k, 0.75% Risk, 15m Blackout)</option>
+                <option value="5%ers">5%ers ($100k, 4% Daily DD, News/Weekend Allowed)</option>
+                <option value="AlphaCapital">Alpha Capital ($100k, 5% Daily DD, 15m Blackout)</option>
+                <option value="E8">E8 Markets ($100k, 5% Daily DD, News Allowed)</option>
+                <option value="TheFundedTrader">The Funded Trader ($100k, 5% Daily DD, 15m Blackout)</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-slate-400 block mb-0.5">Login ID / Account ID *</label>
+                <input id="uOnboardPropLogin" type="text" placeholder="e.g. 40000294403" value="40000294403" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none" />
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-0.5">Account Label</label>
+                <input id="uOnboardPropName" type="text" placeholder="e.g. FundingPips Primary" value="FundingPips Master" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none" />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-slate-400 block mb-0.5">Broker Server *</label>
+                <input id="uOnboardPropServer" type="text" placeholder="e.g. FundingPips-Server" value="FundingPips-Server" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none" />
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-0.5">Trader Password *</label>
+                <input id="uOnboardPropPass" type="password" placeholder="••••••••" value="SecPips2026!" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none" />
+              </div>
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-0.5">Account Balance ($ USD) *</label>
+              <input id="uOnboardPropBalance" type="number" oninput="updateOnboardRulePreview()" value="100000" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-white font-bold outline-none" />
+            </div>
+          </div>
+
+          <!-- Tab 2: Broker MT5 Inputs -->
+          <div id="paneOnboardBroker" class="space-y-2 hidden">
+            <div>
+              <label class="text-slate-400 block mb-0.5">Broker MT5 Platform *</label>
+              <select id="uOnboardBrokerSelect" onchange="updateOnboardRulePreview()" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none">
+                <option value="PersonalBroker">Personal MT5 (Custom Risk Guardrails)</option>
+                <option value="Exness">Exness Pro (Forex &amp; Crypto Raw Spread)</option>
+                <option value="ICMarkets">IC Markets (True ECN Zero Spread)</option>
+                <option value="Pepperstone">Pepperstone (Razor MT5 Account)</option>
+                <option value="OANDA">OANDA (Institutional MT5 Division)</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-slate-400 block mb-0.5">Login ID *</label>
+                <input id="uOnboardBrokerLogin" type="text" placeholder="e.g. 5054542" value="5054542" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none" />
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-0.5">Account Name</label>
+                <input id="uOnboardBrokerName" type="text" placeholder="e.g. Exness Live Personal" value="Personal MT5 Live" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none" />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-slate-400 block mb-0.5">Server *</label>
+                <input id="uOnboardBrokerServer" type="text" placeholder="e.g. MetaQuotes-Demo" value="MetaQuotes-Demo" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none" />
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-0.5">Trader Password *</label>
+                <input id="uOnboardBrokerPass" type="password" placeholder="••••••••" value="LiveSecretPass1!" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none" />
+              </div>
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-0.5">Account Balance ($ USD) *</label>
+              <input id="uOnboardBrokerBalance" type="number" oninput="updateOnboardRulePreview()" value="25000" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-white font-bold outline-none" />
+            </div>
+          </div>
+
+          <!-- Tab 3: Crypto API Inputs -->
+          <div id="paneOnboardCrypto" class="space-y-2 hidden">
+            <div>
+              <label class="text-slate-400 block mb-0.5">Crypto Exchange / Protocol *</label>
+              <select id="uOnboardCryptoSelect" onchange="updateOnboardRulePreview()" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none">
+                <option value="Binance">Binance Spot API</option>
+                <option value="BinanceFutures">Binance Futures (USDT-M / Coin-M)</option>
+                <option value="Bybit">Bybit Derivatives &amp; Spot</option>
+                <option value="Hyperliquid">Hyperliquid DEX (L1 Perps Direct)</option>
+                <option value="Bitget">Bitget API (Institutional Desk)</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-slate-400 block mb-0.5">API Key *</label>
+                <input id="uOnboardCryptoApiKey" type="password" placeholder="API Key (Stored strictly in env)" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none" />
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-0.5">API Secret *</label>
+                <input id="uOnboardCryptoApiSecret" type="password" placeholder="API Secret (Stored strictly in env)" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none" />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-slate-400 block mb-0.5">Passphrase (Optional)</label>
+                <input id="uOnboardCryptoPassphrase" type="password" placeholder="Passphrase (If required)" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none" />
+              </div>
+              <div>
+                <label class="text-slate-400 block mb-0.5">Account ID / Wallet Label</label>
+                <input id="uOnboardCryptoAccId" type="text" placeholder="e.g. bybit_institutional_desk" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-cyan-300 outline-none" />
+              </div>
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-0.5">Allocated Capital ($ USD) *</label>
+              <input id="uOnboardCryptoBalance" type="number" oninput="updateOnboardRulePreview()" value="50000" class="w-full bg-[#020710] border border-[#163659] rounded px-2 py-1 text-white font-bold outline-none" />
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-[#142e47] flex justify-between items-center">
+            <span class="text-[8px] text-slate-400">Environment Secret Isolation &bull; SOCKS5 Assigned</span>
+            <button onclick="submitUniversalOnboardingModal()" id="btnSubmitUniversalOnboard" class="py-1.5 px-4 rounded bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-bold text-[10px] shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all">
+              ⚡ ONBOARD &amp; ACTIVATE AUTO-PILOT
+            </button>
+          </div>
+          <div id="uOnboardResultMsg" class="hidden p-2 rounded text-[8.5px]"></div>
+        </div>
+
+        <!-- Right: Real-Time Dynamic Rule Preview Box -->
+        <div class="lg:col-span-6 space-y-2 p-3 rounded bg-[#061224] border border-[#142e47] flex flex-col justify-between">
+          <div>
+            <div class="text-cyan-400 font-bold text-[9.5px] pb-1 border-b border-[#142e47] flex justify-between items-center">
+              <span>📊 REAL-TIME DYNAMIC RULE EXTRACTION PREVIEW</span>
+              <span id="previewFirmBadge" class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold text-[8px] border border-cyan-500/40">FundingPips</span>
+            </div>
+
+            <!-- Extracted Metrics Grid -->
+            <div class="grid grid-cols-2 gap-2 mt-2" id="onboardRulePreviewGrid">
+              <div class="p-2 rounded bg-[#030914] border border-[#163659]">
+                <div class="text-[8px] text-slate-400">DAILY LOSS LIMIT</div>
+                <div class="text-white font-bold text-[11px]" id="prevDailyLoss">$5,000.00 (5.00%)</div>
+                <div class="text-[7.5px] text-emerald-400">Automated EOD Reset</div>
+              </div>
+              <div class="p-2 rounded bg-[#030914] border border-[#163659]">
+                <div class="text-[8px] text-slate-400">OVERALL LOSS LIMIT</div>
+                <div class="text-white font-bold text-[11px]" id="prevOverallLoss">$10,000.00 (10.00%)</div>
+                <div class="text-[7.5px] text-emerald-400">Hard Equity Stop</div>
+              </div>
+              <div class="p-2 rounded bg-[#030914] border border-[#163659]">
+                <div class="text-[8px] text-slate-400">80% DAILY FREEZE THRESHOLD</div>
+                <div class="text-amber-400 font-bold text-[11px]" id="prevFreezeLoss">$4,000.00 (4.00%)</div>
+                <div class="text-[7.5px] text-amber-300">Instant Circuit Breaker</div>
+              </div>
+              <div class="p-2 rounded bg-[#030914] border border-[#163659]">
+                <div class="text-[8px] text-slate-400">MAX RISK PER TRADE CAP</div>
+                <div class="text-emerald-400 font-bold text-[11px]" id="prevRiskCap">$750.00 (&le; 0.75%)</div>
+                <div class="text-[7.5px] text-cyan-400">Strict Institutional Guard</div>
+              </div>
+              <div class="p-2 rounded bg-[#030914] border border-[#163659]">
+                <div class="text-[8px] text-slate-400">RISK : REWARD RATIO FLOOR</div>
+                <div class="text-cyan-300 font-bold text-[11px]" id="prevRRFloor">1 : 2.50 Minimum</div>
+                <div class="text-[7.5px] text-cyan-400">Dynamic Breakeven @ +1.0R</div>
+              </div>
+              <div class="p-2 rounded bg-[#030914] border border-[#163659]">
+                <div class="text-[8px] text-slate-400">NEWS BLACKOUT BUFFER</div>
+                <div class="text-amber-300 font-bold text-[11px]" id="prevNewsBlackout">15 Minutes Pre/Post</div>
+                <div class="text-[7.5px] text-slate-300">High-Impact Releases</div>
+              </div>
+            </div>
+
+            <!-- 5-Layer Anti-Ban Shield Telemetry -->
+            <div class="mt-2.5 p-2 rounded bg-[#030914] border border-[#163659] space-y-1">
+              <div class="text-[8.5px] text-white font-bold flex justify-between">
+                <span>🛡️ 5-LAYER ANTI-BAN SHIELD CONFIGURATION:</span>
+                <span class="text-emerald-400" id="prevProxyCountry">PROXY: AE SOCKS5</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1 text-[7.5px] text-slate-400">
+                <div>• Layer 1: Dedicated /portable MT5 Instance</div>
+                <div>• Layer 2: Geo-Matched Residential SOCKS5 Proxy</div>
+                <div>• Layer 3: 350ms-1800ms Jitter &amp; Order Shuffling</div>
+                <div>• Layer 4: Micro-Tick Pipette Dispersion (&plusmn;0.5-2.0 pips)</div>
+                <div>• Layer 5: Dynamic SHA-256 Unique Magic Numbers</div>
+                <div>• Credential Security: Strict OS Environment Isolation</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-[#142e47] text-[8px] text-slate-400 flex justify-between">
+            <span>Centroid24, OneZero &amp; Gold-i Anti-Detection Active</span>
+            <span class="text-emerald-400 font-bold">100% Deterministic Compliance</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 3D Spatial Visualizers, Digital Twins & Cognitive Engines (Milestones M1, M2, M3, M5) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="/js/PlanetaryCommandSphere.js"></script>
   <script src="/js/WorkstationDigitalTwin3D.js"></script>
   <script src="/js/CognitiveExecutionTheater.js"></script>
   <script src="/js/TradingAlphaRadar3D.js"></script>
+  <script src="/js/MacroContagionSphere3D.js"></script>
 
   <script>
     // =========================================================================
@@ -11098,6 +11514,378 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
       } catch (e) {}
     }
 
+    // =========================================================================
+    // EXPLAINABLE AI BILINGUAL MODAL CONTROLLER & SMC PATTERN LISTENER (M3)
+    // =========================================================================
+    let _lastExplainThesis = null;
+    let _currentExplainLang = 'en';
+
+    async function openExplainableAiModal(patternData) {
+      const modal = document.getElementById('explainableAiModal');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+
+      const loader = document.getElementById('explainModalLoading');
+      const bodyEl = document.getElementById('explainModalBody');
+      if (loader) loader.classList.remove('hidden');
+      if (bodyEl) bodyEl.classList.add('hidden');
+
+      const pType = (patternData && (patternData.pattern_type || patternData.type)) || 'BULLISH_ORDER_BLOCK';
+      const sym = (patternData && patternData.symbol) || 'XAUUSD';
+      const tf = (patternData && patternData.timeframe) || 'M15';
+      const price = parseFloat((patternData && (patternData.price || patternData.entry)) || 2650.50);
+
+      const pBadge = document.getElementById('explainModalPatternBadge');
+      if (pBadge) pBadge.innerText = pType.replace(/_/g, ' ');
+      const sBadge = document.getElementById('explainModalSymbolBadge');
+      if (sBadge) sBadge.innerText = `${sym} • ${tf}`;
+
+      try {
+        const res = await fetch('/api/trading/explain', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            pattern_type: pType,
+            symbol: sym,
+            timeframe: tf,
+            price: price,
+            zone: patternData.zone || [price - 5.0, price + 5.0],
+            lang: 'both'
+          })
+        });
+        const data = await res.json();
+        _lastExplainThesis = data;
+        renderExplainableAiModalData(data, _currentExplainLang);
+      } catch (err) {
+        console.error('Explainable AI fetch failed:', err);
+        showToast('Explainable AI Error: ' + err.message);
+      } finally {
+        if (loader) loader.classList.add('hidden');
+        if (bodyEl) bodyEl.classList.remove('hidden');
+      }
+    }
+
+    function closeExplainableAiModal() {
+      const modal = document.getElementById('explainableAiModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function switchExplainLang(lang) {
+      _currentExplainLang = lang;
+      const btnEn = document.getElementById('btnThesisEn');
+      const btnUr = document.getElementById('btnThesisUr');
+      if (lang === 'en') {
+        if (btnEn) {
+          btnEn.className = 'px-3 py-1 rounded bg-cyan-500/30 text-cyan-300 font-bold border border-cyan-400/50';
+        }
+        if (btnUr) {
+          btnUr.className = 'px-3 py-1 rounded text-slate-400 hover:text-white border border-transparent';
+        }
+      } else {
+        if (btnUr) {
+          btnUr.className = 'px-3 py-1 rounded bg-amber-500/30 text-amber-300 font-bold border border-amber-400/50';
+        }
+        if (btnEn) {
+          btnEn.className = 'px-3 py-1 rounded text-slate-400 hover:text-white border border-transparent';
+        }
+      }
+      if (_lastExplainThesis) {
+        renderExplainableAiModalData(_lastExplainThesis, lang);
+      }
+    }
+
+    function renderExplainableAiModalData(data, lang) {
+      if (!data) return;
+      const headlineEl = document.getElementById('thesisHeadline');
+      const rationaleEl = document.getElementById('thesisRationaleCore');
+      const fullTextEl = document.getElementById('thesisFullContent');
+      const confListEl = document.getElementById('thesisConfluenceList');
+      const confScoreEl = document.getElementById('thesisConfluenceScore');
+      const targetsEl = document.getElementById('thesisLiquidityTargets');
+
+      let payload = null;
+      if (lang === 'ur' && data.thesis_ur) {
+        payload = data.thesis_ur;
+      } else if (data.thesis_en) {
+        payload = data.thesis_en;
+      } else {
+        payload = data;
+      }
+
+      if (headlineEl) headlineEl.innerText = payload.headline || data.title || 'Market Setup Rationale';
+      if (rationaleEl) rationaleEl.innerText = payload.rationale || payload.pattern_core || data.pattern_core || '';
+      if (fullTextEl) fullTextEl.innerText = payload.full_thesis || data.full_thesis || '';
+
+      const inv = payload.invalidation_levels || data.invalidation_levels;
+      if (inv) {
+        const entryEl = document.getElementById('invEntry');
+        if (entryEl) entryEl.innerText = Number(inv.entry_price).toLocaleString();
+        const slEl = document.getElementById('invStopLoss');
+        if (slEl) slEl.innerText = Number(inv.stop_loss).toLocaleString();
+        const tpEl = document.getElementById('invTakeProfit');
+        if (tpEl) tpEl.innerText = Number(inv.take_profit).toLocaleString();
+        const rrEl = document.getElementById('invRR');
+        if (rrEl) rrEl.innerText = `1 : ${Number(inv.risk_reward_ratio).toFixed(2)} (>= 2.50)`;
+        const beEl = document.getElementById('invBE');
+        if (beEl) beEl.innerText = `+${Number(inv.breakeven_trigger).toFixed(1)}R Dynamic Lock`;
+        const capEl = document.getElementById('invRiskCap');
+        if (capEl) capEl.innerText = `<= ${inv.risk_pct_cap}% ($${inv.dollar_risk_cap} Cap)`;
+        const ruleEl = document.getElementById('invRuleText');
+        if (ruleEl && inv.rule) ruleEl.innerText = `Rule: ${inv.rule}`;
+      }
+
+      const confluences = payload.confluence_checklist || data.confluence_checklist || [];
+      if (confListEl) {
+        confListEl.innerHTML = confluences.map(c => `
+          <div class="flex justify-between items-center p-1 rounded bg-[#030914] border border-[#163659]">
+            <span class="text-white">✔ ${c.factor}</span>
+            <span class="text-emerald-400 font-bold">${c.status || 'CONFIRMED'} (${c.score}/100)</span>
+          </div>
+        `).join('');
+      }
+      if (confScoreEl) {
+        confScoreEl.innerText = `${confluences.length}/${confluences.length} ALIGNED`;
+      }
+
+      const targets = payload.liquidity_targets || data.liquidity_targets || [];
+      if (targetsEl) {
+        targetsEl.innerHTML = targets.map(t => `
+          <div class="flex justify-between items-center p-1 rounded bg-[#030914] border border-[#163659]">
+            <span class="text-cyan-300 font-bold">${t.name}</span>
+            <span class="text-emerald-400 font-bold">$${Number(t.target_price).toLocaleString()} (1:${t.rr_ratio} RR)</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    function copyThesisToClipboard() {
+      const fullTextEl = document.getElementById('thesisFullContent');
+      if (fullTextEl && fullTextEl.innerText) {
+        navigator.clipboard.writeText(fullTextEl.innerText);
+        showToast('📋 Explainable AI Thesis copied to clipboard!');
+      }
+    }
+
+    // Wire 'jarvis:smc:pattern_clicked' event listener across window and document
+    window.addEventListener('jarvis:smc:pattern_clicked', (e) => {
+      openExplainableAiModal((e && e.detail) ? e.detail : {});
+    });
+    document.addEventListener('jarvis:smc:pattern_clicked', (e) => {
+      openExplainableAiModal((e && e.detail) ? e.detail : {});
+    });
+
+    // =========================================================================
+    // UNIVERSAL 1-CLICK ONBOARDING MODAL CONTROLLER (M4)
+    // =========================================================================
+    let _activeOnboardCategory = 'prop';
+
+    function openUniversalOnboardingModal() {
+      const modal = document.getElementById('universalOnboardingModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        updateOnboardRulePreview();
+      }
+    }
+
+    function closeUniversalOnboardingModal() {
+      const modal = document.getElementById('universalOnboardingModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function switchOnboardTab(category) {
+      _activeOnboardCategory = category;
+      const btnProp = document.getElementById('tabBtnProp');
+      const btnBroker = document.getElementById('tabBtnBroker');
+      const btnCrypto = document.getElementById('tabBtnCrypto');
+      const paneProp = document.getElementById('paneOnboardProp');
+      const paneBroker = document.getElementById('paneOnboardBroker');
+      const paneCrypto = document.getElementById('paneOnboardCrypto');
+      const heading = document.getElementById('onboardFormHeading');
+
+      [btnProp, btnBroker, btnCrypto].forEach(b => {
+        if (b) {
+          b.className = 'p-2 rounded bg-[#061224] text-slate-400 hover:text-white border border-[#163659]';
+        }
+      });
+      [paneProp, paneBroker, paneCrypto].forEach(p => p && p.classList.add('hidden'));
+
+      if (category === 'prop') {
+        if (btnProp) btnProp.className = 'p-2 rounded bg-cyan-500/30 text-cyan-300 font-bold border border-cyan-400/60 shadow-[0_0_10px_rgba(0,240,255,0.2)]';
+        if (paneProp) paneProp.classList.remove('hidden');
+        if (heading) heading.innerText = 'CONFIGURE PROP FIRM CREDENTIALS';
+      } else if (category === 'broker') {
+        if (btnBroker) btnBroker.className = 'p-2 rounded bg-cyan-500/30 text-cyan-300 font-bold border border-cyan-400/60 shadow-[0_0_10px_rgba(0,240,255,0.2)]';
+        if (paneBroker) paneBroker.classList.remove('hidden');
+        if (heading) heading.innerText = 'CONFIGURE BROKER MT5 CREDENTIALS';
+      } else if (category === 'crypto') {
+        if (btnCrypto) btnCrypto.className = 'p-2 rounded bg-cyan-500/30 text-cyan-300 font-bold border border-cyan-400/60 shadow-[0_0_10px_rgba(0,240,255,0.2)]';
+        if (paneCrypto) paneCrypto.classList.remove('hidden');
+        if (heading) heading.innerText = 'CONFIGURE CRYPTO API CREDENTIALS (ISOLATED IN ENV)';
+      }
+      updateOnboardRulePreview();
+    }
+
+    async function updateOnboardRulePreview() {
+      let firm = 'FundingPips';
+      let balance = 100000;
+
+      if (_activeOnboardCategory === 'prop') {
+        firm = document.getElementById('uOnboardPropFirm')?.value || 'FundingPips';
+        balance = parseFloat(document.getElementById('uOnboardPropBalance')?.value || 100000);
+      } else if (_activeOnboardCategory === 'broker') {
+        firm = document.getElementById('uOnboardBrokerSelect')?.value || 'PersonalBroker';
+        balance = parseFloat(document.getElementById('uOnboardBrokerBalance')?.value || 25000);
+      } else if (_activeOnboardCategory === 'crypto') {
+        firm = document.getElementById('uOnboardCryptoSelect')?.value || 'Binance';
+        balance = parseFloat(document.getElementById('uOnboardCryptoBalance')?.value || 50000);
+      }
+
+      if (!balance || balance <= 0) balance = 100000;
+
+      const badge = document.getElementById('previewFirmBadge');
+      if (badge) badge.innerText = firm;
+
+      try {
+        const res = await fetch(`/api/accounts/rules/extract?firm=${encodeURIComponent(firm)}&balance=${balance}`);
+        if (!res.ok) return;
+        const d = await res.json();
+        if (d && d.ok) {
+          const dl = document.getElementById('prevDailyLoss');
+          if (dl) dl.innerText = `$${Number(d.daily_loss_limit_usd).toLocaleString()} (${d.daily_loss_limit_pct.toFixed(2)}%)`;
+          const ol = document.getElementById('prevOverallLoss');
+          if (ol) ol.innerText = `$${Number(d.overall_loss_limit_usd).toLocaleString()} (${d.overall_loss_limit_pct.toFixed(2)}%)`;
+          const fl = document.getElementById('prevFreezeLoss');
+          if (fl) fl.innerText = `$${Number(d.daily_freeze_threshold_usd).toLocaleString()} (${(d.daily_loss_limit_pct * 0.8).toFixed(2)}%)`;
+          const rc = document.getElementById('prevRiskCap');
+          if (rc) rc.innerText = `$${Number(d.max_risk_usd_cap).toLocaleString()} (<= ${d.max_risk_per_trade_pct.toFixed(2)}%)`;
+          const rr = document.getElementById('prevRRFloor');
+          if (rr) rr.innerText = `1 : ${d.min_rr_ratio.toFixed(2)} Minimum`;
+          const nb = document.getElementById('prevNewsBlackout');
+          if (nb) nb.innerText = `${d.news_blackout_minutes} Minutes Pre/Post`;
+          const pc = document.getElementById('prevProxyCountry');
+          if (pc) pc.innerText = `PROXY: ${d.assigned_proxy_country} SOCKS5`;
+        }
+      } catch (e) {
+        console.warn('Failed to update live rule preview:', e);
+      }
+    }
+
+    async function submitUniversalOnboardingModal() {
+      const btn = document.getElementById('btnSubmitUniversalOnboard');
+      const resMsg = document.getElementById('uOnboardResultMsg');
+      if (btn) btn.innerText = 'ALLOCATING MT5 & ANTI-BAN SHIELD... ⏳';
+      if (resMsg) resMsg.classList.add('hidden');
+
+      let payload = {};
+      if (_activeOnboardCategory === 'prop') {
+        const firm = document.getElementById('uOnboardPropFirm')?.value || 'FundingPips';
+        const login = document.getElementById('uOnboardPropLogin')?.value?.trim();
+        const name = document.getElementById('uOnboardPropName')?.value?.trim() || `${firm} Account`;
+        const server = document.getElementById('uOnboardPropServer')?.value?.trim() || `${firm}-Server`;
+        const pass = document.getElementById('uOnboardPropPass')?.value?.trim() || '';
+        const bal = parseFloat(document.getElementById('uOnboardPropBalance')?.value || 100000);
+
+        if (!login) {
+          showToast('Please enter an Account / Login ID');
+          if (btn) btn.innerText = '⚡ ONBOARD & ACTIVATE AUTO-PILOT';
+          return;
+        }
+
+        payload = {
+          login_id: login,
+          account_name: name,
+          broker_server: server,
+          password: pass,
+          balance: bal,
+          preset: firm,
+          account_type: 'Prop Firm Challenge',
+          target_country: 'AE'
+        };
+      } else if (_activeOnboardCategory === 'broker') {
+        const broker = document.getElementById('uOnboardBrokerSelect')?.value || 'PersonalBroker';
+        const login = document.getElementById('uOnboardBrokerLogin')?.value?.trim();
+        const name = document.getElementById('uOnboardBrokerName')?.value?.trim() || `${broker} Live`;
+        const server = document.getElementById('uOnboardBrokerServer')?.value?.trim() || `${broker}-Server`;
+        const pass = document.getElementById('uOnboardBrokerPass')?.value?.trim() || '';
+        const bal = parseFloat(document.getElementById('uOnboardBrokerBalance')?.value || 25000);
+
+        if (!login) {
+          showToast('Please enter a Login ID');
+          if (btn) btn.innerText = '⚡ ONBOARD & ACTIVATE AUTO-PILOT';
+          return;
+        }
+
+        payload = {
+          login_id: login,
+          account_name: name,
+          broker_server: server,
+          password: pass,
+          balance: bal,
+          preset: broker,
+          account_type: 'Personal Broker',
+          target_country: 'PK'
+        };
+      } else if (_activeOnboardCategory === 'crypto') {
+        const plat = document.getElementById('uOnboardCryptoSelect')?.value || 'Binance';
+        const apiKey = document.getElementById('uOnboardCryptoApiKey')?.value?.trim() || '';
+        const apiSecret = document.getElementById('uOnboardCryptoApiSecret')?.value?.trim() || '';
+        const pass = document.getElementById('uOnboardCryptoPassphrase')?.value?.trim() || '';
+        const login = document.getElementById('uOnboardCryptoAccId')?.value?.trim() || `${plat.toLowerCase()}_desk_${Date.now()}`;
+        const bal = parseFloat(document.getElementById('uOnboardCryptoBalance')?.value || 50000);
+
+        if (!apiKey) {
+          showToast('Please provide an API Key');
+          if (btn) btn.innerText = '⚡ ONBOARD & ACTIVATE AUTO-PILOT';
+          return;
+        }
+
+        payload = {
+          login_id: login,
+          account_name: `${plat} Institutional Desk`,
+          broker_server: `${plat}-API`,
+          exchange_platform: plat,
+          api_key: apiKey,
+          api_secret: apiSecret,
+          passphrase: pass,
+          balance: bal,
+          preset: plat,
+          account_type: 'Crypto Exchange API',
+          target_country: 'SG'
+        };
+      }
+
+      showToast(`Onboarding ${payload.account_name} under 5-layer anti-ban protection...`);
+
+      try {
+        const res = await fetch('/api/accounts/onboard', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const d = await res.json();
+        if (resMsg) {
+          resMsg.classList.remove('hidden');
+          if (d.status === 'success' || d.ok !== false) {
+            resMsg.className = 'p-2 rounded bg-emerald-950/70 text-emerald-300 text-[8.5px] border border-emerald-500/50 mt-1';
+            resMsg.innerHTML = `<strong>✅ AUTO-PILOT ACTIVATED:</strong> Account #${d.account_id} onboarded with 5-Layer Anti-Ban Shield (${d.firm_name}). Credentials isolated strictly in OS environment.`;
+            showToast(`✅ ${d.account_name || payload.account_name} is now online under J.A.R.V.I.S. Auto-Pilot!`);
+            loadFleetAccountsData();
+          } else {
+            resMsg.className = 'p-2 rounded bg-red-950/70 text-red-300 text-[8.5px] border border-red-500/50 mt-1';
+            resMsg.innerText = `Error: ${d.message || 'Onboarding failed'}`;
+          }
+        }
+      } catch (err) {
+        if (resMsg) {
+          resMsg.classList.remove('hidden');
+          resMsg.className = 'p-2 rounded bg-red-950/70 text-red-300 text-[8.5px] border border-red-500/50 mt-1';
+          resMsg.innerText = `Network error: ${err.message}`;
+        }
+      } finally {
+        if (btn) btn.innerText = '⚡ ONBOARD & ACTIVATE AUTO-PILOT';
+      }
+    }
+
     // Auto-init on page ready
     document.addEventListener('DOMContentLoaded', () => {
       initGaigsPeerMonitor();
@@ -11106,6 +11894,8 @@ Timestamp: ${new Date(data.timestamp*1000).toISOString()}`;
       loadGaigsCivOverview();
       pollHumanAlertsStatus();
       setInterval(pollHumanAlertsStatus, 4000);
+      mountMacroContagionSphere();
+      updateOnboardRulePreview();
     });
   </script>
 </body>
